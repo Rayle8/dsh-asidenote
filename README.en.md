@@ -21,6 +21,7 @@ Historical conversations have no control row; the entry keeps the same position 
 - A **Yidian Todos** entry in the sidebar.
 - In a new session, the entry shares the control row above the input with the workspace and agent-preset controls; in a historical conversation, it keeps the same position above the input.
 - The entry shows the current workspace's open count and opens the panel in one click.
+- The entry hides while the session is running, so it never competes with the generation controls.
 - Per-workspace notes, following the workspace of the active session; switch workspaces from the header.
 - Add with Enter; complete, relabel, delete, and clear completed items.
 - Progress summary, creation time, and a collapsible completed section.

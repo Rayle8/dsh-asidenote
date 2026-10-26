@@ -50,6 +50,8 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /ctx\.slots\.inject\('conversation\.input\.dock'/)
   assert.match(client, /function HistoryTodoDock/)
   assert.match(client, /props\.session\.blank/)
+  assert.match(client, /props\.session\.running/)
+  assert.match(client, /active\.running/)
   assert.match(client, /openTodos/)
   assert.match(client, /dsh-wt-heroBtn/)
   assert.match(client, /document\.head\.appendChild\(style\)/)

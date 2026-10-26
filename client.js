@@ -1152,6 +1152,10 @@ window.__ModuleLoader__.load({
         }
       }, [])
 
+      const active = props.session
+        || (props.sessionId && list && list.byId ? list.byId[props.sessionId] : undefined)
+      if (active && active.running) return null
+
       const workspace = currentWorkspaceOf(list, snapshot)
       if (!workspace) return null
 
@@ -1182,7 +1186,7 @@ window.__ModuleLoader__.load({
      * dock there to avoid rendering the same control twice.
      */
     function HistoryTodoDock(props) {
-      if (!props.session || props.session.blank) return null
+      if (!props.session || props.session.blank || props.session.running) return null
       return h('div', { className: 'dsh-wt-historyDock' }, h(HeroTodoEntry, props))
     }
 

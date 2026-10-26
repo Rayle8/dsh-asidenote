@@ -4,6 +4,7 @@
 
 - Rename the product to **Yidian Todos** (一点待办).
 - Add an entry above the input: in a new session it shares the workspace/preset row; in a historical conversation it keeps the same right-aligned position above the composer. It shows the current workspace's open count and opens the panel in one click.
+- Hide the entry while the session is running.
 
 ## 1.0.0
 
