@@ -37,7 +37,6 @@ window.__ModuleLoader__.load({
         'dock.label': '一点待办',
         'dock.open': '打开一点待办',
         'dock.count': '{n} 项未完成',
-        'dock.empty': '记一条',
         'workspace.label': '工作区',
         'workspace.follow': '回到当前',
         'workspace.current': '当前会话',
@@ -81,7 +80,6 @@ window.__ModuleLoader__.load({
         'dock.label': 'Yidian Todos',
         'dock.open': 'Open Yidian Todos',
         'dock.count': '{n} open',
-        'dock.empty': 'Capture one',
         'workspace.label': 'Workspace',
         'workspace.follow': 'Back to current',
         'workspace.current': 'Current session',
@@ -199,14 +197,12 @@ window.__ModuleLoader__.load({
       '.dsh-wt-emptyBody{max-width:360px;font-size:12px;line-height:19px;color:var(--dsw-alias-label-secondary)}',
       '.dsh-wt-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:26px 0 0;font-size:10.5px;line-height:16px;color:var(--dsw-alias-label-secondary)}',
       '.dsh-wt-footRight{flex:none;font-variant-numeric:tabular-nums}',
-      '.dsh-wt-dock{display:flex;align-items:center;justify-content:flex-start;gap:8px;min-height:24px;margin:0 0 7px;padding:0 var(--dsh-composer-side-clearance,14px)}',
-      '.dsh-wt-dockBtn{display:inline-flex;align-items:center;gap:7px;height:27px;padding:0 10px;border:1px solid var(--dsw-alias-border-l1);border-radius:999px;background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-secondary);font:inherit;font-size:11.5px;line-height:25px;cursor:pointer;transition:border-color .12s ease,background .12s ease,color .12s ease}',
-      '.dsh-wt-dockBtn:hover{border-color:var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary)}',
-      '.dsh-wt-dockBtn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
-      '.dsh-wt-dockIcon{display:flex;align-items:center;justify-content:center;flex:none;width:14px;height:14px;color:var(--dsw-alias-brand-primary)}',
-      '.dsh-wt-dockLabel{font-weight:600;color:var(--dsw-alias-label-primary)}',
-      '.dsh-wt-dockCount{min-width:16px;padding:0 5px;border-radius:999px;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-bg-base);font-size:10px;line-height:16px;text-align:center;font-variant-numeric:tabular-nums}',
-      '.dsh-wt-dockMuted{color:var(--dsw-alias-label-secondary)}',
+      '.dsh-wt-heroBtn{display:inline-flex;align-items:center;gap:4px;min-height:28px;padding:0 8px;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:13px;line-height:20px;font-weight:500;cursor:pointer}',
+      '.dsh-wt-heroBtn:hover{background:var(--dsw-alias-interactive-bg-hover)}',
+      '.dsh-wt-heroBtn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
+      '.dsh-wt-heroIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-primary)}',
+      '.dsh-wt-heroLabel{white-space:nowrap}',
+      '.dsh-wt-heroCount{min-width:16px;padding:0 5px;border-radius:999px;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-bg-base);font-size:10px;line-height:16px;text-align:center;font-variant-numeric:tabular-nums}',
       '.dsh-wt-error{color:var(--dsw-alias-state-warning-primary)}',
       '@media (max-width:640px){.dsh-wt-shell{padding:22px 16px 56px}.dsh-wt-head{gap:16px}.dsh-wt-title{font-size:20px;line-height:28px}.dsh-wt-statNum{font-size:24px;line-height:28px}.dsh-wt-sub{font-size:12px}.dsh-wt-select{max-width:210px}.dsh-wt-row{padding:11px 10px}.dsh-wt-actions{opacity:1}}',
     ].join('')
@@ -1131,10 +1127,11 @@ window.__ModuleLoader__.load({
     }
 
     /**
-     * Compact management entry above the composer. It always exposes the
-     * current workspace's open count and opens the full panel in one click.
+     * Compact management entry in the hero's existing workspace/preset row.
+     * It shares that row, exposes the current workspace's open count, and
+     * opens the full panel in one click.
      */
-    function InputDock(props) {
+    function HeroTodoEntry(props) {
       const useSessions = typeof props.useSessions === 'function' ? props.useSessions : selector => selector(undefined)
       const useWorkspaces = typeof props.useWorkspaces === 'function' ? props.useWorkspaces : selector => selector(undefined)
       const list = useSessions(state => state)
@@ -1160,28 +1157,20 @@ window.__ModuleLoader__.load({
       const { items } = readRecord(workspace)
       const open = items.filter(item => !item.done).length
       const say = props.say
-      const label = say('dock.label')
-      const detail = open > 0 ? say('dock.count', { n: open }) : say('dock.empty')
-      const aria = open > 0 ? `${say('dock.open')}, ${detail}` : say('dock.open')
+      const aria = open > 0 ? `${say('dock.open')}, ${say('dock.count', { n: open })}` : say('dock.open')
 
       return h(
-        'div',
-        { className: 'dsh-wt-dock' },
-        h(
-          'button',
-          {
-            type: 'button',
-            className: 'dsh-wt-dockBtn',
-            title: say('dock.open'),
-            'aria-label': aria,
-            onClick: props.openTodos,
-          },
-          h('span', { className: 'dsh-wt-dockIcon', 'aria-hidden': true }, h(PanelIcon, { size: 14 })),
-          h('span', { className: 'dsh-wt-dockLabel' }, label),
-          open > 0
-            ? h('span', { className: 'dsh-wt-dockCount' }, String(open))
-            : h('span', { className: 'dsh-wt-dockMuted' }, detail),
-        ),
+        'button',
+        {
+          type: 'button',
+          className: 'dsh-wt-heroBtn',
+          title: say('dock.open'),
+          'aria-label': aria,
+          onClick: props.openTodos,
+        },
+        h('span', { className: 'dsh-wt-heroIcon', 'aria-hidden': true }, h(PanelIcon, { size: 16 })),
+        h('span', { className: 'dsh-wt-heroLabel' }, say('dock.label')),
+        open > 0 ? h('span', { className: 'dsh-wt-heroCount' }, String(open)) : null,
       )
     }
 
@@ -1261,8 +1250,8 @@ window.__ModuleLoader__.load({
         return h(PanelIcon, props)
       }
 
-      function BoundInputDock(props) {
-        return h(InputDock, {
+      function BoundHeroEntry(props) {
+        return h(HeroTodoEntry, {
           ...props,
           say: translator(props),
         })
@@ -1270,12 +1259,12 @@ window.__ModuleLoader__.load({
 
       ctx.slots.inject('main', () => ctx.slots.register({ name: 'main', key: PANEL_ID, locale: NS }, BoundPanel))
 
-      ctx.slots.inject('conversation.input.dock', () =>
+      ctx.slots.inject('conversation.hero.options', () =>
         ctx.slots.register(
           {
-            name: 'conversation.input.dock',
+            name: 'conversation.hero.options',
             id: PANEL_ID,
-            order: 30,
+            order: 10,
             locale: NS,
             inject: () => ({
               openTodos: () => {
@@ -1287,7 +1276,7 @@ window.__ModuleLoader__.load({
               },
             }),
           },
-          BoundInputDock,
+          BoundHeroEntry,
         ),
       )
 

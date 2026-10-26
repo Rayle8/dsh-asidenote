@@ -8,14 +8,14 @@ A small todo panel for the DeepSeek Harness Web GUI. Each **workspace** keeps it
 
 ![Yidian Todos panel](./preview.png)
 
-The persistent chip above the chat input:
+The entry in the new-session control row above the input (same row as the workspace and preset controls):
 
-![Yidian Todos entry above the composer](./preview-dock.png)
+![Yidian Todos entry in the input control row](./preview-dock.png)
 
 ## Features
 
 - A **Yidian Todos** entry in the sidebar.
-- A persistent **Yidian Todos** management chip above the chat input, showing the current workspace's open count and opening the panel in one click.
+- A persistent **Yidian Todos** entry in the new-session control row above the input, sharing the row with the workspace and agent-preset controls, showing the current workspace's open count and opening the panel in one click.
 - Per-workspace notes, following the workspace of the active session; switch workspaces from the header.
 - Add with Enter; complete, relabel, delete, and clear completed items.
 - Progress summary, creation time, and a collapsible completed section.
@@ -24,7 +24,7 @@ The persistent chip above the chat input:
 
 ## Usage
 
-1. Click **Yidian Todos** in the sidebar, or the chip above the chat input.
+1. Click **Yidian Todos** in the sidebar, or in the new-session control row.
 2. Write one concrete next step and press Enter (or **Add**).
 3. Click the circle to complete it; expand **Completed** to look back.
 4. Use the header selector to switch projects; **Back to current** returns to the active session's workspace.

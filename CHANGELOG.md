@@ -3,7 +3,7 @@
 ## 1.1.0
 
 - Rename the product to **Yidian Todos** (一点待办).
-- Add a persistent management chip above the chat input, showing the current workspace's open count and opening the panel in one click.
+- Add an entry in the new-session control row above the input, sharing the row with the workspace and agent-preset controls; it shows the current workspace's open count and opens the panel in one click.
 
 ## 1.0.0
 
