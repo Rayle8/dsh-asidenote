@@ -19,12 +19,14 @@ test('package declares the DSH bundle and web client halves', () => {
   assert.equal(manifest.dsh.client.immediately, true)
   for (const dependency of [
     '@deepseek-ai/dsh-client-locale',
+    '@deepseek-ai/dsh-client-ui-conversation',
+    '@deepseek-ai/dsh-client-ui-layout',
     '@deepseek-ai/dsh-client-ui-sidebar',
     '@deepseek-ai/dsh-client-ui-workspace',
   ]) {
     assert.ok(manifest.dsh.client.inject.includes(dependency), `missing inject ${dependency}`)
   }
-  for (const file of ['client.js', 'index.js', 'cordis.patch.yml', 'icon.svg', 'preview.png', 'README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md']) {
+  for (const file of ['client.js', 'index.js', 'cordis.patch.yml', 'icon.svg', 'preview.png', 'preview-dock.png', 'README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md']) {
     assert.ok(manifest.files.includes(file), `missing files entry ${file}`)
   }
 })
@@ -44,19 +46,24 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /id: 'dsh-workspace-todos'/)
   assert.match(client, /ctx\.slots\.inject\('main'/)
   assert.match(client, /ctx\.slots\.inject\('sidebar\.panellist'/)
+  assert.match(client, /ctx\.slots\.inject\('conversation\.input\.dock'/)
+  assert.match(client, /openTodos/)
+  assert.match(client, /document\.head\.appendChild\(style\)/)
+  assert.doesNotMatch(client, /h\('style'/)
+  assert.match(client, /return \{ inject: \['slots', 'layout'\], apply \}/)
   assert.doesNotMatch(client, /@local\//)
 })
 
-test('locale files expose the sidebar label', () => {
-  for (const language of ['zh', 'en']) {
-    const dictionary = JSON.parse(read(`locale/${language}.json`))
-    assert.equal(typeof dictionary['nav.label'], 'string')
-    assert.ok(dictionary['nav.label'].length > 0)
-  }
+test('locale files expose the product name', () => {
+  assert.equal(JSON.parse(read('locale/zh.json'))['nav.label'], '一点待办')
+  assert.equal(JSON.parse(read('locale/en.json'))['nav.label'], 'Yidian Todos')
+  const client = read('client.js')
+  assert.match(client, /'title': '一点待办'/)
+  assert.match(client, /'dock\.label': '一点待办'/)
 })
 
 test('documentation and preview assets are present', () => {
-  for (const file of ['README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md', 'preview.png', 'icon.svg']) {
+  for (const file of ['README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md', 'preview.png', 'preview-dock.png', 'icon.svg']) {
     assert.ok(exists(file), `missing ${file}`)
   }
   assert.ok(fs.statSync(path.join(root, 'preview.png')).size > 1000)

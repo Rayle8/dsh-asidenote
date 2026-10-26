@@ -14,13 +14,30 @@ window.__ModuleLoader__.load({
     const MAX_TEXT = 280
     /** Defensive cap so a corrupted store cannot freeze the panel. */
     const MAX_ITEMS = 300
+    /** Same-tab subscribers, so the composer dock's count follows panel edits. */
+    const TODO_LISTENERS = new Set()
+
+    /** Notify same-tab readers after a successful write (storage events only cross tabs). */
+    function notifyTodoChange() {
+      for (const listener of TODO_LISTENERS) {
+        try {
+          listener()
+        } catch (error) {
+          console.error('workspace-todos: listener failed', error)
+        }
+      }
+    }
 
     const DICT = {
       zh: {
-        'nav.label': '待办',
-        'title': '工作区待办',
+        'nav.label': '一点待办',
+        'title': '一点待办',
         'eyebrow': 'WORKSPACE',
         'subtitle': '把下一步记在这里，不用一直记在脑子里。',
+        'dock.label': '一点待办',
+        'dock.open': '打开一点待办',
+        'dock.count': '{n} 项未完成',
+        'dock.empty': '记一条',
         'workspace.label': '工作区',
         'workspace.follow': '回到当前',
         'workspace.current': '当前会话',
@@ -57,10 +74,14 @@ window.__ModuleLoader__.load({
         'state.noWorkspace.body': '先在侧边栏添加一个工作区，待办会跟着项目走。',
       },
       en: {
-        'nav.label': 'Todos',
-        'title': 'Workspace todos',
+        'nav.label': 'Yidian Todos',
+        'title': 'Yidian Todos',
         'eyebrow': 'WORKSPACE',
         'subtitle': 'Park the next small step here so it does not live rent-free in your head.',
+        'dock.label': 'Yidian Todos',
+        'dock.open': 'Open Yidian Todos',
+        'dock.count': '{n} open',
+        'dock.empty': 'Capture one',
         'workspace.label': 'Workspace',
         'workspace.follow': 'Back to current',
         'workspace.current': 'Current session',
@@ -178,6 +199,14 @@ window.__ModuleLoader__.load({
       '.dsh-wt-emptyBody{max-width:360px;font-size:12px;line-height:19px;color:var(--dsw-alias-label-secondary)}',
       '.dsh-wt-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:26px 0 0;font-size:10.5px;line-height:16px;color:var(--dsw-alias-label-secondary)}',
       '.dsh-wt-footRight{flex:none;font-variant-numeric:tabular-nums}',
+      '.dsh-wt-dock{display:flex;align-items:center;justify-content:flex-start;gap:8px;min-height:24px;margin:0 0 7px;padding:0 var(--dsh-composer-side-clearance,14px)}',
+      '.dsh-wt-dockBtn{display:inline-flex;align-items:center;gap:7px;height:27px;padding:0 10px;border:1px solid var(--dsw-alias-border-l1);border-radius:999px;background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-secondary);font:inherit;font-size:11.5px;line-height:25px;cursor:pointer;transition:border-color .12s ease,background .12s ease,color .12s ease}',
+      '.dsh-wt-dockBtn:hover{border-color:var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary)}',
+      '.dsh-wt-dockBtn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
+      '.dsh-wt-dockIcon{display:flex;align-items:center;justify-content:center;flex:none;width:14px;height:14px;color:var(--dsw-alias-brand-primary)}',
+      '.dsh-wt-dockLabel{font-weight:600;color:var(--dsw-alias-label-primary)}',
+      '.dsh-wt-dockCount{min-width:16px;padding:0 5px;border-radius:999px;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-bg-base);font-size:10px;line-height:16px;text-align:center;font-variant-numeric:tabular-nums}',
+      '.dsh-wt-dockMuted{color:var(--dsw-alias-label-secondary)}',
       '.dsh-wt-error{color:var(--dsw-alias-state-warning-primary)}',
       '@media (max-width:640px){.dsh-wt-shell{padding:22px 16px 56px}.dsh-wt-head{gap:16px}.dsh-wt-title{font-size:20px;line-height:28px}.dsh-wt-statNum{font-size:24px;line-height:28px}.dsh-wt-sub{font-size:12px}.dsh-wt-select{max-width:210px}.dsh-wt-row{padding:11px 10px}.dsh-wt-actions{opacity:1}}',
     ].join('')
@@ -330,6 +359,7 @@ window.__ModuleLoader__.load({
       }
       try {
         ls.setItem(STORAGE_KEY, JSON.stringify(store))
+        notifyTodoChange()
         return true
       } catch (error) {
         return false
@@ -677,7 +707,6 @@ window.__ModuleLoader__.load({
       return h(
         'div',
         { className: 'dsh-wt-page' },
-        h('style', null, CSS),
         h('div', { className: 'dsh-wt-shell' }, props.children),
       )
     }
@@ -1101,6 +1130,61 @@ window.__ModuleLoader__.load({
       )
     }
 
+    /**
+     * Compact management entry above the composer. It always exposes the
+     * current workspace's open count and opens the full panel in one click.
+     */
+    function InputDock(props) {
+      const useSessions = typeof props.useSessions === 'function' ? props.useSessions : selector => selector(undefined)
+      const useWorkspaces = typeof props.useWorkspaces === 'function' ? props.useWorkspaces : selector => selector(undefined)
+      const list = useSessions(state => state)
+      const snapshot = useWorkspaces(state => state)
+      const [, force] = React.useState(0)
+
+      React.useEffect(() => {
+        const listener = () => force(value => value + 1)
+        TODO_LISTENERS.add(listener)
+        const onStorage = event => {
+          if (event.key === STORAGE_KEY) listener()
+        }
+        window.addEventListener('storage', onStorage)
+        return () => {
+          TODO_LISTENERS.delete(listener)
+          window.removeEventListener('storage', onStorage)
+        }
+      }, [])
+
+      const workspace = currentWorkspaceOf(list, snapshot)
+      if (!workspace) return null
+
+      const { items } = readRecord(workspace)
+      const open = items.filter(item => !item.done).length
+      const say = props.say
+      const label = say('dock.label')
+      const detail = open > 0 ? say('dock.count', { n: open }) : say('dock.empty')
+      const aria = open > 0 ? `${say('dock.open')}, ${detail}` : say('dock.open')
+
+      return h(
+        'div',
+        { className: 'dsh-wt-dock' },
+        h(
+          'button',
+          {
+            type: 'button',
+            className: 'dsh-wt-dockBtn',
+            title: say('dock.open'),
+            'aria-label': aria,
+            onClick: props.openTodos,
+          },
+          h('span', { className: 'dsh-wt-dockIcon', 'aria-hidden': true }, h(PanelIcon, { size: 14 })),
+          h('span', { className: 'dsh-wt-dockLabel' }, label),
+          open > 0
+            ? h('span', { className: 'dsh-wt-dockCount' }, String(open))
+            : h('span', { className: 'dsh-wt-dockMuted' }, detail),
+        ),
+      )
+    }
+
     /** Translate through the locale service, falling back to the bundled copy. */
     function makeSay(ctx, getLocaleId) {
       const locale = ctx.get('locale')
@@ -1122,6 +1206,17 @@ window.__ModuleLoader__.load({
 
     function apply(ctx) {
       const locale = ctx.get('locale')
+
+      // One document-level sheet covers both the panel and the composer dock;
+      // the dock mounts outside the panel tree, so a panel-local <style> would
+      // leave it unstyled until the panel had been opened once.
+      ctx.effect(() => {
+        const style = document.createElement('style')
+        style.dataset.dshPlugin = 'workspace-todos'
+        style.textContent = CSS
+        document.head.appendChild(style)
+        return () => { style.remove() }
+      }, 'workspace-todos: styles')
 
       if (locale && typeof locale.register === 'function') {
         ctx.effect(() => locale.register(NS, DICT), 'workspace-todos: dictionaries')
@@ -1166,7 +1261,35 @@ window.__ModuleLoader__.load({
         return h(PanelIcon, props)
       }
 
+      function BoundInputDock(props) {
+        return h(InputDock, {
+          ...props,
+          say: translator(props),
+        })
+      }
+
       ctx.slots.inject('main', () => ctx.slots.register({ name: 'main', key: PANEL_ID, locale: NS }, BoundPanel))
+
+      ctx.slots.inject('conversation.input.dock', () =>
+        ctx.slots.register(
+          {
+            name: 'conversation.input.dock',
+            id: PANEL_ID,
+            order: 30,
+            locale: NS,
+            inject: () => ({
+              openTodos: () => {
+                try {
+                  ctx.layout.selectPanel(PANEL_ID)
+                } catch (error) {
+                  console.error('workspace-todos: open panel failed', error)
+                }
+              },
+            }),
+          },
+          BoundInputDock,
+        ),
+      )
 
       ctx.slots.inject('sidebar.panellist', () =>
         ctx.slots.register(
@@ -1182,6 +1305,6 @@ window.__ModuleLoader__.load({
       )
     }
 
-    return { inject: ['slots'], apply }
+    return { inject: ['slots', 'layout'], apply }
   },
 })

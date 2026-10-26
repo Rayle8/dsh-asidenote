@@ -1,14 +1,21 @@
-# Workspace Todos
+# Yidian Todos
 
 [中文](README.md) | English
 
+> Product name: **Yidian Todos** (一点待办). The repository keeps the `dsh-workspace-todos` name.
+
 A small todo panel for the DeepSeek Harness Web GUI. Each **workspace** keeps its own list, so moving between projects never mixes notes. It is meant for one-line next steps, not full task management.
 
-![Workspace todos panel](./preview.png)
+![Yidian Todos panel](./preview.png)
+
+The persistent chip above the chat input:
+
+![Yidian Todos entry above the composer](./preview-dock.png)
 
 ## Features
 
-- A **Todos** entry in the sidebar and a focused main panel.
+- A **Yidian Todos** entry in the sidebar.
+- A persistent **Yidian Todos** management chip above the chat input, showing the current workspace's open count and opening the panel in one click.
 - Per-workspace notes, following the workspace of the active session; switch workspaces from the header.
 - Add with Enter; complete, relabel, delete, and clear completed items.
 - Progress summary, creation time, and a collapsible completed section.
@@ -17,7 +24,7 @@ A small todo panel for the DeepSeek Harness Web GUI. Each **workspace** keeps it
 
 ## Usage
 
-1. Click **Todos** in the sidebar.
+1. Click **Yidian Todos** in the sidebar, or the chip above the chat input.
 2. Write one concrete next step and press Enter (or **Add**).
 3. Click the circle to complete it; expand **Completed** to look back.
 4. Use the header selector to switch projects; **Back to current** returns to the active session's workspace.
