@@ -4,7 +4,7 @@
 
 - Rename the product to **Memo** (备忘录).
 - Scope data to each session (`dsh.session-memos.v1`); the old workspace store is no longer read.
-- Add a `Memo open/total` badge after each sidebar session title.
+- Add a `Memo open/total` badge directly after each sidebar session title, hiding the relative time to keep the full title and badge together.
 - Open every entry as a floating popover anchored to the trigger; the separate detail page is removed.
 - New-session entry stays in the workspace/preset row; the latest-reply entry stays after the completion time.
 - Hide the composer/footer entry while the session is running.

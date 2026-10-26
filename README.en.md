@@ -28,6 +28,7 @@ Every entry opens a **floating panel next to the trigger**; it never navigates t
 
 - Data is keyed by **session ID**; different sessions in one workspace stay independent.
 - A `Memo open/total` badge after the sidebar session title. It is hidden when a session has no memos.
+- The badge hugs the title text instead of sitting at the row's right edge; sessions with a badge hide their relative time so the full title and badge fit.
 - The new-session entry shares the row with the workspace and agent-preset controls.
 - In a historical conversation, the entry sits in the latest assistant reply footer, after the usage pill and clock.
 - Clicking the entry opens a popover for add, complete, edit (double-click or pencil), delete, clear completed, and expand completed.
