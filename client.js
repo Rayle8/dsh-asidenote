@@ -203,6 +203,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-heroIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-heroLabel{white-space:nowrap}',
       '.dsh-wt-heroCount{min-width:16px;padding:0 5px;border-radius:999px;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-bg-base);font-size:10px;line-height:16px;text-align:center;font-variant-numeric:tabular-nums}',
+      '.dsh-wt-historyDock{display:flex;justify-content:flex-end;padding:0 var(--dsh-composer-side-clearance,14px);margin:0 0 1px}',
       '.dsh-wt-error{color:var(--dsw-alias-state-warning-primary)}',
       '@media (max-width:640px){.dsh-wt-shell{padding:22px 16px 56px}.dsh-wt-head{gap:16px}.dsh-wt-title{font-size:20px;line-height:28px}.dsh-wt-statNum{font-size:24px;line-height:28px}.dsh-wt-sub{font-size:12px}.dsh-wt-select{max-width:210px}.dsh-wt-row{padding:11px 10px}.dsh-wt-actions{opacity:1}}',
     ].join('')
@@ -1174,6 +1175,17 @@ window.__ModuleLoader__.load({
       )
     }
 
+    /**
+     * Historical conversations have no workspace/preset row. Keep the entry at
+     * the same place relative to the input: right-aligned directly above the
+     * composer card. Blank sessions already own the hero-row seat, so skip the
+     * dock there to avoid rendering the same control twice.
+     */
+    function HistoryTodoDock(props) {
+      if (!props.session || props.session.blank) return null
+      return h('div', { className: 'dsh-wt-historyDock' }, h(HeroTodoEntry, props))
+    }
+
     /** Translate through the locale service, falling back to the bundled copy. */
     function makeSay(ctx, getLocaleId) {
       const locale = ctx.get('locale')
@@ -1257,6 +1269,21 @@ window.__ModuleLoader__.load({
         })
       }
 
+      function BoundHistoryDock(props) {
+        return h(HistoryTodoDock, {
+          ...props,
+          say: translator(props),
+        })
+      }
+
+      const openTodos = () => {
+        try {
+          ctx.layout.selectPanel(PANEL_ID)
+        } catch (error) {
+          console.error('workspace-todos: open panel failed', error)
+        }
+      }
+
       ctx.slots.inject('main', () => ctx.slots.register({ name: 'main', key: PANEL_ID, locale: NS }, BoundPanel))
 
       ctx.slots.inject('conversation.hero.options', () =>
@@ -1266,17 +1293,22 @@ window.__ModuleLoader__.load({
             id: PANEL_ID,
             order: 10,
             locale: NS,
-            inject: () => ({
-              openTodos: () => {
-                try {
-                  ctx.layout.selectPanel(PANEL_ID)
-                } catch (error) {
-                  console.error('workspace-todos: open panel failed', error)
-                }
-              },
-            }),
+            inject: () => ({ openTodos }),
           },
           BoundHeroEntry,
+        ),
+      )
+
+      ctx.slots.inject('conversation.input.dock', () =>
+        ctx.slots.register(
+          {
+            name: 'conversation.input.dock',
+            id: PANEL_ID,
+            order: 30,
+            locale: NS,
+            inject: () => ({ openTodos }),
+          },
+          BoundHistoryDock,
         ),
       )
 

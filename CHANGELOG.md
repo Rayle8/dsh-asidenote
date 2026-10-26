@@ -3,7 +3,7 @@
 ## 1.1.0
 
 - Rename the product to **Yidian Todos** (一点待办).
-- Add an entry in the new-session control row above the input, sharing the row with the workspace and agent-preset controls; it shows the current workspace's open count and opens the panel in one click.
+- Add an entry above the input: in a new session it shares the workspace/preset row; in a historical conversation it keeps the same right-aligned position above the composer. It shows the current workspace's open count and opens the panel in one click.
 
 ## 1.0.0
 

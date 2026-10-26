@@ -2,7 +2,7 @@
   "name": "dsh-workspace-todos",
   "version": "1.1.0",
   "type": "module",
-  "description": "Yidian Todos: a lightweight per-workspace todo panel for the DeepSeek Harness Web GUI, with a sidebar entry and an inline entry in the new-session control row.",
+  "description": "Yidian Todos: a lightweight per-workspace todo panel for the DeepSeek Harness Web GUI, with a sidebar entry and an inline entry above the composer for new and historical conversations.",
   "license": "MIT",
   "author": "Rayle8",
   "repository": {
@@ -39,6 +39,7 @@
     "icon.svg",
     "preview.png",
     "preview-dock.png",
+    "preview-history.png",
     "README.md",
     "README.en.md",
     "LICENSE",

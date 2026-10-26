@@ -26,7 +26,7 @@ test('package declares the DSH bundle and web client halves', () => {
   ]) {
     assert.ok(manifest.dsh.client.inject.includes(dependency), `missing inject ${dependency}`)
   }
-  for (const file of ['client.js', 'index.js', 'cordis.patch.yml', 'icon.svg', 'preview.png', 'preview-dock.png', 'README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md']) {
+  for (const file of ['client.js', 'index.js', 'cordis.patch.yml', 'icon.svg', 'preview.png', 'preview-dock.png', 'preview-history.png', 'README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md']) {
     assert.ok(manifest.files.includes(file), `missing files entry ${file}`)
   }
 })
@@ -47,8 +47,10 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /ctx\.slots\.inject\('main'/)
   assert.match(client, /ctx\.slots\.inject\('sidebar\.panellist'/)
   assert.match(client, /ctx\.slots\.inject\('conversation\.hero\.options'/)
+  assert.match(client, /ctx\.slots\.inject\('conversation\.input\.dock'/)
+  assert.match(client, /function HistoryTodoDock/)
+  assert.match(client, /props\.session\.blank/)
   assert.match(client, /openTodos/)
-  assert.doesNotMatch(client, /conversation\.input\.dock/)
   assert.match(client, /dsh-wt-heroBtn/)
   assert.match(client, /document\.head\.appendChild\(style\)/)
   assert.doesNotMatch(client, /h\('style'/)
@@ -65,7 +67,7 @@ test('locale files expose the product name', () => {
 })
 
 test('documentation and preview assets are present', () => {
-  for (const file of ['README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md', 'preview.png', 'preview-dock.png', 'icon.svg']) {
+  for (const file of ['README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md', 'preview.png', 'preview-dock.png', 'preview-history.png', 'icon.svg']) {
     assert.ok(exists(file), `missing ${file}`)
   }
   assert.ok(fs.statSync(path.join(root, 'preview.png')).size > 1000)

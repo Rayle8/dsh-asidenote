@@ -12,10 +12,15 @@ The entry in the new-session control row above the input (same row as the worksp
 
 ![Yidian Todos entry in the input control row](./preview-dock.png)
 
+Historical conversations have no control row; the entry keeps the same position above the input:
+
+![Yidian Todos entry above a historical conversation input](./preview-history.png)
+
 ## Features
 
 - A **Yidian Todos** entry in the sidebar.
-- A persistent **Yidian Todos** entry in the new-session control row above the input, sharing the row with the workspace and agent-preset controls, showing the current workspace's open count and opening the panel in one click.
+- In a new session, the entry shares the control row above the input with the workspace and agent-preset controls; in a historical conversation, it keeps the same position above the input.
+- The entry shows the current workspace's open count and opens the panel in one click.
 - Per-workspace notes, following the workspace of the active session; switch workspaces from the header.
 - Add with Enter; complete, relabel, delete, and clear completed items.
 - Progress summary, creation time, and a collapsible completed section.
@@ -24,7 +29,7 @@ The entry in the new-session control row above the input (same row as the worksp
 
 ## Usage
 
-1. Click **Yidian Todos** in the sidebar, or in the new-session control row.
+1. Click **Yidian Todos** in the sidebar, or above the input.
 2. Write one concrete next step and press Enter (or **Add**).
 3. Click the circle to complete it; expand **Completed** to look back.
 4. Use the header selector to switch projects; **Back to current** returns to the active session's workspace.
