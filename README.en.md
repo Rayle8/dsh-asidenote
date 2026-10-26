@@ -1,50 +1,70 @@
-# Yidian Todos
+# Memo
 
 [中文](README.md) | English
 
-> Product name: **Yidian Todos** (一点待办). The repository keeps the `dsh-workspace-todos` name.
+> Product name: **Memo** (备忘录). The repository keeps the `dsh-workspace-todos` name.
 
-A small todo panel for the DeepSeek Harness Web GUI. Each **workspace** keeps its own list, so moving between projects never mixes notes. It is meant for one-line next steps, not full task management.
+A lightweight memo for the DeepSeek Harness Web GUI, scoped to one **session** at a time. Switching sessions never mixes notes, and sessions in the same workspace stay independent. A `Memo open/total` badge after each sidebar session title shows which conversations still have follow-ups.
 
-![Yidian Todos panel](./preview.png)
+![Memo popover](./preview.png)
 
-The entry in the new-session control row above the input (same row as the workspace and preset controls):
+## Entries
 
-![Yidian Todos entry in the input control row](./preview-dock.png)
+The reminder badge after a session title:
 
-Historical conversations have no control row; the entry sits in the latest assistant reply's footer, to the right of the completion time:
+![Memo badge after a session title](./preview-badge.png)
 
-![Yidian Todos entry in a historical reply footer](./preview-history.png)
+The new-session control row above the input:
+
+![Memo entry in the new-session control row](./preview-dock.png)
+
+The latest reply footer in a historical conversation, to the right of the completion time:
+
+![Memo entry in a historical reply footer](./preview-history.png)
+
+Every entry opens a **floating panel next to the trigger**; it never navigates to a separate detail page.
 
 ## Features
 
-- A **Yidian Todos** entry in the sidebar.
-- In a new session, the entry shares the control row above the input with the workspace and agent-preset controls.
-- In a historical conversation, the entry sits in the latest assistant reply's footer, to the right of the usage pill and clock, without adding a row.
-- The entry shows the current workspace's open count and opens the panel in one click.
-- The entry hides while the session is running, so it never competes with the generation controls.
-- Per-workspace notes, following the workspace of the active session; switch workspaces from the header.
-- Add with Enter; complete, relabel, delete, and clear completed items.
-- Progress summary, creation time, and a collapsible completed section.
+- Data is keyed by **session ID**; different sessions in one workspace stay independent.
+- A `Memo open/total` badge after the sidebar session title. It is hidden when a session has no memos.
+- The new-session entry shares the row with the workspace and agent-preset controls.
+- In a historical conversation, the entry sits in the latest assistant reply footer, after the usage pill and clock.
+- Clicking the entry opens a popover for add, complete, edit (double-click or pencil), delete, clear completed, and expand completed.
+- The composer/footer entry hides while the session is running; the sidebar reminder stays visible.
 - Syncs across tabs in the same browser.
 - Chinese and English copy, following the DSH locale.
 
 ## Usage
 
-1. Click **Yidian Todos** in the sidebar, or above the input.
-2. Write one concrete next step and press Enter (or **Add**).
+1. Click the badge after a session title (it appears when that session has memos), or the **Memo** entry above the input / in the latest reply footer.
+2. Write one concrete follow-up in the popover and press Enter (or **Add**).
 3. Click the circle to complete it; expand **Completed** to look back.
-4. Use the header selector to switch projects; **Back to current** returns to the active session's workspace.
+4. Click outside or press Esc to close.
 
 ## Where data lives
 
-Notes are stored in the browser's `localStorage` under `dsh.workspace-todos.v1`, keyed by workspace id with a workspace-path fallback. As a result:
+Memos live in the browser's `localStorage` under `dsh.session-memos.v1`:
 
-- Reloads, DSH restarts, and session switches keep the list.
-- Nothing is written into the project, and nothing syncs across machines or browsers.
-- Clearing site data clears the list.
+```json
+{
+  "version": 1,
+  "sessions": {
+    "session-…": {
+      "sessionId": "session-…",
+      "updatedAt": 0,
+      "items": []
+    }
+  }
+}
+```
 
-A host-side file route (for example `.dsh/workspace-todos.json`) can be added later without changing the panel.
+Therefore:
+
+- Refreshing, restarting DSH, or switching sessions keeps the records.
+- Nothing is written into the project or synced to another machine/browser.
+- Clearing site data clears the memos.
+- The old `dsh.workspace-todos.v1` workspace store is no longer read; records need to be recreated after upgrading.
 
 ## Install
 
@@ -52,7 +72,7 @@ A host-side file route (for example `.dsh/workspace-todos.json`) can be added la
 git clone git@github.com:Rayle8/dsh-workspace-todos.git
 ```
 
-Link the clone into a DSH profile (replace `<path-to-repo>`):
+Link the checkout into a DSH profile (replace `<path-to-repo>`):
 
 ```json
 {
@@ -67,11 +87,11 @@ Link the clone into a DSH profile (replace `<path-to-repo>`):
 }
 ```
 
-Then run `pnpm install` in the profile. On startup DSH reads `dsh.bundle.patch` and `dsh.client` and registers the sidebar entry and main panel. After adding a bundle row, toggle that bundle **off and on** in the sidebar's **Plugins** page to recompose the running Host online; only restart DSH if the bundle is not listed there. After that, editing `client.js` alone is picked up by development-mode HMR.
+Then run `pnpm install` in the profile directory. On startup DSH reads `dsh.bundle.patch` and `dsh.client`. After adding the bundle row, toggle it off/on in the sidebar **Plugins** page to recompose a running Host without a restart; restart once if the row is not listed yet. Later `client.js` edits are replaced by the dev client HMR.
 
 ## Development
 
-`client.js` is the browser half in DSH's Module Loader format:
+`client.js` is the browser half, in DSH's Module Loader format:
 
 ```js
 window.__ModuleLoader__.load({
@@ -83,10 +103,24 @@ window.__ModuleLoader__.load({
 })
 ```
 
-`index.js` is the empty host half; `cordis.patch.yml` inserts the package into the profile composition. The UI only depends on the `slots` service and reads the active workspace through the `useSessions` / `useWorkspaces` slot props. Styling uses DSH `--dsw-alias-*` tokens, so it follows light and dark themes.
+`index.js` is the empty Host half; `cordis.patch.yml` inserts the package into the profile composition. The UI depends on `slots` only:
 
-```bash
-node --check client.js
-node --check index.js
-node --test tests/contract.test.mjs
-```
+- `conversation.hero.options`: the new-session control-row entry.
+- `conversation.chat.assistant-actions`: the latest-reply footer entry.
+- The sidebar badge is injected after each session title with a MutationObserver, because the packaged session row does not render the inline trailing slot.
+
+The popover mounts as its own `react-dom/client` root on `document.body` and follows the trigger with fixed positioning. All styles use DSH's `--dsw-alias-*` theme variables, so light and dark themes work.
+
+`client.js` changes reload through the dev client HMR; otherwise refresh the page or restart DSH.
+
+## Verification
+
+Loaded in an isolated DSH profile and driven through headless Chrome:
+
+- the `Memo 1/1` badge appears after the session title;
+- clicking the badge or an entry opens the floating panel next to the trigger;
+- adding updates both the popover and the badge;
+- complete, edit, delete, and clear-completed work in the popover;
+- records survive a refresh and stay session-scoped.
+
+`node --check client.js` and the contract tests pass.

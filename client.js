@@ -2,14 +2,18 @@ window.__ModuleLoader__.load({
   id: 'dsh-workspace-todos',
   factory(require) {
     const React = require('react')
+    const ReactDOM = require('react-dom')
+    const ReactDOMClient = require('react-dom/client')
     const h = React.createElement
 
     /** Locale namespace of this plugin's copy (also binds the renderer's `t` prop). */
     const NS = 'workspace-todos'
     /** Sidebar launcher id and the main panel key it addresses. */
     const PANEL_ID = 'workspace-todos'
-    /** One browser-local store for every workspace's notes. */
+    /** Legacy workspace store; retained only by the retired full-page panel. */
     const STORAGE_KEY = 'dsh.workspace-todos.v1'
+    /** Session-scoped memo store used by the badge, popover, and composer entries. */
+    const SESSION_STORAGE_KEY = 'dsh.session-memos.v1'
     /** A note is meant to stay brief; this is the hard cap. */
     const MAX_TEXT = 280
     /** Defensive cap so a corrupted store cannot freeze the panel. */
@@ -30,27 +34,39 @@ window.__ModuleLoader__.load({
 
     const DICT = {
       zh: {
-        'nav.label': '一点待办',
-        'title': '一点待办',
-        'eyebrow': 'WORKSPACE',
-        'subtitle': '把下一步记在这里，不用一直记在脑子里。',
-        'dock.label': '一点待办',
-        'dock.open': '打开一点待办',
+        'nav.label': '备忘录',
+        'title': '备忘录',
+        'eyebrow': 'SESSION',
+        'subtitle': '记下这个会话要跟进的事，完成后打勾。',
+        'dock.label': '备忘录',
+        'dock.open': '打开备忘录',
         'dock.count': '{n} 项未完成',
+        'badge.label': '备忘录',
+        'badge.title': '打开当前会话的备忘录',
+        'badge.count': '{open}/{total}',
+        'popover.title': '备忘录',
+        'popover.close': '关闭备忘录',
+        'popover.count': '{open} 未完成 · {total} 条',
+        'popover.session': '当前会话',
+        'popover.empty.title': '还没有备忘录',
+        'popover.empty.body': '记下这个会话要跟进的一件事。',
+        'popover.completed': '已完成',
+        'popover.clearDone': '清除已完成',
+        'popover.storage': '按会话隔离 · 保存在此浏览器',
         'workspace.label': '工作区',
         'workspace.follow': '回到当前',
         'workspace.current': '当前会话',
         'stats.openLabel': '未完成',
         'stats.allDone': '全部完成',
-        'add.placeholder': '记一条待办，按 Enter 添加',
+        'add.placeholder': '记一条备忘录，按 Enter 添加',
         'add.action': '添加',
         'add.hint': '只记一件具体的小事，做完就打勾。',
         'progress': '{done} / {total} 已完成',
         'list.open': '未完成',
         'list.completed': '已完成',
         'list.clearDone': '清除已完成',
-        'list.empty.title': '还没有待办',
-        'list.empty.body': '先记下下一件要做的事，完成后再回来打勾。',
+        'list.empty.title': '还没有备忘录',
+        'list.empty.body': '先记下这个会话要跟进的事，完成后再回来打勾。',
         'list.allDone.title': '未完成的都清空了',
         'list.allDone.body': '可以继续添加，或展开下方回看已完成。',
         'item.markDone': '标记为完成',
@@ -64,38 +80,50 @@ window.__ModuleLoader__.load({
         'time.minutes': '{n} 分钟前',
         'time.hours': '{n} 小时前',
         'time.days': '{n} 天前',
-        'footer.storage': '按工作区隔离 · 保存在此浏览器',
+        'footer.storage': '按会话隔离 · 保存在此浏览器',
         'footer.saved': '已保存',
         'footer.error': '浏览器存储不可用，改动可能不会保留',
-        'state.loading': '正在读取工作区…',
-        'state.unsupported': '当前页面没有提供工作区数据，无法显示待办。',
+        'state.loading': '正在读取会话…',
+        'state.unsupported': '当前页面没有提供会话数据，无法显示备忘录。',
         'state.noWorkspace.title': '还没有工作区',
-        'state.noWorkspace.body': '先在侧边栏添加一个工作区，待办会跟着项目走。',
+        'state.noWorkspace.body': '先在侧边栏添加一个工作区，备忘录会跟着会话走。',
       },
       en: {
-        'nav.label': 'Yidian Todos',
-        'title': 'Yidian Todos',
-        'eyebrow': 'WORKSPACE',
-        'subtitle': 'Park the next small step here so it does not live rent-free in your head.',
-        'dock.label': 'Yidian Todos',
-        'dock.open': 'Open Yidian Todos',
+        'nav.label': 'Memo',
+        'title': 'Memo',
+        'eyebrow': 'SESSION',
+        'subtitle': 'Keep the follow-ups for this session here, then check them off.',
+        'dock.label': 'Memo',
+        'dock.open': 'Open memo',
         'dock.count': '{n} open',
+        'badge.label': 'Memo',
+        'badge.title': 'Open this session’s memo',
+        'badge.count': '{open}/{total}',
+        'popover.title': 'Memo',
+        'popover.close': 'Close memo',
+        'popover.count': '{open} open · {total} total',
+        'popover.session': 'Current session',
+        'popover.empty.title': 'No memos yet',
+        'popover.empty.body': 'Write down one follow-up for this session.',
+        'popover.completed': 'Completed',
+        'popover.clearDone': 'Clear completed',
+        'popover.storage': 'Separate per session · kept in this browser',
         'workspace.label': 'Workspace',
         'workspace.follow': 'Back to current',
         'workspace.current': 'Current session',
         'stats.openLabel': 'open',
         'stats.allDone': 'all done',
-        'add.placeholder': 'Write a todo and press Enter',
+        'add.placeholder': 'Write a memo and press Enter',
         'add.action': 'Add',
         'add.hint': 'Keep it to one concrete next step; check it off when done.',
         'progress': '{done} / {total} done',
         'list.open': 'Open',
         'list.completed': 'Completed',
         'list.clearDone': 'Clear completed',
-        'list.empty.title': 'No todos yet',
-        'list.empty.body': 'Write down the next thing to do, then come back and check it off.',
+        'list.empty.title': 'No memos yet',
+        'list.empty.body': 'Write down the next follow-up for this session, then check it off.',
         'list.allDone.title': 'Nothing left open',
-        'list.allDone.body': 'Add another todo, or expand completed below to look back.',
+        'list.allDone.body': 'Add another memo, or expand completed below to look back.',
         'item.markDone': 'Mark as done',
         'item.markOpen': 'Mark as open',
         'item.edit': 'Edit',
@@ -107,13 +135,13 @@ window.__ModuleLoader__.load({
         'time.minutes': '{n} min ago',
         'time.hours': '{n} hr ago',
         'time.days': '{n} d ago',
-        'footer.storage': 'Separate per workspace · kept in this browser',
+        'footer.storage': 'Separate per session · kept in this browser',
         'footer.saved': 'Saved',
         'footer.error': 'Browser storage is unavailable; changes may not persist',
-        'state.loading': 'Reading workspaces…',
-        'state.unsupported': 'This page exposes no workspace data, so todos cannot render.',
+        'state.loading': 'Reading sessions…',
+        'state.unsupported': 'This page exposes no session data, so memos cannot render.',
         'state.noWorkspace.title': 'No workspace yet',
-        'state.noWorkspace.body': 'Add a workspace from the sidebar first; todos follow the project.',
+        'state.noWorkspace.body': 'Add a workspace from the sidebar first; memos follow the session.',
       },
     }
 
@@ -209,6 +237,26 @@ window.__ModuleLoader__.load({
       '.dsh-wt-footerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:14px;height:14px;color:currentColor}',
       '.dsh-wt-footerLabel{white-space:nowrap}',
       '.dsh-wt-footerCount{min-width:14px;padding:0 4px;border-radius:999px;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-bg-base);font-size:9px;line-height:14px;text-align:center;font-variant-numeric:tabular-nums}',
+      '.dsh-wt-badge{display:inline-flex;align-items:center;gap:3px;height:18px;padding:0 6px;border:0;border-radius:999px;background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-secondary);font:inherit;font-size:10px;line-height:18px;cursor:pointer;white-space:nowrap;flex:none}',
+      '.dsh-wt-badge:hover{background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary)}',
+      '.dsh-wt-badge:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
+      '.dsh-wt-badgeCount{font-variant-numeric:tabular-nums;color:var(--dsw-alias-brand-primary)}',
+      '.dsh-wt-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;min-height:0;padding:12px;border:1px solid var(--dsw-alias-border-l2);border-radius:12px;background:var(--dsw-alias-bg-layer-1);box-shadow:var(--dsw-elevation-soft);color:var(--dsw-alias-label-primary);font-size:13px;overflow:auto}',
+      '.dsh-wt-popHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:0 0 8px}',
+      '.dsh-wt-popTitle{font-size:14px;line-height:20px;font-weight:650}',
+      '.dsh-wt-popMeta{margin:2px 0 0;font-size:11px;line-height:16px;color:var(--dsw-alias-label-secondary)}',
+      '.dsh-wt-popClose{flex:none;display:grid;place-items:center;width:24px;height:24px;border:0;border-radius:6px;background:transparent;color:var(--dsw-alias-label-secondary);font-size:18px;line-height:1;cursor:pointer}',
+      '.dsh-wt-popClose:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}',
+      '.dsh-wt-popover .dsh-wt-add{margin:0 0 8px;padding:4px 4px 4px 9px;border-radius:9px}',
+      '.dsh-wt-popover .dsh-wt-addBtn{height:24px;padding:0 9px;font-size:11px}',
+      '.dsh-wt-popover .dsh-wt-addHint{display:none}',
+      '.dsh-wt-popover .dsh-wt-sectionHead{padding:6px 2px 2px}',
+      '.dsh-wt-popover .dsh-wt-row{padding:7px 6px;border-radius:8px}',
+      '.dsh-wt-popover .dsh-wt-text{font-size:12px;line-height:18px}',
+      '.dsh-wt-popover .dsh-wt-meta{font-size:10px}',
+      '.dsh-wt-popover .dsh-wt-empty{padding:18px 10px}',
+      '.dsh-wt-popover .dsh-wt-doneHead{margin-top:4px}',
+      '.dsh-wt-popFoot{margin:8px 0 0;font-size:10px;line-height:16px;color:var(--dsw-alias-label-secondary)}',
       '.dsh-wt-error{color:var(--dsw-alias-state-warning-primary)}',
       '@media (max-width:640px){.dsh-wt-shell{padding:22px 16px 56px}.dsh-wt-head{gap:16px}.dsh-wt-title{font-size:20px;line-height:28px}.dsh-wt-statNum{font-size:24px;line-height:28px}.dsh-wt-sub{font-size:12px}.dsh-wt-select{max-width:210px}.dsh-wt-row{padding:11px 10px}.dsh-wt-actions{opacity:1}}',
     ].join('')
@@ -366,6 +414,108 @@ window.__ModuleLoader__.load({
       } catch (error) {
         return false
       }
+    }
+
+    /** Empty session-scoped store. */
+    function emptySessionStore() {
+      return { version: 1, sessions: {} }
+    }
+
+    /** Read the whole session memo store; corrupt or unavailable reads as empty. */
+    function readSessionStore() {
+      const ls = storage()
+      if (!ls) return emptySessionStore()
+      try {
+        const raw = ls.getItem(SESSION_STORAGE_KEY)
+        if (!raw) return emptySessionStore()
+        const parsed = JSON.parse(raw)
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return emptySessionStore()
+        const sessions = parsed.sessions
+        if (!sessions || typeof sessions !== 'object' || Array.isArray(sessions)) return emptySessionStore()
+        return { version: 1, sessions }
+      } catch (error) {
+        return emptySessionStore()
+      }
+    }
+
+    /** Read one session's memo record. */
+    function readSessionRecord(sessionId) {
+      const key = sessionId ? String(sessionId) : ''
+      if (!key) return { items: [], updatedAt: 0 }
+      const record = readSessionStore().sessions[key]
+      return {
+        items: normalizeItems(record && record.items),
+        updatedAt: record && Number.isFinite(record.updatedAt) ? record.updatedAt : 0,
+      }
+    }
+
+    /** Persist one session's memo record. */
+    function writeSessionRecord(sessionId, record) {
+      const ls = storage()
+      const key = sessionId ? String(sessionId) : ''
+      if (!ls || !key) return false
+      const store = readSessionStore()
+      store.sessions[key] = {
+        sessionId: key,
+        updatedAt: record.updatedAt || Date.now(),
+        items: normalizeItems(record.items),
+      }
+      try {
+        ls.setItem(SESSION_STORAGE_KEY, JSON.stringify(store))
+        notifyTodoChange()
+        return true
+      } catch (error) {
+        return false
+      }
+    }
+
+    /** The session currently retained by the main view. */
+    function currentSessionOf(list) {
+      const rows = list && list.byId ? Object.values(list.byId) : []
+      return rows.find(row => row && (row.retainedBy && row.retainedBy.mainView ? row.retainedBy.mainView : 0) > 0) || null
+    }
+
+    /** Per-session memos plus an optimistic, synchronous writer. */
+    function useSessionMemoStore(sessionId) {
+      const sessionKey = sessionId ? String(sessionId) : ''
+      const sessionRef = React.useRef(sessionKey)
+      sessionRef.current = sessionKey
+
+      const [record, setRecord] = React.useState(() => readSessionRecord(sessionKey))
+      const [syncError, setSyncError] = React.useState(false)
+      const recordRef = React.useRef(record)
+      recordRef.current = record
+
+      React.useEffect(() => {
+        setRecord(readSessionRecord(sessionRef.current))
+        setSyncError(false)
+      }, [sessionKey])
+
+      React.useEffect(() => {
+        const onStorage = event => {
+          if (event.key !== SESSION_STORAGE_KEY) return
+          setRecord(readSessionRecord(sessionRef.current))
+        }
+        const onLocal = () => setRecord(readSessionRecord(sessionRef.current))
+        TODO_LISTENERS.add(onLocal)
+        window.addEventListener('storage', onStorage)
+        return () => {
+          TODO_LISTENERS.delete(onLocal)
+          window.removeEventListener('storage', onStorage)
+        }
+      }, [])
+
+      const commit = React.useCallback(updater => {
+        const current = recordRef.current || { items: [], updatedAt: 0 }
+        const nextItems = normalizeItems(updater(current.items || []))
+        const next = { items: nextItems, updatedAt: Date.now() }
+        const ok = writeSessionRecord(sessionRef.current, next)
+        recordRef.current = next
+        setRecord(next)
+        setSyncError(!ok)
+      }, [])
+
+      return { record, syncError, commit }
     }
 
     /** The workspace owning the session currently retained by the main view. */
@@ -1132,60 +1282,358 @@ window.__ModuleLoader__.load({
       )
     }
 
-    /**
-     * Compact management entry in the hero's existing workspace/preset row.
-     * It shares that row, exposes the current workspace's open count, and
-     * opens the full panel in one click.
-     */
-    function HeroTodoEntry(props) {
-      const useSessions = typeof props.useSessions === 'function' ? props.useSessions : selector => selector(undefined)
-      const useWorkspaces = typeof props.useWorkspaces === 'function' ? props.useWorkspaces : selector => selector(undefined)
-      const list = useSessions(state => state)
-      const snapshot = useWorkspaces(state => state)
-      const [, force] = React.useState(0)
+    /** Fixed popover placement: below the anchor, above when it would overflow. */
+    function memoPopoverStyle(anchor) {
+      const width = Math.min(360, window.innerWidth - 24)
+      const maxHeight = Math.min(460, window.innerHeight - 24)
+      if (!anchor) return { left: '12px', top: '12px', width: `${width}px`, maxHeight: `${maxHeight}px` }
+      const rect = anchor.getBoundingClientRect()
+      const left = rect.left < 420
+        ? Math.max(12, rect.left)
+        : Math.max(12, Math.min(rect.right - width, window.innerWidth - width - 12))
+      let top = rect.bottom + 8
+      if (top + maxHeight > window.innerHeight - 12) top = Math.max(12, rect.top - maxHeight - 8)
+      return { left: `${left}px`, top: `${top}px`, width: `${width}px`, maxHeight: `${maxHeight}px` }
+    }
+
+    /** Compact floating memo list, anchored to the entry that opened it. */
+    function MemoPopover(props) {
+      const say = props.say
+      const localeId = props.localeId
+      const { record, syncError, commit } = useSessionMemoStore(props.sessionId)
+      const [draft, setDraft] = React.useState('')
+      const [editingId, setEditingId] = React.useState(null)
+      const [editDraft, setEditDraft] = React.useState('')
+      const [showDone, setShowDone] = React.useState(false)
+      const [style, setStyle] = React.useState(() => memoPopoverStyle(props.anchorRef.current))
+      const panelRef = React.useRef(null)
+      const editRef = React.useRef(null)
+      const cancelEditRef = React.useRef(false)
+      const composingRef = React.useRef(false)
+
+      const updatePosition = React.useCallback(() => {
+        if (props.anchorRef.current) setStyle(memoPopoverStyle(props.anchorRef.current))
+      }, [props.anchorRef])
+
+      React.useLayoutEffect(() => {
+        updatePosition()
+        window.addEventListener('resize', updatePosition)
+        window.addEventListener('scroll', updatePosition, true)
+        return () => {
+          window.removeEventListener('resize', updatePosition)
+          window.removeEventListener('scroll', updatePosition, true)
+        }
+      }, [updatePosition])
 
       React.useEffect(() => {
-        const listener = () => force(value => value + 1)
-        TODO_LISTENERS.add(listener)
-        const onStorage = event => {
-          if (event.key === STORAGE_KEY) listener()
+        const onPointerDown = event => {
+          if (panelRef.current && panelRef.current.contains(event.target)) return
+          if (props.anchorRef.current && props.anchorRef.current.contains(event.target)) return
+          props.onClose()
         }
-        window.addEventListener('storage', onStorage)
+        const onKeyDown = event => {
+          if (event.key === 'Escape') props.onClose()
+        }
+        document.addEventListener('pointerdown', onPointerDown, true)
+        document.addEventListener('keydown', onKeyDown)
         return () => {
-          TODO_LISTENERS.delete(listener)
-          window.removeEventListener('storage', onStorage)
+          document.removeEventListener('pointerdown', onPointerDown, true)
+          document.removeEventListener('keydown', onKeyDown)
         }
-      }, [])
+      }, [props.onClose, props.anchorRef])
 
-      const active = props.session
+      React.useEffect(() => {
+        if (!editingId || !editRef.current) return
+        editRef.current.focus()
+        editRef.current.select()
+      }, [editingId])
+
+      const items = record.items || []
+      const openItems = items.filter(item => !item.done)
+      const doneItems = items.filter(item => item.done)
+      const openCount = openItems.length
+      const total = items.length
+
+      const add = () => {
+        const text = draft.trim().slice(0, MAX_TEXT)
+        if (!text) return
+        const now = Date.now()
+        commit(currentItems => [{ id: uid(), text, done: false, createdAt: now, updatedAt: now }, ...currentItems])
+        setDraft('')
+      }
+
+      const toggle = item => {
+        commit(currentItems => currentItems.map(candidate => {
+          if (candidate.id !== item.id) return candidate
+          const now = Date.now()
+          return {
+            ...candidate,
+            done: !candidate.done,
+            updatedAt: now,
+            ...(candidate.done ? { completedAt: undefined } : { completedAt: now }),
+          }
+        }))
+        if (item.id === editingId) {
+          setEditingId(null)
+          setEditDraft('')
+        }
+      }
+
+      const remove = item => {
+        commit(currentItems => currentItems.filter(candidate => candidate.id !== item.id))
+        if (item.id === editingId) {
+          setEditingId(null)
+          setEditDraft('')
+        }
+      }
+
+      const startEdit = item => {
+        cancelEditRef.current = false
+        setEditingId(item.id)
+        setEditDraft(item.text)
+      }
+
+      const finishEdit = item => {
+        if (cancelEditRef.current) {
+          cancelEditRef.current = false
+          return
+        }
+        if (!editingId) return
+        const text = editDraft.trim().slice(0, MAX_TEXT)
+        if (text && text !== item.text) {
+          commit(currentItems => currentItems.map(candidate => {
+            if (candidate.id !== item.id) return candidate
+            return { ...candidate, text, updatedAt: Date.now() }
+          }))
+        }
+        setEditingId(null)
+        setEditDraft('')
+      }
+
+      const cancelEdit = () => {
+        cancelEditRef.current = true
+        setEditingId(null)
+        setEditDraft('')
+      }
+
+      const clearDone = () => {
+        commit(currentItems => currentItems.filter(item => !item.done))
+        setShowDone(false)
+      }
+
+      const row = item => h(TodoRow, {
+        key: item.id,
+        item,
+        done: item.done,
+        say,
+        localeId,
+        onToggle: toggle,
+        onStartEdit: startEdit,
+        onDelete: remove,
+        editing: editingId === item.id,
+        editDraft,
+        setEditDraft,
+        onFinishEdit: finishEdit,
+        onCancelEdit: cancelEdit,
+        editRef,
+      })
+
+      const content = h(
+        'div',
+        {
+          ref: panelRef,
+          className: 'dsh-wt-popover',
+          style,
+          role: 'dialog',
+          'aria-label': say('popover.title'),
+        },
+        h(
+          'div',
+          { className: 'dsh-wt-popHead' },
+          h(
+            'div',
+            null,
+            h('div', { className: 'dsh-wt-popTitle' }, say('popover.title')),
+            h('p', { className: 'dsh-wt-popMeta' }, say('popover.count', { open: openCount, total })),
+          ),
+          h(
+            'button',
+            { type: 'button', className: 'dsh-wt-popClose', 'aria-label': say('popover.close'), onClick: props.onClose },
+            '×',
+          ),
+        ),
+        h(
+          'form',
+          {
+            className: 'dsh-wt-add',
+            onSubmit: event => {
+              event.preventDefault()
+              if (composingRef.current) return
+              add()
+            },
+          },
+          h('span', { className: 'dsh-wt-addIcon', 'aria-hidden': true }, h(IconPlus, null)),
+          h('input', {
+            className: 'dsh-wt-input',
+            value: draft,
+            maxLength: MAX_TEXT,
+            autoFocus: true,
+            placeholder: say('add.placeholder'),
+            'aria-label': say('add.placeholder'),
+            onChange: event => setDraft(event.target.value),
+            onCompositionStart: () => { composingRef.current = true },
+            onCompositionEnd: () => { composingRef.current = false },
+            onKeyDown: event => {
+              const composing = event.isComposing || (event.nativeEvent && event.nativeEvent.isComposing)
+              if (event.key === 'Escape') {
+                event.currentTarget.blur()
+                return
+              }
+              if (event.key === 'Enter' && composing) event.preventDefault()
+            },
+          }),
+          h('button', { type: 'submit', className: 'dsh-wt-addBtn', disabled: !draft.trim() }, say('add.action')),
+        ),
+        h(
+          'div',
+          { className: 'dsh-wt-sectionHead' },
+          h('div', { className: 'dsh-wt-sectionName' }, say('list.open'), h('span', { className: 'dsh-wt-sectionCount' }, String(openCount))),
+        ),
+        openItems.length
+          ? h('ul', { className: 'dsh-wt-rows' }, openItems.map(row))
+          : h(EmptyState, {
+              title: say(total ? 'list.allDone.title' : 'popover.empty.title'),
+              body: say(total ? 'list.allDone.body' : 'popover.empty.body'),
+            }),
+        doneItems.length
+          ? h(
+              React.Fragment,
+              null,
+              h(
+                'div',
+                { className: 'dsh-wt-doneHead' },
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'dsh-wt-doneToggle',
+                    'aria-expanded': showDone ? 'true' : 'false',
+                    onClick: () => setShowDone(value => !value),
+                  },
+                  h('span', { className: 'dsh-wt-chevron', 'data-open': showDone ? 'true' : 'false' }, h(IconChevron, null)),
+                  say('popover.completed'),
+                  h('span', { className: 'dsh-wt-sectionCount' }, String(doneItems.length)),
+                ),
+                showDone
+                  ? h('button', { type: 'button', className: 'dsh-wt-clear', onClick: clearDone }, say('popover.clearDone'))
+                  : null,
+              ),
+              showDone ? h('ul', { className: 'dsh-wt-rows dsh-wt-doneRows' }, doneItems.map(row)) : null,
+            )
+          : null,
+        h(
+          'div',
+          { className: 'dsh-wt-popFoot' },
+          h('span', { className: syncError ? 'dsh-wt-error' : undefined }, say(syncError ? 'footer.error' : 'popover.storage')),
+        ),
+      )
+
+      return ReactDOM.createPortal(content, document.body)
+    }
+
+    /**
+     * One memo entry. The hero and latest-reply variants open a floating list;
+     * the sidebar variant is the inline "Memo open/total" reminder badge.
+     */
+    function MemoEntry(props) {
+      const useSessions = typeof props.useSessions === 'function' ? props.useSessions : selector => selector(undefined)
+      const list = useSessions(state => state)
+      const session = props.session
         || (props.sessionId && list && list.byId ? list.byId[props.sessionId] : undefined)
-      if (active && active.running) return null
-
-      const workspace = currentWorkspaceOf(list, snapshot)
-      if (!workspace) return null
-
-      const { items } = readRecord(workspace)
-      const open = items.filter(item => !item.done).length
+        || currentSessionOf(list)
+      const sessionId = session && session.id ? session.id : props.sessionId
+      const { record } = useSessionMemoStore(sessionId)
+      const [open, setOpen] = React.useState(false)
+      const anchorRef = React.useRef(null)
       const say = props.say
-      const aria = open > 0 ? `${say('dock.open')}, ${say('dock.count', { n: open })}` : say('dock.open')
-      const compact = props.compact === true
+      const localeId = props.localeId
+      const variant = props.variant || 'hero'
+      const items = record.items || []
+      const openCount = items.filter(item => !item.done).length
+      const total = items.length
+
+      if (!sessionId) return null
+      if (variant !== 'badge' && session && session.running) return null
+      if (variant === 'badge' && total === 0) return null
+
+      if (variant === 'badge') {
+        const label = say('badge.label')
+        const counts = say('badge.count', { open: openCount, total })
+        return h(
+          React.Fragment,
+          null,
+          h(
+            'button',
+            {
+              ref: anchorRef,
+              type: 'button',
+              className: 'dsh-wt-badge',
+              title: say('badge.title'),
+              'aria-label': `${label} ${counts}`,
+              onMouseDown: event => event.stopPropagation(),
+              onClick: event => {
+                event.stopPropagation()
+                setOpen(value => !value)
+              },
+            },
+            h('span', null, label),
+            h('span', { className: 'dsh-wt-badgeCount' }, counts),
+          ),
+          open
+            ? h(MemoPopover, {
+                sessionId,
+                say,
+                localeId,
+                anchorRef,
+                onClose: () => setOpen(false),
+              })
+            : null,
+        )
+      }
+
+      const compact = variant === 'footer'
       const buttonClass = compact ? 'dsh-wt-footerBtn' : 'dsh-wt-heroBtn'
       const iconClass = compact ? 'dsh-wt-footerIcon' : 'dsh-wt-heroIcon'
       const labelClass = compact ? 'dsh-wt-footerLabel' : 'dsh-wt-heroLabel'
       const countClass = compact ? 'dsh-wt-footerCount' : 'dsh-wt-heroCount'
+      const aria = openCount > 0 ? `${say('dock.open')}, ${say('dock.count', { n: openCount })}` : say('dock.open')
 
       return h(
-        'button',
-        {
-          type: 'button',
-          className: buttonClass,
-          title: say('dock.open'),
-          'aria-label': aria,
-          onClick: props.openTodos,
-        },
-        h('span', { className: iconClass, 'aria-hidden': true }, h(PanelIcon, { size: compact ? 14 : 16 })),
-        h('span', { className: labelClass }, say('dock.label')),
-        open > 0 ? h('span', { className: countClass }, String(open)) : null,
+        React.Fragment,
+        null,
+        h(
+          'button',
+          {
+            ref: anchorRef,
+            type: 'button',
+            className: buttonClass,
+            title: say('dock.open'),
+            'aria-label': aria,
+            onClick: () => setOpen(value => !value),
+          },
+          h('span', { className: iconClass, 'aria-hidden': true }, h(PanelIcon, { size: compact ? 14 : 16 })),
+          h('span', { className: labelClass }, say('dock.label')),
+          openCount > 0 ? h('span', { className: countClass }, String(openCount)) : null,
+        ),
+        open
+          ? h(MemoPopover, {
+              sessionId,
+              say,
+              localeId,
+              anchorRef,
+              onClose: () => setOpen(false),
+            })
+          : null,
       )
     }
 
@@ -1217,7 +1665,7 @@ window.__ModuleLoader__.load({
       const chat = useChat(state => state)
       const latest = latestClosingMessageId(chat)
       if (latest === undefined || props.messageId === undefined || latest !== props.messageId) return null
-      return h(HeroTodoEntry, { ...props, compact: true })
+      return h(MemoEntry, { ...props, variant: 'footer' })
     }
 
     /** Translate through the locale service, falling back to the bundled copy. */
@@ -1283,22 +1731,115 @@ window.__ModuleLoader__.load({
         }
       }
 
-      function BoundPanel(props) {
-        const propsLocale = String(localeId()).split('-')[0] === 'en' ? 'en' : 'zh'
-        return h(Panel, {
-          ...props,
-          say: translator(props),
-          localeId: propsLocale,
-        })
+      const tr = (key, vars) => fill(say(key), vars)
+      let activePopover = null
+
+      const closeMemoPopover = () => {
+        const current = activePopover
+        activePopover = null
+        if (!current) return
+        try {
+          current.root.unmount()
+        } catch (error) {
+          /* already unmounted */
+        }
+        current.container.remove()
       }
 
-      function BoundIcon(props) {
-        return h(PanelIcon, props)
+      const openMemoPopover = (sessionId, anchor) => {
+        if (activePopover && activePopover.anchor === anchor) {
+          closeMemoPopover()
+          return
+        }
+        closeMemoPopover()
+        const container = document.createElement('div')
+        container.dataset.dshMemoPopoverRoot = 'true'
+        document.body.appendChild(container)
+        const root = ReactDOMClient.createRoot(container)
+        activePopover = { container, root, anchor }
+        root.render(h(MemoPopover, {
+          sessionId,
+          say: tr,
+          localeId: localeId(),
+          anchorRef: { current: anchor },
+          onClose: closeMemoPopover,
+        }))
       }
+
+      const refreshMemoBadges = () => {
+        const store = readSessionStore()
+        for (const row of document.querySelectorAll('[data-row-key^="session:"]')) {
+          const key = row.getAttribute('data-row-key') || ''
+          const sessionId = key.slice('session:'.length)
+          if (!sessionId) continue
+          const title = row.querySelector(':scope > [class*="_title"]')
+          if (!title) continue
+          const items = normalizeItems(store.sessions[sessionId] && store.sessions[sessionId].items)
+          let badge = row.querySelector(':scope > .dsh-wt-badge')
+          if (!items.length) {
+            if (badge) badge.remove()
+            continue
+          }
+          if (!badge) {
+            badge = document.createElement('button')
+            badge.type = 'button'
+            badge.className = 'dsh-wt-badge'
+            badge.addEventListener('pointerdown', event => event.stopPropagation())
+            badge.addEventListener('click', event => {
+              event.preventDefault()
+              event.stopPropagation()
+              openMemoPopover(sessionId, badge)
+            })
+            title.insertAdjacentElement('afterend', badge)
+          }
+          const open = items.filter(item => !item.done).length
+          const signature = `${localeId()}:${open}/${items.length}`
+          if (badge.dataset.signature !== signature) {
+            const label = document.createElement('span')
+            label.textContent = tr('badge.label')
+            const count = document.createElement('span')
+            count.className = 'dsh-wt-badgeCount'
+            count.textContent = tr('badge.count', { open, total: items.length })
+            badge.replaceChildren(label, count)
+            badge.dataset.signature = signature
+          }
+          badge.dataset.sessionId = sessionId
+          badge.title = tr('badge.title')
+          badge.setAttribute('aria-label', `${tr('badge.label')} ${tr('badge.count', { open, total: items.length })}`)
+        }
+      }
+
+      ctx.effect(() => {
+        let scheduled = false
+        const schedule = () => {
+          if (scheduled) return
+          scheduled = true
+          requestAnimationFrame(() => {
+            scheduled = false
+            refreshMemoBadges()
+          })
+        }
+        const onStorage = event => {
+          if (event.key === SESSION_STORAGE_KEY) schedule()
+        }
+        TODO_LISTENERS.add(schedule)
+        window.addEventListener('storage', onStorage)
+        const observer = new MutationObserver(schedule)
+        observer.observe(document.body, { childList: true, subtree: true })
+        refreshMemoBadges()
+        return () => {
+          TODO_LISTENERS.delete(schedule)
+          window.removeEventListener('storage', onStorage)
+          observer.disconnect()
+          closeMemoPopover()
+          for (const badge of document.querySelectorAll('.dsh-wt-badge')) badge.remove()
+        }
+      }, 'workspace-todos: session badges')
 
       function BoundHeroEntry(props) {
-        return h(HeroTodoEntry, {
+        return h(MemoEntry, {
           ...props,
+          variant: 'hero',
           say: translator(props),
         })
       }
@@ -1310,16 +1851,6 @@ window.__ModuleLoader__.load({
         })
       }
 
-      const openTodos = () => {
-        try {
-          ctx.layout.selectPanel(PANEL_ID)
-        } catch (error) {
-          console.error('workspace-todos: open panel failed', error)
-        }
-      }
-
-      ctx.slots.inject('main', () => ctx.slots.register({ name: 'main', key: PANEL_ID, locale: NS }, BoundPanel))
-
       ctx.slots.inject('conversation.hero.options', () =>
         ctx.slots.register(
           {
@@ -1327,7 +1858,6 @@ window.__ModuleLoader__.load({
             id: PANEL_ID,
             order: 10,
             locale: NS,
-            inject: () => ({ openTodos }),
           },
           BoundHeroEntry,
         ),
@@ -1340,26 +1870,12 @@ window.__ModuleLoader__.load({
             id: PANEL_ID,
             order: 30,
             locale: NS,
-            inject: () => ({ openTodos }),
           },
           BoundTurnFooter,
         ),
       )
-
-      ctx.slots.inject('sidebar.panellist', () =>
-        ctx.slots.register(
-          {
-            name: 'sidebar.panellist',
-            id: PANEL_ID,
-            order: 30,
-            label: () => say('nav.label'),
-            locale: NS,
-          },
-          BoundIcon,
-        ),
-      )
     }
 
-    return { inject: ['slots', 'layout'], apply }
+    return { inject: ['slots'], apply }
   },
 })

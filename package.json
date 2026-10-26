@@ -1,8 +1,8 @@
 {
   "name": "dsh-workspace-todos",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "type": "module",
-  "description": "Yidian Todos: a lightweight per-workspace todo panel for the DeepSeek Harness Web GUI, with a sidebar entry, a new-session control-row entry, and a latest-reply footer entry.",
+  "description": "Memo: a lightweight per-session memo badge and floating panel for the DeepSeek Harness Web GUI.",
   "license": "MIT",
   "author": "Rayle8",
   "repository": {
@@ -38,6 +38,7 @@
     "locale/*.json",
     "icon.svg",
     "preview.png",
+    "preview-badge.png",
     "preview-dock.png",
     "preview-history.png",
     "README.md",

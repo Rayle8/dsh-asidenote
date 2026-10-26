@@ -27,7 +27,7 @@ test('package declares the DSH bundle and web client halves', () => {
   ]) {
     assert.ok(manifest.dsh.client.inject.includes(dependency), `missing inject ${dependency}`)
   }
-  for (const file of ['client.js', 'index.js', 'cordis.patch.yml', 'icon.svg', 'preview.png', 'preview-dock.png', 'preview-history.png', 'README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md']) {
+  for (const file of ['client.js', 'index.js', 'cordis.patch.yml', 'icon.svg', 'preview.png', 'preview-badge.png', 'preview-dock.png', 'preview-history.png', 'README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md']) {
     assert.ok(manifest.files.includes(file), `missing files entry ${file}`)
   }
 })
@@ -45,32 +45,35 @@ test('host and browser entries use the package identity', () => {
   const client = read('client.js')
   assert.match(client, /window\.__ModuleLoader__\.load\(/)
   assert.match(client, /id: 'dsh-workspace-todos'/)
-  assert.match(client, /ctx\.slots\.inject\('main'/)
-  assert.match(client, /ctx\.slots\.inject\('sidebar\.panellist'/)
   assert.match(client, /ctx\.slots\.inject\('conversation\.hero\.options'/)
   assert.match(client, /ctx\.slots\.inject\('conversation\.chat\.assistant-actions'/)
   assert.match(client, /function latestClosingMessageId/)
   assert.match(client, /function TurnFooterTodoEntry/)
-  assert.match(client, /compact: true/)
-  assert.match(client, /active\.running/)
-  assert.match(client, /openTodos/)
+  assert.match(client, /function MemoPopover/)
+  assert.match(client, /refreshMemoBadges/)
+  assert.match(client, /ReactDOMClient\.createRoot/)
+  assert.match(client, /dsh-wt-badge/)
   assert.match(client, /dsh-wt-footerBtn/)
+  assert.match(client, /SESSION_STORAGE_KEY/)
+  assert.match(client, /dsh\.session-memos\.v1/)
+  assert.doesNotMatch(client, /selectPanel/)
   assert.match(client, /document\.head\.appendChild\(style\)/)
   assert.doesNotMatch(client, /h\('style'/)
-  assert.match(client, /return \{ inject: \['slots', 'layout'\], apply \}/)
+  assert.match(client, /return \{ inject: \['slots'\], apply \}/)
   assert.doesNotMatch(client, /@local\//)
 })
 
 test('locale files expose the product name', () => {
-  assert.equal(JSON.parse(read('locale/zh.json'))['nav.label'], '一点待办')
-  assert.equal(JSON.parse(read('locale/en.json'))['nav.label'], 'Yidian Todos')
+  assert.equal(JSON.parse(read('locale/zh.json'))['nav.label'], '备忘录')
+  assert.equal(JSON.parse(read('locale/en.json'))['nav.label'], 'Memo')
   const client = read('client.js')
-  assert.match(client, /'title': '一点待办'/)
-  assert.match(client, /'dock\.label': '一点待办'/)
+  assert.match(client, /'title': '备忘录'/)
+  assert.match(client, /'dock\.label': '备忘录'/)
+  assert.match(client, /'badge\.label': '备忘录'/)
 })
 
 test('documentation and preview assets are present', () => {
-  for (const file of ['README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md', 'preview.png', 'preview-dock.png', 'preview-history.png', 'icon.svg']) {
+  for (const file of ['README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md', 'preview.png', 'preview-badge.png', 'preview-dock.png', 'preview-history.png', 'icon.svg']) {
     assert.ok(exists(file), `missing ${file}`)
   }
   assert.ok(fs.statSync(path.join(root, 'preview.png')).size > 1000)
