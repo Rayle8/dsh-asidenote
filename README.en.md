@@ -18,9 +18,9 @@ The new-session control row above the input:
 
 ![Memo entry in the new-session control row](./preview-dock.png)
 
-The latest reply footer in a historical conversation, to the right of the completion time:
+The right side of the status strip below the input, on the same line as turns, usage, and context:
 
-![Memo entry in a historical reply footer](./preview-history.png)
+![Memo entry at the right of the bottom status strip](./preview-history.png)
 
 Every entry opens a **floating panel next to the trigger**; it never navigates to a separate detail page.
 
@@ -30,9 +30,9 @@ Every entry opens a **floating panel next to the trigger**; it never navigates t
 - A `Memo open/total` badge after the sidebar session title. It is hidden when a session has no memos.
 - The badge hugs the title text instead of sitting at the row's right edge; sessions with a badge hide their relative time so the full title and badge fit.
 - The new-session entry shares the row with the workspace and agent-preset controls.
-- In a historical conversation, the entry sits in the latest assistant reply footer, after the usage pill and clock.
+- The conversation entry stays at the right of the composer status strip, visible and editable across turns and while the session is running.
 - Clicking the entry opens a popover for add, complete, edit (double-click or pencil), delete, clear completed, and expand completed.
-- The composer/footer entry hides while the session is running; the sidebar reminder stays visible.
+- The sidebar reminder stays visible while the session is running.
 - Syncs across tabs in the same browser.
 - Chinese and English copy, following the DSH locale.
 

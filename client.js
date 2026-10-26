@@ -241,6 +241,11 @@ window.__ModuleLoader__.load({
       '.dsh-wt-badge:hover{background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-badge:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
       '.dsh-wt-badgeCount{font-variant-numeric:tabular-nums;color:var(--dsw-alias-brand-primary)}',
+      '.dsh-wt-dockBtn{display:inline-flex;align-items:center;gap:4px;flex:none;height:22px;padding:0 6px;border:0;border-radius:6px;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:11px;line-height:20px;cursor:pointer;order:99;white-space:nowrap}',
+      '.dsh-wt-dockBtn:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}',
+      '.dsh-wt-dockBtn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
+      '.dsh-wt-dockIcon{display:flex;align-items:center;justify-content:center;flex:none;width:13px;height:13px;color:currentColor}',
+      '.dsh-wt-dockCount{min-width:14px;padding:0 4px;border-radius:999px;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-bg-base);font-size:9px;line-height:14px;text-align:center;font-variant-numeric:tabular-nums}',
       '[data-row-key^="session:"]:has(> .dsh-wt-badge) > [class*="_title"]{flex:0 1 auto}',
       '[data-row-key^="session:"]:has(> .dsh-wt-badge) > [class*="_time"]{display:none}',
       '.dsh-wt-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;min-height:0;padding:12px;border:1px solid var(--dsw-alias-border-l2);border-radius:12px;background:var(--dsw-alias-bg-layer-1);box-shadow:var(--dsw-elevation-soft);color:var(--dsw-alias-label-primary);font-size:13px;overflow:auto}',
@@ -1565,7 +1570,7 @@ window.__ModuleLoader__.load({
       const total = items.length
 
       if (!sessionId) return null
-      if (variant !== 'badge' && session && session.running) return null
+      if (variant === 'hero' && session && session.running) return null
       if (variant === 'badge' && total === 0) return null
 
       if (variant === 'badge') {
@@ -1590,6 +1595,37 @@ window.__ModuleLoader__.load({
             },
             h('span', null, label),
             h('span', { className: 'dsh-wt-badgeCount' }, counts),
+          ),
+          open
+            ? h(MemoPopover, {
+                sessionId,
+                say,
+                localeId,
+                anchorRef,
+                onClose: () => setOpen(false),
+              })
+            : null,
+        )
+      }
+
+      if (variant === 'dock') {
+        const aria = openCount > 0 ? `${say('dock.open')}, ${say('dock.count', { n: openCount })}` : say('dock.open')
+        return h(
+          React.Fragment,
+          null,
+          h(
+            'button',
+            {
+              ref: anchorRef,
+              type: 'button',
+              className: 'dsh-wt-dockBtn',
+              title: say('dock.open'),
+              'aria-label': aria,
+              onClick: () => setOpen(value => !value),
+            },
+            h('span', { className: 'dsh-wt-dockIcon', 'aria-hidden': true }, h(PanelIcon, { size: 13 })),
+            h('span', null, say('dock.label')),
+            openCount > 0 ? h('span', { className: 'dsh-wt-dockCount' }, String(openCount)) : null,
           ),
           open
             ? h(MemoPopover, {
@@ -1637,37 +1673,6 @@ window.__ModuleLoader__.load({
             })
           : null,
       )
-    }
-
-    /**
-     * Message id of the closing assistant message in the last turn, or
-     * undefined while that turn is still running (or has no closing message).
-     */
-    function latestClosingMessageId(chat) {
-      const turnOrder = chat && chat.timeline && chat.timeline.turnOrder
-      if (!Array.isArray(turnOrder) || turnOrder.length === 0) return undefined
-      const lastTurn = turnOrder[turnOrder.length - 1]
-      const nodes = chat && chat.nodes && typeof chat.nodes.values === 'function' ? chat.nodes.values() : []
-      for (let index = nodes.length - 1; index >= 0; index--) {
-        const node = nodes[index]
-        if (!node || node.kind !== 'turn-tail' || !node.data || node.data.turn !== lastTurn) continue
-        const closing = node.data.closing
-        return closing && closing.finalNode ? closing.finalNode.messageId : undefined
-      }
-      return undefined
-    }
-
-    /**
-     * Historical conversations expose the entry in the latest assistant turn's
-     * metadata row, beside usage and the clock. Earlier turns render nothing;
-     * a running turn has no closing message, so no entry appears while busy.
-     */
-    function TurnFooterTodoEntry(props) {
-      const useChat = typeof props.useChat === 'function' ? props.useChat : selector => selector(undefined)
-      const chat = useChat(state => state)
-      const latest = latestClosingMessageId(chat)
-      if (latest === undefined || props.messageId === undefined || latest !== props.messageId) return null
-      return h(MemoEntry, { ...props, variant: 'footer' })
     }
 
     /** Translate through the locale service, falling back to the bundled copy. */
@@ -1846,9 +1851,10 @@ window.__ModuleLoader__.load({
         })
       }
 
-      function BoundTurnFooter(props) {
-        return h(TurnFooterTodoEntry, {
+      function BoundDock(props) {
+        return h(MemoEntry, {
           ...props,
+          variant: 'dock',
           say: translator(props),
         })
       }
@@ -1865,15 +1871,15 @@ window.__ModuleLoader__.load({
         ),
       )
 
-      ctx.slots.inject('conversation.chat.assistant-actions', () =>
+      ctx.slots.inject('conversation.composer.dock', () =>
         ctx.slots.register(
           {
-            name: 'conversation.chat.assistant-actions',
+            name: 'conversation.composer.dock',
             id: PANEL_ID,
             order: 30,
             locale: NS,
           },
-          BoundTurnFooter,
+          BoundDock,
         ),
       )
     }
