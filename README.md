@@ -76,7 +76,7 @@ window.__ModuleLoader__.load({
 })
 ```
 
-`index.js` 是空的 Host 半侧；`cordis.patch.yml` 负责把包插入 profile 的组合。界面只依赖 `slots` 服务，并通过 slot props 里的 `useSessions` / `useWorkspaces` 读取当前工作区。所有样式使用 DSH 的 `--dsw-alias-*` 主题变量，自动适配明暗主题。
+`index.js` 是空的 Host 半侧；`cordis.patch.yml` 负责把包插入 profile 的组合。界面依赖 `slots` 与 `layout` 服务，并通过 slot props 里的 `useSessions` / `useWorkspaces` 读取当前工作区。所有样式使用 DSH 的 `--dsw-alias-*` 主题变量，自动适配明暗主题。
 
 修改 `client.js` 后，在开发模式下 DSH 的 client HMR 会自动替换 bundle；否则刷新页面或重启 DSH。
 
@@ -85,7 +85,7 @@ window.__ModuleLoader__.load({
 已在独立的 DSH profile 中实际加载，并用无头 Chrome 走通：
 
 - 侧边栏出现「一点待办」入口，主面板正常渲染；
-- 输入框上方的入口显示未完成数量，点击可打开面板；
+- 新会话按钮行里的入口与工作区、预设同一行，显示未完成数量，点击可打开面板；
 - 添加、完成、编辑、删除、清除已完成、展开已完成；
 - 刷新页面后清单仍在，并按工作区隔离。
 
