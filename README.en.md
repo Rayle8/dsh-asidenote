@@ -12,14 +12,15 @@ The entry in the new-session control row above the input (same row as the worksp
 
 ![Yidian Todos entry in the input control row](./preview-dock.png)
 
-Historical conversations have no control row; the entry keeps the same position above the input:
+Historical conversations have no control row; the entry sits in the latest assistant reply's footer, on the same line as usage and the clock:
 
-![Yidian Todos entry above a historical conversation input](./preview-history.png)
+![Yidian Todos entry in a historical reply footer](./preview-history.png)
 
 ## Features
 
 - A **Yidian Todos** entry in the sidebar.
-- In a new session, the entry shares the control row above the input with the workspace and agent-preset controls; in a historical conversation, it keeps the same position above the input.
+- In a new session, the entry shares the control row above the input with the workspace and agent-preset controls.
+- In a historical conversation, the entry sits in the latest assistant reply's footer, on the same line as usage and the clock, without adding a row.
 - The entry shows the current workspace's open count and opens the panel in one click.
 - The entry hides while the session is running, so it never competes with the generation controls.
 - Per-workspace notes, following the workspace of the active session; switch workspaces from the header.

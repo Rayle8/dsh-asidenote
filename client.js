@@ -203,7 +203,12 @@ window.__ModuleLoader__.load({
       '.dsh-wt-heroIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-heroLabel{white-space:nowrap}',
       '.dsh-wt-heroCount{min-width:16px;padding:0 5px;border-radius:999px;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-bg-base);font-size:10px;line-height:16px;text-align:center;font-variant-numeric:tabular-nums}',
-      '.dsh-wt-historyDock{box-sizing:border-box;display:flex;align-items:center;justify-content:flex-end;width:min(calc(var(--dsh-composer-card-max-width) + 2 * var(--dsh-composer-side-clearance)),100%);margin:0 auto 1px;padding:0 var(--dsh-composer-side-clearance)}',
+      '.dsh-wt-footerBtn{display:inline-flex;align-items:center;gap:4px;height:28px;padding:0 7px;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:12px;line-height:20px;cursor:pointer}',
+      '.dsh-wt-footerBtn:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}',
+      '.dsh-wt-footerBtn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
+      '.dsh-wt-footerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:14px;height:14px;color:currentColor}',
+      '.dsh-wt-footerLabel{white-space:nowrap}',
+      '.dsh-wt-footerCount{min-width:14px;padding:0 4px;border-radius:999px;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-bg-base);font-size:9px;line-height:14px;text-align:center;font-variant-numeric:tabular-nums}',
       '.dsh-wt-error{color:var(--dsw-alias-state-warning-primary)}',
       '@media (max-width:640px){.dsh-wt-shell{padding:22px 16px 56px}.dsh-wt-head{gap:16px}.dsh-wt-title{font-size:20px;line-height:28px}.dsh-wt-statNum{font-size:24px;line-height:28px}.dsh-wt-sub{font-size:12px}.dsh-wt-select{max-width:210px}.dsh-wt-row{padding:11px 10px}.dsh-wt-actions{opacity:1}}',
     ].join('')
@@ -1163,31 +1168,56 @@ window.__ModuleLoader__.load({
       const open = items.filter(item => !item.done).length
       const say = props.say
       const aria = open > 0 ? `${say('dock.open')}, ${say('dock.count', { n: open })}` : say('dock.open')
+      const compact = props.compact === true
+      const buttonClass = compact ? 'dsh-wt-footerBtn' : 'dsh-wt-heroBtn'
+      const iconClass = compact ? 'dsh-wt-footerIcon' : 'dsh-wt-heroIcon'
+      const labelClass = compact ? 'dsh-wt-footerLabel' : 'dsh-wt-heroLabel'
+      const countClass = compact ? 'dsh-wt-footerCount' : 'dsh-wt-heroCount'
 
       return h(
         'button',
         {
           type: 'button',
-          className: 'dsh-wt-heroBtn',
+          className: buttonClass,
           title: say('dock.open'),
           'aria-label': aria,
           onClick: props.openTodos,
         },
-        h('span', { className: 'dsh-wt-heroIcon', 'aria-hidden': true }, h(PanelIcon, { size: 16 })),
-        h('span', { className: 'dsh-wt-heroLabel' }, say('dock.label')),
-        open > 0 ? h('span', { className: 'dsh-wt-heroCount' }, String(open)) : null,
+        h('span', { className: iconClass, 'aria-hidden': true }, h(PanelIcon, { size: compact ? 14 : 16 })),
+        h('span', { className: labelClass }, say('dock.label')),
+        open > 0 ? h('span', { className: countClass }, String(open)) : null,
       )
     }
 
     /**
-     * Historical conversations have no workspace/preset row. Keep the entry at
-     * the same place relative to the input: right-aligned directly above the
-     * composer card. Blank sessions already own the hero-row seat, so skip the
-     * dock there to avoid rendering the same control twice.
+     * Message id of the closing assistant message in the last turn, or
+     * undefined while that turn is still running (or has no closing message).
      */
-    function HistoryTodoDock(props) {
-      if (!props.session || props.session.blank || props.session.running) return null
-      return h('div', { className: 'dsh-wt-historyDock' }, h(HeroTodoEntry, props))
+    function latestClosingMessageId(chat) {
+      const turnOrder = chat && chat.timeline && chat.timeline.turnOrder
+      if (!Array.isArray(turnOrder) || turnOrder.length === 0) return undefined
+      const lastTurn = turnOrder[turnOrder.length - 1]
+      const nodes = chat && chat.nodes && typeof chat.nodes.values === 'function' ? chat.nodes.values() : []
+      for (let index = nodes.length - 1; index >= 0; index--) {
+        const node = nodes[index]
+        if (!node || node.kind !== 'turn-tail' || !node.data || node.data.turn !== lastTurn) continue
+        const closing = node.data.closing
+        return closing && closing.finalNode ? closing.finalNode.messageId : undefined
+      }
+      return undefined
+    }
+
+    /**
+     * Historical conversations expose the entry in the latest assistant turn's
+     * metadata row, beside usage and the clock. Earlier turns render nothing;
+     * a running turn has no closing message, so no entry appears while busy.
+     */
+    function TurnFooterTodoEntry(props) {
+      const useChat = typeof props.useChat === 'function' ? props.useChat : selector => selector(undefined)
+      const chat = useChat(state => state)
+      const latest = latestClosingMessageId(chat)
+      if (latest === undefined || props.messageId === undefined || latest !== props.messageId) return null
+      return h(HeroTodoEntry, { ...props, compact: true })
     }
 
     /** Translate through the locale service, falling back to the bundled copy. */
@@ -1273,8 +1303,8 @@ window.__ModuleLoader__.load({
         })
       }
 
-      function BoundHistoryDock(props) {
-        return h(HistoryTodoDock, {
+      function BoundTurnFooter(props) {
+        return h(TurnFooterTodoEntry, {
           ...props,
           say: translator(props),
         })
@@ -1303,16 +1333,16 @@ window.__ModuleLoader__.load({
         ),
       )
 
-      ctx.slots.inject('conversation.input.dock', () =>
+      ctx.slots.inject('conversation.chat.assistant-actions', () =>
         ctx.slots.register(
           {
-            name: 'conversation.input.dock',
+            name: 'conversation.chat.assistant-actions',
             id: PANEL_ID,
             order: 30,
             locale: NS,
             inject: () => ({ openTodos }),
           },
-          BoundHistoryDock,
+          BoundTurnFooter,
         ),
       )
 

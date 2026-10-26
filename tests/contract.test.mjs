@@ -19,6 +19,7 @@ test('package declares the DSH bundle and web client halves', () => {
   assert.equal(manifest.dsh.client.immediately, true)
   for (const dependency of [
     '@deepseek-ai/dsh-client-locale',
+    '@deepseek-ai/dsh-client-ui-chat',
     '@deepseek-ai/dsh-client-ui-conversation',
     '@deepseek-ai/dsh-client-ui-layout',
     '@deepseek-ai/dsh-client-ui-sidebar',
@@ -47,13 +48,13 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /ctx\.slots\.inject\('main'/)
   assert.match(client, /ctx\.slots\.inject\('sidebar\.panellist'/)
   assert.match(client, /ctx\.slots\.inject\('conversation\.hero\.options'/)
-  assert.match(client, /ctx\.slots\.inject\('conversation\.input\.dock'/)
-  assert.match(client, /function HistoryTodoDock/)
-  assert.match(client, /props\.session\.blank/)
-  assert.match(client, /props\.session\.running/)
+  assert.match(client, /ctx\.slots\.inject\('conversation\.chat\.assistant-actions'/)
+  assert.match(client, /function latestClosingMessageId/)
+  assert.match(client, /function TurnFooterTodoEntry/)
+  assert.match(client, /compact: true/)
   assert.match(client, /active\.running/)
   assert.match(client, /openTodos/)
-  assert.match(client, /dsh-wt-heroBtn/)
+  assert.match(client, /dsh-wt-footerBtn/)
   assert.match(client, /document\.head\.appendChild\(style\)/)
   assert.doesNotMatch(client, /h\('style'/)
   assert.match(client, /return \{ inject: \['slots', 'layout'\], apply \}/)
