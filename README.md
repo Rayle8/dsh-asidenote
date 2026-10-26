@@ -53,7 +53,7 @@ git clone git@github.com:Rayle8/dsh-workspace-todos.git
 }
 ```
 
-然后在 profile 目录执行 `pnpm install`。DSH 启动时会读取 `dsh.bundle.patch` 和 `dsh.client`，注册侧边栏入口与主面板。已经运行的 DSH 进程需要重启一次才会重新组合 profile；单独修改 `client.js` 时，开发模式的 HMR 会直接替换 bundle。
+然后在 profile 目录执行 `pnpm install`。DSH 启动时会读取 `dsh.bundle.patch` 和 `dsh.client`，注册侧边栏入口与主面板。新增插件行后，可以在侧边栏「插件」页对该组合包**关闭再开启**，让运行中的 Host 在线重新组合，无需重启；如果插件页里还看不到它，再重启一次 DSH。之后单独修改 `client.js` 时，开发模式的 HMR 会直接替换 bundle。
 
 ## 开发
 

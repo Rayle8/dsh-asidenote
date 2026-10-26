@@ -53,7 +53,7 @@ Link the clone into a DSH profile (replace `<path-to-repo>`):
 }
 ```
 
-Then run `pnpm install` in the profile. On startup DSH reads `dsh.bundle.patch` and `dsh.client` and registers the sidebar entry and main panel. A running DSH process needs one restart to recompose the profile; when only `client.js` changes, development-mode HMR replaces the bundle directly.
+Then run `pnpm install` in the profile. On startup DSH reads `dsh.bundle.patch` and `dsh.client` and registers the sidebar entry and main panel. After adding a bundle row, toggle that bundle **off and on** in the sidebar's **Plugins** page to recompose the running Host online; only restart DSH if the bundle is not listed there. After that, editing `client.js` alone is picked up by development-mode HMR.
 
 ## Development
 
