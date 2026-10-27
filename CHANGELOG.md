@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.7
+
+- Move the floating copy/edit/delete actions to the top-right of the note row instead of vertically centering them.
+
 ## 1.3.6
 
 - Float the copy/edit/delete actions over the note row so they no longer reserve width or leave blank space beside the text.
