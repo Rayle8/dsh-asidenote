@@ -4,6 +4,7 @@
 
 - Rename the product to **Notes** (便笺).
 - Replace the checklist icon with a folded sticky-note icon in the badge, dock entry, and package icon.
+- Add a copy action to each note, placed to the left of edit, with a brief copied state.
 
 ## 1.2.0
 

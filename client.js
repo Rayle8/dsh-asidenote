@@ -71,6 +71,8 @@ window.__ModuleLoader__.load({
         'list.allDone.body': '可以继续添加，或展开下方回看已完成。',
         'item.markDone': '标记为完成',
         'item.markOpen': '标记为未完成',
+        'item.copy': '复制',
+        'item.copied': '已复制',
         'item.edit': '编辑',
         'item.delete': '删除',
         'item.editHint': '双击编辑',
@@ -126,6 +128,8 @@ window.__ModuleLoader__.load({
         'list.allDone.body': 'Add another note, or expand completed below to look back.',
         'item.markDone': 'Mark as done',
         'item.markOpen': 'Mark as open',
+        'item.copy': 'Copy',
+        'item.copied': 'Copied',
         'item.edit': 'Edit',
         'item.delete': 'Delete',
         'item.editHint': 'Double-click to edit',
@@ -211,6 +215,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-iconBtn{display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:6px;background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}',
       '.dsh-wt-iconBtn:hover{background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-iconBtn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
+      '.dsh-wt-iconBtn.dsh-wt-copied{color:var(--dsw-alias-brand-primary)}',
       '.dsh-wt-rowDone .dsh-wt-text{color:var(--dsw-alias-label-secondary);text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:var(--dsw-alias-border-l2)}',
       '.dsh-wt-doneHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:20px 0 0}',
       '.dsh-wt-doneToggle{display:flex;align-items:center;gap:7px;flex:1;min-width:0;margin:0;padding:0;border:0;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:12px;line-height:20px;font-weight:600;text-align:left;cursor:pointer}',
@@ -306,6 +311,32 @@ window.__ModuleLoader__.load({
       return String(template).replace(/\{(\w+)\}/g, (match, name) => {
         return vars && vars[name] !== undefined && vars[name] !== null ? String(vars[name]) : match
       })
+    }
+
+    /** Copy plain text, with a synchronous fallback for restricted clipboards. */
+    async function copyText(text) {
+      try {
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+          await navigator.clipboard.writeText(text)
+          return true
+        }
+      } catch (error) {
+        /* fall through to execCommand */
+      }
+      try {
+        const area = document.createElement('textarea')
+        area.value = text
+        area.setAttribute('readonly', '')
+        area.style.position = 'fixed'
+        area.style.opacity = '0'
+        document.body.appendChild(area)
+        area.select()
+        const ok = document.execCommand('copy')
+        area.remove()
+        return ok
+      } catch (error) {
+        return false
+      }
     }
 
     /** The browser store, or null when storage is blocked. */
@@ -642,6 +673,37 @@ window.__ModuleLoader__.load({
       )
     }
 
+    function IconCopy() {
+      return h(
+        'svg',
+        {
+          width: 14,
+          height: 14,
+          viewBox: '0 0 16 16',
+          fill: 'none',
+          'aria-hidden': true,
+          focusable: false,
+          style: { display: 'block' },
+        },
+        h('rect', {
+          x: 5.5,
+          y: 2.75,
+          width: 7.25,
+          height: 8.75,
+          rx: 1.25,
+          stroke: 'currentColor',
+          strokeWidth: 1.3,
+        }),
+        h('path', {
+          d: 'M10.4 2.75V2.1c0-.47-.38-.85-.85-.85H2.85c-.47 0-.85.38-.85.85v7.4c0 .47.38.85.85.85h2.65',
+          stroke: 'currentColor',
+          strokeWidth: 1.3,
+          strokeLinecap: 'round',
+          strokeLinejoin: 'round',
+        }),
+      )
+    }
+
     function IconPencil() {
       return h(
         'svg',
@@ -739,6 +801,22 @@ window.__ModuleLoader__.load({
     function TodoRow(props) {
       const { item, done, say, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onFinishEdit, onCancelEdit, editRef } = props
       const rowClass = done ? 'dsh-wt-row dsh-wt-rowDone' : 'dsh-wt-row'
+      const [copied, setCopied] = React.useState(false)
+      const copyTimerRef = React.useRef(null)
+
+      React.useEffect(() => {
+        return () => {
+          if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
+        }
+      }, [])
+
+      const copy = async () => {
+        const ok = await copyText(item.text)
+        if (!ok) return
+        setCopied(true)
+        if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
+        copyTimerRef.current = setTimeout(() => setCopied(false), 1200)
+      }
 
       const body = editing
         ? h(
@@ -826,6 +904,17 @@ window.__ModuleLoader__.load({
           : h(
               'div',
               { className: 'dsh-wt-actions' },
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: copied ? 'dsh-wt-iconBtn dsh-wt-copied' : 'dsh-wt-iconBtn',
+                  'aria-label': say(copied ? 'item.copied' : 'item.copy'),
+                  title: say(copied ? 'item.copied' : 'item.copy'),
+                  onClick: copy,
+                },
+                copied ? h(IconCheck, { size: 12 }) : h(IconCopy, null),
+              ),
               h(
                 'button',
                 {

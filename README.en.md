@@ -31,7 +31,8 @@ Every entry opens a **floating panel next to the trigger**; it never navigates t
 - The badge hugs the title text instead of sitting at the row's right edge; sessions with a badge hide their relative time so the full title and badge fit.
 - The new-session entry shares the row with the workspace and agent-preset controls.
 - The conversation entry stays at the right of the composer status strip, visible and editable across turns and while the session is running.
-- Clicking the entry opens a popover for add, complete, edit (double-click or pencil), delete, clear completed, and expand completed.
+- Clicking the entry opens a popover for add, complete, copy, edit (double-click or pencil), delete, clear completed, and expand completed.
+- Each note has copy, edit, and delete actions; copy sits to the left of edit and briefly shows **Copied** after a successful copy.
 - The sidebar reminder stays visible while the session is running.
 - Syncs across tabs in the same browser.
 - Chinese and English copy, following the DSH locale.
