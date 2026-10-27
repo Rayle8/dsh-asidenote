@@ -1404,6 +1404,7 @@ window.__ModuleLoader__.load({
       const [editingId, setEditingId] = React.useState(null)
       const [editDraft, setEditDraft] = React.useState('')
       const [showDone, setShowDone] = React.useState(false)
+      const [showOpen, setShowOpen] = React.useState(true)
       const [style, setStyle] = React.useState(() => memoPopoverStyle(props.anchorRef.current))
       const panelRef = React.useRef(null)
       const editRef = React.useRef(null)
@@ -1596,14 +1597,27 @@ window.__ModuleLoader__.load({
         h(
           'div',
           { className: 'dsh-wt-sectionHead' },
-          h('div', { className: 'dsh-wt-sectionName' }, say('list.open'), h('span', { className: 'dsh-wt-sectionCount' }, String(openCount))),
+          h(
+            'button',
+            {
+              type: 'button',
+              className: 'dsh-wt-doneToggle',
+              'aria-expanded': showOpen ? 'true' : 'false',
+              onClick: () => setShowOpen(value => !value),
+            },
+            h('span', { className: 'dsh-wt-chevron', 'data-open': showOpen ? 'true' : 'false' }, h(IconChevron, null)),
+            say('list.open'),
+            h('span', { className: 'dsh-wt-sectionCount' }, String(openCount)),
+          ),
         ),
-        openItems.length
-          ? h('ul', { className: 'dsh-wt-rows' }, openItems.map(row))
-          : h(EmptyState, {
-              title: say(total ? 'list.allDone.title' : 'popover.empty.title'),
-              body: say(total ? 'list.allDone.body' : 'popover.empty.body'),
-            }),
+        showOpen
+          ? openItems.length
+            ? h('ul', { className: 'dsh-wt-rows' }, openItems.map(row))
+            : h(EmptyState, {
+                title: say(total ? 'list.allDone.title' : 'popover.empty.title'),
+                body: say(total ? 'list.allDone.body' : 'popover.empty.body'),
+              })
+          : null,
         doneItems.length
           ? h(
               React.Fragment,

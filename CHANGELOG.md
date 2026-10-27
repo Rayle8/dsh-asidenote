@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.5
+
+- Add an expand/collapse chevron to the open section and align its count style with the completed section.
+
 ## 1.3.4
 
 - Remove the inherited section margin that left a large blank below the popover's add form.
