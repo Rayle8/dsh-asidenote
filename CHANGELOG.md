@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.4
+
+- Remove the inherited section margin that left a large blank below the popover's add form.
+- Bound the completed list so many completed notes scroll vertically instead of being clipped.
+
 ## 1.3.3
 
 - Sidebar badge now shows only the open-note count and hides when none are open.

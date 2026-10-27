@@ -28,6 +28,7 @@ Every entry opens a **floating panel next to the trigger**; it never navigates t
 - The conversation entry stays at the right of the composer status strip, visible and editable across turns and while the session is running.
 - Clicking the entry opens a popover for add, complete, copy, edit (double-click or pencil), delete, clear completed, and expand completed.
 - Each note has copy, edit, and delete actions; copy sits to the left of edit and briefly shows **Copied** after a successful copy.
+- When there are many completed notes, the completed list scrolls vertically inside the popover.
 - The sidebar reminder stays visible while the session is running.
 - Syncs across tabs in the same browser.
 - Chinese and English copy, following the DSH locale.
