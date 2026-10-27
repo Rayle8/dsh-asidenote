@@ -29,6 +29,7 @@ Every entry opens a **floating panel next to the trigger**; it never navigates t
 - Clicking the entry opens a popover for add, complete, copy, edit (double-click or pencil), delete, clear completed, and expand completed.
 - Each note has copy, edit, and delete actions; copy sits to the left of edit and briefly shows **Copied** after a successful copy.
 - The completion circle shares the first line with the note text; copy, edit, and delete sit at the bottom-right beside the time, saving one row.
+- The editor grows into multiple rows as you type; Enter saves and Shift+Enter adds a line.
 - When there are many completed notes, the completed list scrolls vertically inside the popover.
 - Both **Open** and **Completed** headings collapse on click, with matching count styles.
 - The sidebar reminder stays visible while the session is running.

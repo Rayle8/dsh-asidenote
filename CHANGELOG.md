@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.5
+
+- Replace the single-line editor input with an auto-growing textarea so wrapped or pasted text shows in multiple rows; Enter saves and Shift+Enter adds a line.
+
 ## 1.4.4
 
 - Match the editor's font size and line height to the popover body, tighten its padding/gaps, and hide the meta row while editing.

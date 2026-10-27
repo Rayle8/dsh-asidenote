@@ -204,7 +204,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-text:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;border-radius:4px}',
       '.dsh-wt-meta{font-size:10.5px;line-height:16px;color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums}',
       '.dsh-wt-edit{display:flex;flex-direction:column;gap:4px;width:100%}',
-      '.dsh-wt-editInput{width:100%;box-sizing:border-box;padding:3px 6px;border:1px solid var(--dsw-alias-brand-primary);border-radius:6px;background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary);font:inherit;font-size:14px;line-height:21px;outline:0}',
+      '.dsh-wt-editInput{display:block;width:100%;box-sizing:border-box;min-height:26px;max-height:160px;padding:3px 6px;border:1px solid var(--dsw-alias-brand-primary);border-radius:6px;background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary);font:inherit;font-size:14px;line-height:21px;outline:0;resize:none;overflow-y:auto;overflow-x:hidden}',
       '.dsh-wt-editActions{display:flex;gap:4px}',
       '.dsh-wt-mini{height:22px;padding:0 7px;border:1px solid var(--dsw-alias-border-l1);border-radius:6px;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:11px;line-height:20px;cursor:pointer}',
       '.dsh-wt-mini:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-layer-2)}',
@@ -824,21 +824,39 @@ window.__ModuleLoader__.load({
         copyTimerRef.current = setTimeout(() => setCopied(false), 1200)
       }
 
+      const resizeEditor = node => {
+        if (!node) return
+        node.style.height = 'auto'
+        node.style.height = `${node.scrollHeight + 2}px`
+      }
+
+      const setEditorRef = React.useCallback(node => {
+        editRef.current = node
+        if (node) {
+          node.style.height = 'auto'
+          node.style.height = `${node.scrollHeight + 2}px`
+        }
+      }, [editRef])
+
       const body = editing
         ? h(
             'div',
             { className: 'dsh-wt-edit' },
-            h('input', {
-              ref: editRef,
+            h('textarea', {
+              ref: setEditorRef,
               className: 'dsh-wt-editInput',
               value: editDraft,
+              rows: 1,
               maxLength: MAX_TEXT,
               'aria-label': say('item.edit'),
-              onChange: event => setEditDraft(event.target.value),
+              onChange: event => {
+                setEditDraft(event.target.value)
+                resizeEditor(event.target)
+              },
               onKeyDown: event => {
                 const composing = event.isComposing || (event.nativeEvent && event.nativeEvent.isComposing)
                 if (composing) return
-                if (event.key === 'Enter') {
+                if (event.key === 'Enter' && !event.shiftKey) {
                   event.preventDefault()
                   onFinishEdit(item)
                 } else if (event.key === 'Escape') {
