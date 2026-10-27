@@ -1930,14 +1930,6 @@ window.__ModuleLoader__.load({
         }
       }, 'workspace-todos: session badges')
 
-      function BoundHeroEntry(props) {
-        return h(MemoEntry, {
-          ...props,
-          variant: 'hero',
-          say: translator(props),
-        })
-      }
-
       function BoundDock(props) {
         return h(MemoEntry, {
           ...props,
@@ -1945,18 +1937,6 @@ window.__ModuleLoader__.load({
           say: translator(props),
         })
       }
-
-      ctx.slots.inject('conversation.hero.options', () =>
-        ctx.slots.register(
-          {
-            name: 'conversation.hero.options',
-            id: PANEL_ID,
-            order: 10,
-            locale: NS,
-          },
-          BoundHeroEntry,
-        ),
-      )
 
       ctx.slots.inject('conversation.composer.dock', () =>
         ctx.slots.register(

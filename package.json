@@ -1,6 +1,6 @@
 {
   "name": "dsh-workspace-todos",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "type": "module",
   "description": "Notes: a lightweight per-session sticky-note badge and floating panel for the DeepSeek Harness Web GUI.",
   "license": "MIT",
@@ -39,7 +39,6 @@
     "icon.svg",
     "preview.png",
     "preview-badge.png",
-    "preview-dock.png",
     "preview-history.png",
     "README.md",
     "README.en.md",

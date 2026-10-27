@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.1
+
+- Remove the redundant new-session hero entry above the input; notes remain reachable from the sidebar badge and the composer status strip.
+
 ## 1.3.0
 
 - Rename the product to **Notes** (便笺).

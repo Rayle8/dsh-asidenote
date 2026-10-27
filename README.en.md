@@ -14,10 +14,6 @@ The reminder badge after a session title:
 
 ![Notes badge after a session title](./preview-badge.png)
 
-The new-session control row above the input:
-
-![Notes entry in the new-session control row](./preview-dock.png)
-
 The right side of the status strip below the input, on the same line as turns, usage, and context:
 
 ![Notes entry at the right of the bottom status strip](./preview-history.png)
@@ -29,7 +25,6 @@ Every entry opens a **floating panel next to the trigger**; it never navigates t
 - Data is keyed by **session ID**; different sessions in one workspace stay independent.
 - A `Notes open/total` badge after the sidebar session title. It is hidden when a session has no notes.
 - The badge hugs the title text instead of sitting at the row's right edge; sessions with a badge hide their relative time so the full title and badge fit.
-- The new-session entry shares the row with the workspace and agent-preset controls.
 - The conversation entry stays at the right of the composer status strip, visible and editable across turns and while the session is running.
 - Clicking the entry opens a popover for add, complete, copy, edit (double-click or pencil), delete, clear completed, and expand completed.
 - Each note has copy, edit, and delete actions; copy sits to the left of edit and briefly shows **Copied** after a successful copy.
@@ -39,7 +34,7 @@ Every entry opens a **floating panel next to the trigger**; it never navigates t
 
 ## Usage
 
-1. Click the badge after a session title (it appears when that session has notes), or the **Notes** entry above the input / in the latest reply footer.
+1. Click the badge after a session title (it appears when that session has notes), or the **Notes** entry at the right of the composer status strip.
 2. Write one concrete follow-up in the popover and press Enter (or **Add**).
 3. Click the circle to complete it; expand **Completed** to look back.
 4. Click outside or press Esc to close.
@@ -107,8 +102,7 @@ window.__ModuleLoader__.load({
 
 `index.js` is the empty Host half; `cordis.patch.yml` inserts the package into the profile composition. The UI depends on `slots` only:
 
-- `conversation.hero.options`: the new-session control-row entry.
-- `conversation.chat.assistant-actions`: the latest-reply footer entry.
+- `conversation.composer.dock`: the entry at the right of the status strip below the input.
 - The sidebar badge is injected after each session title with a MutationObserver, because the packaged session row does not render the inline trailing slot.
 
 The popover mounts as its own `react-dom/client` root on `document.body` and follows the trigger with fixed positioning. All styles use DSH's `--dsw-alias-*` theme variables, so light and dark themes work.
