@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.1
+
+- Merge the completion circle with the first text line and move copy/edit/delete to the bottom time row, saving one row of height.
+
 ## 1.4.0
 
 - Redesign note rows with a dedicated first line for the completion button and copy/edit/delete actions; actions stay visible and the text begins below.
