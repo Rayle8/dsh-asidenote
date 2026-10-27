@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.6
+
+- Make the new-note input auto-grow as well, so long text wraps into multiple rows before adding.
+
 ## 1.4.5
 
 - Replace the single-line editor input with an auto-growing textarea so wrapped or pasted text shows in multiple rows; Enter saves and Shift+Enter adds a line.
