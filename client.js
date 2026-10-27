@@ -43,7 +43,7 @@ window.__ModuleLoader__.load({
         'dock.count': '{n} 项未完成',
         'badge.label': '便笺',
         'badge.title': '打开当前会话的便笺',
-        'badge.count': '{open}/{total}',
+        'badge.count': '{open}',
         'popover.title': '便笺',
         'popover.close': '关闭便笺',
         'popover.count': '{open} 未完成 · {total} 条',
@@ -100,7 +100,7 @@ window.__ModuleLoader__.load({
         'dock.count': '{n} open',
         'badge.label': 'Notes',
         'badge.title': 'Open this session’s notes',
-        'badge.count': '{open}/{total}',
+        'badge.count': '{open}',
         'popover.title': 'Notes',
         'popover.close': 'Close notes',
         'popover.count': '{open} open · {total} total',
@@ -250,7 +250,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-dockBtn:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-dockBtn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
       '.dsh-wt-dockIcon{display:flex;align-items:center;justify-content:center;flex:none;width:13px;height:13px;color:currentColor}',
-      '.dsh-wt-dockCount{min-width:14px;padding:0 4px;border-radius:999px;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-bg-base);font-size:9px;line-height:14px;text-align:center;font-variant-numeric:tabular-nums}',
+      '.dsh-wt-dockCount{min-width:0;padding:0;border-radius:0;background:none;color:inherit;font:inherit;font-size:11px;line-height:20px;text-align:left;font-variant-numeric:tabular-nums}',
       '[data-row-key^="session:"]:has(> .dsh-wt-badge) > [class*="_title"]{flex:0 1 auto}',
       '[data-row-key^="session:"]:has(> .dsh-wt-badge) > [class*="_time"]{display:none}',
       '.dsh-wt-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;min-height:0;padding:12px;border:1px solid var(--dsw-alias-border-l2);border-radius:12px;background:var(--dsw-alias-bg-layer-1);box-shadow:var(--dsw-elevation-soft);color:var(--dsw-alias-label-primary);font-size:13px;overflow:auto}',
@@ -1658,11 +1658,11 @@ window.__ModuleLoader__.load({
 
       if (!sessionId) return null
       if (variant === 'hero' && session && session.running) return null
-      if (variant === 'badge' && total === 0) return null
+      if (variant === 'badge' && openCount === 0) return null
 
       if (variant === 'badge') {
         const label = say('badge.label')
-        const counts = say('badge.count', { open: openCount, total })
+        const counts = say('badge.count', { open: openCount })
         return h(
           React.Fragment,
           null,
@@ -1673,7 +1673,7 @@ window.__ModuleLoader__.load({
               type: 'button',
               className: 'dsh-wt-badge',
               title: say('badge.title'),
-              'aria-label': `${label} ${counts}`,
+              'aria-label': `${label}, ${say('dock.count', { n: openCount })}`,
               onMouseDown: event => event.stopPropagation(),
               onClick: event => {
                 event.stopPropagation()
@@ -1869,8 +1869,9 @@ window.__ModuleLoader__.load({
           const title = row.querySelector(':scope > [class*="_title"]')
           if (!title) continue
           const items = normalizeItems(store.sessions[sessionId] && store.sessions[sessionId].items)
+          const open = items.filter(item => !item.done).length
           let badge = row.querySelector(':scope > .dsh-wt-badge')
-          if (!items.length) {
+          if (open === 0) {
             if (badge) badge.remove()
             continue
           }
@@ -1886,20 +1887,19 @@ window.__ModuleLoader__.load({
             })
             title.insertAdjacentElement('afterend', badge)
           }
-          const open = items.filter(item => !item.done).length
-          const signature = `${localeId()}:${open}/${items.length}`
+          const signature = `${localeId()}:${open}`
           if (badge.dataset.signature !== signature) {
             const label = document.createElement('span')
             label.textContent = tr('badge.label')
             const count = document.createElement('span')
             count.className = 'dsh-wt-badgeCount'
-            count.textContent = tr('badge.count', { open, total: items.length })
+            count.textContent = tr('badge.count', { open })
             badge.replaceChildren(label, count)
             badge.dataset.signature = signature
           }
           badge.dataset.sessionId = sessionId
           badge.title = tr('badge.title')
-          badge.setAttribute('aria-label', `${tr('badge.label')} ${tr('badge.count', { open, total: items.length })}`)
+          badge.setAttribute('aria-label', `${tr('badge.label')}, ${tr('dock.count', { n: open })}`)
         }
       }
 

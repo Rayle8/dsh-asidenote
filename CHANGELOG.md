@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.3
+
+- Sidebar badge now shows only the open-note count and hides when none are open.
+- The composer status-strip count now inherits the label style instead of using a dark pill.
+
 ## 1.3.2
 
 - Center the popover's add-button label by dropping the inherited 30px line-height and centering the label with flex.

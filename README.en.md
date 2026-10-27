@@ -4,7 +4,7 @@
 
 > Product name: **Notes** (便笺). The repository keeps the `dsh-workspace-todos` name.
 
-A lightweight note for the DeepSeek Harness Web GUI, scoped to one **session** at a time. Switching sessions never mixes notes, and sessions in the same workspace stay independent. A `Notes open/total` badge after each sidebar session title shows which conversations still have follow-ups.
+A lightweight note for the DeepSeek Harness Web GUI, scoped to one **session** at a time. Switching sessions never mixes notes, and sessions in the same workspace stay independent. A `Notes open count` badge after each sidebar session title shows which conversations still have follow-ups.
 
 ![Notes popover](./preview.png)
 
@@ -23,7 +23,7 @@ Every entry opens a **floating panel next to the trigger**; it never navigates t
 ## Features
 
 - Data is keyed by **session ID**; different sessions in one workspace stay independent.
-- A `Notes open/total` badge after the sidebar session title. It is hidden when a session has no notes.
+- A `Notes open count` badge after the sidebar session title, counting only unchecked notes. It is hidden when there are no open notes.
 - The badge hugs the title text instead of sitting at the row's right edge; sessions with a badge hide their relative time so the full title and badge fit.
 - The conversation entry stays at the right of the composer status strip, visible and editable across turns and while the session is running.
 - Clicking the entry opens a popover for add, complete, copy, edit (double-click or pencil), delete, clear completed, and expand completed.
