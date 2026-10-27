@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.3
+
+- Remove the extra horizontal padding on the open-section heading so its count aligns with the completed-section count.
+
 ## 1.4.2
 
 - Render note text as selectable text instead of a button so it can be dragged and selected; double-click still starts editing.

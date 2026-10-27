@@ -261,7 +261,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-popover .dsh-wt-add{margin:0 0 8px;padding:4px 4px 4px 9px;border-radius:9px}',
       '.dsh-wt-popover .dsh-wt-addBtn{height:24px;padding:0 9px;font-size:11px;line-height:1}',
       '.dsh-wt-popover .dsh-wt-addHint{display:none}',
-      '.dsh-wt-popover .dsh-wt-sectionHead{padding:4px 2px 2px;margin:0}',
+      '.dsh-wt-popover .dsh-wt-sectionHead{padding:4px 0 2px;margin:0}',
       '.dsh-wt-popover > *{flex:none}',
       '.dsh-wt-popover .dsh-wt-doneRows{flex:0 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--dsw-alias-border-l3) transparent;scrollbar-gutter:stable}',
       '.dsh-wt-popover .dsh-wt-doneRows::-webkit-scrollbar{width:8px}',
