@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.6
+
+- Float the copy/edit/delete actions over the note row so they no longer reserve width or leave blank space beside the text.
+
 ## 1.3.5
 
 - Add an expand/collapse chevron to the open section and align its count style with the completed section.
