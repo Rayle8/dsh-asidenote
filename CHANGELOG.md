@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.2
+
+- Center the popover's add-button label by dropping the inherited 30px line-height and centering the label with flex.
+
 ## 1.3.1
 
 - Remove the redundant new-session hero entry above the input; notes remain reachable from the sidebar badge and the composer status strip.
