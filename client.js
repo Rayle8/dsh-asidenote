@@ -174,15 +174,12 @@ window.__ModuleLoader__.load({
       '.dsh-wt-track{flex:1;height:4px;border-radius:999px;background:var(--dsw-alias-border-l1);overflow:hidden}',
       '.dsh-wt-fill{height:100%;border-radius:inherit;background:var(--dsw-alias-brand-primary);transition:width .25s ease}',
       '.dsh-wt-progressText{flex:none;font-size:11px;line-height:16px;color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums}',
-      '.dsh-wt-add{display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:7px 7px 7px 13px;border:1px solid var(--dsw-alias-border-l1);border-radius:12px;background:var(--dsw-alias-bg-layer-1);transition:border-color .15s ease}',
+      '.dsh-wt-add{display:flex;flex-direction:column;align-items:stretch;gap:4px;padding:7px 7px 7px 13px;border:1px solid var(--dsw-alias-border-l1);border-radius:12px;background:var(--dsw-alias-bg-layer-1);transition:border-color .15s ease}',
       '.dsh-wt-add:focus-within{border-color:var(--dsw-alias-brand-primary)}',
-      '.dsh-wt-addMultiline{gap:6px 10px}',
-      '.dsh-wt-addMultiline .dsh-wt-input{flex:0 0 100%}',
-      '.dsh-wt-addMultiline .dsh-wt-addBtn{order:2}',
       '.dsh-wt-addIcon{display:flex;align-items:center;justify-content:center;flex:none;width:18px;height:18px;color:var(--dsw-alias-label-secondary)}',
-      '.dsh-wt-input{display:block;flex:1;min-width:0;box-sizing:border-box;min-height:28px;max-height:120px;padding:5px 0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:14px;line-height:18px;resize:none;overflow-y:auto;overflow-x:hidden}',
+      '.dsh-wt-input{display:block;flex:0 0 auto;width:100%;min-width:0;box-sizing:border-box;min-height:28px;max-height:120px;padding:5px 0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:14px;line-height:18px;resize:none;overflow-y:auto;overflow-x:hidden}',
       '.dsh-wt-input::placeholder{color:var(--dsw-alias-label-secondary);opacity:.78}',
-      '.dsh-wt-addBtn{display:inline-flex;align-items:center;justify-content:center;flex:none;height:30px;padding:0 13px;border:0;border-radius:7px;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-bg-base);font:inherit;font-size:12px;font-weight:600;line-height:1;cursor:pointer}',
+      '.dsh-wt-addBtn{display:inline-flex;align-self:flex-start;align-items:center;justify-content:center;flex:none;height:30px;padding:0 13px;border:0;border-radius:7px;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-bg-base);font:inherit;font-size:12px;font-weight:600;line-height:1;cursor:pointer}',
       '.dsh-wt-addBtn:hover{filter:brightness(1.06)}',
       '.dsh-wt-addBtn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px}',
       '.dsh-wt-addBtn[disabled]{cursor:default;opacity:.42}',
@@ -1431,7 +1428,6 @@ window.__ModuleLoader__.load({
       const localeId = props.localeId
       const { record, syncError, commit } = useSessionMemoStore(props.sessionId)
       const [draft, setDraft] = React.useState('')
-      const [addMultiline, setAddMultiline] = React.useState(false)
       const [editingId, setEditingId] = React.useState(null)
       const [editDraft, setEditDraft] = React.useState('')
       const [showDone, setShowDone] = React.useState(false)
@@ -1446,10 +1442,6 @@ window.__ModuleLoader__.load({
       const resizeAdd = node => {
         if (!node) return
         node.style.height = 'auto'
-        const cs = getComputedStyle(node)
-        const line = parseFloat(cs.lineHeight) || 18
-        const pad = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0)
-        setAddMultiline(node.value.includes('\n') || node.scrollHeight > line + pad + line * 0.5)
         node.style.height = `${node.scrollHeight + 2}px`
       }
 
@@ -1623,7 +1615,7 @@ window.__ModuleLoader__.load({
         h(
           'form',
           {
-            className: addMultiline ? 'dsh-wt-add dsh-wt-addMultiline' : 'dsh-wt-add',
+            className: 'dsh-wt-add',
             onSubmit: event => {
               event.preventDefault()
               if (composingRef.current) return

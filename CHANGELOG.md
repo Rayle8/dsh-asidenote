@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.10
+
+- Keep the Add button on its own second row at all times, removing the wrap-state layout change that caused flicker and extra space above the button.
+
 ## 1.4.9
 
 - Make the open and completed sections mutually exclusive: expanding one collapses the other.
