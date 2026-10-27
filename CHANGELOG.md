@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.8
+
+- Keep the popover frame fixed and scroll the open and completed lists internally.
+- Shrink the completion circle to 16px inside a 24px hit area to match the row action buttons.
+
 ## 1.4.7
 
 - Remove the plus icon from the add row and move the Add button to the left of a new line once the input wraps.
