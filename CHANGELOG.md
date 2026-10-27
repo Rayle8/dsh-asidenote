@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0
+
+- Rename the product to **Notes** (便笺).
+- Replace the checklist icon with a folded sticky-note icon in the badge, dock entry, and package icon.
+
 ## 1.2.0
 
 - Rename the product to **Memo** (备忘录).

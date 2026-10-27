@@ -1,33 +1,33 @@
-# Memo
+# Notes
 
 [中文](README.md) | English
 
-> Product name: **Memo** (备忘录). The repository keeps the `dsh-workspace-todos` name.
+> Product name: **Notes** (便笺). The repository keeps the `dsh-workspace-todos` name.
 
-A lightweight memo for the DeepSeek Harness Web GUI, scoped to one **session** at a time. Switching sessions never mixes notes, and sessions in the same workspace stay independent. A `Memo open/total` badge after each sidebar session title shows which conversations still have follow-ups.
+A lightweight note for the DeepSeek Harness Web GUI, scoped to one **session** at a time. Switching sessions never mixes notes, and sessions in the same workspace stay independent. A `Notes open/total` badge after each sidebar session title shows which conversations still have follow-ups.
 
-![Memo popover](./preview.png)
+![Notes popover](./preview.png)
 
 ## Entries
 
 The reminder badge after a session title:
 
-![Memo badge after a session title](./preview-badge.png)
+![Notes badge after a session title](./preview-badge.png)
 
 The new-session control row above the input:
 
-![Memo entry in the new-session control row](./preview-dock.png)
+![Notes entry in the new-session control row](./preview-dock.png)
 
 The right side of the status strip below the input, on the same line as turns, usage, and context:
 
-![Memo entry at the right of the bottom status strip](./preview-history.png)
+![Notes entry at the right of the bottom status strip](./preview-history.png)
 
 Every entry opens a **floating panel next to the trigger**; it never navigates to a separate detail page.
 
 ## Features
 
 - Data is keyed by **session ID**; different sessions in one workspace stay independent.
-- A `Memo open/total` badge after the sidebar session title. It is hidden when a session has no memos.
+- A `Notes open/total` badge after the sidebar session title. It is hidden when a session has no notes.
 - The badge hugs the title text instead of sitting at the row's right edge; sessions with a badge hide their relative time so the full title and badge fit.
 - The new-session entry shares the row with the workspace and agent-preset controls.
 - The conversation entry stays at the right of the composer status strip, visible and editable across turns and while the session is running.
@@ -38,14 +38,14 @@ Every entry opens a **floating panel next to the trigger**; it never navigates t
 
 ## Usage
 
-1. Click the badge after a session title (it appears when that session has memos), or the **Memo** entry above the input / in the latest reply footer.
+1. Click the badge after a session title (it appears when that session has notes), or the **Notes** entry above the input / in the latest reply footer.
 2. Write one concrete follow-up in the popover and press Enter (or **Add**).
 3. Click the circle to complete it; expand **Completed** to look back.
 4. Click outside or press Esc to close.
 
 ## Where data lives
 
-Memos live in the browser's `localStorage` under `dsh.session-memos.v1`:
+Notess live in the browser's `localStorage` under `dsh.session-notes.v1`:
 
 ```json
 {
@@ -64,7 +64,7 @@ Therefore:
 
 - Refreshing, restarting DSH, or switching sessions keeps the records.
 - Nothing is written into the project or synced to another machine/browser.
-- Clearing site data clears the memos.
+- Clearing site data clears the notes.
 - The old `dsh.workspace-todos.v1` workspace store is no longer read; records need to be recreated after upgrading.
 
 ## Install
@@ -118,7 +118,7 @@ The popover mounts as its own `react-dom/client` root on `document.body` and fol
 
 Loaded in an isolated DSH profile and driven through headless Chrome:
 
-- the `Memo 1/1` badge appears after the session title;
+- the `Notes 1/1` badge appears after the session title;
 - clicking the badge or an entry opens the floating panel next to the trigger;
 - adding updates both the popover and the badge;
 - complete, edit, delete, and clear-completed work in the popover;

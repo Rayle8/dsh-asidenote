@@ -63,12 +63,12 @@ test('host and browser entries use the package identity', () => {
 })
 
 test('locale files expose the product name', () => {
-  assert.equal(JSON.parse(read('locale/zh.json'))['nav.label'], '备忘录')
-  assert.equal(JSON.parse(read('locale/en.json'))['nav.label'], 'Memo')
+  assert.equal(JSON.parse(read('locale/zh.json'))['nav.label'], '便笺')
+  assert.equal(JSON.parse(read('locale/en.json'))['nav.label'], 'Notes')
   const client = read('client.js')
-  assert.match(client, /'title': '备忘录'/)
-  assert.match(client, /'dock\.label': '备忘录'/)
-  assert.match(client, /'badge\.label': '备忘录'/)
+  assert.match(client, /'title': '便笺'/)
+  assert.match(client, /'dock\.label': '便笺'/)
+  assert.match(client, /'badge\.label': '便笺'/)
 })
 
 test('documentation and preview assets are present', () => {
