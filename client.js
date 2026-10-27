@@ -200,7 +200,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-check[aria-checked="true"]{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-bg-base)}',
       '.dsh-wt-itemBody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}',
       '.dsh-wt-rowFoot{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:24px;margin-top:2px}',
-      '.dsh-wt-text{display:block;width:100%;margin:0;padding:0;border:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:14px;line-height:21px;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;cursor:text}',
+      '.dsh-wt-text{display:block;width:100%;margin:0;padding:0;border:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:14px;line-height:21px;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;cursor:text;user-select:text;-webkit-user-select:text}',
       '.dsh-wt-text:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;border-radius:4px}',
       '.dsh-wt-meta{font-size:10.5px;line-height:16px;color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums}',
       '.dsh-wt-edit{display:flex;flex-direction:column;gap:6px;width:100%}',
@@ -872,18 +872,13 @@ window.__ModuleLoader__.load({
             ),
           )
         : h(
-            React.Fragment,
-            null,
-            h(
-              'button',
-              {
-                type: 'button',
-                className: 'dsh-wt-text',
-                title: say('item.editHint'),
-                onDoubleClick: () => onStartEdit(item),
-              },
-              item.text,
-            ),
+            'div',
+            {
+              className: 'dsh-wt-text',
+              title: say('item.editHint'),
+              onDoubleClick: () => onStartEdit(item),
+            },
+            item.text,
           )
 
       return h(

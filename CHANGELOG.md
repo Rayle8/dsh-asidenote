@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.2
+
+- Render note text as selectable text instead of a button so it can be dragged and selected; double-click still starts editing.
+
 ## 1.4.1
 
 - Merge the completion circle with the first text line and move copy/edit/delete to the bottom time row, saving one row of height.
