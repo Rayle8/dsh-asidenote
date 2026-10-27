@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.0
+
+- Redesign note rows with a dedicated first line for the completion button and copy/edit/delete actions; actions stay visible and the text begins below.
+
 ## 1.3.7
 
 - Move the floating copy/edit/delete actions to the top-right of the note row instead of vertically centering them.

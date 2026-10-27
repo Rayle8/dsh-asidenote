@@ -191,14 +191,16 @@ window.__ModuleLoader__.load({
       '.dsh-wt-clear:hover{background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-clear:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
       '.dsh-wt-rows{list-style:none;margin:0;padding:0;border:1px solid var(--dsw-alias-border-l1);border-radius:12px;background:var(--dsw-alias-bg-layer-1);overflow:hidden}',
-      '.dsh-wt-row{position:relative;display:flex;align-items:flex-start;gap:11px;padding:12px 13px;border-top:1px solid var(--dsw-alias-border-l1);transition:background .12s ease}',
+      '.dsh-wt-row{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border-top:1px solid var(--dsw-alias-border-l1);transition:background .12s ease}',
       '.dsh-wt-row:first-child{border-top:0}',
       '.dsh-wt-row:hover{background:var(--dsw-alias-bg-layer-2)}',
+      '.dsh-wt-rowTools{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:24px}',
       '.dsh-wt-check{flex:none;display:flex;align-items:center;justify-content:center;width:20px;height:20px;margin:1px 0 0;padding:0;border:1.5px solid var(--dsw-alias-border-l2);border-radius:50%;background:transparent;color:transparent;cursor:pointer;transition:border-color .12s ease,background .12s ease,color .12s ease}',
+      '.dsh-wt-rowTools .dsh-wt-check{margin:0}',
       '.dsh-wt-check:hover{border-color:var(--dsw-alias-brand-primary);color:var(--dsw-alias-brand-primary)}',
       '.dsh-wt-check:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px}',
       '.dsh-wt-check[aria-checked="true"]{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-bg-base)}',
-      '.dsh-wt-itemBody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}',
+      '.dsh-wt-itemBody{flex:none;width:100%;min-width:0;display:flex;flex-direction:column;gap:2px}',
       '.dsh-wt-text{display:block;width:100%;margin:0;padding:0;border:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:14px;line-height:21px;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;cursor:text}',
       '.dsh-wt-text:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;border-radius:4px}',
       '.dsh-wt-meta{font-size:10.5px;line-height:16px;color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums}',
@@ -209,9 +211,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-mini:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-layer-2)}',
       '.dsh-wt-mini:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
       '.dsh-wt-miniPrimary{border-color:transparent;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-bg-base)}',
-      '.dsh-wt-actions{position:absolute;right:8px;top:6px;z-index:2;display:flex;gap:1px;padding:2px;border-radius:8px;background:var(--dsw-alias-bg-layer-2);box-shadow:0 2px 8px rgba(0,0,0,.1);opacity:0;pointer-events:none;transition:opacity .12s ease}',
-      '.dsh-wt-row:hover .dsh-wt-actions,.dsh-wt-row:focus-within .dsh-wt-actions{opacity:1;pointer-events:auto}',
-      '@media (hover:none){.dsh-wt-actions{position:static;transform:none;z-index:auto;margin:1px 0 0;padding:0;background:none;box-shadow:none;opacity:1;pointer-events:auto}}',
+      '.dsh-wt-actions{display:flex;flex:none;gap:1px}',
       '.dsh-wt-iconBtn{display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:6px;background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}',
       '.dsh-wt-iconBtn:hover{background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-iconBtn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
@@ -892,57 +892,61 @@ window.__ModuleLoader__.load({
         'li',
         { className: rowClass },
         h(
-          'button',
-          {
-            type: 'button',
-            className: 'dsh-wt-check',
-            role: 'checkbox',
-            'aria-checked': done ? 'true' : 'false',
-            'aria-label': say(done ? 'item.markOpen' : 'item.markDone'),
-            onClick: () => onToggle(item),
-          },
-          done ? h(IconCheck, { size: 12 }) : null,
+          'div',
+          { className: 'dsh-wt-rowTools' },
+          h(
+            'button',
+            {
+              type: 'button',
+              className: 'dsh-wt-check',
+              role: 'checkbox',
+              'aria-checked': done ? 'true' : 'false',
+              'aria-label': say(done ? 'item.markOpen' : 'item.markDone'),
+              onClick: () => onToggle(item),
+            },
+            done ? h(IconCheck, { size: 12 }) : null,
+          ),
+          editing
+            ? null
+            : h(
+                'div',
+                { className: 'dsh-wt-actions' },
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: copied ? 'dsh-wt-iconBtn dsh-wt-copied' : 'dsh-wt-iconBtn',
+                    'aria-label': say(copied ? 'item.copied' : 'item.copy'),
+                    title: say(copied ? 'item.copied' : 'item.copy'),
+                    onClick: copy,
+                  },
+                  copied ? h(IconCheck, { size: 12 }) : h(IconCopy, null),
+                ),
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'dsh-wt-iconBtn',
+                    'aria-label': say('item.edit'),
+                    title: say('item.edit'),
+                    onClick: () => onStartEdit(item),
+                  },
+                  h(IconPencil, null),
+                ),
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'dsh-wt-iconBtn',
+                    'aria-label': say('item.delete'),
+                    title: say('item.delete'),
+                    onClick: () => onDelete(item),
+                  },
+                  h(IconTrash, null),
+                ),
+              ),
         ),
         h('div', { className: 'dsh-wt-itemBody' }, body),
-        editing
-          ? null
-          : h(
-              'div',
-              { className: 'dsh-wt-actions' },
-              h(
-                'button',
-                {
-                  type: 'button',
-                  className: copied ? 'dsh-wt-iconBtn dsh-wt-copied' : 'dsh-wt-iconBtn',
-                  'aria-label': say(copied ? 'item.copied' : 'item.copy'),
-                  title: say(copied ? 'item.copied' : 'item.copy'),
-                  onClick: copy,
-                },
-                copied ? h(IconCheck, { size: 12 }) : h(IconCopy, null),
-              ),
-              h(
-                'button',
-                {
-                  type: 'button',
-                  className: 'dsh-wt-iconBtn',
-                  'aria-label': say('item.edit'),
-                  title: say('item.edit'),
-                  onClick: () => onStartEdit(item),
-                },
-                h(IconPencil, null),
-              ),
-              h(
-                'button',
-                {
-                  type: 'button',
-                  className: 'dsh-wt-iconBtn',
-                  'aria-label': say('item.delete'),
-                  title: say('item.delete'),
-                  onClick: () => onDelete(item),
-                },
-                h(IconTrash, null),
-              ),
-            ),
       )
     }
 
