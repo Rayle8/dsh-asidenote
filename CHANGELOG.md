@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.7
+
+- Remove the plus icon from the add row and move the Add button to the left of a new line once the input wraps.
+
 ## 1.4.6
 
 - Make the new-note input auto-grow as well, so long text wraps into multiple rows before adding.
