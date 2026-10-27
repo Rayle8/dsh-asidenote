@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.4
+
+- Match the editor's font size and line height to the popover body, tighten its padding/gaps, and hide the meta row while editing.
+
 ## 1.4.3
 
 - Remove the extra horizontal padding on the open-section heading so its count aligns with the completed-section count.
