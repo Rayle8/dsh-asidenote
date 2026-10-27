@@ -1567,6 +1567,18 @@ window.__ModuleLoader__.load({
         setShowDone(false)
       }
 
+      const toggleOpen = () => {
+        const next = !showOpen
+        setShowOpen(next)
+        if (next) setShowDone(false)
+      }
+
+      const toggleDone = () => {
+        const next = !showDone
+        setShowDone(next)
+        if (next) setShowOpen(false)
+      }
+
       const row = item => h(TodoRow, {
         key: item.id,
         item,
@@ -1653,7 +1665,7 @@ window.__ModuleLoader__.load({
               type: 'button',
               className: 'dsh-wt-doneToggle',
               'aria-expanded': showOpen ? 'true' : 'false',
-              onClick: () => setShowOpen(value => !value),
+              onClick: toggleOpen,
             },
             h('span', { className: 'dsh-wt-chevron', 'data-open': showOpen ? 'true' : 'false' }, h(IconChevron, null)),
             say('list.open'),
@@ -1681,7 +1693,7 @@ window.__ModuleLoader__.load({
                     type: 'button',
                     className: 'dsh-wt-doneToggle',
                     'aria-expanded': showDone ? 'true' : 'false',
-                    onClick: () => setShowDone(value => !value),
+                    onClick: toggleDone,
                   },
                   h('span', { className: 'dsh-wt-chevron', 'data-open': showDone ? 'true' : 'false' }, h(IconChevron, null)),
                   say('popover.completed'),

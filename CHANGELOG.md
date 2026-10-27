@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.9
+
+- Make the open and completed sections mutually exclusive: expanding one collapses the other.
+
 ## 1.4.8
 
 - Keep the popover frame fixed and scroll the open and completed lists internally.

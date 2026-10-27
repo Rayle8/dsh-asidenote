@@ -33,7 +33,7 @@ Every entry opens a **floating panel next to the trigger**; it never navigates t
 - Both the new-note input and the editor grow into multiple rows as you type; in the editor, Enter saves and Shift+Enter adds a line.
 - The add row no longer shows a plus icon, and **Add** moves to the left of a new line once the input wraps.
 - The open and completed lists each scroll inside the popover; the popover frame itself does not show a vertical scrollbar.
-- Both **Open** and **Completed** headings collapse on click, with matching count styles.
+- Both **Open** and **Completed** headings collapse on click with matching count styles; expanding one collapses the other.
 - The sidebar reminder stays visible while the session is running.
 - Syncs across tabs in the same browser.
 - Chinese and English copy, following the DSH locale.
