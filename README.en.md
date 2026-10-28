@@ -31,7 +31,7 @@ Every entry opens a **floating panel next to the trigger**; it never navigates t
 - The completion circle shares the first line with the note text; copy, edit, and delete sit at the bottom-right beside the time, saving one row.
 - The completion circle is visually 16px inside a 24px hit area, matching the row actions.
 - Both the new-note input and the editor grow into multiple rows as you type; in the add box Enter inserts a line and Ctrl+Enter adds, while the editor uses Enter to save and Shift+Enter for a line.
-- The add row no longer shows a plus icon, and **Add** always sits on its own second row, so wrapping never flickers or jumps.
+- The add row no longer shows a plus icon, and **Add** always sits at the right of its own second row, so wrapping never flickers or jumps.
 - The open and completed lists each scroll inside the popover; the popover frame itself does not show a vertical scrollbar.
 - Both **Open** and **Completed** headings collapse on click with matching count styles; expanding one collapses the other; only the chevron, label, and count are clickable, not the blank right side.
 - The sidebar reminder stays visible while the session is running.

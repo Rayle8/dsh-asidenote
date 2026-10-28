@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.13
+
+- Right-align the Add button on its second row.
+
 ## 1.4.12
 
 - Limit the open/completed toggle hit area to the chevron, label, and count; clicking the blank right side no longer expands or collapses the section.
