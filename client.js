@@ -85,6 +85,8 @@ window.__ModuleLoader__.load({
         'item.markOpen': '标记为未完成',
         'item.copy': '复制',
         'item.copied': '已复制',
+        'item.forward': '转发到会话',
+        'item.forwarded': '已转发',
         'item.edit': '编辑',
         'item.delete': '删除',
         'item.editHint': '双击编辑',
@@ -144,6 +146,8 @@ window.__ModuleLoader__.load({
         'item.markOpen': 'Mark as open',
         'item.copy': 'Copy',
         'item.copied': 'Copied',
+        'item.forward': 'Forward to chat',
+        'item.forwarded': 'Forwarded',
         'item.edit': 'Edit',
         'item.delete': 'Delete',
         'item.editHint': 'Double-click to edit',
@@ -234,6 +238,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-iconBtn:hover{background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-iconBtn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
       '.dsh-wt-iconBtn.dsh-wt-copied{color:var(--dsw-alias-brand-primary)}',
+      '.dsh-wt-iconBtn.dsh-wt-forwarded{color:var(--dsw-alias-brand-primary)}',
       '.dsh-wt-rowDone .dsh-wt-text{color:var(--dsw-alias-label-secondary);text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:var(--dsw-alias-border-l2)}',
       '.dsh-wt-doneHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:20px 0 0}',
       '.dsh-wt-doneToggle{display:flex;align-items:center;gap:7px;flex:none;width:auto;min-width:0;margin:0;padding:0;border:0;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:12px;line-height:20px;font-weight:600;text-align:left;cursor:pointer}',
@@ -373,6 +378,61 @@ window.__ModuleLoader__.load({
         const ok = document.execCommand('copy')
         area.remove()
         return ok
+      } catch (error) {
+        return false
+      }
+    }
+
+    /** Append text to the conversation composer (Lexical contenteditable or textarea). */
+    function appendToConversation(text) {
+      const value = String(text || '')
+      if (!value) return false
+      const visible = node => {
+        const rect = node.getBoundingClientRect()
+        return rect.width > 0 && rect.height > 0
+      }
+      const specific = [...document.querySelectorAll('[data-composer-input]')].filter(visible)
+      const editor = (specific.length
+        ? specific
+        : [...document.querySelectorAll('[contenteditable="true"][role="textbox"], textarea[role="textbox"]')].filter(visible))[0]
+      if (!editor) return false
+
+      if (editor.tagName === 'TEXTAREA') {
+        const current = editor.value
+        const payload = current.trim() ? (current.endsWith('\n') ? value : `\n${value}`) : value
+        const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set
+        setter.call(editor, `${current}${payload}`)
+        editor.dispatchEvent(new Event('input', { bubbles: true }))
+        editor.focus()
+        const end = editor.value.length
+        editor.setSelectionRange(end, end)
+        return true
+      }
+
+      const current = typeof editor.innerText === 'string' ? editor.innerText : ''
+      const payload = current.trim() ? (current.endsWith('\n') ? value : `\n${value}`) : value
+      editor.focus()
+      try {
+        const range = document.createRange()
+        range.selectNodeContents(editor)
+        range.collapse(false)
+        const selection = window.getSelection()
+        selection.removeAllRanges()
+        selection.addRange(range)
+      } catch (error) {
+        /* selection is best effort */
+      }
+      try {
+        const data = new DataTransfer()
+        data.setData('text/plain', payload)
+        const event = new ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData: data })
+        const notHandled = editor.dispatchEvent(event)
+        if (!notHandled) return true
+      } catch (error) {
+        /* fall through to execCommand */
+      }
+      try {
+        return document.execCommand('insertText', false, payload)
       } catch (error) {
         return false
       }
@@ -892,6 +952,28 @@ window.__ModuleLoader__.load({
       )
     }
 
+    function IconForward() {
+      return h(
+        'svg',
+        {
+          width: 14,
+          height: 14,
+          viewBox: '0 0 16 16',
+          fill: 'none',
+          'aria-hidden': true,
+          focusable: false,
+          style: { display: 'block' },
+        },
+        h('path', {
+          d: 'M2.75 8h9.5M8.75 4.5 12.25 8l-3.5 3.5',
+          stroke: 'currentColor',
+          strokeWidth: 1.4,
+          strokeLinecap: 'round',
+          strokeLinejoin: 'round',
+        }),
+      )
+    }
+
     function IconPencil() {
       return h(
         'svg',
@@ -990,11 +1072,14 @@ window.__ModuleLoader__.load({
       const { item, done, say, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onEditDraftChange, onFinishEdit, onCancelEdit, editRef } = props
       const rowClass = done ? 'dsh-wt-row dsh-wt-rowDone' : 'dsh-wt-row'
       const [copied, setCopied] = React.useState(false)
+      const [forwarded, setForwarded] = React.useState(false)
       const copyTimerRef = React.useRef(null)
+      const forwardTimerRef = React.useRef(null)
 
       React.useEffect(() => {
         return () => {
           if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
+          if (forwardTimerRef.current) clearTimeout(forwardTimerRef.current)
         }
       }, [])
 
@@ -1004,6 +1089,13 @@ window.__ModuleLoader__.load({
         setCopied(true)
         if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
         copyTimerRef.current = setTimeout(() => setCopied(false), 1200)
+      }
+
+      const forward = () => {
+        if (!appendToConversation(item.text)) return
+        setForwarded(true)
+        if (forwardTimerRef.current) clearTimeout(forwardTimerRef.current)
+        forwardTimerRef.current = setTimeout(() => setForwarded(false), 1200)
       }
 
       const resizeEditor = node => {
@@ -1127,6 +1219,17 @@ window.__ModuleLoader__.load({
                       onClick: copy,
                     },
                     copied ? h(IconCheck, { size: 12 }) : h(IconCopy, null),
+                  ),
+                  h(
+                    'button',
+                    {
+                      type: 'button',
+                      className: forwarded ? 'dsh-wt-iconBtn dsh-wt-forwarded' : 'dsh-wt-iconBtn',
+                      'aria-label': say(forwarded ? 'item.forwarded' : 'item.forward'),
+                      title: say(forwarded ? 'item.forwarded' : 'item.forward'),
+                      onClick: forward,
+                    },
+                    forwarded ? h(IconCheck, { size: 12 }) : h(IconForward, null),
                   ),
                   h(
                     'button',

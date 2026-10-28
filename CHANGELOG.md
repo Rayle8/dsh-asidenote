@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.5
+
+- Add a forward action to each note card that appends the note to the conversation composer, separated by a newline when the composer already has content.
+
 ## 1.5.4
 
 - Let the completed section extend below the open list without compressing it; scroll the whole panel when the content exceeds the viewport.
