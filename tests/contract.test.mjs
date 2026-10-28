@@ -51,6 +51,7 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /function MemoPopover/)
   assert.match(client, /refreshHeaderEntry/)
   assert.match(client, /dsh-wt-headerBtn/)
+  assert.match(client, /header\.tooltip/)
   assert.match(client, /conversation\.session\.header\.utilities|_headerUtilities/)
   assert.match(client, /placement === 'right'|placement === \"right\"/)
   assert.match(client, /BoundSessionCapture/)

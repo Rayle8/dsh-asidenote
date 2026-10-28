@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0-experimental.5
+
+- Replace the badge-style count with a small gray inline number to avoid an unread-notification look; tooltip now reads “会话便笺 N”.
+
 ## 1.5.0-experimental.4
 
 - Refine the header entry into a compact icon-only button at the far right of the header utilities, with an overlapping count badge.
