@@ -431,12 +431,13 @@ window.__ModuleLoader__.load({
       }
     }
 
-    /** Append text to the conversation composer (Lexical contenteditable or textarea). */
+    /** Append one note to the conversation composer (Lexical contenteditable or textarea). */
     function appendToConversation(text, prefix = FORWARD_PREFIX) {
-      const value = String(text || '')
-      if (!value) return false
-      const lead = prefix ? String(prefix) : ''
-      const block = lead ? `${lead}${lead.endsWith('\n') ? '' : '\n'}${value}` : value
+      const note = String(text || '').replace(/^\s+|\s+$/g, '')
+      if (!note) return false
+      const bullet = `- ${note}`
+      const lead = prefix ? String(prefix).trim() : ''
+      const emptyBlock = lead ? `${lead}\n${bullet}` : bullet
       const visible = node => {
         const rect = node.getBoundingClientRect()
         return rect.width > 0 && rect.height > 0
@@ -446,10 +447,16 @@ window.__ModuleLoader__.load({
         ? specific
         : [...document.querySelectorAll('[contenteditable="true"][role="textbox"], textarea[role="textbox"]')].filter(visible))[0]
       if (!editor) return false
+      /** Payload for a composer whose current plain text is `current`. */
+      const payloadFor = current => {
+        const value = typeof current === 'string' ? current : ''
+        if (!value.trim()) return emptyBlock
+        return value.endsWith('\n') ? bullet : `\n${bullet}`
+      }
 
       if (editor.tagName === 'TEXTAREA') {
         const current = editor.value
-        const payload = current.trim() ? (current.endsWith('\n') ? block : `\n${block}`) : block
+        const payload = payloadFor(current)
         const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set
         setter.call(editor, `${current}${payload}`)
         editor.dispatchEvent(new Event('input', { bubbles: true }))
@@ -460,7 +467,7 @@ window.__ModuleLoader__.load({
       }
 
       const current = typeof editor.innerText === 'string' ? editor.innerText : ''
-      const payload = current.trim() ? (current.endsWith('\n') ? block : `\n${block}`) : block
+      const payload = payloadFor(current)
       editor.focus()
       try {
         const range = document.createRange()
