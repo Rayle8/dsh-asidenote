@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.3
+
+- Focus the add input with the caret at the end when the panel is reopened with a restored draft.
+
 ## 1.5.2
 
 - Auto-save unsaved add and edit drafts per session; restore them when the panel is reopened, and clear them after add, save, cancel, or delete.

@@ -1660,6 +1660,18 @@ window.__ModuleLoader__.load({
         resizeAdd(addRef.current)
       }, [draft])
 
+      React.useLayoutEffect(() => {
+        const node = addRef.current
+        if (!node) return
+        node.focus()
+        const end = node.value.length
+        try {
+          node.setSelectionRange(end, end)
+        } catch (error) {
+          /* selection APIs are best effort */
+        }
+      }, [])
+
       const updatePosition = React.useCallback(() => {
         if (props.anchorRef.current || props.placement === 'right') {
           const next = memoPopoverStyle(props.anchorRef.current, props.placement, panelWidth, panelHeight)
@@ -1994,7 +2006,6 @@ window.__ModuleLoader__.load({
             value: draft,
             rows: 1,
             maxLength: MAX_TEXT,
-            autoFocus: true,
             placeholder: say('add.placeholder'),
             'aria-label': say('add.placeholder'),
             onChange: event => {
