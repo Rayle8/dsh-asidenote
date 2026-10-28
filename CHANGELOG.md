@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0-experimental.6
+
+- Increase the header notes icon to 18px so its visual size matches the neighboring toolbar icons.
+
 ## 1.5.0-experimental.5
 
 - Replace the badge-style count with a small gray inline number to avoid an unread-notification look; tooltip now reads “会话便笺 N”.
