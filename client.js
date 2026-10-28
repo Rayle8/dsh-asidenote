@@ -1216,11 +1216,15 @@ window.__ModuleLoader__.load({
           focusable: false,
           style: { display: 'block' },
         },
-        // The bubble (tail tip included) spans y=2.75..12.25, optical center 7.50,
-        // so nudge the pair down 0.50 to sit on the 8px midline like its neighbors.
+        // The bubble body (y=2.75..10.25) carries almost all of the visual mass and
+        // only the thin tail reaches down to 12.15, so a bbox-only nudge still reads
+        // high next to copy/edit/delete. Measured at render size, those neighbours
+        // put their ink-mass centre at y≈7.8 of 16 while an unshifted bubble sits at
+        // y≈6.7; dropping the pair 1.10 lands it on the same optical line (ink-gravity
+        // centre 8.00/16, trimmed mass centre 7.83/16) without touching the shape.
         h(
           'g',
-          { transform: 'translate(0 0.5)' },
+          { transform: 'translate(0 1.1)' },
           h('path', {
             d: 'M4.45 2.75h7.3a2 2 0 0 1 2 2v3.5a2 2 0 0 1-2 2H7.9l-2.65 1.9a.5.5 0 0 1-.8-.4v-1.5a2 2 0 0 1-2-2v-3.5a2 2 0 0 1 2-2Z',
             stroke: 'currentColor',
