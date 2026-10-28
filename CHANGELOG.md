@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.5.8
+
+- Move the About block (version/author) to the bottom of the settings area.
+- Align the completion circle with the first line of note text.
+- Scope the vertical scrollbar to the open/completed list region instead of the whole popover.
+- Forward notes as `-` list items; write the configured prefix only when the composer is empty.
+- Replace the bare forward arrow with a chat-bubble forward icon.
+- Remember the last open/completed expand state across panel openings.
+
 ## 1.5.7
 
 - Add a settings entry beside the notes title with the plugin version, author, send-shortcut choice, and configurable one-click forward prefix.

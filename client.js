@@ -19,7 +19,7 @@ window.__ModuleLoader__.load({
     /** Fixed lead-in used when forwarding a note to the conversation composer. */
     const FORWARD_PREFIX = '完成以下任务：'
     /** Shown in the in-panel settings; keep in sync with package.json. */
-    const PLUGIN_VERSION = '1.5.7'
+    const PLUGIN_VERSION = '1.5.8'
     const PLUGIN_AUTHOR = 'Rayle8'
     /** Enter-to-send preference; persisted across panel openings. */
     const SEND_SHORTCUT_KEY = 'dsh.memo.send-shortcut.v1'
