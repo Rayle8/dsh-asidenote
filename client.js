@@ -1790,15 +1790,11 @@ window.__ModuleLoader__.load({
       }
 
       const toggleOpen = () => {
-        const next = !showOpen
-        setShowOpen(next)
-        if (next) setShowDone(false)
+        setShowOpen(value => !value)
       }
 
       const toggleDone = () => {
-        const next = !showDone
-        setShowDone(next)
-        if (next) setShowOpen(false)
+        setShowDone(value => !value)
       }
 
       const row = item => h(TodoRow, {

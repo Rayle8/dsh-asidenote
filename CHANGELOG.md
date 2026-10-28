@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.1
+
+- Remove the mutual exclusion between the open and completed sections now that the panel can be resized; both can stay expanded.
+
 ## 1.5.0
 
 - Promote the right-side notes panel to main: top-right square icon entry, fixed right panel, drag-to-resize width/height, right-sidebar avoidance, and the shortcut hint beside the Add button.

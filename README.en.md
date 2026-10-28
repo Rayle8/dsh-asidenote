@@ -32,7 +32,7 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - The add row no longer shows a plus icon, and **Add** always sits at the right of its own second row, so wrapping never flickers or jumps.
 - The **Ctrl+Enter sends · Enter for a new line** hint sits in the empty space left of the Add button, keeping the input placeholder short.
 - The open and completed lists each scroll inside the popover; the popover frame itself does not show a vertical scrollbar.
-- Both **Open** and **Completed** headings collapse on click with matching count styles; expanding one collapses the other; only the chevron, label, and count are clickable, not the blank right side.
+- Both **Open** and **Completed** headings collapse on click with matching count styles; either can stay expanded independently; only the chevron, label, and count are clickable, not the blank right side.
 - The sidebar reminder stays visible while the session is running.
 - Syncs across tabs in the same browser.
 - Chinese and English copy, following the DSH locale.
