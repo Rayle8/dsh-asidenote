@@ -14,6 +14,8 @@ window.__ModuleLoader__.load({
     const STORAGE_KEY = 'dsh.workspace-todos.v1'
     /** Session-scoped memo store used by the badge, popover, and composer entries. */
     const SESSION_STORAGE_KEY = 'dsh.session-memos.v1'
+    /** Unsaved add/edit drafts, restored when the panel is reopened. */
+    const DRAFT_STORAGE_KEY = 'dsh.memo.drafts.v1'
     /** Persisted width of the experimental right-side panel. */
     const PANEL_WIDTH_KEY = 'dsh.memo.panel-width.v1'
     const PANEL_DEFAULT_WIDTH = 360
@@ -562,6 +564,107 @@ window.__ModuleLoader__.load({
       }
     }
 
+    /** Empty unsaved-draft store. */
+    function emptyDraftStore() {
+      return { version: 1, sessions: {} }
+    }
+
+    /** Read the unsaved add/edit drafts; corrupt or unavailable reads as empty. */
+    function readDraftStore() {
+      const ls = storage()
+      if (!ls) return emptyDraftStore()
+      try {
+        const raw = ls.getItem(DRAFT_STORAGE_KEY)
+        if (!raw) return emptyDraftStore()
+        const parsed = JSON.parse(raw)
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return emptyDraftStore()
+        const sessions = parsed.sessions
+        if (!sessions || typeof sessions !== 'object' || Array.isArray(sessions)) return emptyDraftStore()
+        return { version: 1, sessions }
+      } catch (error) {
+        return emptyDraftStore()
+      }
+    }
+
+    function writeDraftStore(store) {
+      const ls = storage()
+      if (!ls) return
+      try {
+        ls.setItem(DRAFT_STORAGE_KEY, JSON.stringify(store))
+      } catch (error) {
+        /* storage is best effort */
+      }
+    }
+
+    function readSessionDrafts(sessionId) {
+      const key = sessionId ? String(sessionId) : ''
+      const record = key ? readDraftStore().sessions[key] : null
+      if (!record || typeof record !== 'object' || Array.isArray(record)) {
+        return { add: '', edits: {} }
+      }
+      return {
+        add: typeof record.add === 'string' ? record.add : '',
+        edits: record.edits && typeof record.edits === 'object' && !Array.isArray(record.edits)
+          ? record.edits
+          : {},
+      }
+    }
+
+    function pruneDraftSession(store, sessionId) {
+      const record = store.sessions[sessionId]
+      if (!record) return
+      const hasAdd = typeof record.add === 'string' && record.add.length > 0
+      const hasEdits = record.edits && typeof record.edits === 'object' && Object.keys(record.edits).length > 0
+      if (!hasAdd && !hasEdits) delete store.sessions[sessionId]
+    }
+
+    function saveAddDraft(sessionId, text) {
+      const key = sessionId ? String(sessionId) : ''
+      if (!key) return
+      const store = readDraftStore()
+      const record = store.sessions[key] || {}
+      const value = String(text || '').slice(0, MAX_TEXT)
+      if (value) record.add = value
+      else delete record.add
+      record.edits = record.edits && typeof record.edits === 'object' ? record.edits : {}
+      store.sessions[key] = record
+      pruneDraftSession(store, key)
+      writeDraftStore(store)
+    }
+
+    function clearAddDraft(sessionId) {
+      saveAddDraft(sessionId, '')
+    }
+
+    function readEditDraft(sessionId, itemId) {
+      const key = sessionId ? String(sessionId) : ''
+      if (!key || !itemId) return null
+      const edits = readSessionDrafts(key).edits
+      return typeof edits[itemId] === 'string' ? edits[itemId] : null
+    }
+
+    function saveEditDraft(sessionId, itemId, text) {
+      const key = sessionId ? String(sessionId) : ''
+      if (!key || !itemId) return
+      const store = readDraftStore()
+      const record = store.sessions[key] || {}
+      record.edits = record.edits && typeof record.edits === 'object' ? record.edits : {}
+      record.edits[itemId] = String(text || '').slice(0, MAX_TEXT)
+      store.sessions[key] = record
+      writeDraftStore(store)
+    }
+
+    function clearEditDraft(sessionId, itemId) {
+      const key = sessionId ? String(sessionId) : ''
+      if (!key || !itemId) return
+      const store = readDraftStore()
+      const record = store.sessions[key]
+      if (!record || !record.edits || typeof record.edits !== 'object') return
+      delete record.edits[itemId]
+      pruneDraftSession(store, key)
+      writeDraftStore(store)
+    }
+
     /** Read one session's memo record. */
     function readSessionRecord(sessionId) {
       const key = sessionId ? String(sessionId) : ''
@@ -885,7 +988,7 @@ window.__ModuleLoader__.load({
     }
 
     function TodoRow(props) {
-      const { item, done, say, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onFinishEdit, onCancelEdit, editRef } = props
+      const { item, done, say, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onEditDraftChange, onFinishEdit, onCancelEdit, editRef } = props
       const rowClass = done ? 'dsh-wt-row dsh-wt-rowDone' : 'dsh-wt-row'
       const [copied, setCopied] = React.useState(false)
       const copyTimerRef = React.useRef(null)
@@ -930,7 +1033,9 @@ window.__ModuleLoader__.load({
               maxLength: MAX_TEXT,
               'aria-label': say('item.edit'),
               onChange: event => {
-                setEditDraft(event.target.value)
+                const value = event.target.value
+                setEditDraft(value)
+                if (onEditDraftChange) onEditDraftChange(value)
                 resizeEditor(event.target)
               },
               onKeyDown: event => {
@@ -1526,8 +1631,9 @@ window.__ModuleLoader__.load({
     function MemoPopover(props) {
       const say = props.say
       const localeId = props.localeId
+      const sessionId = props.sessionId || ''
       const { record, syncError, commit } = useSessionMemoStore(props.sessionId)
-      const [draft, setDraft] = React.useState('')
+      const [draft, setDraft] = React.useState(() => readSessionDrafts(sessionId).add)
       const [editingId, setEditingId] = React.useState(null)
       const [editDraft, setEditDraft] = React.useState('')
       const [showDone, setShowDone] = React.useState(false)
@@ -1728,6 +1834,7 @@ window.__ModuleLoader__.load({
         const now = Date.now()
         commit(currentItems => [{ id: uid(), text, done: false, createdAt: now, updatedAt: now }, ...currentItems])
         setDraft('')
+        clearAddDraft(sessionId)
       }
 
       const toggle = item => {
@@ -1744,11 +1851,13 @@ window.__ModuleLoader__.load({
         if (item.id === editingId) {
           setEditingId(null)
           setEditDraft('')
+          clearEditDraft(sessionId, item.id)
         }
       }
 
       const remove = item => {
         commit(currentItems => currentItems.filter(candidate => candidate.id !== item.id))
+        clearEditDraft(sessionId, item.id)
         if (item.id === editingId) {
           setEditingId(null)
           setEditDraft('')
@@ -1757,8 +1866,9 @@ window.__ModuleLoader__.load({
 
       const startEdit = item => {
         cancelEditRef.current = false
+        const saved = readEditDraft(sessionId, item.id)
         setEditingId(item.id)
-        setEditDraft(item.text)
+        setEditDraft(saved === null ? item.text : saved)
       }
 
       const finishEdit = item => {
@@ -1776,12 +1886,15 @@ window.__ModuleLoader__.load({
         }
         setEditingId(null)
         setEditDraft('')
+        clearEditDraft(sessionId, item.id)
       }
 
       const cancelEdit = () => {
         cancelEditRef.current = true
+        const currentId = editingId
         setEditingId(null)
         setEditDraft('')
+        if (currentId) clearEditDraft(sessionId, currentId)
       }
 
       const clearDone = () => {
@@ -1809,6 +1922,7 @@ window.__ModuleLoader__.load({
         editing: editingId === item.id,
         editDraft,
         setEditDraft,
+        onEditDraftChange: value => saveEditDraft(sessionId, item.id, value),
         onFinishEdit: finishEdit,
         onCancelEdit: cancelEdit,
         editRef,
@@ -1884,7 +1998,9 @@ window.__ModuleLoader__.load({
             placeholder: say('add.placeholder'),
             'aria-label': say('add.placeholder'),
             onChange: event => {
-              setDraft(event.target.value)
+              const value = event.target.value
+              setDraft(value)
+              saveAddDraft(sessionId, value)
               resizeAdd(event.target)
             },
             onCompositionStart: () => { composingRef.current = true },

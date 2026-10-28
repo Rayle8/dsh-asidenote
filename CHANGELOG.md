@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.2
+
+- Auto-save unsaved add and edit drafts per session; restore them when the panel is reopened, and clear them after add, save, cancel, or delete.
+
 ## 1.5.1
 
 - Remove the mutual exclusion between the open and completed sections now that the panel can be resized; both can stay expanded.
