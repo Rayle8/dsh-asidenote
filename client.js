@@ -16,6 +16,8 @@ window.__ModuleLoader__.load({
     const SESSION_STORAGE_KEY = 'dsh.session-memos.v1'
     /** Unsaved add/edit drafts, restored when the panel is reopened. */
     const DRAFT_STORAGE_KEY = 'dsh.memo.drafts.v1'
+    /** Notes already forwarded to the composer, per session; keeps the half check. */
+    const FORWARDED_STORAGE_KEY = 'dsh.memo.forwarded.v1'
     /** Fixed lead-in used when forwarding a note to the conversation composer. */
     const FORWARD_PREFIX = '完成以下任务：'
     /** Shown in the in-panel settings; keep in sync with package.json. */
@@ -272,6 +274,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-check:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;border-radius:50%}',
       '.dsh-wt-check[aria-checked="true"] .dsh-wt-checkCircle{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-bg-base)}',
       '.dsh-wt-checkHalf .dsh-wt-checkCircle{border-color:var(--dsw-alias-brand-primary);background:linear-gradient(90deg,var(--dsw-alias-brand-primary) 50%,transparent 50%)}',
+      '.dsh-wt-checkForwarded[aria-checked="true"] .dsh-wt-checkCircle{border-color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-label-secondary);color:var(--dsw-alias-bg-base)}',
       '.dsh-wt-itemBody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}',
       '.dsh-wt-rowFoot{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:24px;margin-top:2px}',
       '.dsh-wt-rowHint{margin:2px 0 0;font-size:10.5px;line-height:15px;font-weight:500;color:var(--dsw-alias-brand-primary)}',
@@ -887,6 +890,86 @@ window.__ModuleLoader__.load({
       writeDraftStore(store)
     }
 
+    /** Empty forwarded-flag store; shape is { version, sessions: { [sessionId]: { [itemId]: true } } }. */
+    function emptyForwardedStore() {
+      return { version: 1, sessions: {} }
+    }
+
+    /** Read the forwarded-flag store; corrupt or unavailable reads as empty. */
+    function readForwardedStore() {
+      const ls = storage()
+      if (!ls) return emptyForwardedStore()
+      try {
+        const raw = ls.getItem(FORWARDED_STORAGE_KEY)
+        if (!raw) return emptyForwardedStore()
+        const parsed = JSON.parse(raw)
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return emptyForwardedStore()
+        const sessions = parsed.sessions
+        if (!sessions || typeof sessions !== 'object' || Array.isArray(sessions)) return emptyForwardedStore()
+        return { version: 1, sessions }
+      } catch (error) {
+        return emptyForwardedStore()
+      }
+    }
+
+    function writeForwardedStore(store) {
+      const ls = storage()
+      if (!ls) return false
+      try {
+        ls.setItem(FORWARDED_STORAGE_KEY, JSON.stringify(store))
+        return true
+      } catch (error) {
+        return false
+      }
+    }
+
+    /** Keep only `true` flags on non-empty ids; anything else in the stored record is dropped. */
+    function normalizeForwardedRecord(record) {
+      if (!record || typeof record !== 'object' || Array.isArray(record)) return {}
+      const next = {}
+      for (const [itemId, flag] of Object.entries(record)) {
+        if (itemId && flag === true) next[itemId] = true
+      }
+      return next
+    }
+
+    /** Forwarded item ids of one session, as an id -> true map. */
+    function readForwardedIds(sessionId) {
+      const key = sessionId ? String(sessionId) : ''
+      if (!key) return {}
+      return normalizeForwardedRecord(readForwardedStore().sessions[key])
+    }
+
+    /** Remember that one note was forwarded; best effort, never blocks the send. */
+    function markForwarded(sessionId, itemId) {
+      const key = sessionId ? String(sessionId) : ''
+      const id = itemId ? String(itemId) : ''
+      if (!key || !id) return false
+      const store = readForwardedStore()
+      store.sessions[key] = { ...normalizeForwardedRecord(store.sessions[key]), [id]: true }
+      return writeForwardedStore(store)
+    }
+
+    /** Drop forwarded flags that can no longer be rendered (deleted or cleared notes). */
+    function forgetForwarded(sessionId, itemIds) {
+      const key = sessionId ? String(sessionId) : ''
+      if (!key) return false
+      const ids = Array.isArray(itemIds) ? itemIds : [itemIds]
+      const store = readForwardedStore()
+      const record = normalizeForwardedRecord(store.sessions[key])
+      let changed = false
+      for (const rawId of ids) {
+        const id = rawId ? String(rawId) : ''
+        if (!id || !record[id]) continue
+        delete record[id]
+        changed = true
+      }
+      if (!changed) return false
+      if (Object.keys(record).length) store.sessions[key] = record
+      else delete store.sessions[key]
+      return writeForwardedStore(store)
+    }
+
     /** Read one session's memo record. */
     function readSessionRecord(sessionId) {
       const key = sessionId ? String(sessionId) : ''
@@ -1268,12 +1351,13 @@ window.__ModuleLoader__.load({
     }
 
     function TodoRow(props) {
-      const { item, done, say, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onEditDraftChange, onFinishEdit, onCancelEdit, editRef, forwardPrefix, sendShortcut = 'ctrl-enter' } = props
+      const { item, done, say, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onEditDraftChange, onFinishEdit, onCancelEdit, editRef, forwardPrefix, sendShortcut = 'ctrl-enter', forwarded = false, onForwarded } = props
       const editHintKey = sendShortcut === 'enter' ? 'edit.hintEnter' : 'edit.hintCtrlEnter'
       const [copied, setCopied] = React.useState(false)
-      const [forwarded, setForwarded] = React.useState(false)
+      // Short-lived check on the forward action; the durable flag lives in storage.
+      const [justForwarded, setJustForwarded] = React.useState(false)
       // A forwarded note stays open and wears a half check until the user decides.
-      const [half, setHalf] = React.useState(false)
+      const [half, setHalf] = React.useState(() => forwarded === true && done !== true)
       // Optimistic full check while the staged completion can still be undone.
       const [pendingDone, setPendingDone] = React.useState(false)
       // Card-leave animation played just before the completion is committed.
@@ -1314,12 +1398,16 @@ window.__ModuleLoader__.load({
 
       // A committed toggle (or another tab) beats the local half/pending state.
       React.useEffect(() => {
-        if (!done) return
-        clearPendingTimers()
-        setHalf(false)
-        setPendingDone(false)
-        setLeaving(false)
-      }, [done])
+        if (done) {
+          clearPendingTimers()
+          setHalf(false)
+          setPendingDone(false)
+          setLeaving(false)
+          return
+        }
+        // Reopening a forwarded note (and reopening the panel) restores its half check.
+        if (forwarded === true) setHalf(true)
+      }, [done, forwarded])
 
       const copy = async () => {
         const ok = await copyText(item.text)
@@ -1335,12 +1423,14 @@ window.__ModuleLoader__.load({
 
       const forward = () => {
         if (!appendToConversation(item.text, forwardPrefix)) return
-        setForwarded(true)
+        // Remember the forward so the half check (and the muted check) survives reopen.
+        if (onForwarded) onForwarded(item)
+        setJustForwarded(true)
         if (forwardTimerRef.current) clearTimeout(forwardTimerRef.current)
         forwardTimerRef.current = setTimeout(() => {
           forwardTimerRef.current = null
           if (!mountedRef.current) return
-          setForwarded(false)
+          setJustForwarded(false)
         }, 1200)
         // Forwarding an open note never completes it; it stages the half check.
         if (done) return
@@ -1379,7 +1469,8 @@ window.__ModuleLoader__.load({
       const toggleCheck = () => {
         if (done) {
           cancelPending()
-          setHalf(false)
+          // A forwarded note goes back to the half check, not a plain empty circle.
+          setHalf(forwarded === true)
           onToggle(item)
           return
         }
@@ -1516,7 +1607,14 @@ window.__ModuleLoader__.load({
           )
 
       const halfCheck = half && !done && !pendingDone
+      // A completed note that was forwarded wears a muted (gray) check instead of the brand one.
+      const forwardedDone = done === true && forwarded === true
       const checked = done || pendingDone
+      const checkClass = forwardedDone
+        ? 'dsh-wt-check dsh-wt-checkForwarded'
+        : halfCheck
+          ? 'dsh-wt-check dsh-wt-checkHalf'
+          : 'dsh-wt-check'
       const rowClass = `${done ? 'dsh-wt-row dsh-wt-rowDone' : 'dsh-wt-row'}${leaving ? ' dsh-wt-rowLeaving' : ''}`
 
       return h(
@@ -1526,7 +1624,7 @@ window.__ModuleLoader__.load({
           'button',
           {
             type: 'button',
-            className: halfCheck ? 'dsh-wt-check dsh-wt-checkHalf' : 'dsh-wt-check',
+            className: checkClass,
             role: 'checkbox',
             'aria-checked': checked ? 'true' : half ? 'mixed' : 'false',
             'aria-label': say(done ? 'item.markOpen' : 'item.markDone'),
@@ -1567,12 +1665,12 @@ window.__ModuleLoader__.load({
                     'button',
                     {
                       type: 'button',
-                      className: forwarded ? 'dsh-wt-iconBtn dsh-wt-forwarded' : 'dsh-wt-iconBtn',
-                      'aria-label': say(forwarded ? 'item.forwarded' : 'item.forward'),
-                      title: say(forwarded ? 'item.forwarded' : 'item.forward'),
+                      className: justForwarded ? 'dsh-wt-iconBtn dsh-wt-forwarded' : 'dsh-wt-iconBtn',
+                      'aria-label': say(justForwarded ? 'item.forwarded' : 'item.forward'),
+                      title: say(justForwarded ? 'item.forwarded' : 'item.forward'),
                       onClick: forward,
                     },
-                    forwarded ? h(IconCheck, { size: 12 }) : h(IconForward, null),
+                    justForwarded ? h(IconCheck, { size: 12 }) : h(IconForward, null),
                   ),
                   h(
                     'button',
@@ -2096,6 +2194,9 @@ window.__ModuleLoader__.load({
       const [showSettings, setShowSettings] = React.useState(false)
       const [sendShortcut, setSendShortcut] = React.useState(readSendShortcut)
       const [forwardPrefix, setForwardPrefix] = React.useState(readForwardPrefix)
+      // Forwarded item ids of this session, read once per mount so reopen restores the half check.
+      const [forwardedIds, setForwardedIds] = React.useState(() => readForwardedIds(sessionId))
+      const forwardedSessionRef = React.useRef(sessionId ? String(sessionId) : '')
       const [panelWidth, setPanelWidth] = React.useState(readPanelWidth)
       const [panelHeight, setPanelHeight] = React.useState(readPanelHeight)
       const [style, setStyle] = React.useState(() => memoPopoverStyle(props.anchorRef.current, props.placement, panelWidth, panelHeight))
@@ -2117,6 +2218,14 @@ window.__ModuleLoader__.load({
       React.useEffect(() => {
         resizeAdd(addRef.current)
       }, [draft])
+
+      // Only a genuine session switch re-reads the flags; parent re-renders keep this state.
+      React.useEffect(() => {
+        const key = sessionId ? String(sessionId) : ''
+        if (forwardedSessionRef.current === key) return
+        forwardedSessionRef.current = key
+        setForwardedIds(readForwardedIds(key))
+      }, [sessionId])
 
       React.useLayoutEffect(() => {
         const node = addRef.current
@@ -2350,9 +2459,31 @@ window.__ModuleLoader__.load({
         }
       }
 
+      /** Drop forwarded flags for notes that no longer render (deleted or cleared). */
+      const forgetForwardedItems = itemIds => {
+        const ids = (Array.isArray(itemIds) ? itemIds : [itemIds]).filter(Boolean)
+        if (!ids.length) return
+        forgetForwarded(sessionId, ids)
+        setForwardedIds(current => {
+          if (!ids.some(id => current[id])) return current
+          const next = { ...current }
+          for (const id of ids) delete next[id]
+          return next
+        })
+      }
+
+      /** Remember a successful forward so the half check survives closing the panel. */
+      const rememberForwarded = item => {
+        const id = item && item.id ? String(item.id) : ''
+        if (!id) return
+        markForwarded(sessionId, id)
+        setForwardedIds(current => (current[id] ? current : { ...current, [id]: true }))
+      }
+
       const remove = item => {
         commit(currentItems => currentItems.filter(candidate => candidate.id !== item.id))
         clearEditDraft(sessionId, item.id)
+        forgetForwardedItems(item.id)
         if (item.id === editingId) {
           setEditingId(null)
           setEditDraft('')
@@ -2401,6 +2532,7 @@ window.__ModuleLoader__.load({
       }
 
       const clearDone = () => {
+        forgetForwardedItems(items.filter(item => item.done).map(item => item.id))
         commit(currentItems => currentItems.filter(item => !item.done))
         applySections({ open: sectionsRef.current.open, done: false })
       }
@@ -2431,6 +2563,8 @@ window.__ModuleLoader__.load({
         editRef,
         forwardPrefix,
         sendShortcut,
+        forwarded: forwardedIds[item.id] === true,
+        onForwarded: rememberForwarded,
       })
 
       const content = h(
