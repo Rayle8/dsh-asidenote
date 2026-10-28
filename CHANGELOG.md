@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0
+
+- Promote the right-side notes panel to main: top-right square icon entry, fixed right panel, drag-to-resize width/height, right-sidebar avoidance, and the shortcut hint beside the Add button.
+
 ## 1.5.0-experimental.10
 
 - Detect the DSH right sidebar as open only when `data-sidebar-right-open` is present, so the notes panel no longer shifts left while the sidebar is collapsed.

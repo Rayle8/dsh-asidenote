@@ -4,11 +4,11 @@
 
 > Product name: **Notes** (便笺). The repository keeps the `dsh-workspace-todos` name.
 
-A lightweight note for the DeepSeek Harness Web GUI, scoped to one **session** at a time. Switching sessions never mixes notes, and sessions in the same workspace stay independent. This experimental branch moves the entry to a top-right header button and opens the panel from the right side.
+A lightweight note for the DeepSeek Harness Web GUI, scoped to one **session** at a time. Switching sessions never mixes notes, and sessions in the same workspace stay independent. The entry lives in the top-right header button and the notes panel opens from the right side.
 
 ![Notes right-side panel](./preview-right.png)
 
-## Entry (experimental branch)
+## Entry
 
 A **Notes** button at the top right of the conversation, with the open count:
 
