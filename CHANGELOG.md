@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.6
+
+- Prepend the fixed prompt “完成以下任务：” when forwarding, followed by a newline and the note text.
+
 ## 1.5.5
 
 - Add a forward action to each note card that appends the note to the conversation composer, separated by a newline when the composer already has content.

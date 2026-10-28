@@ -16,6 +16,8 @@ window.__ModuleLoader__.load({
     const SESSION_STORAGE_KEY = 'dsh.session-memos.v1'
     /** Unsaved add/edit drafts, restored when the panel is reopened. */
     const DRAFT_STORAGE_KEY = 'dsh.memo.drafts.v1'
+    /** Fixed lead-in used when forwarding a note to the conversation composer. */
+    const FORWARD_PREFIX = '完成以下任务：'
     /** Persisted width of the experimental right-side panel. */
     const PANEL_WIDTH_KEY = 'dsh.memo.panel-width.v1'
     const PANEL_DEFAULT_WIDTH = 360
@@ -384,9 +386,11 @@ window.__ModuleLoader__.load({
     }
 
     /** Append text to the conversation composer (Lexical contenteditable or textarea). */
-    function appendToConversation(text) {
+    function appendToConversation(text, prefix = FORWARD_PREFIX) {
       const value = String(text || '')
       if (!value) return false
+      const lead = prefix ? String(prefix) : ''
+      const block = lead ? `${lead}${lead.endsWith('\n') ? '' : '\n'}${value}` : value
       const visible = node => {
         const rect = node.getBoundingClientRect()
         return rect.width > 0 && rect.height > 0
@@ -399,7 +403,7 @@ window.__ModuleLoader__.load({
 
       if (editor.tagName === 'TEXTAREA') {
         const current = editor.value
-        const payload = current.trim() ? (current.endsWith('\n') ? value : `\n${value}`) : value
+        const payload = current.trim() ? (current.endsWith('\n') ? block : `\n${block}`) : block
         const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set
         setter.call(editor, `${current}${payload}`)
         editor.dispatchEvent(new Event('input', { bubbles: true }))
@@ -410,7 +414,7 @@ window.__ModuleLoader__.load({
       }
 
       const current = typeof editor.innerText === 'string' ? editor.innerText : ''
-      const payload = current.trim() ? (current.endsWith('\n') ? value : `\n${value}`) : value
+      const payload = current.trim() ? (current.endsWith('\n') ? block : `\n${block}`) : block
       editor.focus()
       try {
         const range = document.createRange()

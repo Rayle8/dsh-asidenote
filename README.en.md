@@ -26,7 +26,7 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - Drag the handle on the panel's left edge to resize its width; double-click the handle to reset it, and the width persists in the browser.
 - Drag the bottom-center handle to resize its height; double-click the handle to return to content sizing, and the height persists.
 - Each note has copy, forward, edit, and delete actions; copy sits to the left of edit and briefly shows **Copied** after a successful copy.
-- Forward appends the note to the conversation composer with a leading newline when it already has content, leaves the caret at the end, and never sends automatically.
+- Forward writes the fixed prompt **完成以下任务：**, a newline, then the note text; existing composer content is separated by a newline, the caret stays at the end, and nothing is sent automatically.
 - The completion circle shares the first line with the note text; copy, edit, and delete sit at the bottom-right beside the time, saving one row.
 - The completion circle is visually 16px inside a 24px hit area, matching the row actions.
 - Both the new-note input and the editor grow into multiple rows as you type; in the add box Enter inserts a line and Ctrl+Enter adds, while the editor uses Enter to save and Shift+Enter for a line.

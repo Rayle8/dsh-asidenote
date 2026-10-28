@@ -59,6 +59,7 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /saveEditDraft/)
   assert.match(client, /readEditDraft/)
   assert.match(client, /appendToConversation/)
+  assert.match(client, /FORWARD_PREFIX/)
   assert.match(client, /IconForward/)
   assert.match(client, /item\.forward/)
   assert.match(client, /conversation\.session\.header\.utilities|_headerUtilities/)
