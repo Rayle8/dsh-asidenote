@@ -43,7 +43,11 @@ window.__ModuleLoader__.load({
     /** Defensive cap so a corrupted store cannot freeze the panel. */
     const MAX_ITEMS = 300
     /** A forwarded open note waits this long for a second click before it completes. */
-    const HALF_DONE_DELAY = 1200
+    const HALF_DONE_DELAY = 3000
+    /** Countdown cadence of the pending hint, so `n` steps 3 → 2 → 1 once per second. */
+    const HALF_DONE_TICK = 1000
+    /** First `n` of the pending hint, derived so the delay and the copy stay in sync. */
+    const HALF_DONE_COUNTDOWN = Math.round(HALF_DONE_DELAY / HALF_DONE_TICK)
     /** Card-leave animation played before the delayed completion is committed. */
     const HALF_DONE_LEAVE = 200
     /** Same-tab subscribers, so the composer dock's count follows panel edits. */
@@ -120,6 +124,7 @@ window.__ModuleLoader__.load({
         'item.forward': '转发到会话',
         'item.forwarded': '已转发',
         'item.pendingUndo': '再点一次可还原为未完成状态',
+        'item.pendingCountdown': '已完成，{n} 秒后进入已完成清单，再次点击可以还原为未完成状态',
         'item.edit': '编辑',
         'item.delete': '删除',
         'item.editHint': '双击编辑',
@@ -198,6 +203,7 @@ window.__ModuleLoader__.load({
         'item.forward': 'Forward to chat',
         'item.forwarded': 'Forwarded',
         'item.pendingUndo': 'Click again to keep it open',
+        'item.pendingCountdown': 'Done — moving to Completed in {n}s; click again to restore it to open.',
         'item.edit': 'Edit',
         'item.delete': 'Delete',
         'item.editHint': 'Double-click to edit',
@@ -277,7 +283,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-checkForwarded[aria-checked="true"] .dsh-wt-checkCircle{border-color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-label-secondary);color:var(--dsw-alias-bg-base)}',
       '.dsh-wt-itemBody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}',
       '.dsh-wt-rowFoot{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:24px;margin-top:2px}',
-      '.dsh-wt-rowHint{margin:2px 0 0;font-size:10.5px;line-height:15px;font-weight:500;color:var(--dsw-alias-brand-primary)}',
+      '.dsh-wt-rowHint{margin:2px 0 0;min-height:30px;font-size:10.5px;line-height:15px;font-weight:500;color:var(--dsw-alias-brand-primary);white-space:normal;overflow-wrap:anywhere}',
       '.dsh-wt-text{display:block;width:100%;margin:0;padding:0;border:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:14px;line-height:21px;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;cursor:text;user-select:text;-webkit-user-select:text}',
       '.dsh-wt-text:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;border-radius:4px}',
       '.dsh-wt-meta{font-size:10.5px;line-height:16px;color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums}',
@@ -398,7 +404,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-popover .dsh-wt-edit{gap:3px}',
       '.dsh-wt-popover .dsh-wt-editInput{font-size:12px;line-height:18px;padding:3px 6px}',
       '.dsh-wt-popover .dsh-wt-meta{font-size:10px}',
-      '.dsh-wt-popover .dsh-wt-rowHint{font-size:10px;line-height:14px}',
+      '.dsh-wt-popover .dsh-wt-rowHint{font-size:10px;line-height:14px;min-height:28px}',
       '.dsh-wt-popover .dsh-wt-empty{padding:18px 10px}',
       '.dsh-wt-popover .dsh-wt-doneHead{position:sticky;top:0;z-index:1;margin:0;padding:5px 0 3px;background:var(--dsw-alias-bg-layer-1)}',
       '.dsh-wt-popFoot{margin:8px 0 0;font-size:10px;line-height:16px;color:var(--dsw-alias-label-secondary)}',
@@ -1360,14 +1366,24 @@ window.__ModuleLoader__.load({
       const [half, setHalf] = React.useState(() => forwarded === true && done !== true)
       // Optimistic full check while the staged completion can still be undone.
       const [pendingDone, setPendingDone] = React.useState(false)
+      // Remaining seconds announced by the pending hint; ticks 3 → 2 → 1.
+      const [pendingSeconds, setPendingSeconds] = React.useState(HALF_DONE_COUNTDOWN)
       // Card-leave animation played just before the completion is committed.
       const [leaving, setLeaving] = React.useState(false)
       const copyTimerRef = React.useRef(null)
       const forwardTimerRef = React.useRef(null)
       const pendingTimerRef = React.useRef(null)
+      const pendingTickRef = React.useRef(null)
       const leaveTimerRef = React.useRef(null)
       const mountedRef = React.useRef(true)
       const doneRef = React.useRef(done)
+
+      const clearPendingTick = () => {
+        if (pendingTickRef.current) {
+          clearInterval(pendingTickRef.current)
+          pendingTickRef.current = null
+        }
+      }
 
       const clearPendingTimers = () => {
         if (pendingTimerRef.current) {
@@ -1378,6 +1394,7 @@ window.__ModuleLoader__.load({
           clearTimeout(leaveTimerRef.current)
           leaveTimerRef.current = null
         }
+        clearPendingTick()
       }
 
       React.useEffect(() => {
@@ -1402,6 +1419,7 @@ window.__ModuleLoader__.load({
           clearPendingTimers()
           setHalf(false)
           setPendingDone(false)
+          setPendingSeconds(HALF_DONE_COUNTDOWN)
           setLeaving(false)
           return
         }
@@ -1436,6 +1454,7 @@ window.__ModuleLoader__.load({
         if (done) return
         clearPendingTimers()
         setPendingDone(false)
+        setPendingSeconds(HALF_DONE_COUNTDOWN)
         setLeaving(false)
         setHalf(true)
       }
@@ -1443,21 +1462,31 @@ window.__ModuleLoader__.load({
       const cancelPending = () => {
         clearPendingTimers()
         setPendingDone(false)
+        setPendingSeconds(HALF_DONE_COUNTDOWN)
         setLeaving(false)
       }
 
       const startPending = () => {
         clearPendingTimers()
         setPendingDone(true)
+        setPendingSeconds(HALF_DONE_COUNTDOWN)
         setLeaving(false)
+        // Countdown ticks run on their own 1s interval and are cleared with the timeouts,
+        // so a cancel, unmount, or commit can never leave a stray tick behind.
+        pendingTickRef.current = setInterval(() => {
+          if (!mountedRef.current) return
+          setPendingSeconds(value => (value > 1 ? value - 1 : value))
+        }, HALF_DONE_TICK)
         pendingTimerRef.current = setTimeout(() => {
           pendingTimerRef.current = null
+          clearPendingTick()
           if (!mountedRef.current) return
           setLeaving(true)
           leaveTimerRef.current = setTimeout(() => {
             leaveTimerRef.current = null
             if (!mountedRef.current) return
             setPendingDone(false)
+            setPendingSeconds(HALF_DONE_COUNTDOWN)
             setLeaving(false)
             setHalf(false)
             if (doneRef.current) return
@@ -1699,8 +1728,14 @@ window.__ModuleLoader__.load({
           pendingDone
             ? h(
                 'div',
-                { id: `${item.id}-pending-hint`, className: 'dsh-wt-rowHint', role: 'status' },
-                say('item.pendingUndo'),
+                {
+                  id: `${item.id}-pending-hint`,
+                  className: 'dsh-wt-rowHint',
+                  role: 'status',
+                  'aria-live': 'polite',
+                  'aria-atomic': 'true',
+                },
+                say('item.pendingCountdown', { n: pendingSeconds }),
               )
             : null,
         ),
