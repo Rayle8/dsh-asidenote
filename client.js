@@ -19,7 +19,7 @@ window.__ModuleLoader__.load({
     /** Fixed lead-in used when forwarding a note to the conversation composer. */
     const FORWARD_PREFIX = '完成以下任务：'
     /** Shown in the in-panel settings; keep in sync with package.json. */
-    const PLUGIN_VERSION = '1.6.0'
+    const PLUGIN_VERSION = '1.6.1'
     const PLUGIN_AUTHOR_URL = 'https://github.com/Rayle8'
     const PLUGIN_AUTHOR_LABEL = 'github.com/Rayle8'
     /** Enter-to-send preference; persisted across panel openings. */
@@ -2531,7 +2531,6 @@ window.__ModuleLoader__.load({
                       h('span', null, say('settings.shortcutEnter')),
                     ),
                   ),
-                  h('p', { className: 'dsh-wt-settingHint dsh-wt-settingHintNote' }, say('settings.halfCheck')),
                 ),
               ),
               h(
@@ -2550,6 +2549,7 @@ window.__ModuleLoader__.load({
                     onChange: event => changeForwardPrefix(event.target.value),
                   }),
                   h('p', { className: 'dsh-wt-settingHint' }, say('settings.forwardPrefixHint')),
+                  h('p', { className: 'dsh-wt-settingHint dsh-wt-settingHintNote' }, say('settings.halfCheck')),
                 ),
               ),
               h(

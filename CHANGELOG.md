@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.1
+
+- Move the half-check completion explanation under the one-click forward settings.
+
 ## 1.6.0
 
 - Honor the configured send shortcut in note edit mode and show a right-aligned edit hint.
