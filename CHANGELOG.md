@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.12
+
+- Limit the open/completed toggle hit area to the chevron, label, and count; clicking the blank right side no longer expands or collapses the section.
+
 ## 1.4.11
 
 - Change the add input shortcut: Enter inserts a new line, Ctrl+Enter adds the note, and update the placeholder text.
