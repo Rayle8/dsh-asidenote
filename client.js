@@ -16,14 +16,20 @@ window.__ModuleLoader__.load({
     const SESSION_STORAGE_KEY = 'dsh.session-memos.v1'
     /** Unsaved add/edit drafts, restored when the panel is reopened. */
     const DRAFT_STORAGE_KEY = 'dsh.memo.drafts.v1'
+    /** Notes already forwarded to the composer, per session; keeps the half check. */
+    const FORWARDED_STORAGE_KEY = 'dsh.memo.forwarded.v1'
     /** Fixed lead-in used when forwarding a note to the conversation composer. */
     const FORWARD_PREFIX = '完成以下任务：'
     /** Shown in the in-panel settings; keep in sync with package.json. */
-    const PLUGIN_VERSION = '1.6.0'
-    const PLUGIN_AUTHOR = 'Rayle8'
+    const PLUGIN_VERSION = '1.7.0'
+    const PLUGIN_AUTHOR_URL = 'https://github.com/Rayle8'
+    const PLUGIN_AUTHOR_LABEL = 'github.com/Rayle8'
     /** Enter-to-send preference; persisted across panel openings. */
     const SEND_SHORTCUT_KEY = 'dsh.memo.send-shortcut.v1'
     const SEND_SHORTCUT_DEFAULT = 'ctrl-enter'
+    /** Remembered expand/collapse state of the open/completed sections. */
+    const SECTION_STATE_KEY = 'dsh.memo.sections.v1'
+    const SECTION_STATE_DEFAULT = { open: true, done: false }
     /** Persisted width of the experimental right-side panel. */
     const PANEL_WIDTH_KEY = 'dsh.memo.panel-width.v1'
     const PANEL_DEFAULT_WIDTH = 360
@@ -36,6 +42,14 @@ window.__ModuleLoader__.load({
     const MAX_TEXT = 280
     /** Defensive cap so a corrupted store cannot freeze the panel. */
     const MAX_ITEMS = 300
+    /** A forwarded open note waits this long for a second click before it completes. */
+    const HALF_DONE_DELAY = 3000
+    /** Countdown cadence of the pending hint, so `n` steps 3 → 2 → 1 once per second. */
+    const HALF_DONE_TICK = 1000
+    /** First `n` of the pending hint, derived so the delay and the copy stay in sync. */
+    const HALF_DONE_COUNTDOWN = Math.round(HALF_DONE_DELAY / HALF_DONE_TICK)
+    /** Card-leave animation played before the delayed completion is committed. */
+    const HALF_DONE_LEAVE = 200
     /** Same-tab subscribers, so the composer dock's count follows panel edits. */
     const TODO_LISTENERS = new Set()
 
@@ -73,8 +87,11 @@ window.__ModuleLoader__.load({
         'settings.shortcut': '发送快捷键',
         'settings.shortcutCtrlEnter': 'Ctrl+Enter 发送，Enter 换行',
         'settings.shortcutEnter': 'Enter 发送，Ctrl+Enter 换行',
-        'settings.forwardPrefix': '一键转发前缀提示词',
+        'settings.forward': '一键转发',
+        'settings.forwardPrefixItem': '前缀提示词',
+        'settings.forwardCheck': '转发勾选完成',
         'settings.forwardPrefixHint': '留空则只转发便笺正文',
+        'settings.halfCheck': '转发后勾选框变为半选；再次点击标记完成，延迟期间可再点一次还原。',
         'popover.count': '{open} 未完成 · {total} 条',
         'popover.session': '当前会话',
         'popover.empty.title': '还没有便笺',
@@ -106,11 +123,15 @@ window.__ModuleLoader__.load({
         'item.copied': '已复制',
         'item.forward': '转发到会话',
         'item.forwarded': '已转发',
+        'item.pendingUndo': '再点一次可还原为未完成状态',
+        'item.pendingCountdown': '已完成，{n} 秒后进入已完成清单，再次点击可以还原为未完成状态',
         'item.edit': '编辑',
         'item.delete': '删除',
         'item.editHint': '双击编辑',
         'edit.save': '保存',
         'edit.cancel': '取消',
+        'edit.hintCtrlEnter': 'Ctrl+Enter 保存 · Enter 换行',
+        'edit.hintEnter': 'Enter 保存 · Ctrl+Enter 换行',
         'time.now': '刚刚',
         'time.minutes': '{n} 分钟前',
         'time.hours': '{n} 小时前',
@@ -145,8 +166,11 @@ window.__ModuleLoader__.load({
         'settings.shortcut': 'Send shortcut',
         'settings.shortcutCtrlEnter': 'Ctrl+Enter sends, Enter for a new line',
         'settings.shortcutEnter': 'Enter sends, Ctrl+Enter for a new line',
-        'settings.forwardPrefix': 'One-click forward prefix',
+        'settings.forward': 'One-click forward',
+        'settings.forwardPrefixItem': 'Prefix prompt',
+        'settings.forwardCheck': 'Forward completion',
         'settings.forwardPrefixHint': 'Leave empty to forward the note only',
+        'settings.halfCheck': 'After forwarding, the checkbox becomes half-checked; click again to complete, or click once more during the delay to restore it.',
         'popover.count': '{open} open · {total} total',
         'popover.session': 'Current session',
         'popover.empty.title': 'No notes yet',
@@ -178,11 +202,15 @@ window.__ModuleLoader__.load({
         'item.copied': 'Copied',
         'item.forward': 'Forward to chat',
         'item.forwarded': 'Forwarded',
+        'item.pendingUndo': 'Click again to keep it open',
+        'item.pendingCountdown': 'Done — moving to Completed in {n}s; click again to restore it to open.',
         'item.edit': 'Edit',
         'item.delete': 'Delete',
         'item.editHint': 'Double-click to edit',
         'edit.save': 'Save',
         'edit.cancel': 'Cancel',
+        'edit.hintCtrlEnter': 'Ctrl+Enter saves · Enter for a new line',
+        'edit.hintEnter': 'Enter saves · Ctrl+Enter for a new line',
         'time.now': 'just now',
         'time.minutes': '{n} min ago',
         'time.hours': '{n} hr ago',
@@ -264,7 +292,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-row:hover{background:var(--wt-n-200)}',
       '.dsh-wt-check{flex:none;display:flex;align-items:center;justify-content:center;width:24px;height:24px;margin:-2px 0 0;padding:0;border:0;border-radius:var(--wt-radius-pill);background:transparent;color:transparent;cursor:pointer;transition:var(--wt-transition)}',
       '.dsh-wt-check:focus-visible{outline:var(--wt-focus-width) solid var(--wt-focus);outline-offset:2px}',
-      '.dsh-wt-checkCircle{display:flex;align-items:center;justify-content:center;width:16px;height:16px;box-sizing:border-box;border:1.5px solid var(--wt-n-700);border-radius:var(--wt-radius-pill);background:transparent;color:transparent;transition:border-color var(--wt-dur-fast) var(--wt-ease-standard),background-color var(--wt-dur-fast) var(--wt-ease-standard),color var(--wt-dur-fast) var(--wt-ease-standard),transform var(--wt-dur-fast) var(--wt-ease-standard)}',
+      '.dsh-wt-checkCircle{display:flex;align-items:center;justify-content:center;width:14px;height:14px;box-sizing:border-box;border:1.5px solid var(--wt-n-700);border-radius:var(--wt-radius-pill);background:transparent;color:transparent;transition:border-color var(--wt-dur-fast) var(--wt-ease-standard),background-color var(--wt-dur-fast) var(--wt-ease-standard),color var(--wt-dur-fast) var(--wt-ease-standard),transform var(--wt-dur-fast) var(--wt-ease-standard)}',
       '.dsh-wt-check:hover .dsh-wt-checkCircle{border-color:var(--wt-accent);color:var(--wt-accent)}',
       '.dsh-wt-check:active .dsh-wt-checkCircle{transform:scale(.9)}',
       '.dsh-wt-check[aria-checked="true"] .dsh-wt-checkCircle{border-color:var(--wt-accent);background:var(--wt-accent);color:var(--wt-accent-ink)}',
@@ -276,7 +304,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-edit{display:flex;flex-direction:column;gap:var(--wt-space-1);width:100%}',
       '.dsh-wt-editInput{display:block;width:100%;box-sizing:border-box;min-height:20px;max-height:160px;padding:var(--wt-space-1) var(--wt-space-2);border:1px solid var(--wt-line-strong);border-radius:var(--wt-radius-sm);background:var(--wt-n-50);color:var(--wt-ink);font:inherit;font-size:var(--wt-fs-body-sm);line-height:var(--wt-lh-body-sm);outline:0;resize:none;overflow-y:auto;overflow-x:hidden;transition:var(--wt-transition)}',
       '.dsh-wt-editInput:focus{border-color:var(--wt-accent);box-shadow:var(--wt-shadow-ring)}',
-      '.dsh-wt-editActions{display:flex;gap:var(--wt-space-1)}',
+      '.dsh-wt-editActions{display:flex;align-items:center;gap:var(--wt-space-1)}',
       '.dsh-wt-mini{display:inline-flex;align-items:center;justify-content:center;height:24px;padding:0 var(--wt-space-2);border:1px solid var(--wt-line);border-radius:var(--wt-radius-sm);background:var(--wt-n-50);color:var(--wt-ink-secondary);font:inherit;font-size:var(--wt-fs-caption);line-height:1;font-weight:var(--wt-fw-medium);cursor:pointer;transition:var(--wt-transition)}',
       '.dsh-wt-mini:hover{border-color:var(--wt-line-strong);background:var(--wt-n-100);color:var(--wt-ink)}',
       '.dsh-wt-mini:active{background:var(--wt-n-200);transform:scale(.97)}',
@@ -346,7 +374,7 @@ window.__ModuleLoader__.load({
       '[data-row-key^="session:"]:has(> .dsh-wt-badge) > [class*="_title"]{flex:0 1 auto}',
       '[data-row-key^="session:"]:has(> .dsh-wt-badge) > [class*="_time"]{display:none}',
       '/* ── 浮层 · 最大元素用中等圆角 + 多层浅阴影 ────────────────────── */',
-      '.dsh-wt-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;min-height:0;padding:var(--wt-space-4);border:1px solid var(--wt-line);border-radius:var(--wt-radius-md);background:var(--wt-surface);box-shadow:var(--wt-shadow-float);color:var(--wt-ink);font-size:var(--wt-fs-body-sm);line-height:var(--wt-lh-body-sm);gap:var(--wt-space-3);overflow-x:hidden;overflow-y:auto;animation:dsh-wt-pop-in var(--wt-dur-base) var(--wt-ease-out) both}',
+      '.dsh-wt-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;min-height:0;padding:var(--wt-space-4);border:1px solid var(--wt-line);border-radius:var(--wt-radius-md);background:var(--wt-surface);box-shadow:var(--wt-shadow-float);color:var(--wt-ink);font-size:var(--wt-fs-body-sm);line-height:var(--wt-lh-body-sm);gap:var(--wt-space-3);overflow:hidden;animation:dsh-wt-pop-in var(--wt-dur-base) var(--wt-ease-out) both}',
       '.dsh-wt-popoverRight{padding-left:var(--wt-space-4)}',
       '.dsh-wt-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:8px;cursor:ew-resize;touch-action:none;outline:0}',
       '.dsh-wt-resizeHandle::before{content:"";width:3px;height:32px;border-radius:var(--wt-radius-pill);background:var(--wt-line-strong);opacity:.7;transition:transform var(--wt-dur-fast) var(--wt-ease-standard),background-color var(--wt-dur-fast) var(--wt-ease-standard),opacity var(--wt-dur-fast) var(--wt-ease-standard)}',
@@ -368,30 +396,27 @@ window.__ModuleLoader__.load({
       '.dsh-wt-settingsBtn:hover,.dsh-wt-settingsBtn[data-active="true"]{background:var(--wt-n-200);color:var(--wt-ink)}',
       '.dsh-wt-settingsBtn:active{background:var(--wt-n-300);transform:scale(.94)}',
       '.dsh-wt-settingsBtn:focus-visible{outline:var(--wt-focus-width) solid var(--wt-focus);outline-offset:2px}',
-      '.dsh-wt-settings{margin:0 0 var(--wt-space-3);padding:var(--wt-space-3);border:1px solid var(--wt-line);border-radius:var(--wt-radius-md);background:var(--wt-n-100)}',
+      '.dsh-wt-settings{--dsh-wt-settingIndent:var(--wt-space-3);margin:0 0 var(--wt-space-3);padding:var(--wt-space-3);border:1px solid var(--wt-line);border-radius:var(--wt-radius-md);background:var(--wt-n-100)}',
       '.dsh-wt-settingsHead{margin:0 0 var(--wt-space-2);font-size:var(--wt-fs-body-sm);line-height:var(--wt-lh-body-sm);font-weight:var(--wt-fw-semibold);color:var(--wt-ink)}',
-      '.dsh-wt-settingLabel{display:block;margin:var(--wt-space-3) 0 var(--wt-space-1);font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:var(--wt-fw-medium);color:var(--wt-ink-tertiary)}',
-      '.dsh-wt-settingRow{display:flex;align-items:baseline;justify-content:space-between;gap:var(--wt-space-3);font-size:var(--wt-fs-body-sm);line-height:var(--wt-lh-body-sm);color:var(--wt-ink-secondary)}',
-      '.dsh-wt-settingRow strong{font-weight:var(--wt-fw-medium);color:var(--wt-ink);font-variant-numeric:tabular-nums}',
+      '.dsh-wt-settingLabel{display:block;margin:0;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:var(--wt-fw-medium);color:var(--wt-ink-tertiary)}',
       '.dsh-wt-settingChoices{display:flex;flex-direction:column;gap:var(--wt-space-1)}',
       '.dsh-wt-settingChoice{display:flex;align-items:flex-start;gap:var(--wt-space-2);font-size:var(--wt-fs-body-sm);line-height:var(--wt-lh-body-sm);color:var(--wt-ink);cursor:pointer}',
-      '.dsh-wt-settingChoice input{appearance:none;flex:none;width:16px;height:16px;margin:2px 0 0;box-sizing:border-box;border:1.5px solid var(--wt-n-700);border-radius:var(--wt-radius-pill);background:transparent;cursor:pointer;transition:var(--wt-transition)}',
+      '.dsh-wt-settingChoice input{appearance:none;flex:none;width:14px;height:14px;margin:2px 0 0;box-sizing:border-box;border:1.5px solid var(--wt-n-700);border-radius:var(--wt-radius-pill);background:transparent;cursor:pointer;transition:var(--wt-transition)}',
       '.dsh-wt-settingChoice input:hover{border-color:var(--wt-accent)}',
       '.dsh-wt-settingChoice input:checked{border-color:var(--wt-accent);background:var(--wt-accent);box-shadow:inset 0 0 0 3px var(--wt-surface)}',
       '.dsh-wt-settingChoice input:focus-visible{outline:var(--wt-focus-width) solid var(--wt-focus);outline-offset:2px}',
       '.dsh-wt-settingInput{box-sizing:border-box;width:100%;height:28px;padding:0 var(--wt-space-2);border:1px solid var(--wt-line);border-radius:var(--wt-radius-sm);background:var(--wt-n-50);color:var(--wt-ink);font:inherit;font-size:var(--wt-fs-body-sm);line-height:1;outline:0;transition:var(--wt-transition)}',
       '.dsh-wt-settingInput:focus{border-color:var(--wt-accent);box-shadow:var(--wt-shadow-ring)}',
-      '.dsh-wt-settingHint{margin:var(--wt-space-1) 0 0;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--wt-ink-tertiary)}',
+      '.dsh-wt-settingHint{margin:0;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--wt-ink-tertiary)}',
       '.dsh-wt-popFoot{margin:var(--wt-space-3) 0 0;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--wt-ink-tertiary)}',
-      '.dsh-wt-section{display:flex;flex-direction:column;gap:var(--wt-space-2);min-width:0}',
       '.dsh-wt-popover .dsh-wt-add{margin:0}',
       '.dsh-wt-popover .dsh-wt-popHead{margin:0}',
       '.dsh-wt-popover .dsh-wt-popFoot{margin:0}',
       '.dsh-wt-popover .dsh-wt-addHint{display:none}',
-      '.dsh-wt-popover .dsh-wt-sectionHead{margin:0;padding:var(--wt-space-1) 0}',
+      '.dsh-wt-popover .dsh-wt-sectionHead{position:sticky;top:0;z-index:1;margin:0;padding:var(--wt-space-1) 0;background:var(--wt-surface)}',
       '.dsh-wt-popover > *{flex:none}',
       '.dsh-wt-popover .dsh-wt-rows{flex:none;min-height:0;overflow:visible}',
-      '.dsh-wt-popover .dsh-wt-doneHead{margin:0}',
+      '.dsh-wt-popover .dsh-wt-doneHead{position:sticky;top:0;z-index:1;margin:0;padding:var(--wt-space-1) 0;background:var(--wt-surface)}',
       '.dsh-wt-popover .dsh-wt-empty{padding:var(--wt-space-5) var(--wt-space-3)}',
       '.dsh-wt-popover .dsh-wt-sectionHead .dsh-wt-doneToggle{margin-left:calc(var(--wt-space-1) * -1)}',
       '.dsh-wt-popover .dsh-wt-doneRows{margin-top:0}',
@@ -413,6 +438,34 @@ window.__ModuleLoader__.load({
       '@media (prefers-reduced-motion:reduce){.dsh-wt-popover,.dsh-wt-rows > .dsh-wt-row,.dsh-wt-chevron,.dsh-wt-fill{animation:none;transition-duration:1ms}}',
       '@media (max-width:640px){.dsh-wt-shell{padding:var(--wt-space-5) var(--wt-space-4) var(--wt-space-8)}.dsh-wt-head{gap:var(--wt-space-4)}.dsh-wt-title{font-size:var(--wt-fs-heading);line-height:var(--wt-lh-heading)}.dsh-wt-statNum{font-size:var(--wt-fs-heading);line-height:var(--wt-lh-heading)}.dsh-wt-select{max-width:210px}}',
       '@media (hover:none){.dsh-wt-actions{opacity:1;pointer-events:auto}}',
+      '/* ── main 1.6.x 新增结构：滚动区 / 分组 / 半勾 / 转发态 ─────────── */',
+      '.dsh-wt-listArea{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--wt-line) transparent}',
+      '.dsh-wt-listArea::-webkit-scrollbar{width:6px;height:6px}',
+      '.dsh-wt-listArea::-webkit-scrollbar-track{background:transparent}',
+      '.dsh-wt-listArea::-webkit-scrollbar-thumb{border-radius:var(--wt-radius-pill);background-color:var(--wt-line)}',
+      '.dsh-wt-listArea::-webkit-scrollbar-thumb:hover{background-color:var(--wt-ink-tertiary)}',
+      '.dsh-wt-listSection{display:flex;flex-direction:column;gap:var(--wt-space-2);min-width:0}',
+      '.dsh-wt-listSection+.dsh-wt-listSection{margin-top:var(--wt-space-1)}',
+      '.dsh-wt-rowLeaving{pointer-events:none;opacity:0;transform:translateY(-2px) scale(.985);transition:opacity var(--wt-dur-base) var(--wt-ease-standard),transform var(--wt-dur-base) var(--wt-ease-standard)}',
+      '.dsh-wt-rowHint{margin:var(--wt-space-1) 0 0;min-height:28px;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:var(--wt-fw-medium);color:var(--wt-ink-secondary);white-space:normal;overflow-wrap:anywhere}',
+      '.dsh-wt-checkHalf .dsh-wt-checkCircle{border-color:var(--wt-accent);background:linear-gradient(90deg,var(--wt-accent) 50%,transparent 50%)}',
+      '.dsh-wt-checkForwarded[aria-checked="true"] .dsh-wt-checkCircle{border-color:var(--wt-ink-tertiary);background:var(--wt-ink-tertiary);color:var(--wt-accent-ink)}',
+      '.dsh-wt-editActions .dsh-wt-mini{flex:none}',
+      '.dsh-wt-editHint{flex:1 1 auto;min-width:0;margin-left:auto;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);text-align:right;color:var(--wt-ink-tertiary);white-space:nowrap;text-overflow:ellipsis}',
+      '.dsh-wt-settingGroup{display:flex;flex-direction:column;gap:var(--wt-space-1)}',
+      '.dsh-wt-settingGroup+.dsh-wt-settingGroup{margin-top:var(--wt-space-2);padding-top:var(--wt-space-2);border-top:1px solid var(--wt-line)}',
+      '.dsh-wt-settingItem{display:flex;flex-direction:column;gap:var(--wt-space-1);min-width:0}',
+      '.dsh-wt-settingItem+.dsh-wt-settingItem{margin-top:var(--wt-space-2);padding-top:var(--wt-space-2);border-top:1px solid var(--wt-line)}',
+      '.dsh-wt-settingItemLabel{font-size:var(--wt-fs-body-sm);line-height:var(--wt-lh-body-sm);font-weight:var(--wt-fw-medium);color:var(--wt-ink)}',
+      '.dsh-wt-settingBody{display:flex;flex-direction:column;gap:var(--wt-space-1);padding-left:var(--dsh-wt-settingIndent)}',
+      '.dsh-wt-settingHintNote{margin-top:var(--wt-space-1)}',
+      '.dsh-wt-settingAbout{display:flex;align-items:baseline;gap:var(--wt-space-1);min-width:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--wt-ink-tertiary);white-space:nowrap}',
+      '.dsh-wt-settingAbout>span{flex:none}',
+      '.dsh-wt-settingDot{opacity:.7}',
+      '.dsh-wt-settingLink{min-width:0;overflow:hidden;color:var(--wt-ink);text-decoration:underline;text-decoration-color:var(--wt-line-strong);text-underline-offset:2px;text-overflow:ellipsis;transition:var(--wt-transition)}',
+      '.dsh-wt-settingLink:hover{text-decoration-color:var(--wt-ink)}',
+      '.dsh-wt-popover .dsh-wt-check{margin-top:calc((20px - 24px) / 2)}',
+      '.dsh-wt-popover .dsh-wt-rowHint{font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);min-height:28px}',
     ].join('')
 
     /** Local midnight-independent clock for "saved at" copy. */
@@ -481,12 +534,13 @@ window.__ModuleLoader__.load({
       }
     }
 
-    /** Append text to the conversation composer (Lexical contenteditable or textarea). */
+    /** Append one note to the conversation composer (Lexical contenteditable or textarea). */
     function appendToConversation(text, prefix = FORWARD_PREFIX) {
-      const value = String(text || '')
-      if (!value) return false
-      const lead = prefix ? String(prefix) : ''
-      const block = lead ? `${lead}${lead.endsWith('\n') ? '' : '\n'}${value}` : value
+      const note = String(text || '').replace(/^\s+|\s+$/g, '')
+      if (!note) return false
+      const bullet = `- ${note}`
+      const lead = prefix ? String(prefix).trim() : ''
+      const emptyBlock = lead ? `${lead}\n${bullet}` : bullet
       const visible = node => {
         const rect = node.getBoundingClientRect()
         return rect.width > 0 && rect.height > 0
@@ -496,10 +550,16 @@ window.__ModuleLoader__.load({
         ? specific
         : [...document.querySelectorAll('[contenteditable="true"][role="textbox"], textarea[role="textbox"]')].filter(visible))[0]
       if (!editor) return false
+      /** Payload for a composer whose current plain text is `current`. */
+      const payloadFor = current => {
+        const value = typeof current === 'string' ? current : ''
+        if (!value.trim()) return emptyBlock
+        return value.endsWith('\n') ? bullet : `\n${bullet}`
+      }
 
       if (editor.tagName === 'TEXTAREA') {
         const current = editor.value
-        const payload = current.trim() ? (current.endsWith('\n') ? block : `\n${block}`) : block
+        const payload = payloadFor(current)
         const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set
         setter.call(editor, `${current}${payload}`)
         editor.dispatchEvent(new Event('input', { bubbles: true }))
@@ -510,7 +570,7 @@ window.__ModuleLoader__.load({
       }
 
       const current = typeof editor.innerText === 'string' ? editor.innerText : ''
-      const payload = current.trim() ? (current.endsWith('\n') ? block : `\n${block}`) : block
+      const payload = payloadFor(current)
       editor.focus()
       try {
         const range = document.createRange()
@@ -759,6 +819,36 @@ window.__ModuleLoader__.load({
       }
     }
 
+    /** Remembered section state; corrupt or missing storage falls back to defaults. */
+    function readSectionState() {
+      const fallback = { open: SECTION_STATE_DEFAULT.open, done: SECTION_STATE_DEFAULT.done }
+      const ls = storage()
+      if (!ls) return fallback
+      try {
+        const raw = ls.getItem(SECTION_STATE_KEY)
+        if (!raw) return fallback
+        const saved = JSON.parse(raw)
+        if (!saved || typeof saved !== 'object') return fallback
+        return {
+          open: typeof saved.open === 'boolean' ? saved.open : fallback.open,
+          done: typeof saved.done === 'boolean' ? saved.done : fallback.done,
+        }
+      } catch (error) {
+        return fallback
+      }
+    }
+
+    /** Persist the section state immediately; storage failures are ignored. */
+    function writeSectionState(state) {
+      const ls = storage()
+      if (!ls) return
+      try {
+        ls.setItem(SECTION_STATE_KEY, JSON.stringify({ open: state.open === true, done: state.done === true }))
+      } catch (error) {
+        /* storage is best effort */
+      }
+    }
+
     /** Empty unsaved-draft store. */
     function emptyDraftStore() {
       return { version: 1, sessions: {} }
@@ -858,6 +948,86 @@ window.__ModuleLoader__.load({
       delete record.edits[itemId]
       pruneDraftSession(store, key)
       writeDraftStore(store)
+    }
+
+    /** Empty forwarded-flag store; shape is { version, sessions: { [sessionId]: { [itemId]: true } } }. */
+    function emptyForwardedStore() {
+      return { version: 1, sessions: {} }
+    }
+
+    /** Read the forwarded-flag store; corrupt or unavailable reads as empty. */
+    function readForwardedStore() {
+      const ls = storage()
+      if (!ls) return emptyForwardedStore()
+      try {
+        const raw = ls.getItem(FORWARDED_STORAGE_KEY)
+        if (!raw) return emptyForwardedStore()
+        const parsed = JSON.parse(raw)
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return emptyForwardedStore()
+        const sessions = parsed.sessions
+        if (!sessions || typeof sessions !== 'object' || Array.isArray(sessions)) return emptyForwardedStore()
+        return { version: 1, sessions }
+      } catch (error) {
+        return emptyForwardedStore()
+      }
+    }
+
+    function writeForwardedStore(store) {
+      const ls = storage()
+      if (!ls) return false
+      try {
+        ls.setItem(FORWARDED_STORAGE_KEY, JSON.stringify(store))
+        return true
+      } catch (error) {
+        return false
+      }
+    }
+
+    /** Keep only `true` flags on non-empty ids; anything else in the stored record is dropped. */
+    function normalizeForwardedRecord(record) {
+      if (!record || typeof record !== 'object' || Array.isArray(record)) return {}
+      const next = {}
+      for (const [itemId, flag] of Object.entries(record)) {
+        if (itemId && flag === true) next[itemId] = true
+      }
+      return next
+    }
+
+    /** Forwarded item ids of one session, as an id -> true map. */
+    function readForwardedIds(sessionId) {
+      const key = sessionId ? String(sessionId) : ''
+      if (!key) return {}
+      return normalizeForwardedRecord(readForwardedStore().sessions[key])
+    }
+
+    /** Remember that one note was forwarded; best effort, never blocks the send. */
+    function markForwarded(sessionId, itemId) {
+      const key = sessionId ? String(sessionId) : ''
+      const id = itemId ? String(itemId) : ''
+      if (!key || !id) return false
+      const store = readForwardedStore()
+      store.sessions[key] = { ...normalizeForwardedRecord(store.sessions[key]), [id]: true }
+      return writeForwardedStore(store)
+    }
+
+    /** Drop forwarded flags that can no longer be rendered (deleted or cleared notes). */
+    function forgetForwarded(sessionId, itemIds) {
+      const key = sessionId ? String(sessionId) : ''
+      if (!key) return false
+      const ids = Array.isArray(itemIds) ? itemIds : [itemIds]
+      const store = readForwardedStore()
+      const record = normalizeForwardedRecord(store.sessions[key])
+      let changed = false
+      for (const rawId of ids) {
+        const id = rawId ? String(rawId) : ''
+        if (!id || !record[id]) continue
+        delete record[id]
+        changed = true
+      }
+      if (!changed) return false
+      if (Object.keys(record).length) store.sessions[key] = record
+      else delete store.sessions[key]
+      return writeForwardedStore(store)
     }
 
     /** Read one session's memo record. */
@@ -1100,13 +1270,30 @@ window.__ModuleLoader__.load({
           focusable: false,
           style: { display: 'block' },
         },
-        h('path', {
-          d: 'M2.75 8h9.5M8.75 4.5 12.25 8l-3.5 3.5',
-          stroke: 'currentColor',
-          strokeWidth: 1.4,
-          strokeLinecap: 'round',
-          strokeLinejoin: 'round',
-        }),
+        // The bubble body (y=2.75..10.25) carries almost all of the visual mass and
+        // only the thin tail reaches down to 12.15, so a bbox-only nudge still reads
+        // high next to copy/edit/delete. Measured at render size, those neighbours
+        // put their ink-mass centre at y≈7.8 of 16 while an unshifted bubble sits at
+        // y≈6.7; dropping the pair 1.10 lands it on the same optical line (ink-gravity
+        // centre 8.00/16, trimmed mass centre 7.83/16) without touching the shape.
+        h(
+          'g',
+          { transform: 'translate(0 1.1)' },
+          h('path', {
+            d: 'M4.45 2.75h7.3a2 2 0 0 1 2 2v3.5a2 2 0 0 1-2 2H7.9l-2.65 1.9a.5.5 0 0 1-.8-.4v-1.5a2 2 0 0 1-2-2v-3.5a2 2 0 0 1 2-2Z',
+            stroke: 'currentColor',
+            strokeWidth: 1.3,
+            strokeLinecap: 'round',
+            strokeLinejoin: 'round',
+          }),
+          h('path', {
+            d: 'M5.5 7h5.25M8.85 5.1 10.75 7l-1.9 1.9',
+            stroke: 'currentColor',
+            strokeWidth: 1.3,
+            strokeLinecap: 'round',
+            strokeLinejoin: 'round',
+          }),
+        ),
       )
     }
 
@@ -1228,20 +1415,76 @@ window.__ModuleLoader__.load({
     }
 
     function TodoRow(props) {
-      const { item, done, say, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onEditDraftChange, onFinishEdit, onCancelEdit, editRef, forwardPrefix } = props
-      const rowClass = done ? 'dsh-wt-row dsh-wt-rowDone' : 'dsh-wt-row'
+      const { item, done, say, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onEditDraftChange, onFinishEdit, onCancelEdit, editRef, forwardPrefix, sendShortcut = 'ctrl-enter', forwarded = false, onForwarded } = props
+      const editHintKey = sendShortcut === 'enter' ? 'edit.hintEnter' : 'edit.hintCtrlEnter'
       const [copied, setCopied] = React.useState(false)
-      const [forwarded, setForwarded] = React.useState(false)
       const [pending, setPending] = React.useState('')
+      // Short-lived check on the forward action; the durable flag lives in storage.
+      const [justForwarded, setJustForwarded] = React.useState(false)
+      // A forwarded note stays open and wears a half check until the user decides.
+      const [half, setHalf] = React.useState(() => forwarded === true && done !== true)
+      // Optimistic full check while the staged completion can still be undone.
+      const [pendingDone, setPendingDone] = React.useState(false)
+      // Remaining seconds announced by the pending hint; ticks 3 → 2 → 1.
+      const [pendingSeconds, setPendingSeconds] = React.useState(HALF_DONE_COUNTDOWN)
+      // Card-leave animation played just before the completion is committed.
+      const [leaving, setLeaving] = React.useState(false)
       const copyTimerRef = React.useRef(null)
       const forwardTimerRef = React.useRef(null)
+      const pendingTimerRef = React.useRef(null)
+      const pendingTickRef = React.useRef(null)
+      const leaveTimerRef = React.useRef(null)
+      const mountedRef = React.useRef(true)
+      const doneRef = React.useRef(done)
+
+      const clearPendingTick = () => {
+        if (pendingTickRef.current) {
+          clearInterval(pendingTickRef.current)
+          pendingTickRef.current = null
+        }
+      }
+
+      const clearPendingTimers = () => {
+        if (pendingTimerRef.current) {
+          clearTimeout(pendingTimerRef.current)
+          pendingTimerRef.current = null
+        }
+        if (leaveTimerRef.current) {
+          clearTimeout(leaveTimerRef.current)
+          leaveTimerRef.current = null
+        }
+        clearPendingTick()
+      }
 
       React.useEffect(() => {
+        mountedRef.current = true
         return () => {
+          mountedRef.current = false
+          clearPendingTimers()
           if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
           if (forwardTimerRef.current) clearTimeout(forwardTimerRef.current)
+          copyTimerRef.current = null
+          forwardTimerRef.current = null
         }
       }, [])
+
+      React.useEffect(() => {
+        doneRef.current = done
+      }, [done])
+
+      // A committed toggle (or another tab) beats the local half/pending state.
+      React.useEffect(() => {
+        if (done) {
+          clearPendingTimers()
+          setHalf(false)
+          setPendingDone(false)
+          setPendingSeconds(HALF_DONE_COUNTDOWN)
+          setLeaving(false)
+          return
+        }
+        // Reopening a forwarded note (and reopening the panel) restores its half check.
+        if (forwarded === true) setHalf(true)
+      }, [done, forwarded])
 
       const copy = async () => {
         if (pending) return
@@ -1250,19 +1493,92 @@ window.__ModuleLoader__.load({
         try {
           ok = await copyText(item.text)
         } finally {
-          setPending('')
+          if (mountedRef.current) setPending('')
         }
-        if (!ok) return
+        if (!ok || !mountedRef.current) return
         setCopied(true)
         if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
-        copyTimerRef.current = setTimeout(() => setCopied(false), 1200)
+        copyTimerRef.current = setTimeout(() => {
+          copyTimerRef.current = null
+          if (!mountedRef.current) return
+          setCopied(false)
+        }, 1200)
       }
 
       const forward = () => {
         if (!appendToConversation(item.text, forwardPrefix)) return
-        setForwarded(true)
+        // Remember the forward so the half check (and the muted check) survives reopen.
+        if (onForwarded) onForwarded(item)
+        setJustForwarded(true)
         if (forwardTimerRef.current) clearTimeout(forwardTimerRef.current)
-        forwardTimerRef.current = setTimeout(() => setForwarded(false), 1200)
+        forwardTimerRef.current = setTimeout(() => {
+          forwardTimerRef.current = null
+          if (!mountedRef.current) return
+          setJustForwarded(false)
+        }, 1200)
+        // Forwarding an open note never completes it; it stages the half check.
+        if (done) return
+        clearPendingTimers()
+        setPendingDone(false)
+        setPendingSeconds(HALF_DONE_COUNTDOWN)
+        setLeaving(false)
+        setHalf(true)
+      }
+
+      const cancelPending = () => {
+        clearPendingTimers()
+        setPendingDone(false)
+        setPendingSeconds(HALF_DONE_COUNTDOWN)
+        setLeaving(false)
+      }
+
+      const startPending = () => {
+        clearPendingTimers()
+        setPendingDone(true)
+        setPendingSeconds(HALF_DONE_COUNTDOWN)
+        setLeaving(false)
+        // Countdown ticks run on their own 1s interval and are cleared with the timeouts,
+        // so a cancel, unmount, or commit can never leave a stray tick behind.
+        pendingTickRef.current = setInterval(() => {
+          if (!mountedRef.current) return
+          setPendingSeconds(value => (value > 1 ? value - 1 : value))
+        }, HALF_DONE_TICK)
+        pendingTimerRef.current = setTimeout(() => {
+          pendingTimerRef.current = null
+          clearPendingTick()
+          if (!mountedRef.current) return
+          setLeaving(true)
+          leaveTimerRef.current = setTimeout(() => {
+            leaveTimerRef.current = null
+            if (!mountedRef.current) return
+            setPendingDone(false)
+            setPendingSeconds(HALF_DONE_COUNTDOWN)
+            setLeaving(false)
+            setHalf(false)
+            if (doneRef.current) return
+            onToggle(item)
+          }, HALF_DONE_LEAVE)
+        }, HALF_DONE_DELAY)
+      }
+
+      const toggleCheck = () => {
+        if (done) {
+          cancelPending()
+          // A forwarded note goes back to the half check, not a plain empty circle.
+          setHalf(forwarded === true)
+          onToggle(item)
+          return
+        }
+        // Second click during the delay keeps the note open and restores the half check.
+        if (pendingDone) {
+          cancelPending()
+          return
+        }
+        if (half) {
+          startPending()
+          return
+        }
+        onToggle(item)
       }
 
       const resizeEditor = node => {
@@ -1278,6 +1594,26 @@ window.__ModuleLoader__.load({
           node.style.height = `${node.scrollHeight + 2}px`
         }
       }, [editRef])
+
+      /** Insert a line break at the caret of the controlled edit textarea and keep focus there. */
+      const insertEditNewline = node => {
+        if (!node) return
+        const start = node.selectionStart === null ? node.value.length : node.selectionStart
+        const end = node.selectionEnd === null ? start : node.selectionEnd
+        const next = `${node.value.slice(0, start)}\n${node.value.slice(end)}`
+        const caret = start + 1
+        setEditDraft(next)
+        if (onEditDraftChange) onEditDraftChange(next)
+        window.requestAnimationFrame(() => {
+          node.focus()
+          try {
+            node.setSelectionRange(caret, caret)
+          } catch (error) {
+            /* selection APIs are best effort */
+          }
+          resizeEditor(node)
+        })
+      }
 
       const body = editing
         ? h(
@@ -1299,12 +1635,32 @@ window.__ModuleLoader__.load({
               onKeyDown: event => {
                 const composing = event.isComposing || (event.nativeEvent && event.nativeEvent.isComposing)
                 if (composing) return
-                if (event.key === 'Enter' && !event.shiftKey) {
-                  event.preventDefault()
-                  onFinishEdit(item)
-                } else if (event.key === 'Escape') {
+                if (event.key === 'Escape') {
                   event.preventDefault()
                   onCancelEdit()
+                  return
+                }
+                if (event.key !== 'Enter') return
+                const modifier = event.ctrlKey || event.metaKey
+                if (sendShortcut === 'enter') {
+                  if (!modifier && !event.shiftKey) {
+                    event.preventDefault()
+                    onFinishEdit(item)
+                  } else {
+                    // Ctrl/Meta+Enter and Shift+Enter break the line instead of saving.
+                    event.preventDefault()
+                    insertEditNewline(event.currentTarget)
+                  }
+                  return
+                }
+                // Default 'ctrl-enter': the modifier saves; Enter and Shift+Enter break the line.
+                if (modifier) {
+                  event.preventDefault()
+                  if (event.shiftKey) insertEditNewline(event.currentTarget)
+                  else onFinishEdit(item)
+                } else if (event.shiftKey) {
+                  event.preventDefault()
+                  insertEditNewline(event.currentTarget)
                 }
               },
               onBlur: () => onFinishEdit(item),
@@ -1332,6 +1688,7 @@ window.__ModuleLoader__.load({
                 },
                 say('edit.cancel'),
               ),
+              h('span', { className: 'dsh-wt-editHint', title: say(editHintKey) }, say(editHintKey)),
             ),
           )
         : h(
@@ -1344,6 +1701,17 @@ window.__ModuleLoader__.load({
             item.text,
           )
 
+      const halfCheck = half && !done && !pendingDone
+      // A completed note that was forwarded wears a muted (gray) check instead of the brand one.
+      const forwardedDone = done === true && forwarded === true
+      const checked = done || pendingDone
+      const checkClass = forwardedDone
+        ? 'dsh-wt-check dsh-wt-checkForwarded'
+        : halfCheck
+          ? 'dsh-wt-check dsh-wt-checkHalf'
+          : 'dsh-wt-check'
+      const rowClass = `${done ? 'dsh-wt-row dsh-wt-rowDone' : 'dsh-wt-row'}${leaving ? ' dsh-wt-rowLeaving' : ''}`
+
       return h(
         'li',
         { className: rowClass },
@@ -1351,16 +1719,17 @@ window.__ModuleLoader__.load({
           'button',
           {
             type: 'button',
-            className: 'dsh-wt-check',
+            className: checkClass,
             role: 'checkbox',
-            'aria-checked': done ? 'true' : 'false',
+            'aria-checked': checked ? 'true' : half ? 'mixed' : 'false',
             'aria-label': say(done ? 'item.markOpen' : 'item.markDone'),
-            onClick: () => onToggle(item),
+            'aria-describedby': pendingDone ? `${item.id}-pending-hint` : undefined,
+            onClick: toggleCheck,
           },
           h(
             'span',
             { className: 'dsh-wt-checkCircle' },
-            done ? h(IconCheck, { size: 10 }) : null,
+            checked ? h(IconCheck, { size: 9 }) : null,
           ),
         ),
         h(
@@ -1393,12 +1762,12 @@ window.__ModuleLoader__.load({
                     'button',
                     {
                       type: 'button',
-                      className: forwarded ? 'dsh-wt-iconBtn dsh-wt-forwarded' : 'dsh-wt-iconBtn',
-                      'aria-label': say(forwarded ? 'item.forwarded' : 'item.forward'),
-                      title: say(forwarded ? 'item.forwarded' : 'item.forward'),
+                      className: justForwarded ? 'dsh-wt-iconBtn dsh-wt-forwarded' : 'dsh-wt-iconBtn',
+                      'aria-label': say(justForwarded ? 'item.forwarded' : 'item.forward'),
+                      title: say(justForwarded ? 'item.forwarded' : 'item.forward'),
                       onClick: forward,
                     },
-                    forwarded ? h(IconCheck, { size: 12 }) : h(IconForward, null),
+                    justForwarded ? h(IconCheck, { size: 12 }) : h(IconForward, null),
                   ),
                   h(
                     'button',
@@ -1424,6 +1793,19 @@ window.__ModuleLoader__.load({
                   ),
                 ),
           ),
+          pendingDone
+            ? h(
+                'div',
+                {
+                  id: `${item.id}-pending-hint`,
+                  className: 'dsh-wt-rowHint',
+                  role: 'status',
+                  'aria-live': 'polite',
+                  'aria-atomic': 'true',
+                },
+                say('item.pendingCountdown', { n: pendingSeconds }),
+              )
+            : null,
         ),
       )
     }
@@ -1907,11 +2289,17 @@ window.__ModuleLoader__.load({
       const [draft, setDraft] = React.useState(() => readSessionDrafts(sessionId).add)
       const [editingId, setEditingId] = React.useState(null)
       const [editDraft, setEditDraft] = React.useState('')
-      const [showDone, setShowDone] = React.useState(false)
-      const [showOpen, setShowOpen] = React.useState(true)
+      // Read the remembered section state once per mount; the popover unmounts on close.
+      const [initialSections] = React.useState(readSectionState)
+      const [showDone, setShowDone] = React.useState(initialSections.done)
+      const [showOpen, setShowOpen] = React.useState(initialSections.open)
+      const sectionsRef = React.useRef(initialSections)
       const [showSettings, setShowSettings] = React.useState(false)
       const [sendShortcut, setSendShortcut] = React.useState(readSendShortcut)
       const [forwardPrefix, setForwardPrefix] = React.useState(readForwardPrefix)
+      // Forwarded item ids of this session, read once per mount so reopen restores the half check.
+      const [forwardedIds, setForwardedIds] = React.useState(() => readForwardedIds(sessionId))
+      const forwardedSessionRef = React.useRef(sessionId ? String(sessionId) : '')
       const [panelWidth, setPanelWidth] = React.useState(readPanelWidth)
       const [panelHeight, setPanelHeight] = React.useState(readPanelHeight)
       const [style, setStyle] = React.useState(() => memoPopoverStyle(props.anchorRef.current, props.placement, panelWidth, panelHeight))
@@ -1933,6 +2321,14 @@ window.__ModuleLoader__.load({
       React.useEffect(() => {
         resizeAdd(addRef.current)
       }, [draft])
+
+      // Only a genuine session switch re-reads the flags; parent re-renders keep this state.
+      React.useEffect(() => {
+        const key = sessionId ? String(sessionId) : ''
+        if (forwardedSessionRef.current === key) return
+        forwardedSessionRef.current = key
+        setForwardedIds(readForwardedIds(key))
+      }, [sessionId])
 
       React.useLayoutEffect(() => {
         const node = addRef.current
@@ -2166,9 +2562,31 @@ window.__ModuleLoader__.load({
         }
       }
 
+      /** Drop forwarded flags for notes that no longer render (deleted or cleared). */
+      const forgetForwardedItems = itemIds => {
+        const ids = (Array.isArray(itemIds) ? itemIds : [itemIds]).filter(Boolean)
+        if (!ids.length) return
+        forgetForwarded(sessionId, ids)
+        setForwardedIds(current => {
+          if (!ids.some(id => current[id])) return current
+          const next = { ...current }
+          for (const id of ids) delete next[id]
+          return next
+        })
+      }
+
+      /** Remember a successful forward so the half check survives closing the panel. */
+      const rememberForwarded = item => {
+        const id = item && item.id ? String(item.id) : ''
+        if (!id) return
+        markForwarded(sessionId, id)
+        setForwardedIds(current => (current[id] ? current : { ...current, [id]: true }))
+      }
+
       const remove = item => {
         commit(currentItems => currentItems.filter(candidate => candidate.id !== item.id))
         clearEditDraft(sessionId, item.id)
+        forgetForwardedItems(item.id)
         if (item.id === editingId) {
           setEditingId(null)
           setEditDraft('')
@@ -2208,17 +2626,26 @@ window.__ModuleLoader__.load({
         if (currentId) clearEditDraft(sessionId, currentId)
       }
 
+      /** Apply one section state and remember it right away, using the next value. */
+      const applySections = next => {
+        sectionsRef.current = next
+        setShowOpen(next.open)
+        setShowDone(next.done)
+        writeSectionState(next)
+      }
+
       const clearDone = () => {
+        forgetForwardedItems(items.filter(item => item.done).map(item => item.id))
         commit(currentItems => currentItems.filter(item => !item.done))
-        setShowDone(false)
+        applySections({ open: sectionsRef.current.open, done: false })
       }
 
       const toggleOpen = () => {
-        setShowOpen(value => !value)
+        applySections({ open: !sectionsRef.current.open, done: sectionsRef.current.done })
       }
 
       const toggleDone = () => {
-        setShowDone(value => !value)
+        applySections({ open: sectionsRef.current.open, done: !sectionsRef.current.done })
       }
 
       const row = item => h(TodoRow, {
@@ -2238,6 +2665,9 @@ window.__ModuleLoader__.load({
         onCancelEdit: cancelEdit,
         editRef,
         forwardPrefix,
+        sendShortcut,
+        forwarded: forwardedIds[item.id] === true,
+        onForwarded: rememberForwarded,
       })
 
       const content = h(
@@ -2312,56 +2742,96 @@ window.__ModuleLoader__.load({
               'div',
               { className: 'dsh-wt-settings' },
               h('div', { className: 'dsh-wt-settingsHead' }, say('settings.title')),
-              h('div', { className: 'dsh-wt-settingLabel' }, say('settings.about')),
               h(
                 'div',
-                { className: 'dsh-wt-settingRow' },
-                h('span', null, say('settings.version')),
-                h('strong', null, PLUGIN_VERSION),
-              ),
-              h(
-                'div',
-                { className: 'dsh-wt-settingRow' },
-                h('span', null, say('settings.author')),
-                h('strong', null, PLUGIN_AUTHOR),
-              ),
-              h('div', { className: 'dsh-wt-settingLabel' }, say('settings.shortcut')),
-              h(
-                'div',
-                { className: 'dsh-wt-settingChoices' },
+                { className: 'dsh-wt-settingGroup' },
+                h('div', { className: 'dsh-wt-settingLabel' }, say('settings.shortcut')),
                 h(
-                  'label',
-                  { className: 'dsh-wt-settingChoice' },
-                  h('input', {
-                    type: 'radio',
-                    name: 'dsh-wt-send-shortcut',
-                    checked: sendShortcut === 'ctrl-enter',
-                    onChange: () => chooseShortcut('ctrl-enter'),
-                  }),
-                  h('span', null, say('settings.shortcutCtrlEnter')),
-                ),
-                h(
-                  'label',
-                  { className: 'dsh-wt-settingChoice' },
-                  h('input', {
-                    type: 'radio',
-                    name: 'dsh-wt-send-shortcut',
-                    checked: sendShortcut === 'enter',
-                    onChange: () => chooseShortcut('enter'),
-                  }),
-                  h('span', null, say('settings.shortcutEnter')),
+                  'div',
+                  { className: 'dsh-wt-settingBody' },
+                  h(
+                    'div',
+                    { className: 'dsh-wt-settingChoices' },
+                    h(
+                      'label',
+                      { className: 'dsh-wt-settingChoice' },
+                      h('input', {
+                        type: 'radio',
+                        name: 'dsh-wt-send-shortcut',
+                        checked: sendShortcut === 'ctrl-enter',
+                        onChange: () => chooseShortcut('ctrl-enter'),
+                      }),
+                      h('span', null, say('settings.shortcutCtrlEnter')),
+                    ),
+                    h(
+                      'label',
+                      { className: 'dsh-wt-settingChoice' },
+                      h('input', {
+                        type: 'radio',
+                        name: 'dsh-wt-send-shortcut',
+                        checked: sendShortcut === 'enter',
+                        onChange: () => chooseShortcut('enter'),
+                      }),
+                      h('span', null, say('settings.shortcutEnter')),
+                    ),
+                  ),
                 ),
               ),
-              h('label', { className: 'dsh-wt-settingLabel', htmlFor: 'dsh-wt-forward-prefix' }, say('settings.forwardPrefix')),
-              h('input', {
-                id: 'dsh-wt-forward-prefix',
-                className: 'dsh-wt-settingInput',
-                value: forwardPrefix,
-                maxLength: 80,
-                placeholder: FORWARD_PREFIX,
-                onChange: event => changeForwardPrefix(event.target.value),
-              }),
-              h('p', { className: 'dsh-wt-settingHint' }, say('settings.forwardPrefixHint')),
+              h(
+                'div',
+                { className: 'dsh-wt-settingGroup' },
+                h('div', { className: 'dsh-wt-settingLabel' }, say('settings.forward')),
+                h(
+                  'div',
+                  { className: 'dsh-wt-settingBody' },
+                  h(
+                    'div',
+                    { className: 'dsh-wt-settingItem' },
+                    h('label', { className: 'dsh-wt-settingItemLabel', htmlFor: 'dsh-wt-forward-prefix' }, say('settings.forwardPrefixItem')),
+                    h('input', {
+                      id: 'dsh-wt-forward-prefix',
+                      className: 'dsh-wt-settingInput',
+                      value: forwardPrefix,
+                      maxLength: 80,
+                      placeholder: FORWARD_PREFIX,
+                      onChange: event => changeForwardPrefix(event.target.value),
+                    }),
+                    h('p', { className: 'dsh-wt-settingHint' }, say('settings.forwardPrefixHint')),
+                  ),
+                  h(
+                    'div',
+                    { className: 'dsh-wt-settingItem' },
+                    h('div', { className: 'dsh-wt-settingItemLabel' }, say('settings.forwardCheck')),
+                    h('p', { className: 'dsh-wt-settingHint dsh-wt-settingHintNote' }, say('settings.halfCheck')),
+                  ),
+                ),
+              ),
+              h(
+                'div',
+                { className: 'dsh-wt-settingGroup' },
+                h('div', { className: 'dsh-wt-settingLabel' }, say('settings.about')),
+                h(
+                  'div',
+                  { className: 'dsh-wt-settingBody' },
+                  h(
+                    'div',
+                    { className: 'dsh-wt-settingAbout' },
+                    h('span', null, `${say('settings.version')} ${PLUGIN_VERSION}`),
+                    h('span', { className: 'dsh-wt-settingDot', 'aria-hidden': true }, '·'),
+                    h('span', null, say('settings.author')),
+                    h(
+                      'a',
+                      {
+                        className: 'dsh-wt-settingLink',
+                        href: PLUGIN_AUTHOR_URL,
+                        target: '_blank',
+                        rel: 'noreferrer',
+                      },
+                      PLUGIN_AUTHOR_LABEL,
+                    ),
+                  ),
+                ),
+              ),
             )
           : null,
         h(
@@ -2425,58 +2895,62 @@ window.__ModuleLoader__.load({
         ),
         h(
           'div',
-          { className: 'dsh-wt-section' },
+          { className: 'dsh-wt-listArea' },
           h(
             'div',
-            { className: 'dsh-wt-sectionHead' },
+            { className: 'dsh-wt-listSection' },
             h(
-              'button',
-              {
-                type: 'button',
-                className: 'dsh-wt-doneToggle',
-                'aria-expanded': showOpen ? 'true' : 'false',
-                onClick: toggleOpen,
-              },
-              h('span', { className: 'dsh-wt-chevron', 'data-open': showOpen ? 'true' : 'false' }, h(IconChevron, null)),
-              say('list.open'),
-              h('span', { className: 'dsh-wt-sectionCount' }, String(openCount)),
+              'div',
+              { className: 'dsh-wt-sectionHead' },
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dsh-wt-doneToggle',
+                  'aria-expanded': showOpen ? 'true' : 'false',
+                  onClick: toggleOpen,
+                },
+                h('span', { className: 'dsh-wt-chevron', 'data-open': showOpen ? 'true' : 'false' }, h(IconChevron, null)),
+                say('list.open'),
+                h('span', { className: 'dsh-wt-sectionCount' }, String(openCount)),
+              ),
             ),
+            showOpen
+              ? openItems.length
+                ? h('ul', { className: 'dsh-wt-rows' }, openItems.map(row))
+                : h(EmptyState, {
+                    title: say(total ? 'list.allDone.title' : 'popover.empty.title'),
+                    body: say(total ? 'list.allDone.body' : 'popover.empty.body'),
+                  })
+              : null,
           ),
-          showOpen
-            ? openItems.length
-              ? h('ul', { className: 'dsh-wt-rows' }, openItems.map(row))
-              : h(EmptyState, {
-                  title: say(total ? 'list.allDone.title' : 'popover.empty.title'),
-                  body: say(total ? 'list.allDone.body' : 'popover.empty.body'),
-                })
+          doneItems.length
+            ? h(
+                'div',
+                { className: 'dsh-wt-listSection' },
+                h(
+                  'div',
+                  { className: 'dsh-wt-doneHead' },
+                  h(
+                    'button',
+                    {
+                      type: 'button',
+                      className: 'dsh-wt-doneToggle',
+                      'aria-expanded': showDone ? 'true' : 'false',
+                      onClick: toggleDone,
+                    },
+                    h('span', { className: 'dsh-wt-chevron', 'data-open': showDone ? 'true' : 'false' }, h(IconChevron, null)),
+                    say('popover.completed'),
+                    h('span', { className: 'dsh-wt-sectionCount' }, String(doneItems.length)),
+                  ),
+                  showDone
+                    ? h('button', { type: 'button', className: 'dsh-wt-clear', onClick: clearDone }, say('popover.clearDone'))
+                    : null,
+                ),
+                showDone ? h('ul', { className: 'dsh-wt-rows dsh-wt-doneRows' }, doneItems.map(row)) : null,
+              )
             : null,
         ),
-        doneItems.length
-          ? h(
-              'div',
-              { className: 'dsh-wt-section' },
-              h(
-                'div',
-                { className: 'dsh-wt-doneHead' },
-                h(
-                  'button',
-                  {
-                    type: 'button',
-                    className: 'dsh-wt-doneToggle',
-                    'aria-expanded': showDone ? 'true' : 'false',
-                    onClick: toggleDone,
-                  },
-                  h('span', { className: 'dsh-wt-chevron', 'data-open': showDone ? 'true' : 'false' }, h(IconChevron, null)),
-                  say('popover.completed'),
-                  h('span', { className: 'dsh-wt-sectionCount' }, String(doneItems.length)),
-                ),
-                showDone
-                  ? h('button', { type: 'button', className: 'dsh-wt-clear', onClick: clearDone }, say('popover.clearDone'))
-                  : null,
-              ),
-              showDone ? h('ul', { className: 'dsh-wt-rows dsh-wt-doneRows' }, doneItems.map(row)) : null,
-            )
-          : null,
         h(
           'div',
           { className: 'dsh-wt-popFoot' },

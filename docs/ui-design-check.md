@@ -4,7 +4,7 @@
 
 检查方式：把 `client.js` 里真实使用的样式表注入无头 Chromium，配上从 DSH 客户端包里取出的**真实主题令牌**，用真实 DOM 结构分别渲染明色 / 暗色两套主题；用 CDP 强制 `:hover` / `:active` / `:focus-visible` 逐态截图；再用 `getComputedStyle` 与 WCAG 公式把"看起来对不对"变成可核对的数字。
 
-结论：六个维度全部按规范重写为**令牌驱动**，无功能改动，`node --check` 与合同测试通过。
+结论：六个维度全部按规范重写为**令牌驱动**，无功能改动，`node --check` 与合同测试通过。检查完成后已合并 `main`（1.6.3）的新增功能，令牌层重新铺到 main 的样式表上，详见第 11 节。
 
 | 维度 | 修复前 | 修复后 |
 | --- | --- | --- |
@@ -112,8 +112,8 @@
 
 - 建立 8 档刻度：`--wt-space-1 … -8` = 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64。
 - 面板四边统一 16px；卡片内边距 8px（`--wt-space-2`）；区块间距 12px；标题与其列表 8px。
-- **改用 gap 控制**：面板改 `display:flex;flex-direction:column;gap:12px`，并把"分区标题 + 列表"包进新的 `.dsh-wt-section`（`gap:8px`）。这样"标题↔列表"用 8px、"区↔区"用 12px，亲密性由结构表达，不再靠逐个子元素的 margin 叠加。
-- 全表只剩 3 处非刻度值，且都是光学微调而非布局间距：勾选圈 `margin-top:-2px`（16px 圆圈与 20px 行高中线对齐）、单选圆点 `margin-top:2px`（同上）、加载环 `margin:-6px`（在按钮内居中）。
+- **改用 gap 控制**：面板改 `display:flex;flex-direction:column;gap:12px`，"分区标题 + 列表"由 main 的 `.dsh-wt-listSection`（`gap:8px`）承担，滚动交给 `.dsh-wt-listArea`。这样"标题↔列表"用 8px、"区↔区"用 12px，亲密性由结构表达，不再靠逐个子元素的 margin 叠加。
+- 全表只剩 3 处非刻度值，且都是光学微调而非布局间距：勾选圈 `margin-top:calc((20px - 24px) / 2)`（14px 圆圈与 20px 行高中线对齐）、单选圆点 `margin-top:2px`（同上）、加载环 `margin:-6px`（在按钮内居中）。
 
 ---
 
@@ -127,7 +127,7 @@
 
 ### 修复
 
-- 圆角压到 **3 种**：`8px`（控件）、`12px`（面板 / 卡片 / 输入区）、`999px`（胶囊与圆形勾选圈——一个令牌同时覆盖计数徽标和 16px 圆点）。满宽子行取 `0`，由父级 `overflow:hidden` 裁剪，避免"内圆角大于外圆角"的错位。
+- 圆角压到 **3 种**：`8px`（控件）、`12px`（面板 / 卡片 / 输入区）、`999px`（胶囊与圆形勾选圈——一个令牌同时覆盖计数徽标和 14px 圆点）。满宽子行取 `0`，由父级 `overflow:hidden` 裁剪，避免"内圆角大于外圆角"的错位。
 - 尺度关系恢复：面板/卡片 12 > 控件 8 > 满宽行 0；胶囊与圆形属于形状类别，不参与尺度比较。
 - 阴影仍取 DSH 的三层 `--dsw-elevation-soft`（`0 0 0 .5px` 描边 + `0 4px 16px` + `0 0 24px`，透明度 0.03），这正是"多层浅阴影叠比一层重阴影好"；插件侧只暴露 `--wt-shadow-float` 一个入口，避免以后有人手写重阴影。
 - 1px 描边改用 15% 墨色（`--wt-line`），与阴影分工：阴影负责"浮起"，描边负责"边界"。
@@ -220,9 +220,9 @@
 
 | 文件 | 改动 |
 | --- | --- |
-| `client.js` | 样式表整体令牌化（215 条规则）；新增 `.dsh-wt-section` 间距容器；进度条改 `scaleX`；复制按钮接 `data-loading`；删除按钮加危险态；按钮统一补齐六态 |
-| `client.js` | `PLUGIN_VERSION` 同步为 `1.6.0` |
-| `package.json` | 版本 `1.6.0` |
+| `client.js` | 样式表整体令牌化（合并 main 后 251 条规则）；沿用 main 的 `.dsh-wt-listSection` / `.dsh-wt-listArea` 结构并用 gap 控距；进度条改 `scaleX`；复制按钮接 `data-loading`；删除按钮加危险态；按钮统一补齐六态 |
+| `client.js` | `PLUGIN_VERSION` 同步为 `1.7.0` |
+| `package.json` | 版本 `1.7.0` |
 | `docs/ui-check/*.png` | 检查用的对比截图（明/暗、六态） |
 | `tests/contract.test.mjs` | 新增 4 条设计约束测试，防止规范被改回去 |
 | `CHANGELOG.md` / `README.md` / `README.en.md` | 记录本次设计规范 |
@@ -239,3 +239,20 @@
 | `radii, shadows and motion stay tokenised` | `border-radius` 只能有 3 个令牌值；`box-shadow` 只能是令牌或 inset 描边；`@keyframes` 只能改 `opacity` / `transform`；`transition` 里的时长必须来自令牌 |
 
 这样下次有人手写 `border-radius:6px`、`#f5f5f5` 或 `.2s ease`，测试会直接拒绝。
+
+## 11. 合并 main（1.6.3）
+
+设计检查完成时 `main` 已经推进到 1.6.3，多了半勾、转发态、吸顶分区标题、设置分组等改动，所以这条分支随后 `merge origin/main`。冲突只出现在 `client.js` / `package.json` / `CHANGELOG.md`，处理方式如下：
+
+| 冲突 | 处理 |
+| --- | --- |
+| 版本号 | main 已占用 1.6.0–1.6.3，本分支改用 **1.7.0**（`package.json` + `PLUGIN_VERSION` + CHANGELOG 新章节） |
+| 样式表 | 以 main 的 251 条规则为准，把令牌层重新铺一遍；新增的 14 个类（`listArea` / `listSection` / `checkHalf` / `checkForwarded` / `rowHint` / `editHint` / `settingGroup` / `settingItem` / `settingBody` / `settingAbout` / `settingLink` / `settingDot` / `settingHintNote` / `rowLeaving`）全部令牌化 |
+| 勾选圈 | 跟随 main 的 14px（保留 24px 点击区），不再回到 16px |
+| 吸顶分区标题 | 保留 main 的 `position:sticky`，背景改成 `--wt-surface`，避免滚动时透出下层内容 |
+| 面板滚动 | 跟随 main 的 `overflow:hidden` + `.dsh-wt-listArea` 内部滚动，不再由面板整体滚动 |
+| 设置分组 | 保留 main 的 group/item 结构，间距改由 `gap` 与令牌表达，`--dsh-wt-settingIndent` 指向 12px 刻度 |
+
+合并后复核：main 的 109 个样式类一个没丢（加上本次新增的 `iconBtnDanger` 共 110 个），`npm test` 10/10 通过，明暗两套主题的对比度与合并前一致。
+
+![合并后明暗对照](./ui-check/panel-light-dark.png)

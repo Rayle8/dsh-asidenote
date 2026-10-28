@@ -1,12 +1,50 @@
 # Changelog
 
-## 1.6.0
+## 1.7.0
 
-- Rebuild the panel styling on design tokens: an 11-step neutral ramp (50→950), a 1.25 type scale in five steps, a 4px spacing scale, three radii, one layered shadow, and tokenised durations and easings.
+- Rebuild the panel styling on design tokens: an 11-step neutral ramp (50 to 950), a five-step 1.25 type scale, a 4px spacing scale, three radii, one layered shadow, and tokenised durations and easings.
 - Give every button the six states (default, hover, pressed, focus, disabled, loading); the copy action now reports its async work with a loading ring and a success tint.
 - Animate the panel in and stagger list rows by 40ms using only transform and opacity; the progress bar scales instead of resizing.
 - Fix hover feedback that was invisible in the light theme, and raise tertiary text and the check ring to WCAG AA contrast.
-- Group each section heading with its list through a shared `gap`, so spacing follows structure instead of per-element margins.
+- Add contract tests that keep the tokens honest, and a review report with before/after evidence under docs/.
+
+## 1.6.3
+
+- Nudge the forward icon further down for true optical alignment with neighboring actions.
+- Persist forwarded items per session so the half-check survives reopening the panel.
+- Render forwarded completed notes with a gray-and-white completion check.
+- Count the pending completion down over three seconds and update the undo hint each second.
+
+## 1.6.2
+
+- Restructure one-click forward settings into two items: the prefix prompt and the forward completion behavior.
+
+## 1.6.1
+
+- Move the half-check completion explanation under the one-click forward settings.
+
+## 1.6.0
+
+- Honor the configured send shortcut in note edit mode and show a right-aligned edit hint.
+- Vertically center the forward icon with the other card actions.
+- After forwarding, show a half-check; the next checkbox click stages a delayed, cancellable completion, with an undo hint.
+- Reduce the completion circle to 14px while keeping the 24px hit area and text alignment.
+- Make the settings gear hover padding symmetric.
+- Keep the active open/completed section header sticky while scrolling, with its collapse action intact.
+- Separate settings groups, align secondary rows to one content column, and document the half-check behavior in settings.
+
+## 1.5.9
+
+- Combine the About version and author into one line, with the author linked to GitHub.
+
+## 1.5.8
+
+- Move the About block (version/author) to the bottom of the settings area.
+- Align the completion circle with the first line of note text.
+- Scope the vertical scrollbar to the open/completed list region instead of the whole popover.
+- Forward notes as `-` list items; write the configured prefix only when the composer is empty.
+- Replace the bare forward arrow with a chat-bubble forward icon.
+- Remember the last open/completed expand state across panel openings.
 
 ## 1.5.7
 
