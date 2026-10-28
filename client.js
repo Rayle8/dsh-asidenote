@@ -1088,9 +1088,16 @@ window.__ModuleLoader__.load({
           style: { display: 'block' },
         },
         h('path', {
-          d: 'M2.75 8h9.5M8.75 4.5 12.25 8l-3.5 3.5',
+          d: 'M4.45 2.75h7.3a2 2 0 0 1 2 2v3.5a2 2 0 0 1-2 2H7.9l-2.65 1.9a.5.5 0 0 1-.8-.4v-1.5a2 2 0 0 1-2-2v-3.5a2 2 0 0 1 2-2Z',
           stroke: 'currentColor',
-          strokeWidth: 1.4,
+          strokeWidth: 1.3,
+          strokeLinecap: 'round',
+          strokeLinejoin: 'round',
+        }),
+        h('path', {
+          d: 'M5.5 7h5.25M8.85 5.1 10.75 7l-1.9 1.9',
+          stroke: 'currentColor',
+          strokeWidth: 1.3,
           strokeLinecap: 'round',
           strokeLinejoin: 'round',
         }),
