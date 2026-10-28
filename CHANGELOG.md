@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.6.0
+
+- Honor the configured send shortcut in note edit mode and show a right-aligned edit hint.
+- Vertically center the forward icon with the other card actions.
+- After forwarding, show a half-check; the next checkbox click stages a delayed, cancellable completion, with an undo hint.
+- Reduce the completion circle to 14px while keeping the 24px hit area and text alignment.
+- Make the settings gear hover padding symmetric.
+- Keep the active open/completed section header sticky while scrolling, with its collapse action intact.
+- Separate settings groups, align secondary rows to one content column, and document the half-check behavior in settings.
+
 ## 1.5.9
 
 - Combine the About version and author into one line, with the author linked to GitHub.

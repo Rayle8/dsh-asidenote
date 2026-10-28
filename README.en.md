@@ -21,21 +21,22 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - Data is keyed by **session ID**; different sessions in one workspace stay independent.
 - A 28px square top-right icon button shows the open count as a low-contrast gray corner badge; its tooltip reads “Session notes N”.
 - Clicking it opens a fixed right-side panel; switching sessions closes the old panel and updates the entry.
-- The settings button beside the notes title expands a settings area for the send shortcut and one-click forward prefix, with the version and GitHub author link on one line at the bottom; settings persist automatically.
+- The settings button beside the notes title expands a settings area for the send shortcut and one-click forward prefix, with separated groups, a half-check explanation, and the version/GitHub author link on one line at the bottom; settings persist automatically.
 - The panel's top-right corner aligns with the header entry and shifts left of the DSH right sidebar when that sidebar is open.
 - Clicking the entry opens the right-side panel for add, complete, copy, edit (double-click or pencil), delete, clear completed, and expand completed.
 - Drag the handle on the panel's left edge to resize its width; double-click the handle to reset it, and the width persists in the browser.
 - Drag the bottom-center handle to resize its height; double-click the handle to return to content sizing, and the height persists.
 - Each note has copy, forward, edit, and delete actions; copy sits to the left of edit and briefly shows **Copied** after a successful copy.
 - Forward appends each note as a `-` list item; the configured prefix (default **完成以下任务：**) is written only when the composer is empty, never when it already has content. The caret stays at the end and nothing is sent automatically.
+- After forwarding, the checkbox becomes half-checked; the next click starts a delayed completion (about 1.2s, then a leave animation and move to completed), and clicking again during the delay restores it as open with the half-check kept.
 - The completion circle shares the first line with the note text; copy, edit, and delete sit at the bottom-right beside the time, saving one row.
-- The completion circle is visually 16px inside a 24px hit area and centers on the first line of note text.
-- Both the new-note input and the editor grow into multiple rows as you type; the add box uses Ctrl+Enter or Enter to send based on the setting, with the other combination inserting a newline, while the editor uses Enter to save and Shift+Enter for a line.
+- The completion circle is visually 14px inside a 24px hit area and centers on the first line of note text.
+- Both the new-note input and the editor grow into multiple rows as you type; both use the configured send shortcut, with the other combination inserting a newline, and the editor shows a right-aligned shortcut hint.
 - The add row no longer shows a plus icon, and **Add** always sits at the right of its own second row, so wrapping never flickers or jumps.
 - The send-shortcut hint sits in the empty space left of the Add button and updates with the setting, keeping the input placeholder short.
 - Unsaved add/edit drafts are saved per session and restored after closing and reopening the panel, with the add caret at the end of the draft; they clear after add, save, cancel, or delete.
-- Expanding **Completed** does not compress the **Open** list; only the open/completed list region scrolls, while the header, settings, composer, and footer stay fixed.
-- The open/completed expand state is remembered and restored when the panel is reopened.
+- Expanding **Completed** does not compress the **Open** list; only the open/completed list region scrolls, the active section header stays sticky while scrolling, and the header, settings, composer, and footer stay fixed.
+- The open/completed expand state is remembered and restored when the panel is reopened; sticky headers remain clickable to collapse.
 - Note-card copy/edit/delete actions appear on hover or keyboard focus while keeping their layout space; touch devices keep them visible.
 - Both **Open** and **Completed** headings collapse on click with matching count styles; either can stay expanded independently; only the chevron, label, and count are clickable, not the blank right side.
 - The sidebar reminder stays visible while the session is running.
