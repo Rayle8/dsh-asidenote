@@ -1494,7 +1494,7 @@ window.__ModuleLoader__.load({
       if (placement === 'right') {
         const rect = anchor && anchor.isConnected ? anchor.getBoundingClientRect() : null
         let desiredRight = rect && rect.width > 0 ? rect.right : window.innerWidth - 16
-        const sidebar = [...document.querySelectorAll('[data-sidebar-right-panel]')].find(node => {
+        const sidebar = [...document.querySelectorAll('[data-sidebar-right-panel][data-sidebar-right-open]')].find(node => {
           const box = node.getBoundingClientRect()
           return box.width > 24 && box.left > 0 && box.left < window.innerWidth - 24
         })

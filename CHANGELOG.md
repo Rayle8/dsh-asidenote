@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0-experimental.10
+
+- Detect the DSH right sidebar as open only when `data-sidebar-right-open` is present, so the notes panel no longer shifts left while the sidebar is collapsed.
+
 ## 1.5.0-experimental.9
 
 - Move the shortcut hint to the empty space left of the Add button and shorten the placeholder.
