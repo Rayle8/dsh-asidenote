@@ -40,6 +40,23 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - The sidebar reminder stays visible while the session is running.
 - Syncs across tabs in the same browser.
 - Chinese and English copy, following the DSH locale.
+- Every style is token-driven: an 11-step neutral ramp, a five-step 1.25 type scale, a 4px spacing scale, three radii, and a single 150ms transition. Each button ships six states (default, hover, pressed, focus, disabled, loading), list rows stagger in, and the progress bar scales instead of resizing. See the [UI design review](./docs/ui-design-check.md).
+
+## Design tokens
+
+The panel and the entry button read from one token block at the top of `client.js`:
+
+| Axis | Token | Values |
+| --- | --- | --- |
+| Neutral ramp | `--wt-n-50 … --wt-n-950` | 11 steps, ink mixed into the floating surface at 0/4/9/15/23/33/46/62/76/89/100% |
+| Semantic | `--wt-success` `--wt-warn` `--wt-danger` | status only: copied, storage warning, destructive delete |
+| Accent | `--wt-accent` | primary path only: add, complete, selected setting |
+| Type | `--wt-fs-caption … --wt-fs-display` | 10 / 12.5 / 15.5 / 19.5 / 24.5, ×1.25 |
+| Weight | `--wt-fw-regular/medium/semibold` | 400 / 500 / 600 |
+| Spacing | `--wt-space-1 … -8` | 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64 |
+| Radius | `--wt-radius-sm/md/pill` | 8 (controls) / 12 (panel and cards) / 999 (pills and dots) |
+| Shadow | `--wt-shadow-float` | reuses the DSH three-layer soft shadow |
+| Motion | `--wt-dur-fast/base/slow`, `--wt-ease-*`, `--wt-stagger` | 150 / 200 / 300ms, 40ms stagger |
 
 ## Usage
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.6.0
+
+- Rebuild the panel styling on design tokens: an 11-step neutral ramp (50→950), a 1.25 type scale in five steps, a 4px spacing scale, three radii, one layered shadow, and tokenised durations and easings.
+- Give every button the six states (default, hover, pressed, focus, disabled, loading); the copy action now reports its async work with a loading ring and a success tint.
+- Animate the panel in and stagger list rows by 40ms using only transform and opacity; the progress bar scales instead of resizing.
+- Fix hover feedback that was invisible in the light theme, and raise tertiary text and the check ring to WCAG AA contrast.
+- Group each section heading with its list through a shared `gap`, so spacing follows structure instead of per-element margins.
+
 ## 1.5.7
 
 - Add a settings entry beside the notes title with the plugin version, author, send-shortcut choice, and configurable one-click forward prefix.

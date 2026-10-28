@@ -1,6 +1,6 @@
 {
   "name": "dsh-workspace-todos",
-  "version": "1.5.7",
+  "version": "1.6.0",
   "type": "module",
   "description": "Notes: a lightweight per-session sticky-note button and right-side panel for the DeepSeek Harness Web GUI.",
   "license": "MIT",
@@ -51,7 +51,9 @@
     "test": "node --test tests/contract.test.mjs"
   },
   "dsh": {
-    "bundle": { "patch": "./cordis.patch.yml" },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
     "client": {
       "platform": "web",
       "immediately": true,

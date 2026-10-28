@@ -111,3 +111,72 @@ test('documentation and preview assets are present', () => {
   }
   assert.ok(fs.statSync(path.join(root, 'preview.png')).size > 1000)
 })
+
+/** The stylesheet is a string array; flatten it back into CSS for inspection. */
+function readCss() {
+  const client = read('client.js')
+  const start = client.indexOf('const CSS = [')
+  const end = client.indexOf("].join('')", start)
+  assert.ok(start > 0 && end > start, 'CSS array not found')
+  return [...client.slice(start, end).matchAll(/'(?:[^'\\]|\\.)*'/g)]
+    .map(match => match[0].slice(1, -1).replace(/\\'/g, "'"))
+    .join('')
+}
+
+test('colours come from the three-role token layer', () => {
+  const css = readCss()
+  assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i, 'raw hex colours belong in tokens, not rules')
+  assert.doesNotMatch(css, /\b(?:rgba?|hsla?)\(/i, 'raw colour functions belong in tokens')
+  const ramp = [...css.matchAll(/--wt-n-(\d+):/g)].map(match => match[1])
+  assert.deepEqual(ramp, ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'])
+  for (const token of ['--wt-success', '--wt-warn', '--wt-danger', '--wt-accent']) {
+    assert.ok(css.includes(`${token}:`), `missing semantic token ${token}`)
+  }
+  // The accent is reserved for the primary path: add, complete, selected setting.
+  const accentUses = [...css.matchAll(/background:var\(--wt-accent\)/g)].length
+  assert.ok(accentUses <= 6, `accent leaks into ${accentUses} fills`)
+})
+
+test('type scale and weight set stay small', () => {
+  const css = readCss()
+  const sizes = [...new Set([...css.matchAll(/font-size:([^;}]+)/g)].map(match => match[1].trim()))]
+  for (const size of sizes) assert.match(size, /^var\(--wt-fs-(?:caption|body-sm|body|heading|display)\)$/)
+  const tokens = [...new Set([...css.matchAll(/--wt-fs-[a-z-]+:([0-9.]+)px/g)].map(match => Number(match[1])))]
+  assert.deepEqual(tokens.sort((a, b) => a - b), [10, 12.5, 15.5, 19.5, 24.5])
+  for (let i = 1; i < tokens.length; i += 1) {
+    const ratio = tokens[i] / tokens[i - 1]
+    assert.ok(Math.abs(ratio - 1.25) < 0.03, `${tokens[i - 1]} -> ${tokens[i]} is x${ratio.toFixed(3)}`)
+  }
+  const weights = [...new Set([...css.matchAll(/font-weight:([0-9]+)/g)].map(match => match[1]))]
+  assert.ok(weights.length <= 3, `too many weights: ${weights.join(', ')}`)
+})
+
+test('spacing snaps to the 4px scale', () => {
+  const css = readCss()
+  // 1px hairlines and 2px optical offsets are allowed; everything else snaps.
+  const scale = new Set(['0', '1px', '2px', '4px', '8px', '12px', '16px', '24px', '32px', '48px', '64px', 'auto', '100%'])
+  for (const match of css.matchAll(/(?:^|[;{])(?:padding|margin|gap)(?:-[a-z]+)?:([^;}]+)/g)) {
+    const value = match[1].trim()
+    if (value.includes('var(') || value.includes('calc(') || value.includes('inset')) continue
+    for (const part of value.split(/\s+/)) {
+      assert.ok(scale.has(part) || /^-\d+px$/.test(part), `off-scale spacing "${value}"`)
+    }
+  }
+})
+
+test('radii, shadows and motion stay tokenised', () => {
+  const css = readCss()
+  const radii = [...new Set([...css.matchAll(/border-radius:([^;}]+)/g)].map(match => match[1].trim()))].sort()
+  assert.deepEqual(radii, ['var(--wt-radius-md)', 'var(--wt-radius-pill)', 'var(--wt-radius-sm)'])
+  assert.doesNotMatch(css, /box-shadow:(?!\s*(?:var\(|inset ))/, 'hand-written shadows are not allowed')
+  const animations = [...css.matchAll(/@keyframes [^{]+\{([^@]*)\}\}/g)].map(match => match[1])
+  for (const frames of animations) {
+    const props = [...frames.matchAll(/([a-z-]+):/g)].map(match => match[1])
+    for (const prop of props) assert.ok(['opacity', 'transform'].includes(prop), `animates ${prop}`)
+  }
+  for (const match of css.matchAll(/transition:[^;}]+/g)) {
+    const value = match[0]
+    assert.doesNotMatch(value, /(?<!var\(--wt-dur)[^)]\b\d+m?s\b/, `untokenised duration in "${value}"`)
+  }
+})
+
