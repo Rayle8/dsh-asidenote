@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0-experimental.8
+
+- Move the count badge 2px closer to the header icon so it reads as attached to the note rather than a separate notification.
+
 ## 1.5.0-experimental.7
 
 - Keep the header entry as a 28px square with a 16px icon; show the count as a low-contrast gray corner badge instead of inline text.
