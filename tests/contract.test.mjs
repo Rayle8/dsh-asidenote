@@ -32,6 +32,11 @@ test('package declares the DSH bundle and web client halves', () => {
   }
 })
 
+test('client version matches the package version', () => {
+  const manifest = JSON.parse(read('package.json'))
+  assert.match(read('client.js'), new RegExp(`PLUGIN_VERSION = '${manifest.version.replace(/\./g, '\\.')}'`))
+})
+
 test('patch inserts exactly the package host row', () => {
   const patch = read('cordis.patch.yml')
   assert.match(patch, /- insert:/)
@@ -62,6 +67,10 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /FORWARD_PREFIX/)
   assert.match(client, /IconForward/)
   assert.match(client, /item\.forward/)
+  assert.match(client, /PLUGIN_VERSION/)
+  assert.match(client, /settings\.open/)
+  assert.match(client, /SEND_SHORTCUT_KEY/)
+  assert.match(client, /readForwardPrefix/)
   assert.match(client, /conversation\.session\.header\.utilities|_headerUtilities/)
   assert.match(client, /placement === 'right'|placement === \"right\"/)
   assert.match(client, /BoundSessionCapture/)

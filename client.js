@@ -18,6 +18,12 @@ window.__ModuleLoader__.load({
     const DRAFT_STORAGE_KEY = 'dsh.memo.drafts.v1'
     /** Fixed lead-in used when forwarding a note to the conversation composer. */
     const FORWARD_PREFIX = '完成以下任务：'
+    /** Shown in the in-panel settings; keep in sync with package.json. */
+    const PLUGIN_VERSION = '1.5.7'
+    const PLUGIN_AUTHOR = 'Rayle8'
+    /** Enter-to-send preference; persisted across panel openings. */
+    const SEND_SHORTCUT_KEY = 'dsh.memo.send-shortcut.v1'
+    const SEND_SHORTCUT_DEFAULT = 'ctrl-enter'
     /** Persisted width of the experimental right-side panel. */
     const PANEL_WIDTH_KEY = 'dsh.memo.panel-width.v1'
     const PANEL_DEFAULT_WIDTH = 360
@@ -59,6 +65,16 @@ window.__ModuleLoader__.load({
         'badge.count': '{open}',
         'popover.title': '便笺',
         'popover.close': '关闭便笺',
+        'settings.open': '设置',
+        'settings.title': '设置',
+        'settings.about': '关于',
+        'settings.version': '版本',
+        'settings.author': '作者',
+        'settings.shortcut': '发送快捷键',
+        'settings.shortcutCtrlEnter': 'Ctrl+Enter 发送，Enter 换行',
+        'settings.shortcutEnter': 'Enter 发送，Ctrl+Enter 换行',
+        'settings.forwardPrefix': '一键转发前缀提示词',
+        'settings.forwardPrefixHint': '留空则只转发便笺正文',
         'popover.count': '{open} 未完成 · {total} 条',
         'popover.session': '当前会话',
         'popover.empty.title': '还没有便笺',
@@ -73,6 +89,7 @@ window.__ModuleLoader__.load({
         'stats.allDone': '全部完成',
         'add.placeholder': '记一条便笺',
         'add.shortcut': 'Ctrl+Enter 发送 · Enter 换行',
+        'add.shortcutEnter': 'Enter 发送 · Ctrl+Enter 换行',
         'add.action': '添加',
         'add.hint': '只记一件具体的小事，做完就打勾。',
         'progress': '{done} / {total} 已完成',
@@ -120,6 +137,16 @@ window.__ModuleLoader__.load({
         'badge.count': '{open}',
         'popover.title': 'Notes',
         'popover.close': 'Close notes',
+        'settings.open': 'Settings',
+        'settings.title': 'Settings',
+        'settings.about': 'About',
+        'settings.version': 'Version',
+        'settings.author': 'Author',
+        'settings.shortcut': 'Send shortcut',
+        'settings.shortcutCtrlEnter': 'Ctrl+Enter sends, Enter for a new line',
+        'settings.shortcutEnter': 'Enter sends, Ctrl+Enter for a new line',
+        'settings.forwardPrefix': 'One-click forward prefix',
+        'settings.forwardPrefixHint': 'Leave empty to forward the note only',
         'popover.count': '{open} open · {total} total',
         'popover.session': 'Current session',
         'popover.empty.title': 'No notes yet',
@@ -134,6 +161,7 @@ window.__ModuleLoader__.load({
         'stats.allDone': 'all done',
         'add.placeholder': 'Write a note',
         'add.shortcut': 'Ctrl+Enter sends · Enter for a new line',
+        'add.shortcutEnter': 'Enter sends · Ctrl+Enter for a new line',
         'add.action': 'Add',
         'add.hint': 'Keep it to one concrete next step; check it off when done.',
         'progress': '{done} / {total} done',
@@ -295,6 +323,21 @@ window.__ModuleLoader__.load({
       '.dsh-wt-resizeHandleBottom:hover::before,.dsh-wt-resizeHandleBottom:focus-visible::before{width:36px;background:var(--dsw-alias-brand-primary);opacity:1}',
       '.dsh-wt-resizeHandleBottom:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:-2px;border-radius:8px}',
       '.dsh-wt-popHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:0 0 8px}',
+      '.dsh-wt-popTitleLine{display:flex;align-items:center;gap:6px}',
+      '.dsh-wt-settingsBtn{display:grid;place-items:center;flex:none;width:22px;height:22px;border:0;border-radius:6px;background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}',
+      '.dsh-wt-settingsBtn:hover,.dsh-wt-settingsBtn[data-active="true"]{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}',
+      '.dsh-wt-settingsBtn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
+      '.dsh-wt-settings{margin:0 0 8px;padding:8px 10px;border:1px solid var(--dsw-alias-border-l1);border-radius:9px;background:var(--dsw-alias-bg-layer-2,var(--dsw-alias-bg-layer-1))}',
+      '.dsh-wt-settingsHead{font-size:11px;line-height:16px;font-weight:650;color:var(--dsw-alias-label-primary);margin:0 0 4px}',
+      '.dsh-wt-settingRow{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:11px;line-height:17px;color:var(--dsw-alias-label-secondary)}',
+      '.dsh-wt-settingRow strong{font-weight:500;color:var(--dsw-alias-label-primary);font-variant-numeric:tabular-nums}',
+      '.dsh-wt-settingLabel{display:block;margin:7px 0 3px;font-size:11px;line-height:17px;color:var(--dsw-alias-label-secondary)}',
+      '.dsh-wt-settingChoices{display:flex;flex-direction:column;gap:3px}',
+      '.dsh-wt-settingChoice{display:flex;align-items:flex-start;gap:6px;font-size:11px;line-height:16px;color:var(--dsw-alias-label-primary);cursor:pointer}',
+      '.dsh-wt-settingChoice input{flex:none;margin:2px 0 0;accent-color:var(--dsw-alias-brand-primary)}',
+      '.dsh-wt-settingInput{box-sizing:border-box;width:100%;height:28px;padding:0 7px;border:1px solid var(--dsw-alias-border-l1);border-radius:6px;background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary);font:inherit;font-size:11px;line-height:16px;outline:0}',
+      '.dsh-wt-settingInput:focus{border-color:var(--dsw-alias-brand-primary)}',
+      '.dsh-wt-settingHint{margin:3px 0 0;font-size:10px;line-height:14px;color:var(--dsw-alias-label-secondary)}',
       '.dsh-wt-popTitle{font-size:14px;line-height:20px;font-weight:650}',
       '.dsh-wt-popMeta{margin:2px 0 0;font-size:11px;line-height:16px;color:var(--dsw-alias-label-secondary)}',
       '.dsh-wt-popClose{flex:none;display:grid;place-items:center;width:24px;height:24px;border:0;border-radius:6px;background:transparent;color:var(--dsw-alias-label-secondary);font-size:18px;line-height:1;cursor:pointer}',
@@ -622,6 +665,42 @@ window.__ModuleLoader__.load({
       try {
         if (height > 0) ls.setItem(PANEL_HEIGHT_KEY, String(Math.round(height)))
         else ls.removeItem(PANEL_HEIGHT_KEY)
+      } catch (error) {
+        /* storage is best effort */
+      }
+    }
+
+    /** Read the Enter-to-send preference. */
+    function readSendShortcut() {
+      try {
+        const saved = storage() && storage().getItem(SEND_SHORTCUT_KEY)
+        return saved === 'enter' || saved === 'ctrl-enter' ? saved : SEND_SHORTCUT_DEFAULT
+      } catch (error) {
+        return SEND_SHORTCUT_DEFAULT
+      }
+    }
+
+    function writeSendShortcut(value) {
+      try {
+        storage() && storage().setItem(SEND_SHORTCUT_KEY, value === 'enter' ? 'enter' : 'ctrl-enter')
+      } catch (error) {
+        /* storage is best effort */
+      }
+    }
+
+    /** Read the user's forward lead-in; an empty string means no prefix. */
+    function readForwardPrefix() {
+      try {
+        const raw = storage() && storage().getItem('dsh.memo.forward-prefix.v1')
+        return typeof raw === 'string' ? raw.slice(0, 80) : FORWARD_PREFIX
+      } catch (error) {
+        return FORWARD_PREFIX
+      }
+    }
+
+    function writeForwardPrefix(value) {
+      try {
+        storage() && storage().setItem('dsh.memo.forward-prefix.v1', String(value || '').slice(0, 80))
       } catch (error) {
         /* storage is best effort */
       }
@@ -978,6 +1057,29 @@ window.__ModuleLoader__.load({
       )
     }
 
+    function IconGear() {
+      return h(
+        'svg',
+        {
+          width: 14,
+          height: 14,
+          viewBox: '0 0 16 16',
+          fill: 'none',
+          'aria-hidden': true,
+          focusable: false,
+          style: { display: 'block' },
+        },
+        h('path', {
+          d: 'M2.5 5h11M2.5 11h11',
+          stroke: 'currentColor',
+          strokeWidth: 1.4,
+          strokeLinecap: 'round',
+        }),
+        h('circle', { cx: 6, cy: 5, r: 1.6, stroke: 'currentColor', strokeWidth: 1.4 }),
+        h('circle', { cx: 10, cy: 11, r: 1.6, stroke: 'currentColor', strokeWidth: 1.4 }),
+      )
+    }
+
     function IconPencil() {
       return h(
         'svg',
@@ -1073,7 +1175,7 @@ window.__ModuleLoader__.load({
     }
 
     function TodoRow(props) {
-      const { item, done, say, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onEditDraftChange, onFinishEdit, onCancelEdit, editRef } = props
+      const { item, done, say, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onEditDraftChange, onFinishEdit, onCancelEdit, editRef, forwardPrefix } = props
       const rowClass = done ? 'dsh-wt-row dsh-wt-rowDone' : 'dsh-wt-row'
       const [copied, setCopied] = React.useState(false)
       const [forwarded, setForwarded] = React.useState(false)
@@ -1096,7 +1198,7 @@ window.__ModuleLoader__.load({
       }
 
       const forward = () => {
-        if (!appendToConversation(item.text)) return
+        if (!appendToConversation(item.text, forwardPrefix)) return
         setForwarded(true)
         if (forwardTimerRef.current) clearTimeout(forwardTimerRef.current)
         forwardTimerRef.current = setTimeout(() => setForwarded(false), 1200)
@@ -1744,6 +1846,9 @@ window.__ModuleLoader__.load({
       const [editDraft, setEditDraft] = React.useState('')
       const [showDone, setShowDone] = React.useState(false)
       const [showOpen, setShowOpen] = React.useState(true)
+      const [showSettings, setShowSettings] = React.useState(false)
+      const [sendShortcut, setSendShortcut] = React.useState(readSendShortcut)
+      const [forwardPrefix, setForwardPrefix] = React.useState(readForwardPrefix)
       const [panelWidth, setPanelWidth] = React.useState(readPanelWidth)
       const [panelHeight, setPanelHeight] = React.useState(readPanelHeight)
       const [style, setStyle] = React.useState(() => memoPopoverStyle(props.anchorRef.current, props.placement, panelWidth, panelHeight))
@@ -1946,6 +2051,17 @@ window.__ModuleLoader__.load({
       const openCount = openItems.length
       const total = items.length
 
+      const chooseShortcut = value => {
+        setSendShortcut(value)
+        writeSendShortcut(value)
+      }
+
+      const changeForwardPrefix = value => {
+        const next = String(value || '').slice(0, 80)
+        setForwardPrefix(next)
+        writeForwardPrefix(next)
+      }
+
       const add = () => {
         const text = draft.trim().slice(0, MAX_TEXT)
         if (!text) return
@@ -1953,6 +2069,20 @@ window.__ModuleLoader__.load({
         commit(currentItems => [{ id: uid(), text, done: false, createdAt: now, updatedAt: now }, ...currentItems])
         setDraft('')
         clearAddDraft(sessionId)
+      }
+
+      const insertDraftNewline = node => {
+        if (!node) return
+        const start = node.selectionStart === null ? node.value.length : node.selectionStart
+        const end = node.selectionEnd === null ? start : node.selectionEnd
+        const next = `${node.value.slice(0, start)}\n${node.value.slice(end)}`
+        setDraft(next)
+        saveAddDraft(sessionId, next)
+        window.requestAnimationFrame(() => {
+          node.selectionStart = start + 1
+          node.selectionEnd = start + 1
+          resizeAdd(node)
+        })
       }
 
       const toggle = item => {
@@ -2044,6 +2174,7 @@ window.__ModuleLoader__.load({
         onFinishEdit: finishEdit,
         onCancelEdit: cancelEdit,
         editRef,
+        forwardPrefix,
       })
 
       const content = h(
@@ -2087,7 +2218,24 @@ window.__ModuleLoader__.load({
           h(
             'div',
             null,
-            h('div', { className: 'dsh-wt-popTitle' }, say('popover.title')),
+            h(
+              'div',
+              { className: 'dsh-wt-popTitleLine' },
+              h('div', { className: 'dsh-wt-popTitle' }, say('popover.title')),
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dsh-wt-settingsBtn',
+                  'data-active': showSettings ? 'true' : undefined,
+                  'aria-label': say('settings.open'),
+                  'aria-expanded': showSettings,
+                  title: say('settings.open'),
+                  onClick: () => setShowSettings(value => !value),
+                },
+                h(IconGear, null),
+              ),
+            ),
             h('p', { className: 'dsh-wt-popMeta' }, say('popover.count', { open: openCount, total })),
           ),
           h(
@@ -2096,6 +2244,63 @@ window.__ModuleLoader__.load({
             '×',
           ),
         ),
+        showSettings
+          ? h(
+              'div',
+              { className: 'dsh-wt-settings' },
+              h('div', { className: 'dsh-wt-settingsHead' }, say('settings.title')),
+              h('div', { className: 'dsh-wt-settingLabel' }, say('settings.about')),
+              h(
+                'div',
+                { className: 'dsh-wt-settingRow' },
+                h('span', null, say('settings.version')),
+                h('strong', null, PLUGIN_VERSION),
+              ),
+              h(
+                'div',
+                { className: 'dsh-wt-settingRow' },
+                h('span', null, say('settings.author')),
+                h('strong', null, PLUGIN_AUTHOR),
+              ),
+              h('div', { className: 'dsh-wt-settingLabel' }, say('settings.shortcut')),
+              h(
+                'div',
+                { className: 'dsh-wt-settingChoices' },
+                h(
+                  'label',
+                  { className: 'dsh-wt-settingChoice' },
+                  h('input', {
+                    type: 'radio',
+                    name: 'dsh-wt-send-shortcut',
+                    checked: sendShortcut === 'ctrl-enter',
+                    onChange: () => chooseShortcut('ctrl-enter'),
+                  }),
+                  h('span', null, say('settings.shortcutCtrlEnter')),
+                ),
+                h(
+                  'label',
+                  { className: 'dsh-wt-settingChoice' },
+                  h('input', {
+                    type: 'radio',
+                    name: 'dsh-wt-send-shortcut',
+                    checked: sendShortcut === 'enter',
+                    onChange: () => chooseShortcut('enter'),
+                  }),
+                  h('span', null, say('settings.shortcutEnter')),
+                ),
+              ),
+              h('label', { className: 'dsh-wt-settingLabel', htmlFor: 'dsh-wt-forward-prefix' }, say('settings.forwardPrefix')),
+              h('input', {
+                id: 'dsh-wt-forward-prefix',
+                className: 'dsh-wt-settingInput',
+                value: forwardPrefix,
+                maxLength: 80,
+                placeholder: FORWARD_PREFIX,
+                onChange: event => changeForwardPrefix(event.target.value),
+              }),
+              h('p', { className: 'dsh-wt-settingHint' }, say('settings.forwardPrefixHint')),
+            )
+          : null,
         h(
           'form',
           {
@@ -2128,22 +2333,30 @@ window.__ModuleLoader__.load({
                 event.currentTarget.blur()
                 return
               }
-              if (event.key === 'Enter') {
-                if (composing) {
-                  event.preventDefault()
-                  return
-                }
-                if (event.ctrlKey || event.metaKey) {
-                  event.preventDefault()
-                  add()
-                }
+              if (event.key !== 'Enter') return
+              if (composing) {
+                event.preventDefault()
+                return
+              }
+              const modifier = event.ctrlKey || event.metaKey
+              const shouldSend = sendShortcut === 'enter'
+                ? !modifier && !event.shiftKey
+                : modifier
+              if (shouldSend) {
+                event.preventDefault()
+                add()
+                return
+              }
+              if (sendShortcut === 'enter' && (modifier || event.shiftKey)) {
+                event.preventDefault()
+                insertDraftNewline(event.currentTarget)
               }
             },
           }),
           h(
             'div',
             { className: 'dsh-wt-addFoot' },
-            h('span', { className: 'dsh-wt-addShortcut' }, say('add.shortcut')),
+            h('span', { className: 'dsh-wt-addShortcut' }, say(sendShortcut === 'enter' ? 'add.shortcutEnter' : 'add.shortcut')),
             h('button', { type: 'submit', className: 'dsh-wt-addBtn', disabled: !draft.trim() }, say('add.action')),
           ),
         ),

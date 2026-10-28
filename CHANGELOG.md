@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.7
+
+- Add a settings entry beside the notes title with the plugin version, author, send-shortcut choice, and configurable one-click forward prefix.
+- Apply the selected shortcut to the add box and use the saved prefix when forwarding.
+
 ## 1.5.6
 
 - Prepend the fixed prompt “完成以下任务：” when forwarding, followed by a newline and the note text.
