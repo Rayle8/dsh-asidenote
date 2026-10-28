@@ -28,7 +28,8 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - Drag the bottom-center handle to resize its height; double-click the handle to return to content sizing, and the height persists.
 - Each note has copy, forward, edit, and delete actions; copy sits to the left of edit and briefly shows **Copied** after a successful copy.
 - Forward appends each note as a `-` list item; the configured prefix (default **完成以下任务：**) is written only when the composer is empty, never when it already has content. The caret stays at the end and nothing is sent automatically.
-- After forwarding, the checkbox becomes half-checked; the next click starts a delayed completion (about 1.2s, then a leave animation and move to completed), and clicking again during the delay restores it as open with the half-check kept.
+- After forwarding, the checkbox becomes half-checked and the forwarded state is remembered per session; the next click starts a 3-second countdown with the remaining seconds shown, then a leave animation and move to completed, and clicking again during the delay restores it as open with the half-check kept.
+- Notes completed after forwarding use a gray completion check, distinct from manually completed notes.
 - The completion circle shares the first line with the note text; copy, edit, and delete sit at the bottom-right beside the time, saving one row.
 - The completion circle is visually 14px inside a 24px hit area and centers on the first line of note text.
 - Both the new-note input and the editor grow into multiple rows as you type; both use the configured send shortcut, with the other combination inserting a newline, and the editor shows a right-aligned shortcut hint.

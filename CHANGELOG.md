@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.6.3
+
+- Nudge the forward icon further down for true optical alignment with neighboring actions.
+- Persist forwarded items per session so the half-check survives reopening the panel.
+- Render forwarded completed notes with a gray-and-white completion check.
+- Count the pending completion down over three seconds and update the undo hint each second.
+
 ## 1.6.2
 
 - Restructure one-click forward settings into two items: the prefix prompt and the forward completion behavior.
