@@ -120,6 +120,8 @@ window.__ModuleLoader__.load({
         'item.editHint': '双击编辑',
         'edit.save': '保存',
         'edit.cancel': '取消',
+        'edit.hintCtrlEnter': 'Ctrl+Enter 保存 · Enter 换行',
+        'edit.hintEnter': 'Enter 保存 · Ctrl+Enter 换行',
         'time.now': '刚刚',
         'time.minutes': '{n} 分钟前',
         'time.hours': '{n} 小时前',
@@ -193,6 +195,8 @@ window.__ModuleLoader__.load({
         'item.editHint': 'Double-click to edit',
         'edit.save': 'Save',
         'edit.cancel': 'Cancel',
+        'edit.hintCtrlEnter': 'Ctrl+Enter saves · Enter for a new line',
+        'edit.hintEnter': 'Enter saves · Ctrl+Enter for a new line',
         'time.now': 'just now',
         'time.minutes': '{n} min ago',
         'time.hours': '{n} hr ago',
@@ -270,7 +274,9 @@ window.__ModuleLoader__.load({
       '.dsh-wt-meta{font-size:10.5px;line-height:16px;color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums}',
       '.dsh-wt-edit{display:flex;flex-direction:column;gap:4px;width:100%}',
       '.dsh-wt-editInput{display:block;width:100%;box-sizing:border-box;min-height:26px;max-height:160px;padding:3px 6px;border:1px solid var(--dsw-alias-brand-primary);border-radius:6px;background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary);font:inherit;font-size:14px;line-height:21px;outline:0;resize:none;overflow-y:auto;overflow-x:hidden}',
-      '.dsh-wt-editActions{display:flex;gap:4px}',
+      '.dsh-wt-editActions{display:flex;align-items:center;gap:4px}',
+      '.dsh-wt-editActions .dsh-wt-mini{flex:none}',
+      '.dsh-wt-editHint{flex:1 1 auto;min-width:0;margin-left:auto;overflow:hidden;font-size:10px;line-height:14px;text-align:right;color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis}',
       '.dsh-wt-mini{height:22px;padding:0 7px;border:1px solid var(--dsw-alias-border-l1);border-radius:6px;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:11px;line-height:20px;cursor:pointer}',
       '.dsh-wt-mini:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-layer-2)}',
       '.dsh-wt-mini:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
@@ -1242,7 +1248,8 @@ window.__ModuleLoader__.load({
     }
 
     function TodoRow(props) {
-      const { item, done, say, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onEditDraftChange, onFinishEdit, onCancelEdit, editRef, forwardPrefix } = props
+      const { item, done, say, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onEditDraftChange, onFinishEdit, onCancelEdit, editRef, forwardPrefix, sendShortcut = 'ctrl-enter' } = props
+      const editHintKey = sendShortcut === 'enter' ? 'edit.hintEnter' : 'edit.hintCtrlEnter'
       const [copied, setCopied] = React.useState(false)
       const [forwarded, setForwarded] = React.useState(false)
       // A forwarded note stays open and wears a half check until the user decides.
@@ -1382,6 +1389,26 @@ window.__ModuleLoader__.load({
         }
       }, [editRef])
 
+      /** Insert a line break at the caret of the controlled edit textarea and keep focus there. */
+      const insertEditNewline = node => {
+        if (!node) return
+        const start = node.selectionStart === null ? node.value.length : node.selectionStart
+        const end = node.selectionEnd === null ? start : node.selectionEnd
+        const next = `${node.value.slice(0, start)}\n${node.value.slice(end)}`
+        const caret = start + 1
+        setEditDraft(next)
+        if (onEditDraftChange) onEditDraftChange(next)
+        window.requestAnimationFrame(() => {
+          node.focus()
+          try {
+            node.setSelectionRange(caret, caret)
+          } catch (error) {
+            /* selection APIs are best effort */
+          }
+          resizeEditor(node)
+        })
+      }
+
       const body = editing
         ? h(
             'div',
@@ -1402,12 +1429,32 @@ window.__ModuleLoader__.load({
               onKeyDown: event => {
                 const composing = event.isComposing || (event.nativeEvent && event.nativeEvent.isComposing)
                 if (composing) return
-                if (event.key === 'Enter' && !event.shiftKey) {
-                  event.preventDefault()
-                  onFinishEdit(item)
-                } else if (event.key === 'Escape') {
+                if (event.key === 'Escape') {
                   event.preventDefault()
                   onCancelEdit()
+                  return
+                }
+                if (event.key !== 'Enter') return
+                const modifier = event.ctrlKey || event.metaKey
+                if (sendShortcut === 'enter') {
+                  if (!modifier && !event.shiftKey) {
+                    event.preventDefault()
+                    onFinishEdit(item)
+                  } else {
+                    // Ctrl/Meta+Enter and Shift+Enter break the line instead of saving.
+                    event.preventDefault()
+                    insertEditNewline(event.currentTarget)
+                  }
+                  return
+                }
+                // Default 'ctrl-enter': the modifier saves; Enter and Shift+Enter break the line.
+                if (modifier) {
+                  event.preventDefault()
+                  if (event.shiftKey) insertEditNewline(event.currentTarget)
+                  else onFinishEdit(item)
+                } else if (event.shiftKey) {
+                  event.preventDefault()
+                  insertEditNewline(event.currentTarget)
                 }
               },
               onBlur: () => onFinishEdit(item),
@@ -1435,6 +1482,7 @@ window.__ModuleLoader__.load({
                 },
                 say('edit.cancel'),
               ),
+              h('span', { className: 'dsh-wt-editHint', title: say(editHintKey) }, say(editHintKey)),
             ),
           )
         : h(
@@ -2362,6 +2410,7 @@ window.__ModuleLoader__.load({
         onCancelEdit: cancelEdit,
         editRef,
         forwardPrefix,
+        sendShortcut,
       })
 
       const content = h(
