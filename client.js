@@ -248,7 +248,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-top:1px solid var(--dsw-alias-border-l1);transition:background .12s ease}',
       '.dsh-wt-row:first-child{border-top:0}',
       '.dsh-wt-row:hover{background:var(--dsw-alias-bg-layer-2)}',
-      '.dsh-wt-check{flex:none;display:flex;align-items:center;justify-content:center;width:24px;height:24px;margin:-4px 0 0;padding:0;border:0;background:transparent;color:transparent;cursor:pointer}',
+      '.dsh-wt-check{flex:none;display:flex;align-items:center;justify-content:center;width:24px;height:24px;margin:calc((21px - 24px) / 2) 0 0;padding:0;border:0;background:transparent;color:transparent;cursor:pointer}',
       '.dsh-wt-checkCircle{display:flex;align-items:center;justify-content:center;width:16px;height:16px;box-sizing:border-box;border:1.5px solid var(--dsw-alias-border-l2);border-radius:50%;background:transparent;color:transparent;transition:border-color .12s ease,background .12s ease,color .12s ease}',
       '.dsh-wt-check:hover .dsh-wt-checkCircle{border-color:var(--dsw-alias-brand-primary);color:var(--dsw-alias-brand-primary)}',
       '.dsh-wt-check:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;border-radius:50%}',
@@ -315,7 +315,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-dockCount{min-width:0;padding:0;border-radius:0;background:none;color:inherit;font:inherit;font-size:11px;line-height:20px;text-align:left;font-variant-numeric:tabular-nums}',
       '[data-row-key^="session:"]:has(> .dsh-wt-badge) > [class*="_title"]{flex:0 1 auto}',
       '[data-row-key^="session:"]:has(> .dsh-wt-badge) > [class*="_time"]{display:none}',
-      '.dsh-wt-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;min-height:0;padding:12px;border:1px solid var(--dsw-alias-border-l2);border-radius:12px;background:var(--dsw-alias-bg-layer-1);box-shadow:var(--dsw-elevation-soft);color:var(--dsw-alias-label-primary);font-size:13px;overflow-x:hidden;overflow-y:auto}',
+      '.dsh-wt-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;min-height:0;padding:12px;border:1px solid var(--dsw-alias-border-l2);border-radius:12px;background:var(--dsw-alias-bg-layer-1);box-shadow:var(--dsw-elevation-soft);color:var(--dsw-alias-label-primary);font-size:13px;overflow:hidden}',
       '.dsh-wt-popoverRight{padding-left:18px;padding-bottom:20px}',
       '.dsh-wt-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:10px;cursor:ew-resize;touch-action:none;outline:0}',
       '.dsh-wt-resizeHandle::before{content:"";width:3px;height:36px;border-radius:999px;background:var(--dsw-alias-border-l2);opacity:.7;transition:height .12s ease,background .12s ease,opacity .12s ease}',
@@ -350,8 +350,14 @@ window.__ModuleLoader__.load({
       '.dsh-wt-popover .dsh-wt-addHint{display:none}',
       '.dsh-wt-popover .dsh-wt-sectionHead{padding:4px 0 2px;margin:0}',
       '.dsh-wt-popover > *{flex:none}',
+      '.dsh-wt-listArea{flex:1 1 auto;min-height:0;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--dsw-alias-border-l2) transparent}',
+      '.dsh-wt-listArea::-webkit-scrollbar{width:6px;height:6px}',
+      '.dsh-wt-listArea::-webkit-scrollbar-track{background:transparent}',
+      '.dsh-wt-listArea::-webkit-scrollbar-thumb{border-radius:999px;background-color:var(--dsw-alias-border-l2)}',
+      '.dsh-wt-listArea::-webkit-scrollbar-thumb:hover{background-color:var(--dsw-alias-label-secondary)}',
       '.dsh-wt-popover .dsh-wt-rows{flex:none;min-height:0;overflow:visible}',
       '.dsh-wt-popover .dsh-wt-row{padding:7px 6px;border-radius:8px}',
+      '.dsh-wt-popover .dsh-wt-check{margin-top:calc((18px - 24px) / 2)}',
       '.dsh-wt-popover .dsh-wt-text{font-size:12px;line-height:18px}',
       '.dsh-wt-popover .dsh-wt-edit{gap:3px}',
       '.dsh-wt-popover .dsh-wt-editInput{font-size:12px;line-height:18px;padding:3px 6px}',
@@ -2420,54 +2426,58 @@ window.__ModuleLoader__.load({
         ),
         h(
           'div',
-          { className: 'dsh-wt-sectionHead' },
+          { className: 'dsh-wt-listArea' },
           h(
-            'button',
-            {
-              type: 'button',
-              className: 'dsh-wt-doneToggle',
-              'aria-expanded': showOpen ? 'true' : 'false',
-              onClick: toggleOpen,
-            },
-            h('span', { className: 'dsh-wt-chevron', 'data-open': showOpen ? 'true' : 'false' }, h(IconChevron, null)),
-            say('list.open'),
-            h('span', { className: 'dsh-wt-sectionCount' }, String(openCount)),
+            'div',
+            { className: 'dsh-wt-sectionHead' },
+            h(
+              'button',
+              {
+                type: 'button',
+                className: 'dsh-wt-doneToggle',
+                'aria-expanded': showOpen ? 'true' : 'false',
+                onClick: toggleOpen,
+              },
+              h('span', { className: 'dsh-wt-chevron', 'data-open': showOpen ? 'true' : 'false' }, h(IconChevron, null)),
+              say('list.open'),
+              h('span', { className: 'dsh-wt-sectionCount' }, String(openCount)),
+            ),
           ),
-        ),
-        showOpen
-          ? openItems.length
-            ? h('ul', { className: 'dsh-wt-rows' }, openItems.map(row))
-            : h(EmptyState, {
-                title: say(total ? 'list.allDone.title' : 'popover.empty.title'),
-                body: say(total ? 'list.allDone.body' : 'popover.empty.body'),
-              })
-          : null,
-        doneItems.length
-          ? h(
-              React.Fragment,
-              null,
-              h(
-                'div',
-                { className: 'dsh-wt-doneHead' },
+          showOpen
+            ? openItems.length
+              ? h('ul', { className: 'dsh-wt-rows' }, openItems.map(row))
+              : h(EmptyState, {
+                  title: say(total ? 'list.allDone.title' : 'popover.empty.title'),
+                  body: say(total ? 'list.allDone.body' : 'popover.empty.body'),
+                })
+            : null,
+          doneItems.length
+            ? h(
+                React.Fragment,
+                null,
                 h(
-                  'button',
-                  {
-                    type: 'button',
-                    className: 'dsh-wt-doneToggle',
-                    'aria-expanded': showDone ? 'true' : 'false',
-                    onClick: toggleDone,
-                  },
-                  h('span', { className: 'dsh-wt-chevron', 'data-open': showDone ? 'true' : 'false' }, h(IconChevron, null)),
-                  say('popover.completed'),
-                  h('span', { className: 'dsh-wt-sectionCount' }, String(doneItems.length)),
+                  'div',
+                  { className: 'dsh-wt-doneHead' },
+                  h(
+                    'button',
+                    {
+                      type: 'button',
+                      className: 'dsh-wt-doneToggle',
+                      'aria-expanded': showDone ? 'true' : 'false',
+                      onClick: toggleDone,
+                    },
+                    h('span', { className: 'dsh-wt-chevron', 'data-open': showDone ? 'true' : 'false' }, h(IconChevron, null)),
+                    say('popover.completed'),
+                    h('span', { className: 'dsh-wt-sectionCount' }, String(doneItems.length)),
+                  ),
+                  showDone
+                    ? h('button', { type: 'button', className: 'dsh-wt-clear', onClick: clearDone }, say('popover.clearDone'))
+                    : null,
                 ),
-                showDone
-                  ? h('button', { type: 'button', className: 'dsh-wt-clear', onClick: clearDone }, say('popover.clearDone'))
-                  : null,
-              ),
-              showDone ? h('ul', { className: 'dsh-wt-rows dsh-wt-doneRows' }, doneItems.map(row)) : null,
-            )
-          : null,
+                showDone ? h('ul', { className: 'dsh-wt-rows dsh-wt-doneRows' }, doneItems.map(row)) : null,
+              )
+            : null,
+        ),
         h(
           'div',
           { className: 'dsh-wt-popFoot' },
