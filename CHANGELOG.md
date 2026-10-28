@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.9
+
+- Combine the About version and author into one line, with the author linked to GitHub.
+
 ## 1.5.8
 
 - Move the About block (version/author) to the bottom of the settings area.

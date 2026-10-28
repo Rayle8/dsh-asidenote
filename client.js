@@ -19,8 +19,9 @@ window.__ModuleLoader__.load({
     /** Fixed lead-in used when forwarding a note to the conversation composer. */
     const FORWARD_PREFIX = '完成以下任务：'
     /** Shown in the in-panel settings; keep in sync with package.json. */
-    const PLUGIN_VERSION = '1.5.8'
-    const PLUGIN_AUTHOR = 'Rayle8'
+    const PLUGIN_VERSION = '1.5.9'
+    const PLUGIN_AUTHOR_URL = 'https://github.com/Rayle8'
+    const PLUGIN_AUTHOR_LABEL = 'github.com/Rayle8'
     /** Enter-to-send preference; persisted across panel openings. */
     const SEND_SHORTCUT_KEY = 'dsh.memo.send-shortcut.v1'
     const SEND_SHORTCUT_DEFAULT = 'ctrl-enter'
@@ -332,8 +333,11 @@ window.__ModuleLoader__.load({
       '.dsh-wt-settingsBtn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
       '.dsh-wt-settings{margin:0 0 8px;padding:8px 10px;border:1px solid var(--dsw-alias-border-l1);border-radius:9px;background:var(--dsw-alias-bg-layer-2,var(--dsw-alias-bg-layer-1))}',
       '.dsh-wt-settingsHead{font-size:11px;line-height:16px;font-weight:650;color:var(--dsw-alias-label-primary);margin:0 0 4px}',
-      '.dsh-wt-settingRow{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:11px;line-height:17px;color:var(--dsw-alias-label-secondary)}',
-      '.dsh-wt-settingRow strong{font-weight:500;color:var(--dsw-alias-label-primary);font-variant-numeric:tabular-nums}',
+      '.dsh-wt-settingAbout{display:flex;align-items:baseline;gap:4px;min-width:0;overflow:hidden;font-size:11px;line-height:17px;color:var(--dsw-alias-label-secondary);white-space:nowrap}',
+      '.dsh-wt-settingAbout>span{flex:none}',
+      '.dsh-wt-settingDot{opacity:.7}',
+      '.dsh-wt-settingLink{min-width:0;overflow:hidden;color:var(--dsw-alias-brand-primary);text-decoration:none;text-overflow:ellipsis}',
+      '.dsh-wt-settingLink:hover{text-decoration:underline}',
       '.dsh-wt-settingLabel{display:block;margin:7px 0 3px;font-size:11px;line-height:17px;color:var(--dsw-alias-label-secondary)}',
       '.dsh-wt-settingChoices{display:flex;flex-direction:column;gap:3px}',
       '.dsh-wt-settingChoice{display:flex;align-items:flex-start;gap:6px;font-size:11px;line-height:16px;color:var(--dsw-alias-label-primary);cursor:pointer}',
@@ -2353,15 +2357,20 @@ window.__ModuleLoader__.load({
               h('div', { className: 'dsh-wt-settingLabel' }, say('settings.about')),
               h(
                 'div',
-                { className: 'dsh-wt-settingRow' },
-                h('span', null, say('settings.version')),
-                h('strong', null, PLUGIN_VERSION),
-              ),
-              h(
-                'div',
-                { className: 'dsh-wt-settingRow' },
+                { className: 'dsh-wt-settingAbout' },
+                h('span', null, `${say('settings.version')} ${PLUGIN_VERSION}`),
+                h('span', { className: 'dsh-wt-settingDot', 'aria-hidden': true }, '·'),
                 h('span', null, say('settings.author')),
-                h('strong', null, PLUGIN_AUTHOR),
+                h(
+                  'a',
+                  {
+                    className: 'dsh-wt-settingLink',
+                    href: PLUGIN_AUTHOR_URL,
+                    target: '_blank',
+                    rel: 'noreferrer',
+                  },
+                  PLUGIN_AUTHOR_LABEL,
+                ),
               ),
             )
           : null,

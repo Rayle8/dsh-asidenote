@@ -1,6 +1,6 @@
 {
   "name": "dsh-workspace-todos",
-  "version": "1.5.8",
+  "version": "1.5.9",
   "type": "module",
   "description": "Notes: a lightweight per-session sticky-note button and right-side panel for the DeepSeek Harness Web GUI.",
   "license": "MIT",
