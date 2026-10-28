@@ -58,7 +58,7 @@ window.__ModuleLoader__.load({
         'workspace.current': '当前会话',
         'stats.openLabel': '未完成',
         'stats.allDone': '全部完成',
-        'add.placeholder': '记一条便笺，按 Enter 添加',
+        'add.placeholder': '记一条便笺，按 Ctrl+Enter 添加，按 Enter 换行',
         'add.action': '添加',
         'add.hint': '只记一件具体的小事，做完就打勾。',
         'progress': '{done} / {total} 已完成',
@@ -115,7 +115,7 @@ window.__ModuleLoader__.load({
         'workspace.current': 'Current session',
         'stats.openLabel': 'open',
         'stats.allDone': 'all done',
-        'add.placeholder': 'Write a note and press Enter',
+        'add.placeholder': 'Write a note; Ctrl+Enter adds, Enter starts a new line',
         'add.action': 'Add',
         'add.hint': 'Keep it to one concrete next step; check it off when done.',
         'progress': '{done} / {total} done',
@@ -1643,7 +1643,16 @@ window.__ModuleLoader__.load({
                 event.currentTarget.blur()
                 return
               }
-              if (event.key === 'Enter' && composing) event.preventDefault()
+              if (event.key === 'Enter') {
+                if (composing) {
+                  event.preventDefault()
+                  return
+                }
+                if (event.ctrlKey || event.metaKey) {
+                  event.preventDefault()
+                  add()
+                }
+              }
             },
           }),
           h('button', { type: 'submit', className: 'dsh-wt-addBtn', disabled: !draft.trim() }, say('add.action')),

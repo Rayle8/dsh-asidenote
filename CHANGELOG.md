@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.11
+
+- Change the add input shortcut: Enter inserts a new line, Ctrl+Enter adds the note, and update the placeholder text.
+
 ## 1.4.10
 
 - Keep the Add button on its own second row at all times, removing the wrap-state layout change that caused flicker and extra space above the button.
