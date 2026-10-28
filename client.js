@@ -19,7 +19,7 @@ window.__ModuleLoader__.load({
     /** Fixed lead-in used when forwarding a note to the conversation composer. */
     const FORWARD_PREFIX = '完成以下任务：'
     /** Shown in the in-panel settings; keep in sync with package.json. */
-    const PLUGIN_VERSION = '1.6.1'
+    const PLUGIN_VERSION = '1.6.2'
     const PLUGIN_AUTHOR_URL = 'https://github.com/Rayle8'
     const PLUGIN_AUTHOR_LABEL = 'github.com/Rayle8'
     /** Enter-to-send preference; persisted across panel openings. */
@@ -81,7 +81,9 @@ window.__ModuleLoader__.load({
         'settings.shortcut': '发送快捷键',
         'settings.shortcutCtrlEnter': 'Ctrl+Enter 发送，Enter 换行',
         'settings.shortcutEnter': 'Enter 发送，Ctrl+Enter 换行',
-        'settings.forwardPrefix': '一键转发前缀提示词',
+        'settings.forward': '一键转发',
+        'settings.forwardPrefixItem': '前缀提示词',
+        'settings.forwardCheck': '转发勾选完成',
         'settings.forwardPrefixHint': '留空则只转发便笺正文',
         'settings.halfCheck': '转发后勾选框变为半选；再次点击标记完成，延迟期间可再点一次还原。',
         'popover.count': '{open} 未完成 · {total} 条',
@@ -157,7 +159,9 @@ window.__ModuleLoader__.load({
         'settings.shortcut': 'Send shortcut',
         'settings.shortcutCtrlEnter': 'Ctrl+Enter sends, Enter for a new line',
         'settings.shortcutEnter': 'Enter sends, Ctrl+Enter for a new line',
-        'settings.forwardPrefix': 'One-click forward prefix',
+        'settings.forward': 'One-click forward',
+        'settings.forwardPrefixItem': 'Prefix prompt',
+        'settings.forwardCheck': 'Forward completion',
         'settings.forwardPrefixHint': 'Leave empty to forward the note only',
         'settings.halfCheck': 'After forwarding, the checkbox becomes half-checked; click again to complete, or click once more during the delay to restore it.',
         'popover.count': '{open} open · {total} total',
@@ -352,6 +356,9 @@ window.__ModuleLoader__.load({
       '.dsh-wt-settingsHead{font-size:11px;line-height:16px;font-weight:650;color:var(--dsw-alias-label-primary);margin:0 0 5px}',
       '.dsh-wt-settingGroup{display:flex;flex-direction:column;gap:3px}',
       '.dsh-wt-settingGroup+.dsh-wt-settingGroup{margin-top:9px;padding-top:9px;border-top:1px solid var(--dsw-alias-border-l1)}',
+      '.dsh-wt-settingItem{display:flex;flex-direction:column;gap:3px;min-width:0}',
+      '.dsh-wt-settingItem+.dsh-wt-settingItem{margin-top:7px;padding-top:7px;border-top:1px solid var(--dsw-alias-border-l1)}',
+      '.dsh-wt-settingItemLabel{font-size:11px;line-height:16px;font-weight:500;color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-settingLabel{display:block;margin:0;font-size:11px;line-height:16px;color:var(--dsw-alias-label-secondary)}',
       '.dsh-wt-settingBody{display:flex;flex-direction:column;gap:3px;padding-left:var(--dsh-wt-settingIndent)}',
       '.dsh-wt-settingChoices{display:flex;flex-direction:column;gap:3px}',
@@ -2536,20 +2543,30 @@ window.__ModuleLoader__.load({
               h(
                 'div',
                 { className: 'dsh-wt-settingGroup' },
-                h('label', { className: 'dsh-wt-settingLabel', htmlFor: 'dsh-wt-forward-prefix' }, say('settings.forwardPrefix')),
+                h('div', { className: 'dsh-wt-settingLabel' }, say('settings.forward')),
                 h(
                   'div',
                   { className: 'dsh-wt-settingBody' },
-                  h('input', {
-                    id: 'dsh-wt-forward-prefix',
-                    className: 'dsh-wt-settingInput',
-                    value: forwardPrefix,
-                    maxLength: 80,
-                    placeholder: FORWARD_PREFIX,
-                    onChange: event => changeForwardPrefix(event.target.value),
-                  }),
-                  h('p', { className: 'dsh-wt-settingHint' }, say('settings.forwardPrefixHint')),
-                  h('p', { className: 'dsh-wt-settingHint dsh-wt-settingHintNote' }, say('settings.halfCheck')),
+                  h(
+                    'div',
+                    { className: 'dsh-wt-settingItem' },
+                    h('label', { className: 'dsh-wt-settingItemLabel', htmlFor: 'dsh-wt-forward-prefix' }, say('settings.forwardPrefixItem')),
+                    h('input', {
+                      id: 'dsh-wt-forward-prefix',
+                      className: 'dsh-wt-settingInput',
+                      value: forwardPrefix,
+                      maxLength: 80,
+                      placeholder: FORWARD_PREFIX,
+                      onChange: event => changeForwardPrefix(event.target.value),
+                    }),
+                    h('p', { className: 'dsh-wt-settingHint' }, say('settings.forwardPrefixHint')),
+                  ),
+                  h(
+                    'div',
+                    { className: 'dsh-wt-settingItem' },
+                    h('div', { className: 'dsh-wt-settingItemLabel' }, say('settings.forwardCheck')),
+                    h('p', { className: 'dsh-wt-settingHint dsh-wt-settingHintNote' }, say('settings.halfCheck')),
+                  ),
                 ),
               ),
               h(

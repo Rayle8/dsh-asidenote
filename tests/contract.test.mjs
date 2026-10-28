@@ -70,6 +70,8 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /HALF_DONE_DELAY/)
   assert.match(client, /edit\.hintEnter/)
   assert.match(client, /settings\.halfCheck/)
+  assert.match(client, /settings\.forwardCheck/)
+  assert.match(client, /settings\.forwardPrefixItem/)
   assert.match(client, /SECTION_STATE_KEY/)
   assert.match(client, /readSectionState/)
   assert.match(client, /const bullet = `- \$\{note\}`/)

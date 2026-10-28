@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.2
+
+- Restructure one-click forward settings into two items: the prefix prompt and the forward completion behavior.
+
 ## 1.6.1
 
 - Move the half-check completion explanation under the one-click forward settings.

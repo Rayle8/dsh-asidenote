@@ -21,7 +21,7 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - Data is keyed by **session ID**; different sessions in one workspace stay independent.
 - A 28px square top-right icon button shows the open count as a low-contrast gray corner badge; its tooltip reads “Session notes N”.
 - Clicking it opens a fixed right-side panel; switching sessions closes the old panel and updates the entry.
-- The settings button beside the notes title expands a settings area for the send shortcut and one-click forward prefix, with the half-check explanation under the forward setting and the version/GitHub author link on one line at the bottom; settings persist automatically.
+- The settings button beside the notes title expands a settings area for the send shortcut; **One-click forward** contains two items, **Prefix prompt** and **Forward completion**, with the version/GitHub author link on one line at the bottom; settings persist automatically.
 - The panel's top-right corner aligns with the header entry and shifts left of the DSH right sidebar when that sidebar is open.
 - Clicking the entry opens the right-side panel for add, complete, copy, edit (double-click or pencil), delete, clear completed, and expand completed.
 - Drag the handle on the panel's left edge to resize its width; double-click the handle to reset it, and the width persists in the browser.
