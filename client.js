@@ -1120,20 +1120,26 @@ window.__ModuleLoader__.load({
           focusable: false,
           style: { display: 'block' },
         },
-        h('path', {
-          d: 'M4.45 2.75h7.3a2 2 0 0 1 2 2v3.5a2 2 0 0 1-2 2H7.9l-2.65 1.9a.5.5 0 0 1-.8-.4v-1.5a2 2 0 0 1-2-2v-3.5a2 2 0 0 1 2-2Z',
-          stroke: 'currentColor',
-          strokeWidth: 1.3,
-          strokeLinecap: 'round',
-          strokeLinejoin: 'round',
-        }),
-        h('path', {
-          d: 'M5.5 7h5.25M8.85 5.1 10.75 7l-1.9 1.9',
-          stroke: 'currentColor',
-          strokeWidth: 1.3,
-          strokeLinecap: 'round',
-          strokeLinejoin: 'round',
-        }),
+        // The bubble (tail tip included) spans y=2.75..12.25, optical center 7.50,
+        // so nudge the pair down 0.50 to sit on the 8px midline like its neighbors.
+        h(
+          'g',
+          { transform: 'translate(0 0.5)' },
+          h('path', {
+            d: 'M4.45 2.75h7.3a2 2 0 0 1 2 2v3.5a2 2 0 0 1-2 2H7.9l-2.65 1.9a.5.5 0 0 1-.8-.4v-1.5a2 2 0 0 1-2-2v-3.5a2 2 0 0 1 2-2Z',
+            stroke: 'currentColor',
+            strokeWidth: 1.3,
+            strokeLinecap: 'round',
+            strokeLinejoin: 'round',
+          }),
+          h('path', {
+            d: 'M5.5 7h5.25M8.85 5.1 10.75 7l-1.9 1.9',
+            stroke: 'currentColor',
+            strokeWidth: 1.3,
+            strokeLinecap: 'round',
+            strokeLinejoin: 'round',
+          }),
+        ),
       )
     }
 
