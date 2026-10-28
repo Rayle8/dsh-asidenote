@@ -1,5 +1,48 @@
 # Changelog
 
+## 1.5.0-experimental.10
+
+- Detect the DSH right sidebar as open only when `data-sidebar-right-open` is present, so the notes panel no longer shifts left while the sidebar is collapsed.
+
+## 1.5.0-experimental.9
+
+- Move the shortcut hint to the empty space left of the Add button and shorten the placeholder.
+- Anchor the panel's right edge to the header entry and shift it left of the DSH right sidebar when that sidebar is open.
+- Refresh the folded-note header icon with a cleaner 1.4px stroke and simplified folds.
+
+## 1.5.0-experimental.8
+
+- Move the count badge 2px closer to the header icon so it reads as attached to the note rather than a separate notification.
+
+## 1.5.0-experimental.7
+
+- Keep the header entry as a 28px square with a 16px icon; show the count as a low-contrast gray corner badge instead of inline text.
+
+## 1.5.0-experimental.6
+
+- Increase the header notes icon to 18px so its visual size matches the neighboring toolbar icons.
+
+## 1.5.0-experimental.5
+
+- Replace the badge-style count with a small gray inline number to avoid an unread-notification look; tooltip now reads “会话便笺 N”.
+
+## 1.5.0-experimental.4
+
+- Refine the header entry into a compact icon-only button at the far right of the header utilities, with an overlapping count badge.
+
+## 1.5.0-experimental.3
+
+- Add a bottom-center handle for vertical resizing of the right panel; height persists and double-click restores content sizing.
+
+## 1.5.0-experimental.2
+
+- Add a drag handle on the right panel's left edge to resize its width; the width persists across opens, and double-click resets it.
+
+## 1.5.0-experimental.1
+
+- Experimental branch: move the entry to a top-right header button and open notes in a fixed right-side panel.
+- Remove the sidebar session badge and composer status-strip entry on this branch.
+
 ## 1.4.13
 
 - Right-align the Add button on its second row.

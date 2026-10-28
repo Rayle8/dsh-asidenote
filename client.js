@@ -14,6 +14,14 @@ window.__ModuleLoader__.load({
     const STORAGE_KEY = 'dsh.workspace-todos.v1'
     /** Session-scoped memo store used by the badge, popover, and composer entries. */
     const SESSION_STORAGE_KEY = 'dsh.session-memos.v1'
+    /** Persisted width of the experimental right-side panel. */
+    const PANEL_WIDTH_KEY = 'dsh.memo.panel-width.v1'
+    const PANEL_DEFAULT_WIDTH = 360
+    const PANEL_MIN_WIDTH = 280
+    const PANEL_MAX_WIDTH = 720
+    /** Persisted height of the experimental right-side panel; 0 means content-sized. */
+    const PANEL_HEIGHT_KEY = 'dsh.memo.panel-height.v1'
+    const PANEL_MIN_HEIGHT = 240
     /** A note is meant to stay brief; this is the hard cap. */
     const MAX_TEXT = 280
     /** Defensive cap so a corrupted store cannot freeze the panel. */
@@ -43,6 +51,7 @@ window.__ModuleLoader__.load({
         'dock.count': '{n} 项未完成',
         'badge.label': '便笺',
         'badge.title': '打开当前会话的便笺',
+        'header.tooltip': '会话便笺 {n}',
         'badge.count': '{open}',
         'popover.title': '便笺',
         'popover.close': '关闭便笺',
@@ -58,7 +67,8 @@ window.__ModuleLoader__.load({
         'workspace.current': '当前会话',
         'stats.openLabel': '未完成',
         'stats.allDone': '全部完成',
-        'add.placeholder': '记一条便笺，按 Ctrl+Enter 添加，按 Enter 换行',
+        'add.placeholder': '记一条便笺',
+        'add.shortcut': 'Ctrl+Enter 发送 · Enter 换行',
         'add.action': '添加',
         'add.hint': '只记一件具体的小事，做完就打勾。',
         'progress': '{done} / {total} 已完成',
@@ -99,6 +109,7 @@ window.__ModuleLoader__.load({
         'dock.open': 'Open notes',
         'dock.count': '{n} open',
         'badge.label': 'Notes',
+        'header.tooltip': 'Session notes {n}',
         'badge.title': 'Open this session’s notes',
         'badge.count': '{open}',
         'popover.title': 'Notes',
@@ -115,7 +126,8 @@ window.__ModuleLoader__.load({
         'workspace.current': 'Current session',
         'stats.openLabel': 'open',
         'stats.allDone': 'all done',
-        'add.placeholder': 'Write a note; Ctrl+Enter adds, Enter starts a new line',
+        'add.placeholder': 'Write a note',
+        'add.shortcut': 'Ctrl+Enter sends · Enter for a new line',
         'add.action': 'Add',
         'add.hint': 'Keep it to one concrete next step; check it off when done.',
         'progress': '{done} / {total} done',
@@ -179,6 +191,9 @@ window.__ModuleLoader__.load({
       '.dsh-wt-addIcon{display:flex;align-items:center;justify-content:center;flex:none;width:18px;height:18px;color:var(--dsw-alias-label-secondary)}',
       '.dsh-wt-input{display:block;flex:0 0 auto;width:100%;min-width:0;box-sizing:border-box;min-height:28px;max-height:120px;padding:5px 0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:14px;line-height:18px;resize:none;overflow-y:auto;overflow-x:hidden}',
       '.dsh-wt-input::placeholder{color:var(--dsw-alias-label-secondary);opacity:.78}',
+      '.dsh-wt-addFoot{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-width:0}',
+      '.dsh-wt-addShortcut{min-width:0;overflow:hidden;font-size:10px;line-height:14px;color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis}',
+      '.dsh-wt-addFoot .dsh-wt-addBtn{align-self:center}',
       '.dsh-wt-addBtn{display:inline-flex;align-self:flex-end;align-items:center;justify-content:center;flex:none;height:30px;padding:0 13px;border:0;border-radius:7px;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-bg-base);font:inherit;font-size:12px;font-weight:600;line-height:1;cursor:pointer}',
       '.dsh-wt-addBtn:hover{filter:brightness(1.06)}',
       '.dsh-wt-addBtn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px}',
@@ -246,6 +261,12 @@ window.__ModuleLoader__.load({
       '.dsh-wt-badge:hover{background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-badge:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
       '.dsh-wt-badgeCount{font-variant-numeric:tabular-nums;color:var(--dsw-alias-brand-primary)}',
+      '.dsh-wt-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:6px;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer}',
+      '.dsh-wt-headerBtn:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}',
+      '.dsh-wt-headerBtn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
+      '.dsh-wt-headerBtn[data-active="true"]{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}',
+      '.dsh-wt-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}',
+      '.dsh-wt-headerCount{position:absolute;top:-2px;right:-2px;box-sizing:border-box;min-width:14px;height:14px;padding:0 3px;border:1.5px solid var(--dsw-alias-bg-base);border-radius:999px;background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-secondary);font-size:9px;line-height:11px;font-weight:500;text-align:center;font-variant-numeric:tabular-nums}',
       '.dsh-wt-dockBtn{display:inline-flex;align-items:center;gap:4px;flex:none;height:22px;padding:0 6px;border:0;border-radius:6px;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:11px;line-height:20px;cursor:pointer;order:99;white-space:nowrap}',
       '.dsh-wt-dockBtn:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-dockBtn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
@@ -254,6 +275,15 @@ window.__ModuleLoader__.load({
       '[data-row-key^="session:"]:has(> .dsh-wt-badge) > [class*="_title"]{flex:0 1 auto}',
       '[data-row-key^="session:"]:has(> .dsh-wt-badge) > [class*="_time"]{display:none}',
       '.dsh-wt-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;min-height:0;padding:12px;border:1px solid var(--dsw-alias-border-l2);border-radius:12px;background:var(--dsw-alias-bg-layer-1);box-shadow:var(--dsw-elevation-soft);color:var(--dsw-alias-label-primary);font-size:13px;overflow:hidden}',
+      '.dsh-wt-popoverRight{padding-left:18px;padding-bottom:20px}',
+      '.dsh-wt-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:10px;cursor:ew-resize;touch-action:none;outline:0}',
+      '.dsh-wt-resizeHandle::before{content:"";width:3px;height:36px;border-radius:999px;background:var(--dsw-alias-border-l2);opacity:.7;transition:height .12s ease,background .12s ease,opacity .12s ease}',
+      '.dsh-wt-resizeHandle:hover::before,.dsh-wt-resizeHandle:focus-visible::before{height:48px;background:var(--dsw-alias-brand-primary);opacity:1}',
+      '.dsh-wt-resizeHandle:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:-2px;border-radius:8px}',
+      '.dsh-wt-resizeHandleBottom{position:absolute;left:50%;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:52px;height:12px;transform:translateX(-50%);cursor:ns-resize;touch-action:none;outline:0}',
+      '.dsh-wt-resizeHandleBottom::before{content:"";width:28px;height:3px;border-radius:999px;background:var(--dsw-alias-border-l2);opacity:.7;transition:width .12s ease,background .12s ease,opacity .12s ease}',
+      '.dsh-wt-resizeHandleBottom:hover::before,.dsh-wt-resizeHandleBottom:focus-visible::before{width:36px;background:var(--dsw-alias-brand-primary);opacity:1}',
+      '.dsh-wt-resizeHandleBottom:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:-2px;border-radius:8px}',
       '.dsh-wt-popHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:0 0 8px}',
       '.dsh-wt-popTitle{font-size:14px;line-height:20px;font-weight:650}',
       '.dsh-wt-popMeta{margin:2px 0 0;font-size:11px;line-height:16px;color:var(--dsw-alias-label-secondary)}',
@@ -276,6 +306,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-popover .dsh-wt-empty{padding:18px 10px}',
       '.dsh-wt-popover .dsh-wt-doneHead{margin-top:4px}',
       '.dsh-wt-popFoot{margin:8px 0 0;font-size:10px;line-height:16px;color:var(--dsw-alias-label-secondary)}',
+      '.dsh-wt-popoverRight .dsh-wt-popFoot{margin-top:auto}',
       '.dsh-wt-error{color:var(--dsw-alias-state-warning-primary)}',
       '@media (max-width:640px){.dsh-wt-shell{padding:22px 16px 56px}.dsh-wt-head{gap:16px}.dsh-wt-title{font-size:20px;line-height:28px}.dsh-wt-statNum{font-size:24px;line-height:28px}.dsh-wt-sub{font-size:12px}.dsh-wt-select{max-width:210px}.dsh-wt-row{padding:11px 10px}.dsh-wt-actions{opacity:1}}',
     ].join('')
@@ -480,6 +511,54 @@ window.__ModuleLoader__.load({
         return { version: 1, sessions }
       } catch (error) {
         return emptySessionStore()
+      }
+    }
+
+    /** Read the persisted right-panel width, clamped for the current viewport. */
+    function readPanelWidth() {
+      const ls = storage()
+      const max = Math.min(PANEL_MAX_WIDTH, Math.max(PANEL_MIN_WIDTH, window.innerWidth - 32))
+      try {
+        const saved = ls && Number(ls.getItem(PANEL_WIDTH_KEY))
+        if (Number.isFinite(saved) && saved > 0) return Math.max(PANEL_MIN_WIDTH, Math.min(max, saved))
+      } catch (error) {
+        /* fall through */
+      }
+      return Math.max(PANEL_MIN_WIDTH, Math.min(max, PANEL_DEFAULT_WIDTH))
+    }
+
+    /** Persist the right-panel width so it survives reopening the popover. */
+    function writePanelWidth(width) {
+      const ls = storage()
+      if (!ls) return
+      try {
+        ls.setItem(PANEL_WIDTH_KEY, String(Math.round(width)))
+      } catch (error) {
+        /* storage is best effort */
+      }
+    }
+
+    /** Read the persisted right-panel height; 0 means content-sized. */
+    function readPanelHeight() {
+      const ls = storage()
+      try {
+        const saved = ls && Number(ls.getItem(PANEL_HEIGHT_KEY))
+        if (Number.isFinite(saved) && saved > 0) return saved
+      } catch (error) {
+        /* fall through */
+      }
+      return 0
+    }
+
+    /** Persist the right-panel height; 0 restores content sizing. */
+    function writePanelHeight(height) {
+      const ls = storage()
+      if (!ls) return
+      try {
+        if (height > 0) ls.setItem(PANEL_HEIGHT_KEY, String(Math.round(height)))
+        else ls.removeItem(PANEL_HEIGHT_KEY)
+      } catch (error) {
+        /* storage is best effort */
       }
     }
 
@@ -1408,9 +1487,30 @@ window.__ModuleLoader__.load({
       )
     }
 
-    /** Fixed popover placement: below the anchor, above when it would overflow. */
-    function memoPopoverStyle(anchor) {
-      const width = Math.min(360, window.innerWidth - 24)
+    /** Fixed panel placement: a right-side panel for the experimental entry, otherwise below the anchor. */
+    function memoPopoverStyle(anchor, placement, requestedWidth, requestedHeight) {
+      const available = Math.max(PANEL_MIN_WIDTH, window.innerWidth - 32)
+      const width = Math.max(PANEL_MIN_WIDTH, Math.min(PANEL_MAX_WIDTH, available, requestedWidth || PANEL_DEFAULT_WIDTH))
+      if (placement === 'right') {
+        const rect = anchor && anchor.isConnected ? anchor.getBoundingClientRect() : null
+        let desiredRight = rect && rect.width > 0 ? rect.right : window.innerWidth - 16
+        const sidebar = [...document.querySelectorAll('[data-sidebar-right-panel][data-sidebar-right-open]')].find(node => {
+          const box = node.getBoundingClientRect()
+          return box.width > 24 && box.left > 0 && box.left < window.innerWidth - 24
+        })
+        if (sidebar) {
+          desiredRight = Math.min(desiredRight, sidebar.getBoundingClientRect().left - 8)
+        }
+        const rightInset = Math.max(12, Math.min(window.innerWidth - 12, window.innerWidth - desiredRight))
+        const top = rect && rect.width > 0 ? Math.max(12, Math.round(rect.bottom + 8)) : 64
+        const maxHeight = Math.max(PANEL_MIN_HEIGHT, window.innerHeight - top - 16)
+        const height = requestedHeight
+          ? Math.max(PANEL_MIN_HEIGHT, Math.min(maxHeight, requestedHeight))
+          : 0
+        const style = { right: `${rightInset}px`, left: 'auto', top: `${top}px`, width: `${width}px`, maxHeight: `${maxHeight}px` }
+        if (height) style.height = `${height}px`
+        return style
+      }
       const maxHeight = Math.min(460, window.innerHeight - 24)
       if (!anchor) return { left: '12px', top: '12px', width: `${width}px`, maxHeight: `${maxHeight}px` }
       const rect = anchor.getBoundingClientRect()
@@ -1432,8 +1532,13 @@ window.__ModuleLoader__.load({
       const [editDraft, setEditDraft] = React.useState('')
       const [showDone, setShowDone] = React.useState(false)
       const [showOpen, setShowOpen] = React.useState(true)
-      const [style, setStyle] = React.useState(() => memoPopoverStyle(props.anchorRef.current))
+      const [panelWidth, setPanelWidth] = React.useState(readPanelWidth)
+      const [panelHeight, setPanelHeight] = React.useState(readPanelHeight)
+      const [style, setStyle] = React.useState(() => memoPopoverStyle(props.anchorRef.current, props.placement, panelWidth, panelHeight))
       const panelRef = React.useRef(null)
+      const panelWidthRef = React.useRef(panelWidth)
+      const panelHeightRef = React.useRef(panelHeight)
+      const lastStyleRef = React.useRef('')
       const editRef = React.useRef(null)
       const addRef = React.useRef(null)
       const cancelEditRef = React.useRef(false)
@@ -1450,8 +1555,119 @@ window.__ModuleLoader__.load({
       }, [draft])
 
       const updatePosition = React.useCallback(() => {
-        if (props.anchorRef.current) setStyle(memoPopoverStyle(props.anchorRef.current))
-      }, [props.anchorRef])
+        if (props.anchorRef.current || props.placement === 'right') {
+          const next = memoPopoverStyle(props.anchorRef.current, props.placement, panelWidth, panelHeight)
+          const key = JSON.stringify(next)
+          if (key === lastStyleRef.current) return
+          lastStyleRef.current = key
+          setStyle(next)
+        }
+      }, [props.anchorRef, props.placement, panelWidth, panelHeight])
+
+      React.useEffect(() => {
+        panelWidthRef.current = panelWidth
+      }, [panelWidth])
+
+      React.useEffect(() => {
+        panelHeightRef.current = panelHeight
+      }, [panelHeight])
+
+      const clampPanelWidth = value => {
+        const max = Math.min(PANEL_MAX_WIDTH, Math.max(PANEL_MIN_WIDTH, window.innerWidth - 32))
+        return Math.max(PANEL_MIN_WIDTH, Math.min(max, value))
+      }
+
+      const commitPanelWidth = value => {
+        const next = clampPanelWidth(value)
+        panelWidthRef.current = next
+        setPanelWidth(next)
+        writePanelWidth(next)
+      }
+
+      const startPanelResize = event => {
+        if (event.button !== 0) return
+        event.preventDefault()
+        const startX = event.clientX
+        const startWidth = panelWidthRef.current
+        const onMove = moveEvent => {
+          const next = clampPanelWidth(startWidth + (startX - moveEvent.clientX))
+          panelWidthRef.current = next
+          setPanelWidth(next)
+        }
+        const onUp = () => {
+          window.removeEventListener('pointermove', onMove)
+          window.removeEventListener('pointerup', onUp)
+          document.body.style.userSelect = ''
+          document.body.style.cursor = ''
+          writePanelWidth(panelWidthRef.current)
+        }
+        window.addEventListener('pointermove', onMove)
+        window.addEventListener('pointerup', onUp, { once: true })
+        document.body.style.userSelect = 'none'
+        document.body.style.cursor = 'ew-resize'
+      }
+
+      const onPanelResizeKeyDown = event => {
+        if (event.key === 'ArrowLeft') {
+          event.preventDefault()
+          commitPanelWidth(panelWidthRef.current + 16)
+        } else if (event.key === 'ArrowRight') {
+          event.preventDefault()
+          commitPanelWidth(panelWidthRef.current - 16)
+        } else if (event.key === 'Home') {
+          event.preventDefault()
+          commitPanelWidth(PANEL_DEFAULT_WIDTH)
+        }
+      }
+
+      const clampPanelHeight = value => {
+        const max = Math.max(PANEL_MIN_HEIGHT, window.innerHeight - 64 - 16)
+        return Math.max(PANEL_MIN_HEIGHT, Math.min(max, value))
+      }
+
+      const commitPanelHeight = value => {
+        const next = value > 0 ? clampPanelHeight(value) : 0
+        panelHeightRef.current = next
+        setPanelHeight(next)
+        writePanelHeight(next)
+      }
+
+      const startPanelHeightResize = event => {
+        if (event.button !== 0) return
+        event.preventDefault()
+        const startY = event.clientY
+        const startHeight = panelHeightRef.current
+          || (panelRef.current ? panelRef.current.getBoundingClientRect().height : 360)
+        const onMove = moveEvent => {
+          const next = clampPanelHeight(startHeight + (moveEvent.clientY - startY))
+          panelHeightRef.current = next
+          setPanelHeight(next)
+        }
+        const onUp = () => {
+          window.removeEventListener('pointermove', onMove)
+          window.removeEventListener('pointerup', onUp)
+          document.body.style.userSelect = ''
+          document.body.style.cursor = ''
+          writePanelHeight(panelHeightRef.current)
+        }
+        window.addEventListener('pointermove', onMove)
+        window.addEventListener('pointerup', onUp, { once: true })
+        document.body.style.userSelect = 'none'
+        document.body.style.cursor = 'ns-resize'
+      }
+
+      const onPanelHeightKeyDown = event => {
+        if (event.key === 'ArrowDown') {
+          event.preventDefault()
+          commitPanelHeight((panelHeightRef.current || 360) + 16)
+        } else if (event.key === 'ArrowUp') {
+          event.preventDefault()
+          commitPanelHeight((panelHeightRef.current || 360) - 16)
+        } else if (event.key === 'Home') {
+          event.preventDefault()
+          commitPanelHeight(0)
+        }
+      }
 
       React.useLayoutEffect(() => {
         updatePosition()
@@ -1461,6 +1677,20 @@ window.__ModuleLoader__.load({
           window.removeEventListener('resize', updatePosition)
           window.removeEventListener('scroll', updatePosition, true)
         }
+      }, [updatePosition])
+
+      React.useEffect(() => {
+        const anchor = props.anchorRef.current
+        if (!anchor || typeof ResizeObserver !== 'function') return undefined
+        const target = anchor.closest('[class*="_header"]') || anchor
+        const observer = new ResizeObserver(updatePosition)
+        observer.observe(target)
+        return () => observer.disconnect()
+      }, [props.anchorRef, updatePosition])
+
+      React.useEffect(() => {
+        const timer = window.setInterval(updatePosition, 400)
+        return () => window.clearInterval(timer)
       }, [updatePosition])
 
       React.useEffect(() => {
@@ -1592,11 +1822,37 @@ window.__ModuleLoader__.load({
         'div',
         {
           ref: panelRef,
-          className: 'dsh-wt-popover',
+          className: props.placement === 'right' ? 'dsh-wt-popover dsh-wt-popoverRight' : 'dsh-wt-popover',
           style,
           role: 'dialog',
           'aria-label': say('popover.title'),
         },
+        props.placement === 'right'
+          ? h('div', {
+              className: 'dsh-wt-resizeHandle',
+              role: 'separator',
+              'aria-orientation': 'vertical',
+              'aria-label': '调整便笺宽度',
+              tabIndex: 0,
+              title: '拖动调整宽度，双击复位',
+              onPointerDown: startPanelResize,
+              onDoubleClick: () => commitPanelWidth(PANEL_DEFAULT_WIDTH),
+              onKeyDown: onPanelResizeKeyDown,
+            })
+          : null,
+        props.placement === 'right'
+          ? h('div', {
+              className: 'dsh-wt-resizeHandleBottom',
+              role: 'separator',
+              'aria-orientation': 'horizontal',
+              'aria-label': '调整便笺高度',
+              tabIndex: 0,
+              title: '拖动调整高度，双击复位',
+              onPointerDown: startPanelHeightResize,
+              onDoubleClick: () => commitPanelHeight(0),
+              onKeyDown: onPanelHeightKeyDown,
+            })
+          : null,
         h(
           'div',
           { className: 'dsh-wt-popHead' },
@@ -1655,7 +1911,12 @@ window.__ModuleLoader__.load({
               }
             },
           }),
-          h('button', { type: 'submit', className: 'dsh-wt-addBtn', disabled: !draft.trim() }, say('add.action')),
+          h(
+            'div',
+            { className: 'dsh-wt-addFoot' },
+            h('span', { className: 'dsh-wt-addShortcut' }, say('add.shortcut')),
+            h('button', { type: 'submit', className: 'dsh-wt-addBtn', disabled: !draft.trim() }, say('add.action')),
+          ),
         ),
         h(
           'div',
@@ -1909,6 +2170,7 @@ window.__ModuleLoader__.load({
 
       const tr = (key, vars) => fill(say(key), vars)
       let activePopover = null
+      let activeSessionId = ''
 
       const closeMemoPopover = () => {
         const current = activePopover
@@ -1920,9 +2182,10 @@ window.__ModuleLoader__.load({
           /* already unmounted */
         }
         current.container.remove()
+        refreshHeaderEntry()
       }
 
-      const openMemoPopover = (sessionId, anchor) => {
+      const openMemoPopover = (sessionId, anchor, placement = 'popover') => {
         if (activePopover && activePopover.anchor === anchor) {
           closeMemoPopover()
           return
@@ -1932,57 +2195,63 @@ window.__ModuleLoader__.load({
         container.dataset.dshMemoPopoverRoot = 'true'
         document.body.appendChild(container)
         const root = ReactDOMClient.createRoot(container)
-        activePopover = { container, root, anchor }
+        activePopover = { container, root, anchor, placement }
         root.render(h(MemoPopover, {
           sessionId,
           say: tr,
           localeId: localeId(),
           anchorRef: { current: anchor },
+          placement,
           onClose: closeMemoPopover,
         }))
+        refreshHeaderEntry()
       }
 
-      const refreshMemoBadges = () => {
-        const store = readSessionStore()
-        for (const row of document.querySelectorAll('[data-row-key^="session:"]')) {
-          const key = row.getAttribute('data-row-key') || ''
-          const sessionId = key.slice('session:'.length)
-          if (!sessionId) continue
-          const title = row.querySelector(':scope > [class*="_title"]')
-          if (!title) continue
-          const items = normalizeItems(store.sessions[sessionId] && store.sessions[sessionId].items)
-          const open = items.filter(item => !item.done).length
-          let badge = row.querySelector(':scope > .dsh-wt-badge')
-          if (open === 0) {
-            if (badge) badge.remove()
-            continue
-          }
-          if (!badge) {
-            badge = document.createElement('button')
-            badge.type = 'button'
-            badge.className = 'dsh-wt-badge'
-            badge.addEventListener('pointerdown', event => event.stopPropagation())
-            badge.addEventListener('click', event => {
-              event.preventDefault()
-              event.stopPropagation()
-              openMemoPopover(sessionId, badge)
-            })
-            title.insertAdjacentElement('afterend', badge)
-          }
-          const signature = `${localeId()}:${open}`
-          if (badge.dataset.signature !== signature) {
-            const label = document.createElement('span')
-            label.textContent = tr('badge.label')
-            const count = document.createElement('span')
-            count.className = 'dsh-wt-badgeCount'
-            count.textContent = tr('badge.count', { open })
-            badge.replaceChildren(label, count)
-            badge.dataset.signature = signature
-          }
-          badge.dataset.sessionId = sessionId
-          badge.title = tr('badge.title')
-          badge.setAttribute('aria-label', `${tr('badge.label')}, ${tr('dock.count', { n: open })}`)
+      const HEADER_ICON = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.25 2.5h6.5L13 5.75v7.5c0 .69-.56 1.25-1.25 1.25h-8.5C2.56 14.5 2 13.94 2 13.25v-9.5C2 3.06 2.56 2.5 3.25 2.5Z"/><path d="M9.75 2.5v3.25H13"/><path d="M5.25 8.25h5.5M5.25 10.75h3.5"/></svg>'
+
+      const refreshHeaderEntry = () => {
+        for (const badge of document.querySelectorAll('.dsh-wt-badge')) badge.remove()
+        const host = document.querySelector('[class*="_headerUtilities"]')
+        let button = host ? host.querySelector(':scope > .dsh-wt-headerBtn') : null
+        if (!host || !activeSessionId) {
+          if (button) button.remove()
+          return
         }
+        const store = readSessionStore()
+        const items = normalizeItems(store.sessions[activeSessionId] && store.sessions[activeSessionId].items)
+        const open = items.filter(item => !item.done).length
+        if (!button) {
+          button = document.createElement('button')
+          button.type = 'button'
+          button.className = 'dsh-wt-headerBtn'
+          button.addEventListener('pointerdown', event => event.stopPropagation())
+          button.addEventListener('click', event => {
+            event.preventDefault()
+            event.stopPropagation()
+            openMemoPopover(activeSessionId, button, 'right')
+          })
+          host.appendChild(button)
+        }
+        button.dataset.active = activePopover && activePopover.anchor === button ? 'true' : 'false'
+        const signature = `${localeId()}:${activeSessionId}:${open}`
+        if (button.dataset.signature !== signature) {
+          const icon = document.createElement('span')
+          icon.className = 'dsh-wt-headerIcon'
+          icon.innerHTML = HEADER_ICON
+          button.replaceChildren(icon)
+          if (open > 0) {
+            const count = document.createElement('span')
+            count.className = 'dsh-wt-headerCount'
+            count.textContent = open > 99 ? '99+' : String(open)
+            button.appendChild(count)
+          }
+          button.dataset.signature = signature
+        }
+        button.dataset.sessionId = activeSessionId
+        button.title = tr('header.tooltip', { n: open })
+        button.setAttribute('aria-label', open > 0
+          ? `${tr('dock.open')}, ${tr('dock.count', { n: open })}`
+          : tr('dock.open'))
       }
 
       ctx.effect(() => {
@@ -1992,7 +2261,7 @@ window.__ModuleLoader__.load({
           scheduled = true
           requestAnimationFrame(() => {
             scheduled = false
-            refreshMemoBadges()
+            refreshHeaderEntry()
           })
         }
         const onStorage = event => {
@@ -2002,22 +2271,26 @@ window.__ModuleLoader__.load({
         window.addEventListener('storage', onStorage)
         const observer = new MutationObserver(schedule)
         observer.observe(document.body, { childList: true, subtree: true })
-        refreshMemoBadges()
+        refreshHeaderEntry()
         return () => {
           TODO_LISTENERS.delete(schedule)
           window.removeEventListener('storage', onStorage)
           observer.disconnect()
           closeMemoPopover()
-          for (const badge of document.querySelectorAll('.dsh-wt-badge')) badge.remove()
+          for (const button of document.querySelectorAll('.dsh-wt-headerBtn')) button.remove()
         }
-      }, 'workspace-todos: session badges')
+      }, 'workspace-todos: right-side entry')
 
-      function BoundDock(props) {
-        return h(MemoEntry, {
-          ...props,
-          variant: 'dock',
-          say: translator(props),
-        })
+      function BoundSessionCapture(props) {
+        const sessionId = props.sessionId || ''
+        React.useEffect(() => {
+          if (activeSessionId !== sessionId) {
+            activeSessionId = sessionId
+            closeMemoPopover()
+          }
+          refreshHeaderEntry()
+        }, [sessionId])
+        return null
       }
 
       ctx.slots.inject('conversation.composer.dock', () =>
@@ -2028,7 +2301,7 @@ window.__ModuleLoader__.load({
             order: 30,
             locale: NS,
           },
-          BoundDock,
+          BoundSessionCapture,
         ),
       )
     }

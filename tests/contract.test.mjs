@@ -27,7 +27,7 @@ test('package declares the DSH bundle and web client halves', () => {
   ]) {
     assert.ok(manifest.dsh.client.inject.includes(dependency), `missing inject ${dependency}`)
   }
-  for (const file of ['client.js', 'index.js', 'cordis.patch.yml', 'icon.svg', 'preview.png', 'preview-badge.png', 'preview-history.png', 'README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md']) {
+  for (const file of ['client.js', 'index.js', 'cordis.patch.yml', 'icon.svg', 'preview.png', 'preview-badge.png', 'preview-history.png', 'preview-right.png', 'README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md']) {
     assert.ok(manifest.files.includes(file), `missing files entry ${file}`)
   }
 })
@@ -49,10 +49,23 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /ctx\.slots\.inject\('conversation\.composer\.dock'/)
   assert.doesNotMatch(client, /conversation\.chat\.assistant-actions/)
   assert.match(client, /function MemoPopover/)
-  assert.match(client, /refreshMemoBadges/)
+  assert.match(client, /refreshHeaderEntry/)
+  assert.match(client, /dsh-wt-headerBtn/)
+  assert.match(client, /header\.tooltip/)
+  assert.match(client, /add\.shortcut/)
+  assert.match(client, /data-sidebar-right-panel\]\[data-sidebar-right-open\]/)
+  assert.match(client, /conversation\.session\.header\.utilities|_headerUtilities/)
+  assert.match(client, /placement === 'right'|placement === \"right\"/)
+  assert.match(client, /BoundSessionCapture/)
+  assert.match(client, /dsh-wt-resizeHandle/)
+  assert.match(client, /dsh-wt-resizeHandleBottom/)
+  assert.match(client, /PANEL_WIDTH_KEY/)
+  assert.match(client, /PANEL_HEIGHT_KEY/)
+  assert.match(client, /startPanelResize/)
+  assert.match(client, /startPanelHeightResize/)
+  assert.doesNotMatch(client, /refreshMemoBadges/)
+  assert.doesNotMatch(client, /BoundDock/)
   assert.match(client, /ReactDOMClient\.createRoot/)
-  assert.match(client, /dsh-wt-badge/)
-  assert.match(client, /dsh-wt-dockBtn/)
   assert.match(client, /function IconCopy/)
   assert.match(client, /copyText/)
   assert.match(client, /item\.copied/)
@@ -76,7 +89,7 @@ test('locale files expose the product name', () => {
 })
 
 test('documentation and preview assets are present', () => {
-  for (const file of ['README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md', 'preview.png', 'preview-badge.png', 'preview-history.png', 'icon.svg']) {
+  for (const file of ['README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md', 'preview.png', 'preview-badge.png', 'preview-history.png', 'preview-right.png', 'icon.svg']) {
     assert.ok(exists(file), `missing ${file}`)
   }
   assert.ok(fs.statSync(path.join(root, 'preview.png')).size > 1000)
