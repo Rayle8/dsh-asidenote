@@ -24,6 +24,9 @@ window.__ModuleLoader__.load({
     /** Enter-to-send preference; persisted across panel openings. */
     const SEND_SHORTCUT_KEY = 'dsh.memo.send-shortcut.v1'
     const SEND_SHORTCUT_DEFAULT = 'ctrl-enter'
+    /** Remembered expand/collapse state of the open/completed sections. */
+    const SECTION_STATE_KEY = 'dsh.memo.sections.v1'
+    const SECTION_STATE_DEFAULT = { open: true, done: false }
     /** Persisted width of the experimental right-side panel. */
     const PANEL_WIDTH_KEY = 'dsh.memo.panel-width.v1'
     const PANEL_DEFAULT_WIDTH = 360
@@ -701,6 +704,36 @@ window.__ModuleLoader__.load({
     function writeForwardPrefix(value) {
       try {
         storage() && storage().setItem('dsh.memo.forward-prefix.v1', String(value || '').slice(0, 80))
+      } catch (error) {
+        /* storage is best effort */
+      }
+    }
+
+    /** Remembered section state; corrupt or missing storage falls back to defaults. */
+    function readSectionState() {
+      const fallback = { open: SECTION_STATE_DEFAULT.open, done: SECTION_STATE_DEFAULT.done }
+      const ls = storage()
+      if (!ls) return fallback
+      try {
+        const raw = ls.getItem(SECTION_STATE_KEY)
+        if (!raw) return fallback
+        const saved = JSON.parse(raw)
+        if (!saved || typeof saved !== 'object') return fallback
+        return {
+          open: typeof saved.open === 'boolean' ? saved.open : fallback.open,
+          done: typeof saved.done === 'boolean' ? saved.done : fallback.done,
+        }
+      } catch (error) {
+        return fallback
+      }
+    }
+
+    /** Persist the section state immediately; storage failures are ignored. */
+    function writeSectionState(state) {
+      const ls = storage()
+      if (!ls) return
+      try {
+        ls.setItem(SECTION_STATE_KEY, JSON.stringify({ open: state.open === true, done: state.done === true }))
       } catch (error) {
         /* storage is best effort */
       }
@@ -1844,8 +1877,11 @@ window.__ModuleLoader__.load({
       const [draft, setDraft] = React.useState(() => readSessionDrafts(sessionId).add)
       const [editingId, setEditingId] = React.useState(null)
       const [editDraft, setEditDraft] = React.useState('')
-      const [showDone, setShowDone] = React.useState(false)
-      const [showOpen, setShowOpen] = React.useState(true)
+      // Read the remembered section state once per mount; the popover unmounts on close.
+      const [initialSections] = React.useState(readSectionState)
+      const [showDone, setShowDone] = React.useState(initialSections.done)
+      const [showOpen, setShowOpen] = React.useState(initialSections.open)
+      const sectionsRef = React.useRef(initialSections)
       const [showSettings, setShowSettings] = React.useState(false)
       const [sendShortcut, setSendShortcut] = React.useState(readSendShortcut)
       const [forwardPrefix, setForwardPrefix] = React.useState(readForwardPrefix)
@@ -2145,17 +2181,25 @@ window.__ModuleLoader__.load({
         if (currentId) clearEditDraft(sessionId, currentId)
       }
 
+      /** Apply one section state and remember it right away, using the next value. */
+      const applySections = next => {
+        sectionsRef.current = next
+        setShowOpen(next.open)
+        setShowDone(next.done)
+        writeSectionState(next)
+      }
+
       const clearDone = () => {
         commit(currentItems => currentItems.filter(item => !item.done))
-        setShowDone(false)
+        applySections({ open: sectionsRef.current.open, done: false })
       }
 
       const toggleOpen = () => {
-        setShowOpen(value => !value)
+        applySections({ open: !sectionsRef.current.open, done: sectionsRef.current.done })
       }
 
       const toggleDone = () => {
-        setShowDone(value => !value)
+        applySections({ open: sectionsRef.current.open, done: !sectionsRef.current.done })
       }
 
       const row = item => h(TodoRow, {
@@ -2249,19 +2293,6 @@ window.__ModuleLoader__.load({
               'div',
               { className: 'dsh-wt-settings' },
               h('div', { className: 'dsh-wt-settingsHead' }, say('settings.title')),
-              h('div', { className: 'dsh-wt-settingLabel' }, say('settings.about')),
-              h(
-                'div',
-                { className: 'dsh-wt-settingRow' },
-                h('span', null, say('settings.version')),
-                h('strong', null, PLUGIN_VERSION),
-              ),
-              h(
-                'div',
-                { className: 'dsh-wt-settingRow' },
-                h('span', null, say('settings.author')),
-                h('strong', null, PLUGIN_AUTHOR),
-              ),
               h('div', { className: 'dsh-wt-settingLabel' }, say('settings.shortcut')),
               h(
                 'div',
@@ -2299,6 +2330,19 @@ window.__ModuleLoader__.load({
                 onChange: event => changeForwardPrefix(event.target.value),
               }),
               h('p', { className: 'dsh-wt-settingHint' }, say('settings.forwardPrefixHint')),
+              h('div', { className: 'dsh-wt-settingLabel' }, say('settings.about')),
+              h(
+                'div',
+                { className: 'dsh-wt-settingRow' },
+                h('span', null, say('settings.version')),
+                h('strong', null, PLUGIN_VERSION),
+              ),
+              h(
+                'div',
+                { className: 'dsh-wt-settingRow' },
+                h('span', null, say('settings.author')),
+                h('strong', null, PLUGIN_AUTHOR),
+              ),
             )
           : null,
         h(
