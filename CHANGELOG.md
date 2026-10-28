@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0-experimental.7
+
+- Keep the header entry as a 28px square with a 16px icon; show the count as a low-contrast gray corner badge instead of inline text.
+
 ## 1.5.0-experimental.6
 
 - Increase the header notes icon to 18px so its visual size matches the neighboring toolbar icons.

@@ -19,7 +19,7 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 ## Features
 
 - Data is keyed by **session ID**; different sessions in one workspace stay independent.
-- A top-right icon button shows the open count as a **small gray number** rather than a notification badge; its tooltip reads “Session notes N”.
+- A 28px square top-right icon button shows the open count as a low-contrast gray corner badge; its tooltip reads “Session notes N”.
 - Clicking it opens a fixed right-side panel; switching sessions closes the old panel and updates the entry.
 - Clicking the entry opens the right-side panel for add, complete, copy, edit (double-click or pencil), delete, clear completed, and expand completed.
 - Drag the handle on the panel's left edge to resize its width; double-click the handle to reset it, and the width persists in the browser.
