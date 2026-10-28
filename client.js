@@ -14,6 +14,11 @@ window.__ModuleLoader__.load({
     const STORAGE_KEY = 'dsh.workspace-todos.v1'
     /** Session-scoped memo store used by the badge, popover, and composer entries. */
     const SESSION_STORAGE_KEY = 'dsh.session-memos.v1'
+    /** Persisted width of the experimental right-side panel. */
+    const PANEL_WIDTH_KEY = 'dsh.memo.panel-width.v1'
+    const PANEL_DEFAULT_WIDTH = 360
+    const PANEL_MIN_WIDTH = 280
+    const PANEL_MAX_WIDTH = 720
     /** A note is meant to stay brief; this is the hard cap. */
     const MAX_TEXT = 280
     /** Defensive cap so a corrupted store cannot freeze the panel. */
@@ -260,6 +265,11 @@ window.__ModuleLoader__.load({
       '[data-row-key^="session:"]:has(> .dsh-wt-badge) > [class*="_title"]{flex:0 1 auto}',
       '[data-row-key^="session:"]:has(> .dsh-wt-badge) > [class*="_time"]{display:none}',
       '.dsh-wt-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;min-height:0;padding:12px;border:1px solid var(--dsw-alias-border-l2);border-radius:12px;background:var(--dsw-alias-bg-layer-1);box-shadow:var(--dsw-elevation-soft);color:var(--dsw-alias-label-primary);font-size:13px;overflow:hidden}',
+      '.dsh-wt-popoverRight{padding-left:18px}',
+      '.dsh-wt-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:10px;cursor:ew-resize;touch-action:none;outline:0}',
+      '.dsh-wt-resizeHandle::before{content:"";width:3px;height:36px;border-radius:999px;background:var(--dsw-alias-border-l2);opacity:.7;transition:height .12s ease,background .12s ease,opacity .12s ease}',
+      '.dsh-wt-resizeHandle:hover::before,.dsh-wt-resizeHandle:focus-visible::before{height:48px;background:var(--dsw-alias-brand-primary);opacity:1}',
+      '.dsh-wt-resizeHandle:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:-2px;border-radius:8px}',
       '.dsh-wt-popHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:0 0 8px}',
       '.dsh-wt-popTitle{font-size:14px;line-height:20px;font-weight:650}',
       '.dsh-wt-popMeta{margin:2px 0 0;font-size:11px;line-height:16px;color:var(--dsw-alias-label-secondary)}',
@@ -486,6 +496,30 @@ window.__ModuleLoader__.load({
         return { version: 1, sessions }
       } catch (error) {
         return emptySessionStore()
+      }
+    }
+
+    /** Read the persisted right-panel width, clamped for the current viewport. */
+    function readPanelWidth() {
+      const ls = storage()
+      const max = Math.min(PANEL_MAX_WIDTH, Math.max(PANEL_MIN_WIDTH, window.innerWidth - 32))
+      try {
+        const saved = ls && Number(ls.getItem(PANEL_WIDTH_KEY))
+        if (Number.isFinite(saved) && saved > 0) return Math.max(PANEL_MIN_WIDTH, Math.min(max, saved))
+      } catch (error) {
+        /* fall through */
+      }
+      return Math.max(PANEL_MIN_WIDTH, Math.min(max, PANEL_DEFAULT_WIDTH))
+    }
+
+    /** Persist the right-panel width so it survives reopening the popover. */
+    function writePanelWidth(width) {
+      const ls = storage()
+      if (!ls) return
+      try {
+        ls.setItem(PANEL_WIDTH_KEY, String(Math.round(width)))
+      } catch (error) {
+        /* storage is best effort */
       }
     }
 
@@ -1415,8 +1449,9 @@ window.__ModuleLoader__.load({
     }
 
     /** Fixed panel placement: a right-side panel for the experimental entry, otherwise below the anchor. */
-    function memoPopoverStyle(anchor, placement) {
-      const width = Math.min(360, window.innerWidth - 24)
+    function memoPopoverStyle(anchor, placement, requestedWidth) {
+      const available = Math.max(PANEL_MIN_WIDTH, window.innerWidth - 32)
+      const width = Math.max(PANEL_MIN_WIDTH, Math.min(PANEL_MAX_WIDTH, available, requestedWidth || PANEL_DEFAULT_WIDTH))
       if (placement === 'right') {
         const top = 64
         const maxHeight = Math.min(560, window.innerHeight - top - 16)
@@ -1443,8 +1478,10 @@ window.__ModuleLoader__.load({
       const [editDraft, setEditDraft] = React.useState('')
       const [showDone, setShowDone] = React.useState(false)
       const [showOpen, setShowOpen] = React.useState(true)
-      const [style, setStyle] = React.useState(() => memoPopoverStyle(props.anchorRef.current, props.placement))
+      const [panelWidth, setPanelWidth] = React.useState(readPanelWidth)
+      const [style, setStyle] = React.useState(() => memoPopoverStyle(props.anchorRef.current, props.placement, panelWidth))
       const panelRef = React.useRef(null)
+      const panelWidthRef = React.useRef(panelWidth)
       const editRef = React.useRef(null)
       const addRef = React.useRef(null)
       const cancelEditRef = React.useRef(false)
@@ -1462,9 +1499,61 @@ window.__ModuleLoader__.load({
 
       const updatePosition = React.useCallback(() => {
         if (props.anchorRef.current || props.placement === 'right') {
-          setStyle(memoPopoverStyle(props.anchorRef.current, props.placement))
+          setStyle(memoPopoverStyle(props.anchorRef.current, props.placement, panelWidth))
         }
-      }, [props.anchorRef, props.placement])
+      }, [props.anchorRef, props.placement, panelWidth])
+
+      React.useEffect(() => {
+        panelWidthRef.current = panelWidth
+      }, [panelWidth])
+
+      const clampPanelWidth = value => {
+        const max = Math.min(PANEL_MAX_WIDTH, Math.max(PANEL_MIN_WIDTH, window.innerWidth - 32))
+        return Math.max(PANEL_MIN_WIDTH, Math.min(max, value))
+      }
+
+      const commitPanelWidth = value => {
+        const next = clampPanelWidth(value)
+        panelWidthRef.current = next
+        setPanelWidth(next)
+        writePanelWidth(next)
+      }
+
+      const startPanelResize = event => {
+        if (event.button !== 0) return
+        event.preventDefault()
+        const startX = event.clientX
+        const startWidth = panelWidthRef.current
+        const onMove = moveEvent => {
+          const next = clampPanelWidth(startWidth + (startX - moveEvent.clientX))
+          panelWidthRef.current = next
+          setPanelWidth(next)
+        }
+        const onUp = () => {
+          window.removeEventListener('pointermove', onMove)
+          window.removeEventListener('pointerup', onUp)
+          document.body.style.userSelect = ''
+          document.body.style.cursor = ''
+          writePanelWidth(panelWidthRef.current)
+        }
+        window.addEventListener('pointermove', onMove)
+        window.addEventListener('pointerup', onUp, { once: true })
+        document.body.style.userSelect = 'none'
+        document.body.style.cursor = 'ew-resize'
+      }
+
+      const onPanelResizeKeyDown = event => {
+        if (event.key === 'ArrowLeft') {
+          event.preventDefault()
+          commitPanelWidth(panelWidthRef.current + 16)
+        } else if (event.key === 'ArrowRight') {
+          event.preventDefault()
+          commitPanelWidth(panelWidthRef.current - 16)
+        } else if (event.key === 'Home') {
+          event.preventDefault()
+          commitPanelWidth(PANEL_DEFAULT_WIDTH)
+        }
+      }
 
       React.useLayoutEffect(() => {
         updatePosition()
@@ -1605,11 +1694,24 @@ window.__ModuleLoader__.load({
         'div',
         {
           ref: panelRef,
-          className: 'dsh-wt-popover',
+          className: props.placement === 'right' ? 'dsh-wt-popover dsh-wt-popoverRight' : 'dsh-wt-popover',
           style,
           role: 'dialog',
           'aria-label': say('popover.title'),
         },
+        props.placement === 'right'
+          ? h('div', {
+              className: 'dsh-wt-resizeHandle',
+              role: 'separator',
+              'aria-orientation': 'vertical',
+              'aria-label': '调整便笺宽度',
+              tabIndex: 0,
+              title: '拖动调整宽度，双击复位',
+              onPointerDown: startPanelResize,
+              onDoubleClick: () => commitPanelWidth(PANEL_DEFAULT_WIDTH),
+              onKeyDown: onPanelResizeKeyDown,
+            })
+          : null,
         h(
           'div',
           { className: 'dsh-wt-popHead' },

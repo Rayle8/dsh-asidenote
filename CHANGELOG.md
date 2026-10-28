@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0-experimental.2
+
+- Add a drag handle on the right panel's left edge to resize its width; the width persists across opens, and double-click resets it.
+
 ## 1.5.0-experimental.1
 
 - Experimental branch: move the entry to a top-right header button and open notes in a fixed right-side panel.
