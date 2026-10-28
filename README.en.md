@@ -21,6 +21,7 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - Data is keyed by **session ID**; different sessions in one workspace stay independent.
 - A 28px square top-right icon button shows the open count as a low-contrast gray corner badge; its tooltip reads “Session notes N”.
 - Clicking it opens a fixed right-side panel; switching sessions closes the old panel and updates the entry.
+- The panel's top-right corner aligns with the header entry and shifts left of the DSH right sidebar when that sidebar is open.
 - Clicking the entry opens the right-side panel for add, complete, copy, edit (double-click or pencil), delete, clear completed, and expand completed.
 - Drag the handle on the panel's left edge to resize its width; double-click the handle to reset it, and the width persists in the browser.
 - Drag the bottom-center handle to resize its height; double-click the handle to return to content sizing, and the height persists.
@@ -29,6 +30,7 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - The completion circle is visually 16px inside a 24px hit area, matching the row actions.
 - Both the new-note input and the editor grow into multiple rows as you type; in the add box Enter inserts a line and Ctrl+Enter adds, while the editor uses Enter to save and Shift+Enter for a line.
 - The add row no longer shows a plus icon, and **Add** always sits at the right of its own second row, so wrapping never flickers or jumps.
+- The **Ctrl+Enter sends · Enter for a new line** hint sits in the empty space left of the Add button, keeping the input placeholder short.
 - The open and completed lists each scroll inside the popover; the popover frame itself does not show a vertical scrollbar.
 - Both **Open** and **Completed** headings collapse on click with matching count styles; expanding one collapses the other; only the chevron, label, and count are clickable, not the blank right side.
 - The sidebar reminder stays visible while the session is running.

@@ -67,7 +67,8 @@ window.__ModuleLoader__.load({
         'workspace.current': '当前会话',
         'stats.openLabel': '未完成',
         'stats.allDone': '全部完成',
-        'add.placeholder': '记一条便笺，按 Ctrl+Enter 添加，按 Enter 换行',
+        'add.placeholder': '记一条便笺',
+        'add.shortcut': 'Ctrl+Enter 发送 · Enter 换行',
         'add.action': '添加',
         'add.hint': '只记一件具体的小事，做完就打勾。',
         'progress': '{done} / {total} 已完成',
@@ -125,7 +126,8 @@ window.__ModuleLoader__.load({
         'workspace.current': 'Current session',
         'stats.openLabel': 'open',
         'stats.allDone': 'all done',
-        'add.placeholder': 'Write a note; Ctrl+Enter adds, Enter starts a new line',
+        'add.placeholder': 'Write a note',
+        'add.shortcut': 'Ctrl+Enter sends · Enter for a new line',
         'add.action': 'Add',
         'add.hint': 'Keep it to one concrete next step; check it off when done.',
         'progress': '{done} / {total} done',
@@ -189,6 +191,9 @@ window.__ModuleLoader__.load({
       '.dsh-wt-addIcon{display:flex;align-items:center;justify-content:center;flex:none;width:18px;height:18px;color:var(--dsw-alias-label-secondary)}',
       '.dsh-wt-input{display:block;flex:0 0 auto;width:100%;min-width:0;box-sizing:border-box;min-height:28px;max-height:120px;padding:5px 0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:14px;line-height:18px;resize:none;overflow-y:auto;overflow-x:hidden}',
       '.dsh-wt-input::placeholder{color:var(--dsw-alias-label-secondary);opacity:.78}',
+      '.dsh-wt-addFoot{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-width:0}',
+      '.dsh-wt-addShortcut{min-width:0;overflow:hidden;font-size:10px;line-height:14px;color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis}',
+      '.dsh-wt-addFoot .dsh-wt-addBtn{align-self:center}',
       '.dsh-wt-addBtn{display:inline-flex;align-self:flex-end;align-items:center;justify-content:center;flex:none;height:30px;padding:0 13px;border:0;border-radius:7px;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-bg-base);font:inherit;font-size:12px;font-weight:600;line-height:1;cursor:pointer}',
       '.dsh-wt-addBtn:hover{filter:brightness(1.06)}',
       '.dsh-wt-addBtn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px}',
@@ -1487,12 +1492,22 @@ window.__ModuleLoader__.load({
       const available = Math.max(PANEL_MIN_WIDTH, window.innerWidth - 32)
       const width = Math.max(PANEL_MIN_WIDTH, Math.min(PANEL_MAX_WIDTH, available, requestedWidth || PANEL_DEFAULT_WIDTH))
       if (placement === 'right') {
-        const top = 64
+        const rect = anchor && anchor.isConnected ? anchor.getBoundingClientRect() : null
+        let desiredRight = rect && rect.width > 0 ? rect.right : window.innerWidth - 16
+        const sidebar = [...document.querySelectorAll('[data-sidebar-right-panel]')].find(node => {
+          const box = node.getBoundingClientRect()
+          return box.width > 24 && box.left > 0 && box.left < window.innerWidth - 24
+        })
+        if (sidebar) {
+          desiredRight = Math.min(desiredRight, sidebar.getBoundingClientRect().left - 8)
+        }
+        const rightInset = Math.max(12, Math.min(window.innerWidth - 12, window.innerWidth - desiredRight))
+        const top = rect && rect.width > 0 ? Math.max(12, Math.round(rect.bottom + 8)) : 64
         const maxHeight = Math.max(PANEL_MIN_HEIGHT, window.innerHeight - top - 16)
         const height = requestedHeight
           ? Math.max(PANEL_MIN_HEIGHT, Math.min(maxHeight, requestedHeight))
           : 0
-        const style = { right: '16px', left: 'auto', top: `${top}px`, width: `${width}px`, maxHeight: `${maxHeight}px` }
+        const style = { right: `${rightInset}px`, left: 'auto', top: `${top}px`, width: `${width}px`, maxHeight: `${maxHeight}px` }
         if (height) style.height = `${height}px`
         return style
       }
@@ -1523,6 +1538,7 @@ window.__ModuleLoader__.load({
       const panelRef = React.useRef(null)
       const panelWidthRef = React.useRef(panelWidth)
       const panelHeightRef = React.useRef(panelHeight)
+      const lastStyleRef = React.useRef('')
       const editRef = React.useRef(null)
       const addRef = React.useRef(null)
       const cancelEditRef = React.useRef(false)
@@ -1540,7 +1556,11 @@ window.__ModuleLoader__.load({
 
       const updatePosition = React.useCallback(() => {
         if (props.anchorRef.current || props.placement === 'right') {
-          setStyle(memoPopoverStyle(props.anchorRef.current, props.placement, panelWidth, panelHeight))
+          const next = memoPopoverStyle(props.anchorRef.current, props.placement, panelWidth, panelHeight)
+          const key = JSON.stringify(next)
+          if (key === lastStyleRef.current) return
+          lastStyleRef.current = key
+          setStyle(next)
         }
       }, [props.anchorRef, props.placement, panelWidth, panelHeight])
 
@@ -1657,6 +1677,20 @@ window.__ModuleLoader__.load({
           window.removeEventListener('resize', updatePosition)
           window.removeEventListener('scroll', updatePosition, true)
         }
+      }, [updatePosition])
+
+      React.useEffect(() => {
+        const anchor = props.anchorRef.current
+        if (!anchor || typeof ResizeObserver !== 'function') return undefined
+        const target = anchor.closest('[class*="_header"]') || anchor
+        const observer = new ResizeObserver(updatePosition)
+        observer.observe(target)
+        return () => observer.disconnect()
+      }, [props.anchorRef, updatePosition])
+
+      React.useEffect(() => {
+        const timer = window.setInterval(updatePosition, 400)
+        return () => window.clearInterval(timer)
       }, [updatePosition])
 
       React.useEffect(() => {
@@ -1877,7 +1911,12 @@ window.__ModuleLoader__.load({
               }
             },
           }),
-          h('button', { type: 'submit', className: 'dsh-wt-addBtn', disabled: !draft.trim() }, say('add.action')),
+          h(
+            'div',
+            { className: 'dsh-wt-addFoot' },
+            h('span', { className: 'dsh-wt-addShortcut' }, say('add.shortcut')),
+            h('button', { type: 'submit', className: 'dsh-wt-addBtn', disabled: !draft.trim() }, say('add.action')),
+          ),
         ),
         h(
           'div',
@@ -2168,7 +2207,7 @@ window.__ModuleLoader__.load({
         refreshHeaderEntry()
       }
 
-      const HEADER_ICON = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.25 2.75h6.5l3 3v7.5c0 .55-.45 1-1 1H3.25c-.55 0-1-.45-1-1V3.75c0-.55.45-1 1-1Z"/><path d="M9.75 2.75v3h3"/><path d="M4.9 7.6h5.4M4.9 9.9h3.6"/></svg>'
+      const HEADER_ICON = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.25 2.5h6.5L13 5.75v7.5c0 .69-.56 1.25-1.25 1.25h-8.5C2.56 14.5 2 13.94 2 13.25v-9.5C2 3.06 2.56 2.5 3.25 2.5Z"/><path d="M9.75 2.5v3.25H13"/><path d="M5.25 8.25h5.5M5.25 10.75h3.5"/></svg>'
 
       const refreshHeaderEntry = () => {
         for (const badge of document.querySelectorAll('.dsh-wt-badge')) badge.remove()

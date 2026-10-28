@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.0-experimental.9
+
+- Move the shortcut hint to the empty space left of the Add button and shorten the placeholder.
+- Anchor the panel's right edge to the header entry and shift it left of the DSH right sidebar when that sidebar is open.
+- Refresh the folded-note header icon with a cleaner 1.4px stroke and simplified folds.
+
 ## 1.5.0-experimental.8
 
 - Move the count badge 2px closer to the header icon so it reads as attached to the note rather than a separate notification.
