@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0-experimental.4
+
+- Refine the header entry into a compact icon-only button at the far right of the header utilities, with an overlapping count badge.
+
 ## 1.5.0-experimental.3
 
 - Add a bottom-center handle for vertical resizing of the right panel; height persists and double-click restores content sizing.
