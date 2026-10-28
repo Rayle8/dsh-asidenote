@@ -23,6 +23,7 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - Clicking it opens a fixed right-side panel; switching sessions closes the old panel and updates the entry.
 - Clicking the entry opens the right-side panel for add, complete, copy, edit (double-click or pencil), delete, clear completed, and expand completed.
 - Drag the handle on the panel's left edge to resize its width; double-click the handle to reset it, and the width persists in the browser.
+- Drag the bottom-center handle to resize its height; double-click the handle to return to content sizing, and the height persists.
 - Each note has copy, edit, and delete actions; copy sits to the left of edit and briefly shows **Copied** after a successful copy.
 - The completion circle shares the first line with the note text; copy, edit, and delete sit at the bottom-right beside the time, saving one row.
 - The completion circle is visually 16px inside a 24px hit area, matching the row actions.

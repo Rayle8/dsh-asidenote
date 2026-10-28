@@ -19,6 +19,9 @@ window.__ModuleLoader__.load({
     const PANEL_DEFAULT_WIDTH = 360
     const PANEL_MIN_WIDTH = 280
     const PANEL_MAX_WIDTH = 720
+    /** Persisted height of the experimental right-side panel; 0 means content-sized. */
+    const PANEL_HEIGHT_KEY = 'dsh.memo.panel-height.v1'
+    const PANEL_MIN_HEIGHT = 240
     /** A note is meant to stay brief; this is the hard cap. */
     const MAX_TEXT = 280
     /** Defensive cap so a corrupted store cannot freeze the panel. */
@@ -265,11 +268,15 @@ window.__ModuleLoader__.load({
       '[data-row-key^="session:"]:has(> .dsh-wt-badge) > [class*="_title"]{flex:0 1 auto}',
       '[data-row-key^="session:"]:has(> .dsh-wt-badge) > [class*="_time"]{display:none}',
       '.dsh-wt-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;min-height:0;padding:12px;border:1px solid var(--dsw-alias-border-l2);border-radius:12px;background:var(--dsw-alias-bg-layer-1);box-shadow:var(--dsw-elevation-soft);color:var(--dsw-alias-label-primary);font-size:13px;overflow:hidden}',
-      '.dsh-wt-popoverRight{padding-left:18px}',
+      '.dsh-wt-popoverRight{padding-left:18px;padding-bottom:20px}',
       '.dsh-wt-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:10px;cursor:ew-resize;touch-action:none;outline:0}',
       '.dsh-wt-resizeHandle::before{content:"";width:3px;height:36px;border-radius:999px;background:var(--dsw-alias-border-l2);opacity:.7;transition:height .12s ease,background .12s ease,opacity .12s ease}',
       '.dsh-wt-resizeHandle:hover::before,.dsh-wt-resizeHandle:focus-visible::before{height:48px;background:var(--dsw-alias-brand-primary);opacity:1}',
       '.dsh-wt-resizeHandle:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:-2px;border-radius:8px}',
+      '.dsh-wt-resizeHandleBottom{position:absolute;left:50%;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:52px;height:12px;transform:translateX(-50%);cursor:ns-resize;touch-action:none;outline:0}',
+      '.dsh-wt-resizeHandleBottom::before{content:"";width:28px;height:3px;border-radius:999px;background:var(--dsw-alias-border-l2);opacity:.7;transition:width .12s ease,background .12s ease,opacity .12s ease}',
+      '.dsh-wt-resizeHandleBottom:hover::before,.dsh-wt-resizeHandleBottom:focus-visible::before{width:36px;background:var(--dsw-alias-brand-primary);opacity:1}',
+      '.dsh-wt-resizeHandleBottom:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:-2px;border-radius:8px}',
       '.dsh-wt-popHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:0 0 8px}',
       '.dsh-wt-popTitle{font-size:14px;line-height:20px;font-weight:650}',
       '.dsh-wt-popMeta{margin:2px 0 0;font-size:11px;line-height:16px;color:var(--dsw-alias-label-secondary)}',
@@ -292,6 +299,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-popover .dsh-wt-empty{padding:18px 10px}',
       '.dsh-wt-popover .dsh-wt-doneHead{margin-top:4px}',
       '.dsh-wt-popFoot{margin:8px 0 0;font-size:10px;line-height:16px;color:var(--dsw-alias-label-secondary)}',
+      '.dsh-wt-popoverRight .dsh-wt-popFoot{margin-top:auto}',
       '.dsh-wt-error{color:var(--dsw-alias-state-warning-primary)}',
       '@media (max-width:640px){.dsh-wt-shell{padding:22px 16px 56px}.dsh-wt-head{gap:16px}.dsh-wt-title{font-size:20px;line-height:28px}.dsh-wt-statNum{font-size:24px;line-height:28px}.dsh-wt-sub{font-size:12px}.dsh-wt-select{max-width:210px}.dsh-wt-row{padding:11px 10px}.dsh-wt-actions{opacity:1}}',
     ].join('')
@@ -518,6 +526,30 @@ window.__ModuleLoader__.load({
       if (!ls) return
       try {
         ls.setItem(PANEL_WIDTH_KEY, String(Math.round(width)))
+      } catch (error) {
+        /* storage is best effort */
+      }
+    }
+
+    /** Read the persisted right-panel height; 0 means content-sized. */
+    function readPanelHeight() {
+      const ls = storage()
+      try {
+        const saved = ls && Number(ls.getItem(PANEL_HEIGHT_KEY))
+        if (Number.isFinite(saved) && saved > 0) return saved
+      } catch (error) {
+        /* fall through */
+      }
+      return 0
+    }
+
+    /** Persist the right-panel height; 0 restores content sizing. */
+    function writePanelHeight(height) {
+      const ls = storage()
+      if (!ls) return
+      try {
+        if (height > 0) ls.setItem(PANEL_HEIGHT_KEY, String(Math.round(height)))
+        else ls.removeItem(PANEL_HEIGHT_KEY)
       } catch (error) {
         /* storage is best effort */
       }
@@ -1449,13 +1481,18 @@ window.__ModuleLoader__.load({
     }
 
     /** Fixed panel placement: a right-side panel for the experimental entry, otherwise below the anchor. */
-    function memoPopoverStyle(anchor, placement, requestedWidth) {
+    function memoPopoverStyle(anchor, placement, requestedWidth, requestedHeight) {
       const available = Math.max(PANEL_MIN_WIDTH, window.innerWidth - 32)
       const width = Math.max(PANEL_MIN_WIDTH, Math.min(PANEL_MAX_WIDTH, available, requestedWidth || PANEL_DEFAULT_WIDTH))
       if (placement === 'right') {
         const top = 64
-        const maxHeight = Math.min(560, window.innerHeight - top - 16)
-        return { right: '16px', left: 'auto', top: `${top}px`, width: `${width}px`, maxHeight: `${maxHeight}px` }
+        const maxHeight = Math.max(PANEL_MIN_HEIGHT, window.innerHeight - top - 16)
+        const height = requestedHeight
+          ? Math.max(PANEL_MIN_HEIGHT, Math.min(maxHeight, requestedHeight))
+          : 0
+        const style = { right: '16px', left: 'auto', top: `${top}px`, width: `${width}px`, maxHeight: `${maxHeight}px` }
+        if (height) style.height = `${height}px`
+        return style
       }
       const maxHeight = Math.min(460, window.innerHeight - 24)
       if (!anchor) return { left: '12px', top: '12px', width: `${width}px`, maxHeight: `${maxHeight}px` }
@@ -1479,9 +1516,11 @@ window.__ModuleLoader__.load({
       const [showDone, setShowDone] = React.useState(false)
       const [showOpen, setShowOpen] = React.useState(true)
       const [panelWidth, setPanelWidth] = React.useState(readPanelWidth)
-      const [style, setStyle] = React.useState(() => memoPopoverStyle(props.anchorRef.current, props.placement, panelWidth))
+      const [panelHeight, setPanelHeight] = React.useState(readPanelHeight)
+      const [style, setStyle] = React.useState(() => memoPopoverStyle(props.anchorRef.current, props.placement, panelWidth, panelHeight))
       const panelRef = React.useRef(null)
       const panelWidthRef = React.useRef(panelWidth)
+      const panelHeightRef = React.useRef(panelHeight)
       const editRef = React.useRef(null)
       const addRef = React.useRef(null)
       const cancelEditRef = React.useRef(false)
@@ -1499,13 +1538,17 @@ window.__ModuleLoader__.load({
 
       const updatePosition = React.useCallback(() => {
         if (props.anchorRef.current || props.placement === 'right') {
-          setStyle(memoPopoverStyle(props.anchorRef.current, props.placement, panelWidth))
+          setStyle(memoPopoverStyle(props.anchorRef.current, props.placement, panelWidth, panelHeight))
         }
-      }, [props.anchorRef, props.placement, panelWidth])
+      }, [props.anchorRef, props.placement, panelWidth, panelHeight])
 
       React.useEffect(() => {
         panelWidthRef.current = panelWidth
       }, [panelWidth])
+
+      React.useEffect(() => {
+        panelHeightRef.current = panelHeight
+      }, [panelHeight])
 
       const clampPanelWidth = value => {
         const max = Math.min(PANEL_MAX_WIDTH, Math.max(PANEL_MIN_WIDTH, window.innerWidth - 32))
@@ -1552,6 +1595,55 @@ window.__ModuleLoader__.load({
         } else if (event.key === 'Home') {
           event.preventDefault()
           commitPanelWidth(PANEL_DEFAULT_WIDTH)
+        }
+      }
+
+      const clampPanelHeight = value => {
+        const max = Math.max(PANEL_MIN_HEIGHT, window.innerHeight - 64 - 16)
+        return Math.max(PANEL_MIN_HEIGHT, Math.min(max, value))
+      }
+
+      const commitPanelHeight = value => {
+        const next = value > 0 ? clampPanelHeight(value) : 0
+        panelHeightRef.current = next
+        setPanelHeight(next)
+        writePanelHeight(next)
+      }
+
+      const startPanelHeightResize = event => {
+        if (event.button !== 0) return
+        event.preventDefault()
+        const startY = event.clientY
+        const startHeight = panelHeightRef.current
+          || (panelRef.current ? panelRef.current.getBoundingClientRect().height : 360)
+        const onMove = moveEvent => {
+          const next = clampPanelHeight(startHeight + (moveEvent.clientY - startY))
+          panelHeightRef.current = next
+          setPanelHeight(next)
+        }
+        const onUp = () => {
+          window.removeEventListener('pointermove', onMove)
+          window.removeEventListener('pointerup', onUp)
+          document.body.style.userSelect = ''
+          document.body.style.cursor = ''
+          writePanelHeight(panelHeightRef.current)
+        }
+        window.addEventListener('pointermove', onMove)
+        window.addEventListener('pointerup', onUp, { once: true })
+        document.body.style.userSelect = 'none'
+        document.body.style.cursor = 'ns-resize'
+      }
+
+      const onPanelHeightKeyDown = event => {
+        if (event.key === 'ArrowDown') {
+          event.preventDefault()
+          commitPanelHeight((panelHeightRef.current || 360) + 16)
+        } else if (event.key === 'ArrowUp') {
+          event.preventDefault()
+          commitPanelHeight((panelHeightRef.current || 360) - 16)
+        } else if (event.key === 'Home') {
+          event.preventDefault()
+          commitPanelHeight(0)
         }
       }
 
@@ -1710,6 +1802,19 @@ window.__ModuleLoader__.load({
               onPointerDown: startPanelResize,
               onDoubleClick: () => commitPanelWidth(PANEL_DEFAULT_WIDTH),
               onKeyDown: onPanelResizeKeyDown,
+            })
+          : null,
+        props.placement === 'right'
+          ? h('div', {
+              className: 'dsh-wt-resizeHandleBottom',
+              role: 'separator',
+              'aria-orientation': 'horizontal',
+              'aria-label': '调整便笺高度',
+              tabIndex: 0,
+              title: '拖动调整高度，双击复位',
+              onPointerDown: startPanelHeightResize,
+              onDoubleClick: () => commitPanelHeight(0),
+              onKeyDown: onPanelHeightKeyDown,
             })
           : null,
         h(

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0-experimental.3
+
+- Add a bottom-center handle for vertical resizing of the right panel; height persists and double-click restores content sizing.
+
 ## 1.5.0-experimental.2
 
 - Add a drag handle on the right panel's left edge to resize its width; the width persists across opens, and double-click resets it.
