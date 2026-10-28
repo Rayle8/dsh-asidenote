@@ -32,7 +32,8 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - The add row no longer shows a plus icon, and **Add** always sits at the right of its own second row, so wrapping never flickers or jumps.
 - The **Ctrl+Enter sends · Enter for a new line** hint sits in the empty space left of the Add button, keeping the input placeholder short.
 - Unsaved add/edit drafts are saved per session and restored after closing and reopening the panel, with the add caret at the end of the draft; they clear after add, save, cancel, or delete.
-- The open and completed lists each scroll inside the popover; the popover frame itself does not show a vertical scrollbar.
+- Expanding **Completed** does not compress the **Open** list; content extends downward, and the whole panel scrolls when it exceeds the viewport.
+- Note-card copy/edit/delete actions appear on hover or keyboard focus while keeping their layout space; touch devices keep them visible.
 - Both **Open** and **Completed** headings collapse on click with matching count styles; either can stay expanded independently; only the chevron, label, and count are clickable, not the blank right side.
 - The sidebar reminder stays visible while the session is running.
 - Syncs across tabs in the same browser.

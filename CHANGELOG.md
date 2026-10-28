@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.4
+
+- Let the completed section extend below the open list without compressing it; scroll the whole panel when the content exceeds the viewport.
+- Show note-card copy/edit/delete actions on hover or keyboard focus instead of always, while keeping their layout space.
+
 ## 1.5.3
 
 - Focus the add input with the caret at the end when the panel is reopened with a restored draft.
