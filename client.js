@@ -40,6 +40,10 @@ window.__ModuleLoader__.load({
     const MAX_TEXT = 280
     /** Defensive cap so a corrupted store cannot freeze the panel. */
     const MAX_ITEMS = 300
+    /** A forwarded open note waits this long for a second click before it completes. */
+    const HALF_DONE_DELAY = 1200
+    /** Card-leave animation played before the delayed completion is committed. */
+    const HALF_DONE_LEAVE = 200
     /** Same-tab subscribers, so the composer dock's count follows panel edits. */
     const TODO_LISTENERS = new Set()
 
@@ -110,6 +114,7 @@ window.__ModuleLoader__.load({
         'item.copied': '已复制',
         'item.forward': '转发到会话',
         'item.forwarded': '已转发',
+        'item.pendingUndo': '再点一次可还原为未完成状态',
         'item.edit': '编辑',
         'item.delete': '删除',
         'item.editHint': '双击编辑',
@@ -182,6 +187,7 @@ window.__ModuleLoader__.load({
         'item.copied': 'Copied',
         'item.forward': 'Forward to chat',
         'item.forwarded': 'Forwarded',
+        'item.pendingUndo': 'Click again to keep it open',
         'item.edit': 'Edit',
         'item.delete': 'Delete',
         'item.editHint': 'Double-click to edit',
@@ -249,13 +255,16 @@ window.__ModuleLoader__.load({
       '.dsh-wt-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-top:1px solid var(--dsw-alias-border-l1);transition:background .12s ease}',
       '.dsh-wt-row:first-child{border-top:0}',
       '.dsh-wt-row:hover{background:var(--dsw-alias-bg-layer-2)}',
+      '.dsh-wt-rowLeaving{pointer-events:none;opacity:0;transform:translateY(-2px) scale(.985);transition:opacity .2s ease,transform .2s ease}',
       '.dsh-wt-check{flex:none;display:flex;align-items:center;justify-content:center;width:24px;height:24px;margin:calc((21px - 24px) / 2) 0 0;padding:0;border:0;background:transparent;color:transparent;cursor:pointer}',
-      '.dsh-wt-checkCircle{display:flex;align-items:center;justify-content:center;width:16px;height:16px;box-sizing:border-box;border:1.5px solid var(--dsw-alias-border-l2);border-radius:50%;background:transparent;color:transparent;transition:border-color .12s ease,background .12s ease,color .12s ease}',
+      '.dsh-wt-checkCircle{display:flex;align-items:center;justify-content:center;width:14px;height:14px;box-sizing:border-box;border:1.5px solid var(--dsw-alias-border-l2);border-radius:50%;background:transparent;color:transparent;transition:border-color .12s ease,background .12s ease,color .12s ease}',
       '.dsh-wt-check:hover .dsh-wt-checkCircle{border-color:var(--dsw-alias-brand-primary);color:var(--dsw-alias-brand-primary)}',
       '.dsh-wt-check:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;border-radius:50%}',
       '.dsh-wt-check[aria-checked="true"] .dsh-wt-checkCircle{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-bg-base)}',
+      '.dsh-wt-checkHalf .dsh-wt-checkCircle{border-color:var(--dsw-alias-brand-primary);background:linear-gradient(90deg,var(--dsw-alias-brand-primary) 50%,transparent 50%)}',
       '.dsh-wt-itemBody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}',
       '.dsh-wt-rowFoot{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:24px;margin-top:2px}',
+      '.dsh-wt-rowHint{margin:2px 0 0;font-size:10.5px;line-height:15px;font-weight:500;color:var(--dsw-alias-brand-primary)}',
       '.dsh-wt-text{display:block;width:100%;margin:0;padding:0;border:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:14px;line-height:21px;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;cursor:text;user-select:text;-webkit-user-select:text}',
       '.dsh-wt-text:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;border-radius:4px}',
       '.dsh-wt-meta{font-size:10.5px;line-height:16px;color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums}',
@@ -366,6 +375,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-popover .dsh-wt-edit{gap:3px}',
       '.dsh-wt-popover .dsh-wt-editInput{font-size:12px;line-height:18px;padding:3px 6px}',
       '.dsh-wt-popover .dsh-wt-meta{font-size:10px}',
+      '.dsh-wt-popover .dsh-wt-rowHint{font-size:10px;line-height:14px}',
       '.dsh-wt-popover .dsh-wt-empty{padding:18px 10px}',
       '.dsh-wt-popover .dsh-wt-doneHead{margin-top:4px}',
       '.dsh-wt-popFoot{margin:8px 0 0;font-size:10px;line-height:16px;color:var(--dsw-alias-label-secondary)}',
@@ -1233,32 +1243,129 @@ window.__ModuleLoader__.load({
 
     function TodoRow(props) {
       const { item, done, say, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onEditDraftChange, onFinishEdit, onCancelEdit, editRef, forwardPrefix } = props
-      const rowClass = done ? 'dsh-wt-row dsh-wt-rowDone' : 'dsh-wt-row'
       const [copied, setCopied] = React.useState(false)
       const [forwarded, setForwarded] = React.useState(false)
+      // A forwarded note stays open and wears a half check until the user decides.
+      const [half, setHalf] = React.useState(false)
+      // Optimistic full check while the staged completion can still be undone.
+      const [pendingDone, setPendingDone] = React.useState(false)
+      // Card-leave animation played just before the completion is committed.
+      const [leaving, setLeaving] = React.useState(false)
       const copyTimerRef = React.useRef(null)
       const forwardTimerRef = React.useRef(null)
+      const pendingTimerRef = React.useRef(null)
+      const leaveTimerRef = React.useRef(null)
+      const mountedRef = React.useRef(true)
+      const doneRef = React.useRef(done)
+
+      const clearPendingTimers = () => {
+        if (pendingTimerRef.current) {
+          clearTimeout(pendingTimerRef.current)
+          pendingTimerRef.current = null
+        }
+        if (leaveTimerRef.current) {
+          clearTimeout(leaveTimerRef.current)
+          leaveTimerRef.current = null
+        }
+      }
 
       React.useEffect(() => {
+        mountedRef.current = true
         return () => {
+          mountedRef.current = false
+          clearPendingTimers()
           if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
           if (forwardTimerRef.current) clearTimeout(forwardTimerRef.current)
+          copyTimerRef.current = null
+          forwardTimerRef.current = null
         }
       }, [])
 
+      React.useEffect(() => {
+        doneRef.current = done
+      }, [done])
+
+      // A committed toggle (or another tab) beats the local half/pending state.
+      React.useEffect(() => {
+        if (!done) return
+        clearPendingTimers()
+        setHalf(false)
+        setPendingDone(false)
+        setLeaving(false)
+      }, [done])
+
       const copy = async () => {
         const ok = await copyText(item.text)
-        if (!ok) return
+        if (!ok || !mountedRef.current) return
         setCopied(true)
         if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
-        copyTimerRef.current = setTimeout(() => setCopied(false), 1200)
+        copyTimerRef.current = setTimeout(() => {
+          copyTimerRef.current = null
+          if (!mountedRef.current) return
+          setCopied(false)
+        }, 1200)
       }
 
       const forward = () => {
         if (!appendToConversation(item.text, forwardPrefix)) return
         setForwarded(true)
         if (forwardTimerRef.current) clearTimeout(forwardTimerRef.current)
-        forwardTimerRef.current = setTimeout(() => setForwarded(false), 1200)
+        forwardTimerRef.current = setTimeout(() => {
+          forwardTimerRef.current = null
+          if (!mountedRef.current) return
+          setForwarded(false)
+        }, 1200)
+        // Forwarding an open note never completes it; it stages the half check.
+        if (done) return
+        clearPendingTimers()
+        setPendingDone(false)
+        setLeaving(false)
+        setHalf(true)
+      }
+
+      const cancelPending = () => {
+        clearPendingTimers()
+        setPendingDone(false)
+        setLeaving(false)
+      }
+
+      const startPending = () => {
+        clearPendingTimers()
+        setPendingDone(true)
+        setLeaving(false)
+        pendingTimerRef.current = setTimeout(() => {
+          pendingTimerRef.current = null
+          if (!mountedRef.current) return
+          setLeaving(true)
+          leaveTimerRef.current = setTimeout(() => {
+            leaveTimerRef.current = null
+            if (!mountedRef.current) return
+            setPendingDone(false)
+            setLeaving(false)
+            setHalf(false)
+            if (doneRef.current) return
+            onToggle(item)
+          }, HALF_DONE_LEAVE)
+        }, HALF_DONE_DELAY)
+      }
+
+      const toggleCheck = () => {
+        if (done) {
+          cancelPending()
+          setHalf(false)
+          onToggle(item)
+          return
+        }
+        // Second click during the delay keeps the note open and restores the half check.
+        if (pendingDone) {
+          cancelPending()
+          return
+        }
+        if (half) {
+          startPending()
+          return
+        }
+        onToggle(item)
       }
 
       const resizeEditor = node => {
@@ -1340,6 +1447,10 @@ window.__ModuleLoader__.load({
             item.text,
           )
 
+      const halfCheck = half && !done && !pendingDone
+      const checked = done || pendingDone
+      const rowClass = `${done ? 'dsh-wt-row dsh-wt-rowDone' : 'dsh-wt-row'}${leaving ? ' dsh-wt-rowLeaving' : ''}`
+
       return h(
         'li',
         { className: rowClass },
@@ -1347,16 +1458,17 @@ window.__ModuleLoader__.load({
           'button',
           {
             type: 'button',
-            className: 'dsh-wt-check',
+            className: halfCheck ? 'dsh-wt-check dsh-wt-checkHalf' : 'dsh-wt-check',
             role: 'checkbox',
-            'aria-checked': done ? 'true' : 'false',
+            'aria-checked': checked ? 'true' : half ? 'mixed' : 'false',
             'aria-label': say(done ? 'item.markOpen' : 'item.markDone'),
-            onClick: () => onToggle(item),
+            'aria-describedby': pendingDone ? `${item.id}-pending-hint` : undefined,
+            onClick: toggleCheck,
           },
           h(
             'span',
             { className: 'dsh-wt-checkCircle' },
-            done ? h(IconCheck, { size: 10 }) : null,
+            checked ? h(IconCheck, { size: 9 }) : null,
           ),
         ),
         h(
@@ -1418,6 +1530,13 @@ window.__ModuleLoader__.load({
                   ),
                 ),
           ),
+          pendingDone
+            ? h(
+                'div',
+                { id: `${item.id}-pending-hint`, className: 'dsh-wt-rowHint', role: 'status' },
+                say('item.pendingUndo'),
+              )
+            : null,
         ),
       )
     }
