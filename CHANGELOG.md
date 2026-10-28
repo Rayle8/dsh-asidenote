@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.0-experimental.1
+
+- Experimental branch: move the entry to a top-right header button and open notes in a fixed right-side panel.
+- Remove the sidebar session badge and composer status-strip entry on this branch.
+
 ## 1.4.13
 
 - Right-align the Add button on its second row.

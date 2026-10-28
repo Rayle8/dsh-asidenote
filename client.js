@@ -246,6 +246,12 @@ window.__ModuleLoader__.load({
       '.dsh-wt-badge:hover{background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-badge:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
       '.dsh-wt-badgeCount{font-variant-numeric:tabular-nums;color:var(--dsw-alias-brand-primary)}',
+      '.dsh-wt-headerBtn{display:inline-flex;align-items:center;gap:5px;flex:none;height:26px;padding:0 8px;border:0;border-radius:6px;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:12px;line-height:24px;cursor:pointer;white-space:nowrap}',
+      '.dsh-wt-headerBtn:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}',
+      '.dsh-wt-headerBtn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
+      '.dsh-wt-headerBtn[data-active="true"]{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}',
+      '.dsh-wt-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:14px;height:14px;color:currentColor}',
+      '.dsh-wt-headerCount{min-width:14px;padding:0 4px;border-radius:999px;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-bg-base);font-size:9px;line-height:14px;text-align:center;font-variant-numeric:tabular-nums}',
       '.dsh-wt-dockBtn{display:inline-flex;align-items:center;gap:4px;flex:none;height:22px;padding:0 6px;border:0;border-radius:6px;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:11px;line-height:20px;cursor:pointer;order:99;white-space:nowrap}',
       '.dsh-wt-dockBtn:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-dockBtn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
@@ -1408,9 +1414,14 @@ window.__ModuleLoader__.load({
       )
     }
 
-    /** Fixed popover placement: below the anchor, above when it would overflow. */
-    function memoPopoverStyle(anchor) {
+    /** Fixed panel placement: a right-side panel for the experimental entry, otherwise below the anchor. */
+    function memoPopoverStyle(anchor, placement) {
       const width = Math.min(360, window.innerWidth - 24)
+      if (placement === 'right') {
+        const top = 64
+        const maxHeight = Math.min(560, window.innerHeight - top - 16)
+        return { right: '16px', left: 'auto', top: `${top}px`, width: `${width}px`, maxHeight: `${maxHeight}px` }
+      }
       const maxHeight = Math.min(460, window.innerHeight - 24)
       if (!anchor) return { left: '12px', top: '12px', width: `${width}px`, maxHeight: `${maxHeight}px` }
       const rect = anchor.getBoundingClientRect()
@@ -1432,7 +1443,7 @@ window.__ModuleLoader__.load({
       const [editDraft, setEditDraft] = React.useState('')
       const [showDone, setShowDone] = React.useState(false)
       const [showOpen, setShowOpen] = React.useState(true)
-      const [style, setStyle] = React.useState(() => memoPopoverStyle(props.anchorRef.current))
+      const [style, setStyle] = React.useState(() => memoPopoverStyle(props.anchorRef.current, props.placement))
       const panelRef = React.useRef(null)
       const editRef = React.useRef(null)
       const addRef = React.useRef(null)
@@ -1450,8 +1461,10 @@ window.__ModuleLoader__.load({
       }, [draft])
 
       const updatePosition = React.useCallback(() => {
-        if (props.anchorRef.current) setStyle(memoPopoverStyle(props.anchorRef.current))
-      }, [props.anchorRef])
+        if (props.anchorRef.current || props.placement === 'right') {
+          setStyle(memoPopoverStyle(props.anchorRef.current, props.placement))
+        }
+      }, [props.anchorRef, props.placement])
 
       React.useLayoutEffect(() => {
         updatePosition()
@@ -1909,6 +1922,7 @@ window.__ModuleLoader__.load({
 
       const tr = (key, vars) => fill(say(key), vars)
       let activePopover = null
+      let activeSessionId = ''
 
       const closeMemoPopover = () => {
         const current = activePopover
@@ -1920,9 +1934,10 @@ window.__ModuleLoader__.load({
           /* already unmounted */
         }
         current.container.remove()
+        refreshHeaderEntry()
       }
 
-      const openMemoPopover = (sessionId, anchor) => {
+      const openMemoPopover = (sessionId, anchor, placement = 'popover') => {
         if (activePopover && activePopover.anchor === anchor) {
           closeMemoPopover()
           return
@@ -1932,57 +1947,65 @@ window.__ModuleLoader__.load({
         container.dataset.dshMemoPopoverRoot = 'true'
         document.body.appendChild(container)
         const root = ReactDOMClient.createRoot(container)
-        activePopover = { container, root, anchor }
+        activePopover = { container, root, anchor, placement }
         root.render(h(MemoPopover, {
           sessionId,
           say: tr,
           localeId: localeId(),
           anchorRef: { current: anchor },
+          placement,
           onClose: closeMemoPopover,
         }))
+        refreshHeaderEntry()
       }
 
-      const refreshMemoBadges = () => {
-        const store = readSessionStore()
-        for (const row of document.querySelectorAll('[data-row-key^="session:"]')) {
-          const key = row.getAttribute('data-row-key') || ''
-          const sessionId = key.slice('session:'.length)
-          if (!sessionId) continue
-          const title = row.querySelector(':scope > [class*="_title"]')
-          if (!title) continue
-          const items = normalizeItems(store.sessions[sessionId] && store.sessions[sessionId].items)
-          const open = items.filter(item => !item.done).length
-          let badge = row.querySelector(':scope > .dsh-wt-badge')
-          if (open === 0) {
-            if (badge) badge.remove()
-            continue
-          }
-          if (!badge) {
-            badge = document.createElement('button')
-            badge.type = 'button'
-            badge.className = 'dsh-wt-badge'
-            badge.addEventListener('pointerdown', event => event.stopPropagation())
-            badge.addEventListener('click', event => {
-              event.preventDefault()
-              event.stopPropagation()
-              openMemoPopover(sessionId, badge)
-            })
-            title.insertAdjacentElement('afterend', badge)
-          }
-          const signature = `${localeId()}:${open}`
-          if (badge.dataset.signature !== signature) {
-            const label = document.createElement('span')
-            label.textContent = tr('badge.label')
-            const count = document.createElement('span')
-            count.className = 'dsh-wt-badgeCount'
-            count.textContent = tr('badge.count', { open })
-            badge.replaceChildren(label, count)
-            badge.dataset.signature = signature
-          }
-          badge.dataset.sessionId = sessionId
-          badge.title = tr('badge.title')
-          badge.setAttribute('aria-label', `${tr('badge.label')}, ${tr('dock.count', { n: open })}`)
+      const HEADER_ICON = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.25 2.75h6.5l3 3v7.5c0 .55-.45 1-1 1H3.25c-.55 0-1-.45-1-1V3.75c0-.55.45-1 1-1Z"/><path d="M9.75 2.75v3h3"/><path d="M4.9 7.6h5.4M4.9 9.9h3.6"/></svg>'
+
+      const refreshHeaderEntry = () => {
+        for (const badge of document.querySelectorAll('.dsh-wt-badge')) badge.remove()
+        const host = document.querySelector('[class*="_headerUtilities"]')
+        let button = host ? host.querySelector(':scope > .dsh-wt-headerBtn') : null
+        if (!host || !activeSessionId) {
+          if (button) button.remove()
+          return
         }
+        const store = readSessionStore()
+        const items = normalizeItems(store.sessions[activeSessionId] && store.sessions[activeSessionId].items)
+        const open = items.filter(item => !item.done).length
+        if (!button) {
+          button = document.createElement('button')
+          button.type = 'button'
+          button.className = 'dsh-wt-headerBtn'
+          button.addEventListener('pointerdown', event => event.stopPropagation())
+          button.addEventListener('click', event => {
+            event.preventDefault()
+            event.stopPropagation()
+            openMemoPopover(activeSessionId, button, 'right')
+          })
+          host.appendChild(button)
+        }
+        button.dataset.active = activePopover && activePopover.anchor === button ? 'true' : 'false'
+        const signature = `${localeId()}:${activeSessionId}:${open}`
+        if (button.dataset.signature !== signature) {
+          const icon = document.createElement('span')
+          icon.className = 'dsh-wt-headerIcon'
+          icon.innerHTML = HEADER_ICON
+          const label = document.createElement('span')
+          label.textContent = tr('dock.label')
+          button.replaceChildren(icon, label)
+          if (open > 0) {
+            const count = document.createElement('span')
+            count.className = 'dsh-wt-headerCount'
+            count.textContent = String(open)
+            button.appendChild(count)
+          }
+          button.dataset.signature = signature
+        }
+        button.dataset.sessionId = activeSessionId
+        button.title = tr('badge.title')
+        button.setAttribute('aria-label', open > 0
+          ? `${tr('dock.open')}, ${tr('dock.count', { n: open })}`
+          : tr('dock.open'))
       }
 
       ctx.effect(() => {
@@ -1992,7 +2015,7 @@ window.__ModuleLoader__.load({
           scheduled = true
           requestAnimationFrame(() => {
             scheduled = false
-            refreshMemoBadges()
+            refreshHeaderEntry()
           })
         }
         const onStorage = event => {
@@ -2002,22 +2025,26 @@ window.__ModuleLoader__.load({
         window.addEventListener('storage', onStorage)
         const observer = new MutationObserver(schedule)
         observer.observe(document.body, { childList: true, subtree: true })
-        refreshMemoBadges()
+        refreshHeaderEntry()
         return () => {
           TODO_LISTENERS.delete(schedule)
           window.removeEventListener('storage', onStorage)
           observer.disconnect()
           closeMemoPopover()
-          for (const badge of document.querySelectorAll('.dsh-wt-badge')) badge.remove()
+          for (const button of document.querySelectorAll('.dsh-wt-headerBtn')) button.remove()
         }
-      }, 'workspace-todos: session badges')
+      }, 'workspace-todos: right-side entry')
 
-      function BoundDock(props) {
-        return h(MemoEntry, {
-          ...props,
-          variant: 'dock',
-          say: translator(props),
-        })
+      function BoundSessionCapture(props) {
+        const sessionId = props.sessionId || ''
+        React.useEffect(() => {
+          if (activeSessionId !== sessionId) {
+            activeSessionId = sessionId
+            closeMemoPopover()
+          }
+          refreshHeaderEntry()
+        }, [sessionId])
+        return null
       }
 
       ctx.slots.inject('conversation.composer.dock', () =>
@@ -2028,7 +2055,7 @@ window.__ModuleLoader__.load({
             order: 30,
             locale: NS,
           },
-          BoundDock,
+          BoundSessionCapture,
         ),
       )
     }
