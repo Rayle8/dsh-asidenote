@@ -166,13 +166,41 @@ test('colours come from the three-role token layer', () => {
 
 test('list scrollbar stays on the panel edge without shrinking cards', () => {
   const css = readCss()
+  const viewport = css.match(/\.dsh-wt-listViewport\{([^}]*)\}/)
   const rule = css.match(/\.dsh-wt-listArea\{([^}]*)\}/)
+  assert.ok(viewport, 'missing listViewport rule')
   assert.ok(rule, 'missing listArea rule')
-  assert.match(rule[1], /margin-right:calc\(var\(--wt-space-4\) \* -1\)/, 'listArea must reach the panel edge')
+  assert.match(viewport[1], /margin-right:calc\(var\(--wt-space-4\) \* -1\)/, 'the viewport must reach the panel edge')
   assert.match(rule[1], /padding-right:calc\(var\(--wt-space-4\) - 4px\)/, 'listArea must compensate the scrollbar width')
   assert.match(rule[1], /scrollbar-gutter:stable/, 'the gutter must stay reserved in both states')
   assert.doesNotMatch(rule[1], /scrollbar-width:/, 'scrollbar-width would override the 4px webkit thumb')
   assert.match(css, /\.dsh-wt-listArea::-webkit-scrollbar\{width:4px;height:4px\}/, 'scrollbar must stay thin')
+})
+
+test('note list edges use a fixed frosted blur', () => {
+  const css = readCss()
+  assert.match(css, /\.dsh-wt-listViewport\{[^}]*position:relative/, 'the blur needs a positioned viewport')
+  assert.match(css, /\.dsh-wt-listViewport::before,\.dsh-wt-listViewport::after\{[^}]*backdrop-filter:blur\(4px\)/, 'missing edge blur')
+  assert.match(css, /\.dsh-wt-listViewport::before,\.dsh-wt-listViewport::after\{[^}]*right:4px/, 'the blur must leave the scrollbar crisp')
+  assert.match(css, /\.dsh-wt-listViewport::before\{top:calc\(var\(--wt-space-6\) \+ var\(--wt-space-1\)\)\}/, 'the top blur must start below the sticky header')
+  assert.match(css, /\.dsh-wt-listViewport::after\{[^}]*bottom:0/, 'the bottom blur must stay at the edge')
+})
+
+test('settings read as a full-bleed separator band, not a card', () => {
+  const css = readCss()
+  const rule = css.match(/\.dsh-wt-settings\{([^}]*)\}/)
+  assert.ok(rule, 'missing settings rule')
+  assert.match(rule[1], /margin:0 calc\(var\(--wt-space-4\) \* -1\)/, 'settings must span the panel width')
+  assert.match(rule[1], /border-top:1px solid var\(--wt-line\)/, 'settings need a top separator')
+  assert.match(rule[1], /border-bottom:1px solid var\(--wt-line\)/, 'settings need a bottom separator')
+  assert.doesNotMatch(rule[1], /border-radius:/, 'settings must not be a card')
+  assert.doesNotMatch(rule[1], /box-shadow:/, 'settings must not float')
+  assert.match(css, /\.dsh-wt-settingsHead::after\{[^}]*background:var\(--wt-line\)\}/, 'the heading needs its rule')
+})
+
+test('section toggles stay inside the scroll clip', () => {
+  const css = readCss()
+  assert.doesNotMatch(css, /\.dsh-wt-popover \.dsh-wt-sectionHead \.dsh-wt-doneToggle\{/, 'the toggle must not be pulled outside the clip')
 })
 
 test('type scale and weight set stay small', () => {

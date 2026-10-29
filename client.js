@@ -441,7 +441,11 @@ window.__ModuleLoader__.load({
       '@media (max-width:640px){.dsh-wt-shell{padding:var(--wt-space-5) var(--wt-space-4) var(--wt-space-8)}.dsh-wt-head{gap:var(--wt-space-4)}.dsh-wt-title{font-size:var(--wt-fs-heading);line-height:var(--wt-lh-heading)}.dsh-wt-statNum{font-size:var(--wt-fs-heading);line-height:var(--wt-lh-heading)}.dsh-wt-select{max-width:210px}}',
       '@media (hover:none){.dsh-wt-actions{opacity:1;pointer-events:auto}}',
       '/* ── main 1.6.x 新增结构：滚动区 / 分组 / 半勾 / 转发态 ─────────── */',
-      '.dsh-wt-listArea{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--wt-space-4) * -1);padding-right:calc(var(--wt-space-4) - 4px);overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}',
+      '.dsh-wt-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--wt-space-4) * -1)}',
+      '.dsh-wt-listViewport::before,.dsh-wt-listViewport::after{content:"";position:absolute;left:0;right:4px;z-index:2;height:var(--wt-space-3);pointer-events:none;background:linear-gradient(to bottom,var(--wt-surface),transparent);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);-webkit-mask-image:linear-gradient(to bottom,currentColor,transparent);mask-image:linear-gradient(to bottom,currentColor,transparent)}',
+      '.dsh-wt-listViewport::before{top:calc(var(--wt-space-6) + var(--wt-space-1))}',
+      '.dsh-wt-listViewport::after{bottom:0;height:var(--wt-space-4);background:linear-gradient(to top,var(--wt-surface),transparent);-webkit-mask-image:linear-gradient(to top,currentColor,transparent);mask-image:linear-gradient(to top,currentColor,transparent)}',
+      '.dsh-wt-listArea{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--wt-space-4) - 4px);overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}',
       '.dsh-wt-listArea::-webkit-scrollbar{width:4px;height:4px}',
       '.dsh-wt-listArea::-webkit-scrollbar-track{background:transparent}',
       '.dsh-wt-listArea::-webkit-scrollbar-thumb{border-radius:var(--wt-radius-pill);background-color:var(--wt-line-strong)}',
@@ -2347,6 +2351,13 @@ window.__ModuleLoader__.load({
       const addRef = React.useRef(null)
       const cancelEditRef = React.useRef(false)
       const composingRef = React.useRef(false)
+      const [, setMinuteTick] = React.useState(0)
+
+      // Keep relative "created / completed" ages honest while the panel stays open.
+      React.useEffect(() => {
+        const timer = window.setInterval(() => setMinuteTick(value => value + 1), 60 * 1000)
+        return () => window.clearInterval(timer)
+      }, [])
 
       const resizeAdd = node => {
         if (!node) return
@@ -2931,61 +2942,65 @@ window.__ModuleLoader__.load({
         ),
         h(
           'div',
-          { className: 'dsh-wt-listArea' },
+          { className: 'dsh-wt-listViewport' },
           h(
             'div',
-            { className: 'dsh-wt-listSection' },
+            { className: 'dsh-wt-listArea' },
             h(
               'div',
-              { className: 'dsh-wt-sectionHead' },
+              { className: 'dsh-wt-listSection' },
               h(
-                'button',
-                {
-                  type: 'button',
-                  className: 'dsh-wt-doneToggle',
-                  'aria-expanded': showOpen ? 'true' : 'false',
-                  onClick: toggleOpen,
-                },
-                h('span', { className: 'dsh-wt-chevron', 'data-open': showOpen ? 'true' : 'false' }, h(IconChevron, null)),
-                say('list.open'),
-                h('span', { className: 'dsh-wt-sectionCount' }, String(openCount)),
+                'div',
+                { className: 'dsh-wt-sectionHead' },
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'dsh-wt-doneToggle',
+                    'aria-expanded': showOpen ? 'true' : 'false',
+                    onClick: toggleOpen,
+                  },
+                  h('span', { className: 'dsh-wt-chevron', 'data-open': showOpen ? 'true' : 'false' }, h(IconChevron, null)),
+                  say('list.open'),
+                  h('span', { className: 'dsh-wt-sectionCount' }, String(openCount)),
+                ),
               ),
+              showOpen
+                ? openItems.length
+                  ? h('ul', { className: 'dsh-wt-rows' }, openItems.map(row))
+                  : h(EmptyState, {
+                      title: say(total ? 'list.allDone.title' : 'popover.empty.title'),
+                      body: say(total ? 'list.allDone.body' : 'popover.empty.body'),
+                    })
+                : null,
             ),
-            showOpen
-              ? openItems.length
-                ? h('ul', { className: 'dsh-wt-rows' }, openItems.map(row))
-                : h(EmptyState, {
-                    title: say(total ? 'list.allDone.title' : 'popover.empty.title'),
-                    body: say(total ? 'list.allDone.body' : 'popover.empty.body'),
-                  })
+            doneItems.length
+              ? h(
+                  'div',
+                  { className: 'dsh-wt-listSection' },
+                  h(
+                    'div',
+                    { className: 'dsh-wt-doneHead' },
+                    h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'dsh-wt-doneToggle',
+                        'aria-expanded': showDone ? 'true' : 'false',
+                        onClick: toggleDone,
+                      },
+                      h('span', { className: 'dsh-wt-chevron', 'data-open': showDone ? 'true' : 'false' }, h(IconChevron, null)),
+                      say('popover.completed'),
+                      h('span', { className: 'dsh-wt-sectionCount' }, String(doneItems.length)),
+                    ),
+                    showDone
+                      ? h('button', { type: 'button', className: 'dsh-wt-clear', onClick: clearDone }, say('popover.clearDone'))
+                      : null,
+                  ),
+                  showDone ? h('ul', { className: 'dsh-wt-rows dsh-wt-doneRows' }, doneItems.map(row)) : null,
+                )
               : null,
           ),
-          doneItems.length
-            ? h(
-                'div',
-                { className: 'dsh-wt-listSection' },
-                h(
-                  'div',
-                  { className: 'dsh-wt-doneHead' },
-                  h(
-                    'button',
-                    {
-                      type: 'button',
-                      className: 'dsh-wt-doneToggle',
-                      'aria-expanded': showDone ? 'true' : 'false',
-                      onClick: toggleDone,
-                    },
-                    h('span', { className: 'dsh-wt-chevron', 'data-open': showDone ? 'true' : 'false' }, h(IconChevron, null)),
-                    say('popover.completed'),
-                    h('span', { className: 'dsh-wt-sectionCount' }, String(doneItems.length)),
-                  ),
-                  showDone
-                    ? h('button', { type: 'button', className: 'dsh-wt-clear', onClick: clearDone }, say('popover.clearDone'))
-                    : null,
-                ),
-                showDone ? h('ul', { className: 'dsh-wt-rows dsh-wt-doneRows' }, doneItems.map(row)) : null,
-              )
-            : null,
         ),
         h(
           'div',
