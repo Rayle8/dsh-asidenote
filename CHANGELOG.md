@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.8.0
+
+- Turn the settings area into a full-bleed separator band with a labeled rule and top/bottom dividers; it no longer looks like another note card.
+- Add a fixed frosted blur at the top and bottom of the note list while keeping sticky headers and the 4px scrollbar crisp.
+- Show both creation and completion ages on completed notes, and order the completed list newest-completion first.
+- Keep the Open section toggle inside the scroll clip so its left corners stay rounded.
+
 ## 1.7.1
 
 - Slim the right-panel scrollbar from 6px to 4px and pin it to the panel's right edge, so it no longer narrows the todo cards.

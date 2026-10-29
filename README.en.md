@@ -21,7 +21,7 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - Data is keyed by **session ID**; different sessions in one workspace stay independent.
 - A 28px square top-right icon button shows the open count as a low-contrast gray corner badge; its tooltip reads “Session notes N”.
 - Clicking it opens a fixed right-side panel; switching sessions closes the old panel and updates the entry.
-- The settings button beside the notes title expands a settings area for the send shortcut; **One-click forward** contains two items, **Prefix prompt** and **Forward completion**, with the version/GitHub author link on one line at the bottom; settings persist automatically.
+- The settings button beside the notes title expands a full-bleed settings band: the **Settings** label is followed by a rule, with top and bottom dividers instead of a card frame; it holds the send shortcut, **One-click forward** with **Prefix prompt** and **Forward completion**, and the version/GitHub author link on one line at the bottom; settings persist automatically.
 - The panel's top-right corner aligns with the header entry and shifts left of the DSH right sidebar when that sidebar is open.
 - Clicking the entry opens the right-side panel for add, complete, copy, edit (double-click or pencil), delete, clear completed, and expand completed.
 - Drag the handle on the panel's left edge to resize its width; double-click the handle to reset it, and the width persists in the browser.
@@ -31,12 +31,13 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - After forwarding, the checkbox becomes half-checked and the forwarded state is remembered per session; the next click starts a 3-second countdown with the remaining seconds shown, then a leave animation and move to completed, and clicking again during the delay restores it as open with the half-check kept.
 - Notes completed after forwarding use a gray completion check, distinct from manually completed notes.
 - The completion circle shares the first line with the note text; copy, edit, and delete sit at the bottom-right beside the time, saving one row.
+- Completed notes show both creation and completion ages (`Created 3 min ago · Completed 1 min ago`), and the completed list is ordered newest completion first.
 - The completion circle is visually 14px inside a 24px hit area and centers on the first line of note text.
 - Both the new-note input and the editor grow into multiple rows as you type; both use the configured send shortcut, with the other combination inserting a newline, and the editor shows a right-aligned shortcut hint.
 - The add row no longer shows a plus icon, and **Add** always sits at the right of its own second row, so wrapping never flickers or jumps.
 - The send-shortcut hint sits in the empty space left of the Add button and updates with the setting, keeping the input placeholder short.
 - Unsaved add/edit drafts are saved per session and restored after closing and reopening the panel, with the add caret at the end of the draft; they clear after add, save, cancel, or delete.
-- Expanding **Completed** does not compress the **Open** list; only the open/completed list region scrolls, the active section header stays sticky while scrolling, and the header, settings, composer, and footer stay fixed.
+- Expanding **Completed** does not compress the **Open** list; only the open/completed list region scrolls, the active section header stays sticky while scrolling, the top and bottom edges carry a fixed frosted blur, the sticky headers and 4px scrollbar stay crisp, and the header, settings, composer, and footer stay fixed.
 - The open/completed expand state is remembered and restored when the panel is reopened; sticky headers remain clickable to collapse.
 - Note-card copy/edit/delete actions appear on hover or keyboard focus while keeping their layout space; touch devices keep them visible.
 - Both **Open** and **Completed** headings collapse on click with matching count styles; either can stay expanded independently; only the chevron, label, and count are clickable, not the blank right side.
