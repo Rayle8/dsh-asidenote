@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Pull the panel's visual hierarchy apart: the title and count share one line, the count drops to a 12/400 caption, section labels drop from 13/500 primary to 12/500 secondary, and settings/close move into one right-side action group.
+- Give completed counts the only accent: the badge uses the success tint with a success hairline, while an empty open section no longer renders a zero badge.
+- Keep the open count readable when it exists: a solid neutral fill and primary numeral replace the old low-contrast outline.
+- Put the add field and note cards on the shared settings-card fill and stroke, and bind the panel's elevation hairline to `border-l2` so the surface edge stays visible on white.
+- Add a contract test for the section-label, zero-badge, completed-badge, and card-surface decisions, with before/after screenshots in `docs/ui-design-check.md` §1.1.
+
 ## 1.9.0
 
 Re-checked the panel against `dsh-ui-ux-design-standard.md` and removed the styling that had drifted from it. The version moves past main's 1.8.1 so this branch never claims a released number.
