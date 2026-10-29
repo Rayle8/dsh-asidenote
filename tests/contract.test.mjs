@@ -65,7 +65,9 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /readEditDraft/)
   assert.match(client, /dsh-wt-listArea/)
   assert.match(client, /dsh-wt-listSection/)
-  assert.match(client, /position:sticky/)
+  // Section heads stay in flow: a sticky band cannot be painted on the
+  // translucent menu material without a visible seam over the panel fill.
+  assert.doesNotMatch(client, /position:sticky/)
   assert.match(client, /dsh-wt-checkHalf/)
   assert.match(client, /HALF_DONE_DELAY/)
   assert.match(client, /FORWARDED_STORAGE_KEY/)
@@ -80,7 +82,7 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /readSectionState/)
   assert.match(client, /const bullet = `- \$\{note\}`/)
   assert.match(client, /appendToConversation/)
-  assert.match(client, /FORWARD_PREFIX/)
+  assert.match(client, /'forward\.prefix'/)
   assert.match(client, /IconForward/)
   assert.match(client, /item\.forward/)
   assert.match(client, /PLUGIN_VERSION/)
@@ -88,7 +90,7 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /SEND_SHORTCUT_KEY/)
   assert.match(client, /readForwardPrefix/)
   assert.match(client, /conversation\.session\.header\.utilities|_headerUtilities/)
-  assert.match(client, /placement === 'right'|placement === \"right\"/)
+  assert.match(client, /placement === 'right'|placement === "right"/)
   assert.match(client, /BoundSessionCapture/)
   assert.match(client, /dsh-wt-resizeHandle/)
   assert.match(client, /dsh-wt-resizeHandleBottom/)
@@ -99,10 +101,13 @@ test('host and browser entries use the package identity', () => {
   assert.doesNotMatch(client, /refreshMemoBadges/)
   assert.doesNotMatch(client, /BoundDock/)
   assert.match(client, /ReactDOMClient\.createRoot/)
-  assert.match(client, /function IconCopy/)
+  assert.match(client, /IconCopy/)
   assert.match(client, /copyText/)
-  assert.match(client, /item\.copied/)
-  assert.match(client, /dsh-wt-copied/)
+  assert.match(client, /toast\.copied/)
+  assert.match(client, /time\.createdDone/)
+  assert.match(client, /sort\(compareDoneItems\)/)
+  assert.match(client, /'settings\.project'/)
+  assert.match(client, /PLUGIN_REPO_URL/)
   assert.match(client, /SESSION_STORAGE_KEY/)
   assert.match(client, /dsh\.session-memos\.v1/)
   assert.doesNotMatch(client, /selectPanel/)
@@ -112,13 +117,29 @@ test('host and browser entries use the package identity', () => {
   assert.doesNotMatch(client, /@local\//)
 })
 
-test('locale files expose the product name', () => {
-  assert.equal(JSON.parse(read('locale/zh.json'))['nav.label'], '便笺')
-  assert.equal(JSON.parse(read('locale/en.json'))['nav.label'], 'Notes')
+test('the retired page entry is gone, not kept as a second implementation', () => {
+  const client = read('client.js')
+  for (const dead of ['function PanelBody', 'function PageShell', 'function MemoEntry', 'useTodoStore', 'dsh.workspace-todos.v1']) {
+    assert.ok(!client.includes(dead), `dead surface still present: ${dead}`)
+  }
+  assert.doesNotMatch(readCss(), /dsh-wt-(?:page|shell|heroBtn|footerBtn|dockBtn|badge|statNum|track|select)\b/)
+})
+
+test('locale files carry the whole dictionary', () => {
+  const zh = JSON.parse(read('locale/zh.json'))
+  const en = JSON.parse(read('locale/en.json'))
+  assert.equal(zh['nav.label'], '便笺')
+  assert.equal(en['nav.label'], 'Notes')
+  const dict = readDict()
+  assert.deepEqual(Object.keys(zh).sort(), Object.keys(dict.zh).sort(), 'zh.json drifted from the bundled dictionary')
+  assert.deepEqual(Object.keys(en).sort(), Object.keys(dict.en).sort(), 'en.json drifted from the bundled dictionary')
+  for (const key of Object.keys(dict.zh)) {
+    assert.equal(zh[key], dict.zh[key], `zh.json value drifted for ${key}`)
+    assert.equal(en[key], dict.en[key], `en.json value drifted for ${key}`)
+  }
   const client = read('client.js')
   assert.match(client, /'title': '便笺'/)
-  assert.match(client, /'dock\.label': '便笺'/)
-  assert.match(client, /'badge\.label': '便笺'/)
+  assert.match(client, /'dock\.open': '打开便笺'/)
 })
 
 test('documentation and preview assets are present', () => {
@@ -136,40 +157,74 @@ function readCss() {
   assert.ok(start > 0 && end > start, 'CSS array not found')
   return [...client.slice(start, end).matchAll(/'(?:[^'\\]|\\.)*'/g)]
     .map(match => match[0].slice(1, -1).replace(/\\'/g, "'"))
-    .join('')
+    .join('\n')
 }
 
-test('colours come from the three-role token layer', () => {
-  const css = readCss()
-  assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i, 'raw hex colours belong in tokens, not rules')
-  assert.doesNotMatch(css, /\b(?:rgba?|hsla?)\(/i, 'raw colour functions belong in tokens')
-  const ramp = [...css.matchAll(/--wt-n-(\d+):/g)].map(match => match[1])
-  assert.deepEqual(ramp, ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'])
-  for (const token of ['--wt-success', '--wt-warn', '--wt-danger', '--wt-accent']) {
-    assert.ok(css.includes(`${token}:`), `missing semantic token ${token}`)
+/** Split the stylesheet into whole rules, keeping their at-rule context. */
+function cssRules() {
+  const css = readCss().replace(/\/\*[\s\S]*?\*\//g, '')
+  const rules = []
+  let media = ''
+  const mediaRe = /@media([^{]+)\{([\s\S]*?)\n\}/g
+  let rest = css
+  for (const match of css.matchAll(mediaRe)) {
+    rest = rest.replace(match[0], '\n')
+    for (const rule of match[2].split('}')) {
+      const [selector, body] = rule.split('{')
+      if (!selector || !body) continue
+      rules.push({ selector: selector.trim(), body: body.trim(), media: match[1].trim() })
+    }
+    media = match[1].trim()
   }
-  // The accent is reserved for the primary path: add, complete, selected setting.
-  const accentUses = [...css.matchAll(/background:var\(--wt-accent\)/g)].length
-  assert.ok(accentUses <= 6, `accent leaks into ${accentUses} fills`)
+  void media
+  for (const rule of rest.split('}')) {
+    const [selector, body] = rule.split('{')
+    if (!selector || !body) continue
+    if (selector.includes('@keyframes')) continue
+    rules.push({ selector: selector.trim(), body: body.trim(), media: '' })
+  }
+  return rules
+}
+
+/** The bundled dictionary, evaluated straight from the module source. */
+function readDict() {
+  const client = read('client.js')
+  const start = client.indexOf('    const DICT = ')
+  const end = client.indexOf('\n\n    const CSS = [')
+  assert.ok(start > 0 && end > start, 'DICT not found')
+  const literal = client.slice(start + '    const DICT = '.length, end).trim().replace(/,$/, '')
+  return new Function(`return (${literal})`)()
+}
+
+test('colours come from theme aliases, never from a second palette', () => {
+  const css = readCss()
+  assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i, 'raw hex colours belong to the theme')
+  assert.doesNotMatch(css, /\brgba?\(/i, 'raw colour functions belong to the theme')
+  assert.doesNotMatch(css, /--wt-n-\d+/, 'the parallel grey ramp duplicates --dsw-alias-* tokens')
+  for (const token of ['--dsw-alias-interactive-bg-hover', '--dsw-alias-label-primary', '--dsw-alias-label-secondary', '--dsw-alias-border-l2', '--dsw-alias-border-l4']) {
+    assert.ok(css.includes(`var(${token})`), `missing shared token ${token}`)
+  }
+  for (const match of css.matchAll(/var\((--[a-z0-9-]+)/g)) {
+    const token = match[1]
+    assert.ok(
+      token.startsWith('--dsw-') || token.startsWith('--ds-') || token.startsWith('--wt-') || token.startsWith('--dsh-wt-') || token.startsWith('--dsh-scrollbar'),
+      `unknown token ${token}`,
+    )
+  }
 })
 
-test('type scale and weight set stay small', () => {
+test('type scale stays at the product sizes and weights cap at 500', () => {
   const css = readCss()
   const sizes = [...new Set([...css.matchAll(/font-size:([^;}]+)/g)].map(match => match[1].trim()))]
-  for (const size of sizes) assert.match(size, /^var\(--wt-fs-(?:caption|body-sm|body|heading|display)\)$/)
-  const tokens = [...new Set([...css.matchAll(/--wt-fs-[a-z-]+:([0-9.]+)px/g)].map(match => Number(match[1])))]
-  assert.deepEqual(tokens.sort((a, b) => a - b), [10, 12.5, 15.5, 19.5, 24.5])
-  for (let i = 1; i < tokens.length; i += 1) {
-    const ratio = tokens[i] / tokens[i - 1]
-    assert.ok(Math.abs(ratio - 1.25) < 0.03, `${tokens[i - 1]} -> ${tokens[i]} is x${ratio.toFixed(3)}`)
-  }
-  const weights = [...new Set([...css.matchAll(/font-weight:([0-9]+)/g)].map(match => match[1]))]
-  assert.ok(weights.length <= 3, `too many weights: ${weights.join(', ')}`)
+  for (const size of sizes) assert.match(size, /^var\(--wt-fs-(?:caption|row|title)\)$/)
+  const scale = [...css.matchAll(/--wt-fs-[a-z]+:([0-9.]+)px/g)].map(match => Number(match[1])).sort((a, b) => a - b)
+  assert.deepEqual(scale, [12, 13, 14])
+  const weights = [...new Set([...css.matchAll(/font-weight:([0-9]+)/g)].map(match => Number(match[1])))]
+  for (const weight of weights) assert.ok(weight <= 500, `font-weight ${weight} exceeds the 500 cap`)
 })
 
 test('spacing snaps to the 4px scale', () => {
   const css = readCss()
-  // 1px hairlines and 2px optical offsets are allowed; everything else snaps.
   const scale = new Set(['0', '1px', '2px', '4px', '8px', '12px', '16px', '24px', '32px', '48px', '64px', 'auto', '100%'])
   for (const match of css.matchAll(/(?:^|[;{])(?:padding|margin|gap)(?:-[a-z]+)?:([^;}]+)/g)) {
     const value = match[1].trim()
@@ -180,20 +235,140 @@ test('spacing snaps to the 4px scale', () => {
   }
 })
 
-test('radii, shadows and motion stay tokenised', () => {
+test('radii use the shared scale and pills declare their curve', () => {
+  const rules = cssRules()
+  const allowed = new Set(['var(--dsw-radius-sm)', 'var(--dsw-radius-md)', 'var(--dsw-radius-lg)', 'var(--dsw-radius-panel)', 'var(--wt-radius-pill)'])
+  for (const rule of rules) {
+    for (const match of rule.body.matchAll(/border-radius:([^;}]+)/g)) {
+      assert.ok(allowed.has(match[1].trim()), `off-scale radius ${match[1].trim()} in ${rule.selector}`)
+    }
+    if (/border-radius:var\(--wt-radius-pill\)/.test(rule.body)) {
+      assert.match(rule.body, /corner-shape:round/, `${rule.selector} must pair the pill radius with corner-shape:round`)
+    }
+  }
+  for (const match of readCss().matchAll(/--wt-radius-pill:([^;}]+)/g)) assert.equal(match[1], '999px')
+})
+
+test('hairlines stay at 0.5px and only state or dashed borders use 1px', () => {
+  const rules = cssRules()
+  for (const rule of rules) {
+    for (const match of rule.body.matchAll(/(?:^|;)border(?:-(?:top|right|bottom|left))?:([^;}]+)/g)) {
+      const value = match[1].trim()
+      if (value === '0' || value.startsWith('0 ')) continue
+      if (value.includes('dashed')) {
+        assert.match(value, /^1px dashed /, `dashed affordance keeps 1px: ${value}`)
+        continue
+      }
+      if (value.includes('1.5px')) {
+        assert.match(rule.selector, /data-loading/, `only the spinner ring keeps 1.5px: ${rule.selector}`)
+        continue
+      }
+      assert.match(value, /^0\.5px solid /, `neutral border must be 0.5px: "${value}" in ${rule.selector}`)
+    }
+  }
+})
+
+test('the floating panel is borderless and elevated, with no second stroke', () => {
+  const rules = cssRules()
+  const panel = rules.find(rule => rule.body.includes('position:fixed'))
+  assert.ok(panel, 'panel rule missing')
+  assert.match(panel.body, /border:0(?:;|$)/)
+  assert.match(panel.body, /box-shadow:var\(--dsw-elevation-panel\)/)
+  assert.match(panel.body, /background:var\(--dsw-specific-menu\)/)
+  for (const rule of rules) {
+    const hasNeutralBorder = /border:0?\.?5?px solid var\(--dsw-alias-border/.test(rule.body)
+    const hasElevation = /box-shadow:var\(--dsw-elevation-/.test(rule.body)
+    assert.ok(!(hasNeutralBorder && hasElevation), `${rule.selector} pairs a border with an elevation shadow`)
+  }
+})
+
+test('scrollbars keep the shared theme skin', () => {
   const css = readCss()
-  const radii = [...new Set([...css.matchAll(/border-radius:([^;}]+)/g)].map(match => match[1].trim()))].sort()
-  assert.deepEqual(radii, ['var(--wt-radius-md)', 'var(--wt-radius-pill)', 'var(--wt-radius-sm)'])
-  assert.doesNotMatch(css, /box-shadow:(?!\s*(?:var\(|inset ))/, 'hand-written shadows are not allowed')
+  assert.doesNotMatch(css, /::-webkit-scrollbar/, 'component scrollbar selectors replace the shared skin')
+  assert.doesNotMatch(css, /scrollbar-width|scrollbar-color/, 'the standard scrollbar properties silence the shared hover skin')
+  assert.match(css, /--dsh-scrollbar-thumb:var\(--dsw-alias-scrollbar-bg-l2\)/)
+})
+
+test('hover styling is gated on hover capability', () => {
+  const css = readCss().replace(/\/\*[\s\S]*?\*\//g, '')
+  const block = css.match(/@media \(hover:hover\)\{([\s\S]*?)\n\}/)
+  assert.ok(block, 'missing @media (hover:hover) block')
+  const outside = css.replace(block[0], '')
+  assert.doesNotMatch(outside, /:hover/, 'hover rules must live inside @media (hover:hover)')
+  assert.doesNotMatch(outside, /@media \(hover:none\)/, 'hover support is detected by capability, not by a negative fallback')
+  assert.doesNotMatch(outside, /:hover[^{]*\{[^}]*opacity:0/)
+
+  const rules = cssRules()
+  const actions = rules.find(rule => rule.selector === '.dsh-wt-actions' && rule.media.includes('hover:hover'))
+  assert.ok(actions, 'action row visibility must be decided under the hover media query')
+  assert.match(actions.body, /opacity:0/)
+  const base = rules.find(rule => rule.selector === '.dsh-wt-actions' && rule.media === '')
+  assert.ok(base, 'action row needs a hover-less default')
+  assert.doesNotMatch(base.body, /opacity:0/, 'touch devices must keep the row actions visible')
+})
+
+test('no product copy is hardcoded outside the dictionary', () => {
+  const client = read('client.js')
+  const start = client.indexOf('    const DICT = ')
+  const end = client.indexOf('\n\n    const CSS = [')
+  const cssStart = client.indexOf('const CSS = [')
+  const cssEnd = client.indexOf("].join('')", cssStart)
+  const js = `${client.slice(0, start)}${client.slice(end, cssStart)}${client.slice(cssEnd)}`
+  // A person's name is a proper noun, not translatable copy.
+  const scannable = js.replace(/const PLUGIN_AUTHOR = '[^']*'/, '')
+  const cjk = [...scannable.matchAll(/[^\s]*[\u4e00-\u9fff][^\n]*/g)].map(match => match[0].trim())
+  assert.deepEqual(cjk, [], `hardcoded copy: ${cjk.join(' | ')}`)
+})
+
+test('chinese hints drop the trailing full stop', () => {
+  const dict = readDict()
+  for (const key of Object.keys(dict.zh)) {
+    if (!/^(toast\.|storage\.)|hint|Hint/.test(key)) continue
+    assert.ok(!dict.zh[key].endsWith('。'), `${key} ends with a full stop`)
+  }
+})
+
+test('transient outcomes go to the frame-wide toast seat', () => {
+  const client = read('client.js')
+  assert.match(client, /@deepseek-ai\/dsh-client-ui-primitives/)
+  assert.match(client, /ctx\.slots\.inject\('shell\.overlay'/)
+  assert.match(client, /name: 'shell\.overlay'/)
+  assert.match(client, /h\(Toast, \{/)
+  for (const kind of ['copied', 'forwarded', 'deleted', 'cleared', 'copyFailed', 'forwardFailed', 'saveFailed']) {
+    assert.match(client, new RegExp(`toast\\.${kind}`), `missing toast copy for ${kind}`)
+  }
+  assert.doesNotMatch(client, /dsh-wt-copied|dsh-wt-forwarded/, 'inline success marks duplicate the toast')
+})
+
+test('a failed write keeps the row and says so', () => {
+  const client = read('client.js')
+  assert.match(client, /if \(!ok\) return false/)
+  assert.match(client, /if \(!ok\) \{\n\s+report\('saveFailed'\)/)
+  assert.match(client, /A failed delete keeps the row/)
+})
+
+test('icon-only controls use the shared tooltip', () => {
+  const client = read('client.js')
+  assert.match(client, /function withTooltip\(/)
+  assert.match(client, /h\(Tooltip, \{ label, side: 'top'/)
+  const iconButtons = [...client.matchAll(/className: 'dsh-wt-iconBtn[^']*',\n\s+'aria-label': say\('([^']+)'\)/g)].map(match => match[1])
+  assert.equal(iconButtons.length, 4, 'all four row actions must be present')
+  const buttonTitles = [...client.matchAll(/'aria-label': say\('[^']+'\),\n\s+title:/g)]
+  assert.deepEqual(buttonTitles, [], 'aria-labelled buttons must not carry a second native title')
+})
+
+test('animations and transitions stay tokenised', () => {
+  const css = readCss()
   const animations = [...css.matchAll(/@keyframes [^{]+\{([^@]*)\}\}/g)].map(match => match[1])
   for (const frames of animations) {
     const props = [...frames.matchAll(/([a-z-]+):/g)].map(match => match[1])
     for (const prop of props) assert.ok(['opacity', 'transform'].includes(prop), `animates ${prop}`)
   }
   for (const match of css.matchAll(/transition:[^;}]+/g)) {
-    const value = match[0]
-    assert.doesNotMatch(value, /(?<!var\(--wt-dur)[^)]\b\d+m?s\b/, `untokenised duration in "${value}"`)
+    assert.doesNotMatch(match[0], /(?<!var\(--wt-dur)[^)]\b\d+m?s\b/, `untokenised duration in "${match[0]}"`)
   }
+  assert.match(css, /@media \(prefers-reduced-motion:reduce\)/)
+  assert.match(css, /@media \(prefers-reduced-motion:no-preference\)/)
 })
 
 test('section toggles stay inside the scrolling list', () => {
@@ -208,4 +383,28 @@ test('section toggles stay inside the scrolling list', () => {
   )
 })
 
+test('the panel never raises the soft keyboard on touch devices', () => {
+  const client = read('client.js')
+  assert.match(client, /\(hover: hover\) and \(pointer: fine\)/)
+})
 
+test('completed notes sort by newest completion', () => {
+  const client = read('client.js')
+  const extract = name => {
+    const start = client.indexOf(`function ${name}(`)
+    assert.ok(start > 0, `missing ${name}`)
+    const end = client.indexOf('\n    }\n', start) + '\n    }\n'.length
+    assert.ok(end > start, `unterminated ${name}`)
+    return client.slice(start, end)
+  }
+  const factory = new Function(`${extract('completedStamp')}\n${extract('compareDoneItems')}\nreturn { completedStamp, compareDoneItems }`)()
+  const items = [
+    { id: 'a', completedAt: 1000 },
+    { id: 'b', completedAt: 3000 },
+    { id: 'c', updatedAt: 2000 },
+    { id: 'd', createdAt: 500 },
+  ]
+  assert.deepEqual([...items].sort(factory.compareDoneItems).map(item => item.id), ['b', 'c', 'a', 'd'])
+  assert.equal(factory.completedStamp({ updatedAt: 42, createdAt: 1 }), 42)
+  assert.equal(factory.completedStamp({}), 0)
+})

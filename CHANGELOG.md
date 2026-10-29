@@ -1,5 +1,48 @@
 # Changelog
 
+## 1.9.0
+
+Re-checked the panel against `dsh-ui-ux-design-standard.md` and removed the styling that had drifted from it. The version moves past main's 1.8.1 so this branch never claims a released number.
+
+- Carry over what main gained while this audit branch was open: done notes show both the creation and completion age, the completed list sorts by newest completion, and the About block names the author and links to the project.
+- Clarify the storage copy: notes are kept only on this device, and a failed write says local storage is unavailable.
+- Replace the plugin's own 11-step grey ramp with the DSH semantic aliases (`label-*`, `interactive-bg-hover/active`, `border-l1…l4`, settings-card fill and stroke). Text now reads at 17.7:1 / 13.6:1 (primary) and 5.4:1 / 9.4:1 (secondary) in the light and dark themes; `label-tertiary` no longer carries text.
+- Collapse the type scale to 12 / 13 / 14 on a 20px line height and cap every weight at 500.
+- Take radii from the shared scale by role: 28 for the floating panel, 16 for groups and fields, 8 for compact controls, with `corner-shape:round` on every pill and circle.
+- Draw neutral borders at 0.5px, give the panel `border:0` plus `--dsw-elevation-panel`, and use the menu material (`--dsw-specific-menu` + backdrop filter) so the popover matches DSH menus.
+- Drop the component's private scrollbar rules in favour of the shared skin, rebinding `--dsh-scrollbar-*` to the l2 pair inside the panel.
+- Gate every hover rule behind `@media (hover:hover)`; touch devices keep the row actions visible.
+- Report copy, forward, delete, clear-completed, and every failed write through a new `shell.overlay` toast that survives closing the panel. The inline "copied" check and its timers are gone.
+- Keep the row, draft, and forward flag when a write fails: `commit()` no longer updates state after a failed save, and the failure is announced instead.
+- Use the shared `Tooltip` for the four row actions plus settings and close; the local icon set is replaced by `ui-primitives` glyphs.
+- Stop focusing the note composer on touch devices, restore focus to the header entry when the panel closes, and keep the panel inside a 390px viewport (12px margins, height clamped to the viewport).
+- Floor the panel's top edge at `--dsh-frame-overlay-top`, so macOS window chrome and the Windows titlebar keep their clearance without the plugin touching that global variable.
+- Move all product copy into the dictionary: `locale/zh.json` and `locale/en.json` now carry the full 62-key set, the two hardcoded Chinese accessibility labels and the forwarding prefix are localized, and Chinese hints no longer end with a full stop.
+- Remove the retired full-page entry (`Panel`, `PanelBody`, `MemoEntry`, workspace store) and its styles, so there is no second implementation to keep in sync.
+- Retire the sticky section headers: a second fill layer over the translucent menu material painted a brighter band across the panel.
+- Redraw `icon.svg` on the 36×36 artwork canvas, keeping the approved path shapes.
+- Grow the contract suite from 11 to 24 tests covering the shared tokens, hairline widths, radius roles, elevation pairing, scrollbar skin, hover gating, hardcoded copy, toast wiring, failed-write behaviour, localization parity, the completion ordering, and the touch-focus rule.
+
+## 1.8.1
+
+- Reword the footer as “按会话隔离 · 数据仅保存在本地”, removing browser internals from the storage hint.
+- Match the prefix-prompt input's type size and 20px line box to its child-title label.
+- Show the author as 阿三石 and add a clickable link to the GitHub repository under About.
+- Lighten the note cards in the light theme and use a gentler hover tint.
+- Keep only a softer bottom-edge blur (32px band, 2px blur) and adopt the DSH workspace scrollbar: a 9px track with a 5px pill thumb inset 2px.
+
+## 1.8.0
+
+- Turn the settings area into a full-bleed separator band with a labeled rule and top/bottom dividers; it no longer looks like another note card.
+- Add a fixed frosted blur at the top and bottom of the note list while keeping sticky headers and the 4px scrollbar crisp.
+- Show both creation and completion ages on completed notes, and order the completed list newest-completion first.
+- Keep the Open section toggle inside the scroll clip so its left corners stay rounded.
+
+## 1.7.1
+
+- Slim the right-panel scrollbar from 6px to 4px and pin it to the panel's right edge, so it no longer narrows the todo cards.
+- Reserve the scrollbar gutter inside the panel padding, keeping cards, section headers, and the add box on the same content width.
+
 ## 1.7.0
 
 - Rebuild the panel styling on design tokens: an 11-step neutral ramp (50 to 950), a five-step 1.25 type scale, a 4px spacing scale, three radii, one layered shadow, and tokenised durations and easings.

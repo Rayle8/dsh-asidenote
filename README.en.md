@@ -21,13 +21,13 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - Data is keyed by **session ID**; different sessions in one workspace stay independent.
 - A 28px square top-right icon button shows the open count as a low-contrast gray corner badge; its tooltip reads “Session notes N”.
 - Clicking it opens a fixed right-side panel; switching sessions closes the old panel and updates the entry.
-- The settings button beside the notes title expands a settings area for the send shortcut; **One-click forward** contains two items, **Prefix prompt** and **Forward completion**, with the version/GitHub author link on one line at the bottom; settings persist automatically.
+- The settings button beside the notes title expands a settings card for the send shortcut; **One-click forward** contains two items, **Prefix prompt** and **Forward completion**, and the bottom shows the version, the author 阿三石, and a clickable GitHub project link; settings persist automatically.
 - The panel's top-right corner aligns with the header entry and shifts left of the DSH right sidebar when that sidebar is open.
 - Clicking the entry opens the right-side panel for add, complete, copy, edit (double-click or pencil), delete, clear completed, and expand completed.
 - Drag the handle on the panel's left edge to resize its width; double-click the handle to reset it, and the width persists in the browser.
 - Drag the bottom-center handle to resize its height; double-click the handle to return to content sizing, and the height persists.
-- Each note has copy, forward, edit, and delete actions; copy sits to the left of edit and briefly shows **Copied** after a successful copy.
-- Forward appends each note as a `-` list item; the configured prefix (default **完成以下任务：**) is written only when the composer is empty, never when it already has content. The caret stays at the end and nothing is sent automatically.
+- Each note has copy, forward, edit, and delete actions; copy sits to the left of edit and reports **Copied** through the frame-wide toast instead of changing the button.
+- Forward appends each note as a `-` list item; the configured prefix (localized: **Complete this task:** in English) is written only when the composer is empty, never when it already has content. The caret stays at the end and nothing is sent automatically.
 - After forwarding, the checkbox becomes half-checked and the forwarded state is remembered per session; the next click starts a 3-second countdown with the remaining seconds shown, then a leave animation and move to completed, and clicking again during the delay restores it as open with the half-check kept.
 - Notes completed after forwarding use a gray completion check, distinct from manually completed notes.
 - The completion circle shares the first line with the note text; copy, edit, and delete sit at the bottom-right beside the time, saving one row.
@@ -36,14 +36,15 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - The add row no longer shows a plus icon, and **Add** always sits at the right of its own second row, so wrapping never flickers or jumps.
 - The send-shortcut hint sits in the empty space left of the Add button and updates with the setting, keeping the input placeholder short.
 - Unsaved add/edit drafts are saved per session and restored after closing and reopening the panel, with the add caret at the end of the draft; they clear after add, save, cancel, or delete.
-- Expanding **Completed** does not compress the **Open** list; only the open/completed list region scrolls, the active section header stays sticky while scrolling, and the header, settings, composer, and footer stay fixed.
-- The open/completed expand state is remembered and restored when the panel is reopened; sticky headers remain clickable to collapse.
+- Expanding **Completed** does not compress the **Open** list; only the open/completed list region scrolls, while the header, settings, composer, and footer stay fixed.
+- Completed notes show both the creation and the completion age and sort by newest completion; open notes show the creation age only.
+- The open/completed expand state is remembered and restored when the panel is reopened.
 - Note-card copy/edit/delete actions appear on hover or keyboard focus while keeping their layout space; touch devices keep them visible.
 - Both **Open** and **Completed** headings collapse on click with matching count styles; either can stay expanded independently; only the chevron, label, and count are clickable, not the blank right side.
 - The sidebar reminder stays visible while the session is running.
 - Syncs across tabs in the same browser.
 - Chinese and English copy, following the DSH locale.
-- Every style is token-driven: an 11-step neutral ramp, a five-step 1.25 type scale, a 4px spacing scale, three radii, and a single 150ms transition. Each button ships six states (default, hover, pressed, focus, disabled, loading), list rows stagger in, and the progress bar scales instead of resizing. See the [UI design review](./docs/ui-design-check.md).
+- Every style reuses DSH design tokens: semantic colour aliases, shared radii and elevation, the menu material, and the shared scrollbar skin. Type collapses to three sizes (12 / 13 / 14), weight caps at 500, neutral strokes are 0.5px hairlines, hover styling only runs on hover-capable devices, and settled outcomes report through the frame-wide toast. See the [UI / interaction review](./docs/ui-design-check.md).
 
 ## Design tokens
 
@@ -51,15 +52,17 @@ The panel and the entry button read from one token block at the top of `client.j
 
 | Axis | Token | Values |
 | --- | --- | --- |
-| Neutral ramp | `--wt-n-50 … --wt-n-950` | 11 steps, ink mixed into the floating surface at 0/4/9/15/23/33/46/62/76/89/100% |
-| Semantic | `--wt-success` `--wt-warn` `--wt-danger` | status only: copied, storage warning, destructive delete |
-| Accent | `--wt-accent` | primary path only: add, complete, selected setting |
-| Type | `--wt-fs-caption … --wt-fs-display` | 10 / 12.5 / 15.5 / 19.5 / 24.5, ×1.25 |
-| Weight | `--wt-fw-regular/medium/semibold` | 400 / 500 / 600 |
-| Spacing | `--wt-space-1 … -8` | 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64 |
-| Radius | `--wt-radius-sm/md/pill` | 8 (controls) / 12 (panel and cards) / 999 (pills and dots) |
-| Shadow | `--wt-shadow-float` | reuses the DSH three-layer soft shadow |
-| Motion | `--wt-dur-fast/base/slow`, `--wt-ease-*`, `--wt-stagger` | 150 / 200 / 300ms, 40ms stagger |
+| Colour | `--dsw-alias-*` | DSH semantic aliases only (ink, hover, border, state, settings card); no local ramp |
+| Type | `--wt-fs-caption/row/title` | 12 / 13 / 14, all on a 20px line height |
+| Weight | 400 / 500 | 500 is the cap; hierarchy comes from size and ink |
+| Spacing | `--wt-space-1 … -6` | 4 / 8 / 12 / 16 / 24 / 32 |
+| Radius | `--dsw-radius-sm/md/lg/panel` + 999 | 8 (compact controls) / 16 (groups and fields) / 28 (floating panel) / pills paired with `corner-shape:round` |
+| Shadow | `--dsw-elevation-panel` | the panel is `border:0`; the 0.5px hairline is the shadow's first layer |
+| Material | `--dsw-specific-menu` + `--dsw-menu-backdrop-filter` | the same material as DSH menus and popovers |
+| Motion | `--ds-transition-duration*`, `--ds-ease-in-out` | 100 / 200ms, opacity and transform only |
+| Scrollbar | shared theme skin | the panel only rebinds `--dsh-scrollbar-*` to l2 |
+
+Feedback reuses product surfaces too: copy, forward, delete, clear-completed, and failed writes all report through a `shell.overlay` toast that outlives the panel, and icon buttons use the `ui-primitives` `Tooltip`.
 
 ## Usage
 

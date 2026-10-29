@@ -1,281 +1,137 @@
-# 便笺 UI 设计检查报告
+# 便笺 UI / 交互规范复查
 
-检查对象：`client.js` 中的全部界面样式（会话顶部入口按钮、右侧便笺面板、面板内的增删改查控件）。
+复查基准：[`dsh-ui-ux-design-standard.md`](../../deepseek-harness/dsh-ui-ux-design-standard.md)（下称"规范"）。
+复查对象：`client.js` 里当前真正挂载的界面——会话顶部的便笺入口按钮、右侧便笺浮窗，以及浮窗内的录入、勾选、就地编辑、设置、空态与拖拽把手。
 
-检查方式：把 `client.js` 里真实使用的样式表注入无头 Chromium，配上从 DSH 客户端包里取出的**真实主题令牌**，用真实 DOM 结构分别渲染明色 / 暗色两套主题；用 CDP 强制 `:hover` / `:active` / `:focus-visible` 逐态截图；再用 `getComputedStyle` 与 WCAG 公式把"看起来对不对"变成可核对的数字。
+## 0. 方法
 
-结论：六个维度全部按规范重写为**令牌驱动**，无功能改动，`node --check` 与合同测试通过。检查完成后已合并 `main`（1.6.3）的新增功能，令牌层重新铺到 main 的样式表上，详见第 11 节。
+1. **真实令牌**：把 DSH 客户端的 `design-platform.css`、`gradient-shadow-text.css`、`focus.css`、`scrollbar.css`、`corner-shape.css`、`base.css` 原样注入预览页，插件的 `--dsw-*` 变量因此与产品内完全一致。
+2. **真实样式表**：预览页直接使用 `client.js` 中 `CSS` 数组拼出的字符串，不是重写的一份 CSS。
+3. **真实 DOM**：按 `MemoPopover` / `TodoRow` 的 JSX 结构手写等价标记，图标取 `ui-primitives` 的同一批 SVG 路径。
+4. **量而不是看**：无头 Chromium（CDP）读 `getComputedStyle`，统计实际生效的字号、字重、圆角、描边宽度、材质与滚动条；用 `CSS.forcePseudoState` 强制 `:hover` / `:focus-visible` 后截图。
+5. **明暗各跑一遍**：暗色由 `body[data-ds-dark-theme]` 复现，同一套规则无需第二份样式。
 
-| 维度 | 修复前 | 修复后 |
-| --- | --- | --- |
-| 字号档位 | 13 档（9 / 10 / 10.5 / 11 / 12 / 12.5 / 13 / 14 / 18 / 20 / 22 / 24 / 28） | **5 档 1.25 阶梯**（10 / 12.5 / 15.5 / 19.5 / 24.5），面板内只用 3 档 |
-| 字号-行高组合 | 17 组 | 6 组（正文 1.6 / 1.61） |
-| 字重 | 4 种（400 / 500 / 600 / 650） | **3 种**（400 / 500 / 600） |
-| 圆角种类 | 8 种（4 / 6 / 7 / 8 / 9 / 10 / 12 / 999，另有 50%） | **3 种**（8 / 12 / 999），满宽子行取 0 由父级裁剪 |
-| 间距 | 2 / 3 / 5 / 7 / 9 / 11 / 13 / 18 / 22 / 26 / 34 等非 4 倍数 | **8 档刻度**（4 / 8 / 12 / 16 / 24 / 32 / 48 / 64） |
-| 面板内边距 | `12px 12px 20px 18px`（四边各不同） | `16px` |
-| 过渡时长 | 120 / 150 / 250ms 随意混用，主按钮 `transition: none` | **统一 150ms**，缓动曲线取自令牌 |
-| 三级文字对比度 | 2.75:1（`#959697` 系） | **4.88:1**（明） / 5.92:1（暗） |
-| 勾选圈描边 | `#0000001a`，**1.28:1** | 62% 墨色，**4.88:1** |
-| 按钮状态 | 平均 2.7 态/按钮（无按下、无加载） | **6 态/按钮**（默认 / 悬停 / 按下 / 聚焦 / 禁用 / 加载） |
+## 1. 结论
 
----
+规范里有 15 处与当前实现直接冲突，全部已改；另有 7 项属于产品/设计决策或主题层的既有取舍，列在第 6 节。
 
-## 0. 检查方法
-
-1. **取真实主题令牌**：从已安装的 DSH 客户端包中导出 `design-platform`（颜色别名）、`gradient-shadow-text`（阴影层级）、`focus`（焦点环）三份主题样式表，作为预览页的 `--dsw-*` 变量来源。预览页的配色因此与产品里完全一致，而不是凭感觉调色。
-2. **复刻真实 DOM**：按 `MemoPopover` / `TodoRow` 的 JSX 结构手写等价标记，样式直接取 `client.js` 中 `CSS` 数组的字符串（同一份代码，非重写）。
-3. **强制交互态**：无头 Chromium 无法用命令行悬停，改用 DevTools Protocol 的 `CSS.forcePseudoState` 对指定节点注入 `hover` / `active` / `focus-visible`，逐格截图——这样"六态"是被真正渲染出来的，不是脑补。
-4. **量而不是看**：`getComputedStyle` 统计实际生效的字号 / 圆角 / 过渡时长集合；用相对亮度公式计算前景与"最近不透明祖先背景"的对比度。
-5. **明暗各跑一遍**：暗色主题由 `body[data-ds-dark-theme]` 复现，所有令牌自动翻转，无需第二套样式。
-
----
-
-## 1. 色彩：三类颜色分工
-
-### 发现的问题
-
-- **角色混用**：`--dsw-alias-brand-primary`（品牌色）同时被用作主按钮底色、焦点环、计数徽标、进度条、"已复制"成功态、拖拽把手高亮——一个颜色承担了 7 种语义，主操作因此不再突出。
-- **亮色主题下悬停不可见**：`--dsw-alias-bg-layer-1/2/3` 在亮色主题里**都是 `#fff`**，所以 `.dsh-wt-row:hover`、`.dsh-wt-iconBtn:hover` 在亮色下完全没有视觉反馈（暗色下正常）。
-- **对比度不足**：次级信息与三级信息混用同一层灰，勾选圈描边用 `--dsw-alias-border-l2`（`#0000001a`），在白底只有 **1.28:1**，几乎看不见。
-
-### 修复
-
-新增 11 级中性灰令牌 `--wt-n-50 … --wt-n-950`，以"浮层表面"为基准、按墨色混入比例 **0 / 4 / 9 / 15 / 23 / 33 / 46 / 62 / 76 / 89 / 100%** 生成：
-
-```css
---wt-n-50:color-mix(in srgb,var(--dsw-alias-label-primary) 0%,var(--dsw-alias-bg-layer-1));
-/* … 950 = 纯墨色 */
-```
-
-混色基准取 `--dsw-alias-label-primary` 与 `--dsw-alias-bg-layer-1`，两者本身随主题翻转，因此**同一套 11 级阶梯在明暗两种主题下都成立**，不需要第二份灰阶。
-
-三类颜色的分工被写进令牌名，用错会立刻显眼：
-
-| 类别 | 令牌 | 使用范围 |
-| --- | --- | --- |
-| 中性灰（撑界面） | `--wt-n-*`、`--wt-surface`、`--wt-line` | 背景、分隔线、正文、次级信息、悬停/按下底色 |
-| 语义色（表状态） | `--wt-success` / `--wt-warn` / `--wt-danger` + 各自的 soft 底 | 复制·转发成功、存储不可用、删除按钮悬停 |
-| 强调色（只给最重要操作） | `--wt-accent`（= DSH `brand-primary`）、`--wt-accent-hover`、`--wt-accent-active` | 仅 3 处：添加按钮、已完成勾选、设置里的选中项 |
-
-高亮/计数值（`sectionCount`、`headerCount`）从强调色改为**中性胶囊**；进度条从强调色改为中性墨色——信息不该抢主操作的视觉。
-
-实测对比度（明色 / 暗色）：
-
-| 元素 | 明 | 暗 |
-| --- | --- | --- |
-| 便笺正文 | 17.4:1 | 13.4:1 |
-| 面板标题 | 18.9:1 | 15.0:1 |
-| 计数 · 时间 · 快捷键提示 | 4.88:1 | 5.92:1 |
-| 分区标题 | 8.86:1 | 9.22:1 |
-| 勾选圈描边 | 4.88:1 | 5.92:1 |
-
-> 全部正文/说明文字达到 WCAG AA（≥4.5:1），勾选圈描边（非文本控件）达到 3:1 以上。
-
----
-
-## 2. 排版：层次
-
-### 发现的问题
-
-- 13 档字号，其中 10 / 10.5 / 11、12 / 12.5 / 13 三组几乎无法分辨，却占用了层级名额；面板内正文 12px、标题 14px，只差 1.17 倍，读完标题再看正文没有"降一级"的感觉。
-- 字重 500 / 600 / 650 与字号的层级互相打架。
-- 行高从 1.28 到 1.7 都有，正文多为 1.5（18/12），低于 1.6 的下限。
-
-### 修复
-
-以 **10px 为基准、1.25 倍递进**取 5 级：
-
-| 令牌 | 字号 | 行高 | 用途 |
+| # | 规范条款 | 复查前 | 处理 |
 | --- | --- | --- | --- |
-| `--wt-fs-caption` | 10px | 14px（1.4） | 时间、计数、快捷键提示、页脚 |
-| `--wt-fs-body-sm` | 12.5px | 20px（**1.6**） | 面板正文、按钮、设置行 |
-| `--wt-fs-body` | 15.5px | 25px（**1.61**） | 面板标题、页面副标题 |
-| `--wt-fs-heading` | 19.5px | 26px | 窄屏页面标题、大数字 |
-| `--wt-fs-display` | 24.5px | 30px | 页面标题、统计数字 |
+| 1 | §1 先复用再新建；§8 只用 `--dsw-alias-*` | 自建 11 级灰阶 `--wt-n-50…950`，与 `--dsw-alias-*` 平行 | 删除灰阶，改用语义别名（`label-*`、`interactive-bg-hover/active`、`border-l1…l4`、`settings-card-*`） |
+| 2 | §1 字号取自主题变量，13px 是行/详情尺寸 | 自造 10 / 12.5 / 15.5 / 19.5 / 24.5 五级阶梯 | 收敛为 12 / 13 / 14 三档（标题 14、行与按钮 13、说明 12，行高统一 20） |
+| 3 | §1 字重上限 500 | 10 处 `font-weight:600` | 全部降为 500，层级靠字号与墨色 |
+| 4 | §7 按角色选圆角 | 只有 8 / 12 / 999 三档，浮窗与卡片同为 12 | 浮窗 `--dsw-radius-panel`(28)、分组与字段 `--dsw-radius-lg`(16)、紧凑控件 `--dsw-radius-sm`(8)、胶囊 999 并补 `corner-shape:round` |
+| 5 | §8 扁平边框 0.5px | 11 处 `1px solid` 中性描边 | 改为 0.5px 发丝线；虚线保持 1px，spinner 环保持 1.5px |
+| 6 | §8 浮层 `border:0` + elevation，不与描边叠加 | 面板同时有 1px 边框与 `--dsw-elevation-soft` | `border:0` + `--dsw-elevation-panel`（0.5px 描边在阴影第一层），并采用菜单材质 `--dsw-specific-menu` + `--dsw-menu-backdrop-filter` |
+| 7 | §5 滚动条用共享样式，不能贴边 | 组件私有 `::-webkit-scrollbar` 与 `scrollbar-width/color`（还会让共享 hover 皮肤失效） | 全部删除，靠主题共享 skin，面板内只重绑 `--dsh-scrollbar-*` 到 l2 |
+| 8 | §6.6 hover 只在支持 hover 的设备启用 | 所有 `:hover` 裸写；触摸端点按后残留高亮 | 全部收进 `@media (hover:hover)`；`.dsh-wt-actions` 默认常显，仅 hover 设备才隐藏 |
+| 9 | §3 瞬时结果用全局 Toast | 复制/转发成功用就地图标变色 + 1.2s 计时 | 新增 `shell.overlay` Toast 宿主（`ui-primitives` 的 `Toast`），复制/转发/删除/清除/四类失败都报结果 |
+| 10 | §3 失败操作保留原数据 | `commit()` 乐观更新：写失败仍删掉行，只留脚注 | 写失败不更新状态、不清草稿、不动转发标记，用 Toast 报 `保存失败，内容没有改动` |
+| 11 | §2/§6.5 图标按钮配共享 Tooltip | 原生 `title` 属性 | 四个行内操作 + 设置/关闭改用 `ui-primitives` 的 `Tooltip`（portal、移动端不弹） |
+| 12 | §11 文案走本地化字典 | `locale/*.json` 只有 `nav.label`；两处中文 `aria-label`/`title` 与转发前缀硬编码在 JS 里 | 字典补到 62 键、`locale/zh.json`/`en.json` 与内置字典逐键一致（测试守护），硬编码文案全部入字典 |
+| 13 | §6.8 移动端不主动弹键盘 | 打开面板即 `focus()` 录入框 | 仅在 `(hover:hover) and (pointer:fine)` 设备上自动聚焦 |
+| 14 | §12 插件图标画布 36×36 | `icon.svg` 为 16×16 | 改为 36 画布、同一套路径居中缩放，仍为自包含 SVG |
+| 15 | §1 一页内不同字号要少 | 面板内 5 档 | 面板内仅 12 / 13 / 14 三档（实测集合） |
 
-字重收敛为 3 种：400 正文 / 500 次级强调 / 600 标题与主按钮。原先的 650 全部并入 600。
+此外删除了三处与规范冲突的实现：为吸顶标题在浮层材质上叠的第二层填充（会产生一条比面板更亮的横带）、复制成功的就地勾选态、以及"整页便笺"这套已下线的第二实现（`Panel` / `PanelBody` / `MemoEntry` 及其 18 个样式类）。
 
-正文阅读宽度由 `--wt-measure: 66ch` 控制，页面级段落（`.dsh-wt-sub`、`.dsh-wt-emptyBody`）据此换行。面板本身宽 280–720px（默认 348px），一行约 20 个汉字——这是面板宽度决定的物理上限，详见"限制"一节。
+### 与 main 的合流
 
----
+本次复查的分支落后 `main`（已发到 1.8.1）。为了让上面板时既不丢功能、也不退回旧样式，把 main 在此期间的**功能**增量并了进来，样式仍以本分支为准：
 
-## 3. 间距：亲密性
-
-### 发现的问题
-
-- 非 4 倍数随处可见：`padding:7px 7px 7px 13px`、`0 9px`、`0 3px`、`margin:26px 0 9px`、`gap:7px`、`gap:10px`、`gap:1px`。
-- 区块间距靠 `margin` 各自为政：标题下 9px、列表内 2px、区块间 18/20/26px 混用，"相关的近、无关的远"没有规律。
-- 面板四边内边距不同（`12px 12px 20px 18px`），文字左右不齐。
-
-### 修复
-
-- 建立 8 档刻度：`--wt-space-1 … -8` = 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64。
-- 面板四边统一 16px；卡片内边距 8px（`--wt-space-2`）；区块间距 12px；标题与其列表 8px。
-- **改用 gap 控制**：面板改 `display:flex;flex-direction:column;gap:12px`，"分区标题 + 列表"由 main 的 `.dsh-wt-listSection`（`gap:8px`）承担，滚动交给 `.dsh-wt-listArea`。这样"标题↔列表"用 8px、"区↔区"用 12px，亲密性由结构表达，不再靠逐个子元素的 margin 叠加。
-- 全表只剩 3 处非刻度值，且都是光学微调而非布局间距：勾选圈 `margin-top:calc((20px - 24px) / 2)`（14px 圆圈与 20px 行高中线对齐）、单选圆点 `margin-top:2px`（同上）、加载环 `margin:-6px`（在按钮内居中）。
-
----
-
-## 4. 圆角与阴影：质感
-
-### 发现的问题
-
-- 8 种圆角并存：输入框 6、面板 12、行悬停 8、便笺卡 12、设置块 9、增减按钮 7、徽标 999、焦点外框 4——同一屏里数不过来。
-- 元素越大圆角越小的错位：面板（348px）12、添加按钮（24px）7、图标按钮（24px）6，近似但无规律。
-- 阴影只有一层 `--dsw-elevation-soft`，与 1px 边框叠加后边界发灰。
-
-### 修复
-
-- 圆角压到 **3 种**：`8px`（控件）、`12px`（面板 / 卡片 / 输入区）、`999px`（胶囊与圆形勾选圈——一个令牌同时覆盖计数徽标和 14px 圆点）。满宽子行取 `0`，由父级 `overflow:hidden` 裁剪，避免"内圆角大于外圆角"的错位。
-- 尺度关系恢复：面板/卡片 12 > 控件 8 > 满宽行 0；胶囊与圆形属于形状类别，不参与尺度比较。
-- 阴影仍取 DSH 的三层 `--dsw-elevation-soft`（`0 0 0 .5px` 描边 + `0 4px 16px` + `0 0 24px`，透明度 0.03），这正是"多层浅阴影叠比一层重阴影好"；插件侧只暴露 `--wt-shadow-float` 一个入口，避免以后有人手写重阴影。
-- 1px 描边改用 15% 墨色（`--wt-line`），与阴影分工：阴影负责"浮起"，描边负责"边界"。
-
----
-
-## 5. 动效：流畅
-
-### 发现的问题
-
-- 面板**没有入场动画**，从无到有地"跳"出来。
-- 进度条用 `transition: width .25s`，触发重排。
-- 时长和缓动写死在各处：`.12s ease`、`.15s ease`、`.25s ease`。
-- 列表项同时出现，没有先后。
-
-### 修复
-
-- 令牌化：`--wt-dur-fast:150ms`（状态）、`--wt-dur-base:200ms`（入场）、`--wt-dur-slow:300ms`（进度）、`--wt-dur-loop:700ms`（加载环）；缓动 `--wt-ease-standard` `cubic-bezier(.4,0,.2,1)`、`--wt-ease-out` `cubic-bezier(.16,1,.3,1)`；节奏 `--wt-stagger:40ms`。
-- **只动位置 / 缩放 / 透明度**：
-  - 面板入场 `opacity + translateY(-4px) + scale(.985)`，200ms；
-  - 列表项 `opacity + translateY(4px)`，每项延迟 40ms 依次出场（第 6 项起封顶 200ms，避免长列表末尾等太久）；
-  - 进度条由 `width` 改为 `transform: scaleX()`，不再触发重排；
-  - 拖拽把手的高度/宽度变化改为 `scaleY` / `scaleX`。
-- `prefers-reduced-motion: reduce` 时关闭入场与错峰动画、过渡压到 1ms。
-
----
-
-## 6. 交互状态：完整性
-
-### 发现的问题
-
-| 控件 | 修复前缺失 |
+| main 的功能 | 落位 |
 | --- | --- |
-| 添加按钮 | 无 `:active`、无加载态；禁用态用 `opacity:.42` 压在整个按钮上 |
-| 图标按钮（复制/转发/编辑/删除） | 悬停底色用 `bg-base`，亮色主题下与卡片同色＝无反馈；删除无危险提示 |
-| 清除已完成 / 区块折叠 | 无 `:active`、无视弱者可用性处理 |
-| 顶部入口按钮 | 悬停用 `interactive-bg-hover`（亮色下极淡）、无按下、无禁用 |
-| 全局 | 过渡缺失或时长不一；`:focus-visible` 全部用品牌色，与主操作抢色 |
+| 已完成便笺显示创建 + 完成时间，并按完成时间倒序 | `completedStamp` / `compareDoneItems` / `metaLabel`，列表用 `sort(compareDoneItems)` |
+| 关于区显示作者与项目地址 | `PLUGIN_AUTHOR` / `PLUGIN_REPO_*` + `.dsh-wt-settingProject` |
+| 存储说明改为"仅保存在本地" | `popover.storage` / `storage.failed` |
+| 前缀输入框字号与标签一致 | 行的字号变量本来就是 13px，无需再改 |
 
-### 修复
+main 的滚动区边缘羽化与"滚动条贴面板边"两项**没有**并入：本分支已改用主题共享滚动条皮肤，且不再做吸顶标题，这两处实现随之失效。
 
-统一的 150ms 过渡变量 `--wt-transition` 挂到所有可交互元素，并为每类控件补齐六态：
+时间行在窄面板里会被操作按钮挤窄，因此截断时用 `title` 提供完整文案（正文段落不截断）。
 
-| 状态 | 视觉规则 |
+## 2. 实测数据
+
+无头 Chromium 读取的计算值（明色；暗色同一套规则）：
+
+| 项 | 实测 |
 | --- | --- |
-| 默认 | 主按钮实心强调色；次级按钮描边；幽灵按钮无底 |
-| 悬停 | 主按钮 `--wt-accent-hover`；其他加 9% 墨色底（亮暗都可见） |
-| 按下 | 底色再深一级 + `scale(.94)`~`scale(.97)`，即时反馈 |
-| 聚焦 | 2px 系统焦点环（`--dsw-focus-ring-*`）+ 2px 偏移，键盘可见、鼠标不打扰 |
-| 禁用 | 主按钮降级为"描边幽灵"（不再是半透明实心）；图标按钮降到 23% 墨色；统一 `cursor:not-allowed` |
-| 加载 | `[data-loading="true"]` → 文字隐藏、居中 12px 旋转环、`pointer-events:none`、`aria-busy` |
+| 浮窗 | `border:0`、`border-radius:28px`、`background:rgba(248,249,250,.58)`、阴影 = `0 0 0 .5px` + 两层柔光、`padding:16px`、`gap:12px` |
+| 标题 / 行文本 / 说明 | 14px/20px/500 · 13px/20px/400 · 12px/20px/400 |
+| 字号集合（面板内） | `{12px, 13px, 14px}` |
+| 字重集合 | `{400, 500}` |
+| 圆角集合 | `{0px, 8px, 16px, 28px, 999px}`（0 = 卡片内满宽子行，由父级裁剪） |
+| 录入区 / 添加按钮 | 0.5px 描边、R16、`padding:12px` · H28、R8、12px/500、`button-primary-fill` |
+| 图标按钮 | 24×24、R8、`label-secondary` |
+| 勾选圈 | 14×14、0.5px、R999、命中区 24px |
+| 行分隔线 | 0.5px |
+| 列表滚动 | `overflow-y:auto`、共享皮肤、滚动条距面板边缘 16px 内缩 |
 
-加载态不是画上去的样子货：**复制**按钮的真实异步动作（`copyText`）现在会进入 `pending` 状态并设置 `data-loading` / `aria-busy`，复制成功后再切换到绿色勾选成功态。
+明暗对比度（相对浮层合成后的底色 `#f7f8f9` / `#2a2b2e`）：
 
-![按钮六态](./ui-check/compare-states.png)
+| 文本 | 明 | 暗 |
+| --- | --- | --- |
+| 正文 / 标题 `label-primary` | 17.7:1 | 13.6:1 |
+| 说明 / 时间 / 计数 `label-secondary` | 5.4:1 | 9.4:1 |
+| 占位提示（同 secondary） | 5.4:1 | 9.4:1 |
+| 勾选圈描边 `label-tertiary`（非文本） | 3.5:1 | 6.7:1 |
 
----
+`label-tertiary` 不再承担文字：明色下它只有 3.5:1，规范 §1 明确要求"暗淡色调用在文字上前必须双主题核实"，因此文字统一走 `secondary`，tertiary 只留给描边、圆点等非文本细节。
 
-## 7. 修复前后
+## 3. 交互
 
-### 默认面板（明色）
+- **入口**：会话顶部 28×28 按钮，未完成数为胶囊徽标；打开时 `data-active`，再次点击或点外部/Esc 关闭，关闭后焦点回到入口按钮。
+- **反馈**：复制、转发、删除、清除完成 → 顶部全局 Toast（成功带勾选图标；失败带警告图标），浮窗关闭后仍然可见；失败时不改动任何数据。
+- **六个状态**：默认 / 悬停 / 按下（`interactive-bg-active` + 轻微缩放）/ 键盘聚焦（主题 2px 环）/ 禁用 / 加载（按钮内 12px 环，`aria-busy`）。
+- **浮层安全**：`position:fixed` + portal 到 body，宽高按视口夹取（≤480px 时 12px 边距，`maxHeight` 不低于 160px），只在下方确实放不下时才翻到锚点上方；顶边不低于 `--dsh-frame-overlay-top`，macOS 标题栏与 Windows 标题条都不会压住面板，且没有改动该全局变量；外侧 pointerdown 与 Esc 都能关闭。
+- **响应式**：390×844 下浮窗 366px、四边 12px、标题与操作都不截断（见截图）；触摸设备操作按钮常显，不依赖悬停。
 
-![默认面板对比](./ui-check/compare-panel-light.png)
+## 4. 截图
 
-### 设置展开（明色）
-
-![设置面板对比](./ui-check/compare-settings-light.png)
-
-### 默认面板（暗色）
-
-![暗色对比](./ui-check/compare-panel-dark.png)
-
-### 修复后 · 明暗主题对照
-
-![明暗对照](./ui-check/panel-light-dark.png)
-
----
-
-## 8. 限制与后续建议
-
-1. **一行 60–75 字符**：这是阅读型正文的度量。便笺面板宽 280–720px（默认 348px），正文 12.5px 时一行约 20 个汉字，物理上不可能达到 60 字；`--wt-measure:66ch` 已用于页面级段落。若面板要承载长文，应先加宽面板（拖动把手已支持）而不是缩小字号。
-2. **强调色是墨色**：沿用 DSH 的 `--dsw-alias-brand-primary`（亮色近黑、暗色近白）。项目语气如此，若将来需要彩色强调，只需把 `--wt-accent` 指向 `--dsw-alias-state-business-primary`，其余样式不必改动——这正是令牌化的收益。
-3. **焦点环是系统蓝**：聚焦态取 DSH 的系统焦点令牌而非强调色，避免"键盘焦点"和"主操作"抢同一个颜色。
-4. **死代码**：`Panel` / `MemoEntry` / hero / dock 这几个入口在当前版本已不再挂载，相关样式仍然存在（本次已一并令牌化，但未删除）。建议后续单独提交一次清理，避免样式表与实际渲染继续分叉。
-5. **未在真实 GUI 中回归**：本仓库是插件包，当前 profile 指向的是另一个工作树。本次检查用的是同一份 `client.js` 样式 + 同一套主题令牌 + 等价 DOM，明暗两套主题各验证一次；合并后仍建议在真实会话里点一遍六个状态。
-
----
-
-## 9. 改动清单
-
-| 文件 | 改动 |
+| 明 | 暗 |
 | --- | --- |
-| `client.js` | 样式表整体令牌化（合并 main 后 251 条规则）；沿用 main 的 `.dsh-wt-listSection` / `.dsh-wt-listArea` 结构并用 gap 控距；进度条改 `scaleX`；复制按钮接 `data-loading`；删除按钮加危险态；按钮统一补齐六态 |
-| `client.js` | `PLUGIN_VERSION` 同步为 `1.7.0` |
-| `package.json` | 版本 `1.7.0` |
-| `docs/ui-check/*.png` | 检查用的对比截图（明/暗、六态） |
-| `tests/contract.test.mjs` | 新增 5 条设计约束测试，防止规范被改回去 |
-| `CHANGELOG.md` / `README.md` / `README.en.md` | 记录本次设计规范 |
+| ![默认面板](./ui-check/panel-light.png) | ![默认面板·暗](./ui-check/panel-dark.png) |
+| ![设置](./ui-check/settings-light.png) | ![设置·暗](./ui-check/settings-dark.png) |
+| ![空态](./ui-check/empty-light.png) | ![空态·暗](./ui-check/empty-dark.png) |
 
-## 10. 让规范可执行
+| 状态 | |
+| --- | --- |
+| 行悬停（明） | ![行悬停](./ui-check/hover-row-light.png) |
+| 行悬停（暗） | ![行悬停·暗](./ui-check/hover-row-dark.png) |
+| 主按钮悬停 | ![按钮悬停](./ui-check/hover-add-light.png) |
+| 图标按钮键盘聚焦 | ![聚焦](./ui-check/focus-light.png) |
+| 390px 窄视口 | ![窄视口](./ui-check/narrow-390.png) |
+| 列表滚动（共享滚动条） | ![滚动](./ui-check/scroll-light.png) |
 
-规范只在文档里等于没有规范，所以新增了 5 条合同测试（`npm test` 一并执行）：
+## 5. 让规范可执行
+
+`tests/contract.test.mjs` 从 11 条扩到 23 条，全部在 `npm test` 里跑。新增的守护项：
 
 | 测试 | 守住什么 |
 | --- | --- |
-| `colours come from the three-role token layer` | 规则里不许出现 `#rrggbb` / `rgb()`；灰阶必须恰好 11 级；语义色与强调色令牌必须存在；强调色填充不得超过 6 处 |
-| `type scale and weight set stay small` | 所有 `font-size` 只能引用 5 个字号令牌；相邻字号比值必须是 1.25±0.03；字重不超过 3 种 |
-| `spacing snaps to the 4px scale` | `padding` / `margin` / `gap` 只能取 4 的倍数（1px 描边、2px 光学微调、负值对齐例外） |
-| `radii, shadows and motion stay tokenised` | `border-radius` 只能有 3 个令牌值；`box-shadow` 只能是令牌或 inset 描边；`@keyframes` 只能改 `opacity` / `transform`；`transition` 里的时长必须来自令牌 |
-| `section toggles stay inside the scrolling list` | 折叠按钮 / 分区标题不得设置 `margin-left`（含 `calc(... * -1)`），否则会被滚动区裁掉圆角 |
+| `colours come from theme aliases…` | 规则里不许出现 `#hex` / `rgb()` / `--wt-n-*`；只允许 `--dsw-*` / `--ds-*` / `--wt-*` 前缀的变量 |
+| `type scale…` | 字号只能取 3 个令牌，字重 ≤500 |
+| `spacing snaps…` | 间距仍是 4px 刻度（光学微调走 `calc()`） |
+| `radii use the shared scale…` | 圆角只能取 `--dsw-radius-*` 或 999，且胶囊必须配 `corner-shape:round` |
+| `hairlines stay at 0.5px…` | 中性描边 0.5px；只有虚线 1px、spinner 1.5px |
+| `the floating panel is borderless and elevated…` | 浮窗 `border:0` + `elevation-panel`，且任何规则不得同时叠中性描边和 elevation |
+| `scrollbars keep the shared theme skin` | 禁止组件私有滚动条与 `scrollbar-width/color` |
+| `hover styling is gated…` | `:hover` 只能出现在 `@media (hover:hover)`；触摸端操作常显 |
+| `no product copy is hardcoded…` | JS 里除字典外不得出现中文文案 |
+| `chinese hints drop the trailing full stop` | 中文提示不以"。"结尾 |
+| `transient outcomes go to the frame-wide toast seat` | 必须有 `shell.overlay` Toast，且不得再出现就地成功态 |
+| `a failed write keeps the row…` | 写失败不更新状态、报失败 |
+| `icon-only controls use the shared tooltip` | 四个行内操作走 `Tooltip`，不再叠加原生 `title` |
+| `the retired page entry is gone…` | 已下线的整页实现不得回流 |
+| `locale files carry the whole dictionary` | `locale/*.json` 与内置字典逐键一致 |
+| `the panel never raises the soft keyboard…` | 自动聚焦必须以 `(hover:hover) and (pointer:fine)` 为前提 |
 
-这样下次有人手写 `border-radius:6px`、`#f5f5f5` 或 `.2s ease`，测试会直接拒绝。
+## 6. 仍需评审 / 未覆盖
 
-## 11. 合并 main（1.6.3）
-
-设计检查完成时 `main` 已经推进到 1.6.3，多了半勾、转发态、吸顶分区标题、设置分组等改动，所以这条分支随后 `merge origin/main`。冲突只出现在 `client.js` / `package.json` / `CHANGELOG.md`，处理方式如下：
-
-| 冲突 | 处理 |
-| --- | --- |
-| 版本号 | main 已占用 1.6.0–1.6.3，本分支改用 **1.7.0**（`package.json` + `PLUGIN_VERSION` + CHANGELOG 新章节） |
-| 样式表 | 以 main 的 251 条规则为准，把令牌层重新铺一遍；新增的 14 个类（`listArea` / `listSection` / `checkHalf` / `checkForwarded` / `rowHint` / `editHint` / `settingGroup` / `settingItem` / `settingBody` / `settingAbout` / `settingLink` / `settingDot` / `settingHintNote` / `rowLeaving`）全部令牌化 |
-| 勾选圈 | 跟随 main 的 14px（保留 24px 点击区），不再回到 16px |
-| 吸顶分区标题 | 保留 main 的 `position:sticky`，背景改成 `--wt-surface`，避免滚动时透出下层内容 |
-| 面板滚动 | 跟随 main 的 `overflow:hidden` + `.dsh-wt-listArea` 内部滚动，不再由面板整体滚动 |
-| 设置分组 | 保留 main 的 group/item 结构，间距改由 `gap` 与令牌表达，`--dsh-wt-settingIndent` 指向 12px 刻度 |
-
-合并后复核：main 的 109 个样式类一个没丢（加上本次新增的 `iconBtnDanger` 共 110 个），`npm test` 11/11 通过，明暗两套主题的对比度与合并前一致。
-
-![合并后明暗对照](./ui-check/panel-light-dark.png)
-
-## 12. 合并后的回归：折叠按钮左侧圆角被裁
-
-合并完成后由评审发现的问题，记录在此以免同类问题再犯。
-
-**现象**：hover「未完成 / 已完成」时，药丸左边缘是直角，右边却是圆的。
-
-| 修复前 | 修复后 |
-| --- | --- |
-| ![左侧被裁](./ui-check/section-toggle-before.png) | ![圆角完整](./ui-check/section-toggle-after.png) |
-
-**原因**：两条规则单独都成立，叠在一起才出问题。
-
-1. main 在 1.6.x 给面板加了滚动区 `.dsh-wt-listArea{overflow-x:hidden}`，它以内容盒为裁剪边界；
-2. 我给折叠按钮加过 `margin-left:calc(var(--wt-space-1) * -1)`，想让箭头贴住内容左边缘；
-3. 两者相遇时，按钮被推出裁剪边界 4px，8px 圆角连同左边缘一起被裁掉——只剩直角。
-
-**为什么漏了**：六态验证是在"组件隔离"层面做的——六态画廊里的折叠按钮不在 `.dsh-wt-listArea` 内，圆角正常；面板整图又都是静止态，没有 hover 药丸。**状态覆盖到了，容器裁剪没覆盖到。**
-
-**修复**：去掉负外边距，把按钮左内边距从 4px 改成 0。静止态下箭头与文字位置不变（原来 12+4=16，现在 16+0=16），只有药丸左边缘从 12px 回到 16px——正好落在裁剪边界内。
-
-**防复发**：新增测试 `section toggles stay inside the scrolling list`，禁止 `doneToggle` / `sectionHead` / `doneHead` 出现 `margin-left`（包括 `calc(... * -1)` 这种写法），因为它一定会被滚动区裁掉。测试从 10 条增加到 11 条。
+1. **入口按钮仍是原生 `title`**。它由插件注入宿主 header 的 DOM（React portal 会被宿主重渲染回收），共享 `Tooltip` 无法包裹；行内操作与设置/关闭已全部走 `Tooltip`。若要求入口也统一，需要宿主为 header utilities 提供官方插槽。
+2. **右侧浮窗不是右侧栏插槽**。规范 §2 要求"新内容必须在现有侧栏里注册 slot，禁止做独立侧栏"。当前是锚定在 header 的浮窗（`placement:'right'`），语义上更接近 popover；若产品希望它成为常驻侧栏，应改注册到 `rightbar`，属于产品决策，未在本次改动。
+3. **链接与错误文本的明色对比度**。`--dsw-alias-link` 在明色浮层上 3.97:1、`--dsw-alias-state-error-primary` 4.22:1，低于 4.5:1；这两个都是主题令牌，规范 §8 要求直接用它们，因此保持不动，建议在主题层统一提升。
+4. **吸顶分区标题已移除**。在 58% 透明度的菜单材质上，吸顶标题必然要再叠一层填充，会出现一条比面板更亮的横带（本次截图对比可见）；列表面板高度有限，改为随列表滚动。若有产品诉求，需要先为主题提供"浮层内吸顶"的材质方案。
+5. **未在真实 GUI 回归**。本仓库是插件包，当前 profile 指向另一工作树；本次用同一份样式 + 同一套主题令牌 + 等价 DOM 验证明暗两套主题。合并后建议在真实会话里点一遍六个状态与 Toast。
+6. **预览图需重拍**。根目录 `preview*.png` 仍是旧样式截图，属于商店素材，需在真实 GUI 里重新截取。
+7. **图标仍需设计师确认**。`icon.svg` 只是把既有路径换成 36 画布，规范 §12 要求新图标上线前拿到设计师批准。
