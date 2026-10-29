@@ -22,8 +22,9 @@ window.__ModuleLoader__.load({
     const FORWARD_PREFIX = '完成以下任务：'
     /** Shown in the in-panel settings; keep in sync with package.json. */
     const PLUGIN_VERSION = '1.8.0'
-    const PLUGIN_AUTHOR_URL = 'https://github.com/Rayle8'
-    const PLUGIN_AUTHOR_LABEL = 'github.com/Rayle8'
+    const PLUGIN_AUTHOR = '阿三石'
+    const PLUGIN_REPO_URL = 'https://github.com/Rayle8/dsh-workspace-todos'
+    const PLUGIN_REPO_LABEL = 'github.com/Rayle8/dsh-workspace-todos'
     /** Enter-to-send preference; persisted across panel openings. */
     const SEND_SHORTCUT_KEY = 'dsh.memo.send-shortcut.v1'
     const SEND_SHORTCUT_DEFAULT = 'ctrl-enter'
@@ -84,6 +85,7 @@ window.__ModuleLoader__.load({
         'settings.about': '关于',
         'settings.version': '版本',
         'settings.author': '作者',
+        'settings.project': '项目地址',
         'settings.shortcut': '发送快捷键',
         'settings.shortcutCtrlEnter': 'Ctrl+Enter 发送，Enter 换行',
         'settings.shortcutEnter': 'Enter 发送，Ctrl+Enter 换行',
@@ -98,7 +100,7 @@ window.__ModuleLoader__.load({
         'popover.empty.body': '记下这个会话要跟进的一件事。',
         'popover.completed': '已完成',
         'popover.clearDone': '清除已完成',
-        'popover.storage': '按会话隔离 · 保存在此浏览器',
+        'popover.storage': '按会话隔离 · 数据仅保存在本地',
         'workspace.label': '工作区',
         'workspace.follow': '回到当前',
         'workspace.current': '当前会话',
@@ -137,7 +139,7 @@ window.__ModuleLoader__.load({
         'time.hours': '{n} 小时前',
         'time.days': '{n} 天前',
         'time.createdDone': '{created}创建，{completed}完成',
-        'footer.storage': '按会话隔离 · 保存在此浏览器',
+        'footer.storage': '按会话隔离 · 数据仅保存在本地',
         'footer.saved': '已保存',
         'footer.error': '浏览器存储不可用，改动可能不会保留',
         'state.loading': '正在读取会话…',
@@ -164,6 +166,7 @@ window.__ModuleLoader__.load({
         'settings.about': 'About',
         'settings.version': 'Version',
         'settings.author': 'Author',
+        'settings.project': 'Project address',
         'settings.shortcut': 'Send shortcut',
         'settings.shortcutCtrlEnter': 'Ctrl+Enter sends, Enter for a new line',
         'settings.shortcutEnter': 'Enter sends, Ctrl+Enter for a new line',
@@ -178,7 +181,7 @@ window.__ModuleLoader__.load({
         'popover.empty.body': 'Write down one follow-up for this session.',
         'popover.completed': 'Completed',
         'popover.clearDone': 'Clear completed',
-        'popover.storage': 'Separate per session · kept in this browser',
+        'popover.storage': 'Separate per session · saved only on this device',
         'workspace.label': 'Workspace',
         'workspace.follow': 'Back to current',
         'workspace.current': 'Current session',
@@ -217,7 +220,7 @@ window.__ModuleLoader__.load({
         'time.hours': '{n} hr ago',
         'time.days': '{n} d ago',
         'time.createdDone': 'Created {created} · Completed {completed}',
-        'footer.storage': 'Separate per session · kept in this browser',
+        'footer.storage': 'Separate per session · saved only on this device',
         'footer.saved': 'Saved',
         'footer.error': 'Browser storage is unavailable; changes may not persist',
         'state.loading': 'Reading sessions…',
@@ -470,8 +473,11 @@ window.__ModuleLoader__.load({
       '.dsh-wt-settingAbout{display:flex;align-items:baseline;gap:var(--wt-space-1);min-width:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--wt-ink-tertiary);white-space:nowrap}',
       '.dsh-wt-settingAbout>span{flex:none}',
       '.dsh-wt-settingDot{opacity:.7}',
-      '.dsh-wt-settingLink{min-width:0;overflow:hidden;color:var(--wt-ink);text-decoration:underline;text-decoration-color:var(--wt-line-strong);text-underline-offset:2px;text-overflow:ellipsis;transition:var(--wt-transition)}',
+      '.dsh-wt-settingProject{display:flex;align-items:baseline;gap:var(--wt-space-1);min-width:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--wt-ink-tertiary);white-space:nowrap}',
+      '.dsh-wt-settingProject>span{flex:none}',
+      '.dsh-wt-settingLink{flex:0 1 auto;min-width:0;overflow:hidden;color:var(--wt-ink);text-decoration:underline;text-decoration-color:var(--wt-line-strong);text-underline-offset:2px;text-overflow:ellipsis;transition:var(--wt-transition)}',
       '.dsh-wt-settingLink:hover{text-decoration-color:var(--wt-ink)}',
+      '.dsh-wt-settingLink:focus-visible{outline:var(--wt-focus-width) solid var(--wt-focus);outline-offset:2px}',
       '.dsh-wt-popover .dsh-wt-check{margin-top:calc((20px - 24px) / 2)}',
       '.dsh-wt-popover .dsh-wt-rowHint{font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);min-height:28px}',
     ].join('')
@@ -2889,16 +2895,22 @@ window.__ModuleLoader__.load({
                     { className: 'dsh-wt-settingAbout' },
                     h('span', null, `${say('settings.version')} ${PLUGIN_VERSION}`),
                     h('span', { className: 'dsh-wt-settingDot', 'aria-hidden': true }, '·'),
-                    h('span', null, say('settings.author')),
+                    h('span', null, `${say('settings.author')} ${PLUGIN_AUTHOR}`),
+                  ),
+                  h(
+                    'div',
+                    { className: 'dsh-wt-settingProject' },
+                    h('span', null, say('settings.project')),
                     h(
                       'a',
                       {
                         className: 'dsh-wt-settingLink',
-                        href: PLUGIN_AUTHOR_URL,
+                        href: PLUGIN_REPO_URL,
                         target: '_blank',
                         rel: 'noreferrer',
+                        title: PLUGIN_REPO_URL,
                       },
-                      PLUGIN_AUTHOR_LABEL,
+                      PLUGIN_REPO_LABEL,
                     ),
                   ),
                 ),
