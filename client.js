@@ -442,16 +442,13 @@ window.__ModuleLoader__.load({
       '@media (hover:none){.dsh-wt-actions{opacity:1;pointer-events:auto}}',
       '/* ── main 1.6.x 新增结构：滚动区 / 分组 / 半勾 / 转发态 ─────────── */',
       '.dsh-wt-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--wt-space-4) * -1)}',
-      '.dsh-wt-listViewport::before,.dsh-wt-listViewport::after{content:"";position:absolute;left:0;right:4px;z-index:2;height:var(--wt-space-3);pointer-events:none;opacity:0;background:linear-gradient(to bottom,var(--wt-surface),transparent);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);-webkit-mask-image:linear-gradient(to bottom,currentColor,transparent);mask-image:linear-gradient(to bottom,currentColor,transparent);transition:opacity var(--wt-dur-fast) var(--wt-ease-standard)}',
-      '.dsh-wt-listViewport::before{top:calc(var(--wt-space-6) + var(--wt-space-1))}',
-      '.dsh-wt-listViewport::after{bottom:0;height:var(--wt-space-4);background:linear-gradient(to top,var(--wt-surface),transparent);-webkit-mask-image:linear-gradient(to top,currentColor,transparent);mask-image:linear-gradient(to top,currentColor,transparent)}',
-      '.dsh-wt-listViewport[data-top="true"]::before{opacity:1}',
+      '.dsh-wt-listViewport::after{content:"";position:absolute;left:0;right:9px;bottom:0;z-index:2;height:var(--wt-space-6);pointer-events:none;opacity:0;background:linear-gradient(to top,color-mix(in srgb,var(--wt-surface) 72%,transparent),transparent);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);-webkit-mask-image:linear-gradient(to top,currentColor,color-mix(in srgb,currentColor 45%,transparent) 45%,transparent);mask-image:linear-gradient(to top,currentColor,color-mix(in srgb,currentColor 45%,transparent) 45%,transparent);transition:opacity var(--wt-dur-fast) var(--wt-ease-standard)}',
       '.dsh-wt-listViewport[data-bottom="true"]::after{opacity:1}',
-      '.dsh-wt-listArea{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--wt-space-4) - 4px);overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}',
-      '.dsh-wt-listArea::-webkit-scrollbar{width:4px;height:4px}',
+      '.dsh-wt-listArea{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--wt-space-4) - 9px);overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}',
+      '.dsh-wt-listArea::-webkit-scrollbar{width:9px;height:9px}',
       '.dsh-wt-listArea::-webkit-scrollbar-track{background:transparent}',
-      '.dsh-wt-listArea::-webkit-scrollbar-thumb{border-radius:var(--wt-radius-pill);background-color:var(--wt-line-strong)}',
-      '.dsh-wt-listArea::-webkit-scrollbar-thumb:hover{background-color:var(--wt-ink-tertiary)}',
+      '.dsh-wt-listArea::-webkit-scrollbar-thumb{border:2px solid transparent;border-radius:var(--wt-radius-pill);background:var(--dsw-alias-scrollbar-bg-l1,var(--wt-line-strong));background-clip:content-box}',
+      '.dsh-wt-listArea::-webkit-scrollbar-thumb:hover{background-color:var(--dsw-alias-scrollbar-hover-l1,var(--wt-ink-tertiary))}',
       '.dsh-wt-listSection{display:flex;flex-direction:column;gap:var(--wt-space-2);min-width:0}',
       '.dsh-wt-listSection+.dsh-wt-listSection{margin-top:var(--wt-space-1)}',
       '.dsh-wt-rowLeaving{pointer-events:none;opacity:0;transform:translateY(-2px) scale(.985);transition:opacity var(--wt-dur-base) var(--wt-ease-standard),transform var(--wt-dur-base) var(--wt-ease-standard)}',
@@ -2559,27 +2556,25 @@ window.__ModuleLoader__.load({
       const openCount = openItems.length
       const total = items.length
       const listRef = React.useRef(null)
-      const [listEdges, setListEdges] = React.useState({ top: false, bottom: false })
+      const [listHasMore, setListHasMore] = React.useState(false)
 
-      const syncListEdges = React.useCallback(() => {
+      const syncListEdge = React.useCallback(() => {
         const node = listRef.current
         if (!node) return
-        const top = node.scrollTop > 1
-        const bottom = node.scrollTop + node.clientHeight < node.scrollHeight - 1
-        setListEdges(current => (current.top === top && current.bottom === bottom ? current : { top, bottom }))
+        setListHasMore(node.scrollTop + node.clientHeight < node.scrollHeight - 1)
       }, [])
 
       React.useEffect(() => {
-        syncListEdges()
-      }, [items, showOpen, showDone, syncListEdges])
+        syncListEdge()
+      }, [items, showOpen, showDone, syncListEdge])
 
       React.useEffect(() => {
         const node = listRef.current
         if (!node || typeof ResizeObserver !== 'function') return undefined
-        const observer = new ResizeObserver(syncListEdges)
+        const observer = new ResizeObserver(syncListEdge)
         observer.observe(node)
         return () => observer.disconnect()
-      }, [syncListEdges])
+      }, [syncListEdge])
 
       const chooseShortcut = value => {
         setSendShortcut(value)
@@ -2968,12 +2963,11 @@ window.__ModuleLoader__.load({
           'div',
           {
             className: 'dsh-wt-listViewport',
-            'data-top': listEdges.top ? 'true' : undefined,
-            'data-bottom': listEdges.bottom ? 'true' : undefined,
+            'data-bottom': listHasMore ? 'true' : undefined,
           },
           h(
             'div',
-            { className: 'dsh-wt-listArea', ref: listRef, onScroll: syncListEdges },
+            { className: 'dsh-wt-listArea', ref: listRef, onScroll: syncListEdge },
             h(
               'div',
               { className: 'dsh-wt-listSection' },
