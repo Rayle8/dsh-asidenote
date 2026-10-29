@@ -136,6 +136,7 @@ window.__ModuleLoader__.load({
         'time.minutes': '{n} 分钟前',
         'time.hours': '{n} 小时前',
         'time.days': '{n} 天前',
+        'time.createdDone': '{created}创建，{completed}完成',
         'footer.storage': '按会话隔离 · 保存在此浏览器',
         'footer.saved': '已保存',
         'footer.error': '浏览器存储不可用，改动可能不会保留',
@@ -215,6 +216,7 @@ window.__ModuleLoader__.load({
         'time.minutes': '{n} min ago',
         'time.hours': '{n} hr ago',
         'time.days': '{n} d ago',
+        'time.createdDone': 'Created {created} · Completed {completed}',
         'footer.storage': 'Separate per session · kept in this browser',
         'footer.saved': 'Saved',
         'footer.error': 'Browser storage is unavailable; changes may not persist',
@@ -300,7 +302,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-rowFoot{display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-2);min-height:24px}',
       '.dsh-wt-text{display:block;width:100%;margin:0;padding:0;border:0;background:transparent;color:var(--wt-ink);font:inherit;font-size:var(--wt-fs-body-sm);line-height:var(--wt-lh-body-sm);text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;cursor:text;user-select:text;-webkit-user-select:text}',
       '.dsh-wt-text:focus-visible{outline:var(--wt-focus-width) solid var(--wt-focus);outline-offset:2px;border-radius:var(--wt-radius-sm)}',
-      '.dsh-wt-meta{font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--wt-ink-tertiary);font-variant-numeric:tabular-nums}',
+      '.dsh-wt-meta{min-width:0;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--wt-ink-tertiary);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
       '.dsh-wt-edit{display:flex;flex-direction:column;gap:var(--wt-space-1);width:100%}',
       '.dsh-wt-editInput{display:block;width:100%;box-sizing:border-box;min-height:20px;max-height:160px;padding:var(--wt-space-1) var(--wt-space-2);border:1px solid var(--wt-line-strong);border-radius:var(--wt-radius-sm);background:var(--wt-n-50);color:var(--wt-ink);font:inherit;font-size:var(--wt-fs-body-sm);line-height:var(--wt-lh-body-sm);outline:0;resize:none;overflow-y:auto;overflow-x:hidden;transition:var(--wt-transition)}',
       '.dsh-wt-editInput:focus{border-color:var(--wt-accent);box-shadow:var(--wt-shadow-ring)}',
@@ -1143,6 +1145,40 @@ window.__ModuleLoader__.load({
       }
     }
 
+    /**
+     * Best-known completion stamp for a done note. Newer records carry
+     * `completedAt`; older ones only have `updatedAt`, so fall back in order
+     * until a finite time is found. Returns 0 when the item has no usable stamp.
+     */
+    function completedStamp(item) {
+      if (!item) return 0
+      const candidates = [item.completedAt, item.updatedAt, item.createdAt]
+      for (const time of candidates) {
+        if (Number.isFinite(time)) return time
+      }
+      return 0
+    }
+
+    /** Newest completion first; updatedAt then createdAt keep equal stamps stable. */
+    function compareDoneItems(a, b) {
+      const byCompletion = completedStamp(b) - completedStamp(a)
+      if (byCompletion) return byCompletion
+      const aUpdated = Number.isFinite(a && a.updatedAt) ? a.updatedAt : 0
+      const bUpdated = Number.isFinite(b && b.updatedAt) ? b.updatedAt : 0
+      if (aUpdated !== bUpdated) return bUpdated - aUpdated
+      const aCreated = Number.isFinite(a && a.createdAt) ? a.createdAt : 0
+      const bCreated = Number.isFinite(b && b.createdAt) ? b.createdAt : 0
+      return bCreated - aCreated
+    }
+
+    /** Done notes show creation and completion age; open ones show creation age only. */
+    function metaLabel(item, say, localeId) {
+      const created = ageLabel(item && item.createdAt, say, localeId)
+      if (!item || item.done !== true) return created
+      const completed = completedStamp(item) || (item ? item.createdAt : 0)
+      return say('time.createdDone', { created, completed: ageLabel(completed, say, localeId) })
+    }
+
     /** Per-workspace notes plus an optimistic, synchronous writer. */
     function useTodoStore(workspace) {
       const workspaceKey = workspace ? String(workspace.workspaceId) : ''
@@ -1741,7 +1777,7 @@ window.__ModuleLoader__.load({
             : h(
                 'div',
                 { className: 'dsh-wt-rowFoot' },
-                h('span', { className: 'dsh-wt-meta' }, ageLabel(item.createdAt, say, props.localeId)),
+                h('span', { className: 'dsh-wt-meta' }, metaLabel(item, say, props.localeId)),
                 h(
                   'div',
                   { className: 'dsh-wt-actions' },
@@ -1871,7 +1907,7 @@ window.__ModuleLoader__.load({
       const { record, syncError, commit } = useTodoStore(workspace)
       const items = record.items || []
       const openItems = items.filter(item => !item.done)
-      const doneItems = items.filter(item => item.done)
+      const doneItems = items.filter(item => item.done).sort(compareDoneItems)
       const total = items.length
       const doneCount = doneItems.length
       const percent = total ? Math.round((doneCount / total) * 100) : 0
@@ -2506,7 +2542,7 @@ window.__ModuleLoader__.load({
 
       const items = record.items || []
       const openItems = items.filter(item => !item.done)
-      const doneItems = items.filter(item => item.done)
+      const doneItems = items.filter(item => item.done).sort(compareDoneItems)
       const openCount = openItems.length
       const total = items.length
 

@@ -121,6 +121,17 @@ test('locale files expose the product name', () => {
   assert.match(client, /'badge\.label': '便笺'/)
 })
 
+test('done notes show created and completed ages, newest completion first', () => {
+  const client = read('client.js')
+  assert.match(client, /'time\.createdDone': '\{created\}创建，\{completed\}完成'/)
+  assert.match(client, /'time\.createdDone': 'Created \{created\} · Completed \{completed\}'/)
+  assert.match(client, /function completedStamp/)
+  assert.match(client, /function compareDoneItems/)
+  assert.match(client, /function metaLabel/)
+  // Both the panel and the popover must agree on the order.
+  assert.equal([...client.matchAll(/items\.filter\(item => item\.done\)\.sort\(compareDoneItems\)/g)].length, 2)
+})
+
 test('documentation and preview assets are present', () => {
   for (const file of ['README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md', 'preview.png', 'preview-badge.png', 'preview-history.png', 'preview-right.png', 'icon.svg']) {
     assert.ok(exists(file), `missing ${file}`)
