@@ -418,7 +418,6 @@ window.__ModuleLoader__.load({
       '.dsh-wt-popover .dsh-wt-rows{flex:none;min-height:0;overflow:visible}',
       '.dsh-wt-popover .dsh-wt-doneHead{position:sticky;top:0;z-index:1;margin:0;padding:var(--wt-space-1) 0;background:var(--wt-surface)}',
       '.dsh-wt-popover .dsh-wt-empty{padding:var(--wt-space-5) var(--wt-space-3)}',
-      '.dsh-wt-popover .dsh-wt-sectionHead .dsh-wt-doneToggle{margin-left:calc(var(--wt-space-1) * -1)}',
       '.dsh-wt-popover .dsh-wt-doneRows{margin-top:0}',
       '.dsh-wt-popoverRight .dsh-wt-popFoot{margin-top:auto}',
       '.dsh-wt-page .dsh-wt-text,.dsh-wt-page .dsh-wt-input{font-size:var(--wt-fs-body);line-height:var(--wt-lh-body)}',
