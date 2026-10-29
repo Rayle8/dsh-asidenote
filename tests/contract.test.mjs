@@ -184,6 +184,8 @@ test('note list edges use a fixed frosted blur', () => {
   assert.match(css, /\.dsh-wt-listViewport::before,\.dsh-wt-listViewport::after\{[^}]*right:4px/, 'the blur must leave the scrollbar crisp')
   assert.match(css, /\.dsh-wt-listViewport::before\{top:calc\(var\(--wt-space-6\) \+ var\(--wt-space-1\)\)\}/, 'the top blur must start below the sticky header')
   assert.match(css, /\.dsh-wt-listViewport::after\{[^}]*bottom:0/, 'the bottom blur must stay at the edge')
+  assert.match(css, /\.dsh-wt-listViewport\[data-top="true"\]::before\{opacity:1\}/, 'the top blur must follow the scroll position')
+  assert.match(css, /\.dsh-wt-listViewport\[data-bottom="true"\]::after\{opacity:1\}/, 'the bottom blur must follow the scroll position')
 })
 
 test('settings read as a full-bleed separator band, not a card', () => {

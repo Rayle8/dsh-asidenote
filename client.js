@@ -21,7 +21,7 @@ window.__ModuleLoader__.load({
     /** Fixed lead-in used when forwarding a note to the conversation composer. */
     const FORWARD_PREFIX = '完成以下任务：'
     /** Shown in the in-panel settings; keep in sync with package.json. */
-    const PLUGIN_VERSION = '1.7.1'
+    const PLUGIN_VERSION = '1.8.0'
     const PLUGIN_AUTHOR_URL = 'https://github.com/Rayle8'
     const PLUGIN_AUTHOR_LABEL = 'github.com/Rayle8'
     /** Enter-to-send preference; persisted across panel openings. */
@@ -442,9 +442,11 @@ window.__ModuleLoader__.load({
       '@media (hover:none){.dsh-wt-actions{opacity:1;pointer-events:auto}}',
       '/* ── main 1.6.x 新增结构：滚动区 / 分组 / 半勾 / 转发态 ─────────── */',
       '.dsh-wt-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--wt-space-4) * -1)}',
-      '.dsh-wt-listViewport::before,.dsh-wt-listViewport::after{content:"";position:absolute;left:0;right:4px;z-index:2;height:var(--wt-space-3);pointer-events:none;background:linear-gradient(to bottom,var(--wt-surface),transparent);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);-webkit-mask-image:linear-gradient(to bottom,currentColor,transparent);mask-image:linear-gradient(to bottom,currentColor,transparent)}',
+      '.dsh-wt-listViewport::before,.dsh-wt-listViewport::after{content:"";position:absolute;left:0;right:4px;z-index:2;height:var(--wt-space-3);pointer-events:none;opacity:0;background:linear-gradient(to bottom,var(--wt-surface),transparent);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);-webkit-mask-image:linear-gradient(to bottom,currentColor,transparent);mask-image:linear-gradient(to bottom,currentColor,transparent);transition:opacity var(--wt-dur-fast) var(--wt-ease-standard)}',
       '.dsh-wt-listViewport::before{top:calc(var(--wt-space-6) + var(--wt-space-1))}',
       '.dsh-wt-listViewport::after{bottom:0;height:var(--wt-space-4);background:linear-gradient(to top,var(--wt-surface),transparent);-webkit-mask-image:linear-gradient(to top,currentColor,transparent);mask-image:linear-gradient(to top,currentColor,transparent)}',
+      '.dsh-wt-listViewport[data-top="true"]::before{opacity:1}',
+      '.dsh-wt-listViewport[data-bottom="true"]::after{opacity:1}',
       '.dsh-wt-listArea{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--wt-space-4) - 4px);overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}',
       '.dsh-wt-listArea::-webkit-scrollbar{width:4px;height:4px}',
       '.dsh-wt-listArea::-webkit-scrollbar-track{background:transparent}',
@@ -2556,6 +2558,28 @@ window.__ModuleLoader__.load({
       const doneItems = items.filter(item => item.done).sort(compareDoneItems)
       const openCount = openItems.length
       const total = items.length
+      const listRef = React.useRef(null)
+      const [listEdges, setListEdges] = React.useState({ top: false, bottom: false })
+
+      const syncListEdges = React.useCallback(() => {
+        const node = listRef.current
+        if (!node) return
+        const top = node.scrollTop > 1
+        const bottom = node.scrollTop + node.clientHeight < node.scrollHeight - 1
+        setListEdges(current => (current.top === top && current.bottom === bottom ? current : { top, bottom }))
+      }, [])
+
+      React.useEffect(() => {
+        syncListEdges()
+      }, [items, showOpen, showDone, syncListEdges])
+
+      React.useEffect(() => {
+        const node = listRef.current
+        if (!node || typeof ResizeObserver !== 'function') return undefined
+        const observer = new ResizeObserver(syncListEdges)
+        observer.observe(node)
+        return () => observer.disconnect()
+      }, [syncListEdges])
 
       const chooseShortcut = value => {
         setSendShortcut(value)
@@ -2942,10 +2966,14 @@ window.__ModuleLoader__.load({
         ),
         h(
           'div',
-          { className: 'dsh-wt-listViewport' },
+          {
+            className: 'dsh-wt-listViewport',
+            'data-top': listEdges.top ? 'true' : undefined,
+            'data-bottom': listEdges.bottom ? 'true' : undefined,
+          },
           h(
             'div',
-            { className: 'dsh-wt-listArea' },
+            { className: 'dsh-wt-listArea', ref: listRef, onScroll: syncListEdges },
             h(
               'div',
               { className: 'dsh-wt-listSection' },
