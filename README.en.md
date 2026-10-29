@@ -21,7 +21,7 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - Data is keyed by **session ID**; different sessions in one workspace stay independent.
 - A 28px square top-right icon button shows the open count as a low-contrast gray corner badge; its tooltip reads “Session notes N”.
 - Clicking it opens a fixed right-side panel; switching sessions closes the old panel and updates the entry.
-- The settings button beside the notes title expands a full-bleed settings band: the **Settings** label is followed by a rule, with top and bottom dividers instead of a card frame; it holds the send shortcut, **One-click forward** with **Prefix prompt** and **Forward completion**, and the version/GitHub author link on one line at the bottom; settings persist automatically.
+- The settings button beside the notes title expands a full-bleed settings band: the **Settings** label is followed by a rule, with top and bottom dividers instead of a card frame; it holds the send shortcut, **One-click forward** with **Prefix prompt** and **Forward completion**, plus the version, author 阿三石, and a clickable GitHub project link at the bottom; settings persist automatically.
 - The panel's top-right corner aligns with the header entry and shifts left of the DSH right sidebar when that sidebar is open.
 - Clicking the entry opens the right-side panel for add, complete, copy, edit (double-click or pencil), delete, clear completed, and expand completed.
 - Drag the handle on the panel's left edge to resize its width; double-click the handle to reset it, and the width persists in the browser.
@@ -37,7 +37,7 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - The add row no longer shows a plus icon, and **Add** always sits at the right of its own second row, so wrapping never flickers or jumps.
 - The send-shortcut hint sits in the empty space left of the Add button and updates with the setting, keeping the input placeholder short.
 - Unsaved add/edit drafts are saved per session and restored after closing and reopening the panel, with the add caret at the end of the draft; they clear after add, save, cancel, or delete.
-- Expanding **Completed** does not compress the **Open** list; only the open/completed list region scrolls, the active section header stays sticky while scrolling, the top and bottom edges carry a fixed frosted blur, the sticky headers and 4px scrollbar stay crisp, and the header, settings, composer, and footer stay fixed.
+- Expanding **Completed** does not compress the **Open** list; only the open/completed list region scrolls, a soft frosted blur sits at the bottom edge, the sticky headers and DSH-style inset scrollbar stay crisp, and the header, settings, composer, and footer stay fixed.
 - The open/completed expand state is remembered and restored when the panel is reopened; sticky headers remain clickable to collapse.
 - Note-card copy/edit/delete actions appear on hover or keyboard focus while keeping their layout space; touch devices keep them visible.
 - Both **Open** and **Completed** headings collapse on click with matching count styles; either can stay expanded independently; only the chevron, label, and count are clickable, not the blank right side.

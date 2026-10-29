@@ -222,6 +222,34 @@ test('section toggles stay inside the scroll clip', () => {
   assert.doesNotMatch(css, /\.dsh-wt-popover \.dsh-wt-sectionHead \.dsh-wt-doneToggle\{/, 'the toggle must not be pulled outside the clip')
 })
 
+test('light cards use the lighter neutral surface', () => {
+  const css = readCss()
+  const rows = css.match(/\.dsh-wt-rows\{([^}]*)\}/)
+  assert.ok(rows, 'missing rows rule')
+  assert.match(rows[1], /background:var\(--wt-n-50\)/, 'cards must use the lightest neutral surface')
+  assert.doesNotMatch(rows[1], /background:var\(--wt-n-100\)/, 'the old darker card surface must be gone')
+  assert.match(css, /\.dsh-wt-row:hover\{background:var\(--wt-n-100\)\}/, 'hover must stay one gentle step darker')
+})
+
+test('prefix input shares the child title line box', () => {
+  const css = readCss()
+  const input = css.match(/\.dsh-wt-settingInput\{([^}]*)\}/)
+  assert.ok(input, 'missing settingInput rule')
+  assert.match(input[1], /font-size:var\(--wt-fs-body-sm\)/, 'input must use the child title size token')
+  assert.match(input[1], /line-height:var\(--wt-lh-body-sm\)/, 'input must use the child title line box')
+  assert.doesNotMatch(input[1], /font:inherit/, 'the ambiguous font shorthand must not override the size')
+})
+
+test('footer copy stays local and About links the repository', () => {
+  const client = read('client.js')
+  assert.doesNotMatch(client, /保存在此浏览器|kept in this browser/, 'browser internals must not leak into the footer')
+  assert.match(client, /'footer.error': '本地存储不可用/, 'the storage error should also avoid browser wording')
+  assert.match(client, /PLUGIN_AUTHOR = '阿三石'/, 'the About author must be 阿三石')
+  assert.match(client, /PLUGIN_REPO_URL = 'https:\/\/github\.com\/Rayle8\/dsh-workspace-todos'/, 'the project link must point at the repository')
+  assert.match(client, /'settings.project': '项目地址'/, 'missing the Chinese project label')
+  assert.match(client, /'settings.project': 'Project'/, 'missing the English project label')
+})
+
 test('type scale and weight set stay small', () => {
   const css = readCss()
   const sizes = [...new Set([...css.matchAll(/font-size:([^;}]+)/g)].map(match => match[1].trim()))]

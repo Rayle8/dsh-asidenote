@@ -21,7 +21,7 @@ window.__ModuleLoader__.load({
     /** Fixed lead-in used when forwarding a note to the conversation composer. */
     const FORWARD_PREFIX = '完成以下任务：'
     /** Shown in the in-panel settings; keep in sync with package.json. */
-    const PLUGIN_VERSION = '1.8.0'
+    const PLUGIN_VERSION = '1.8.1'
     const PLUGIN_AUTHOR = '阿三石'
     const PLUGIN_REPO_URL = 'https://github.com/Rayle8/dsh-workspace-todos'
     const PLUGIN_REPO_LABEL = 'github.com/Rayle8/dsh-workspace-todos'
@@ -141,7 +141,7 @@ window.__ModuleLoader__.load({
         'time.createdDone': '{created}创建，{completed}完成',
         'footer.storage': '按会话隔离 · 数据仅保存在本地',
         'footer.saved': '已保存',
-        'footer.error': '浏览器存储不可用，改动可能不会保留',
+        'footer.error': '本地存储不可用，改动可能不会保留',
         'state.loading': '正在读取会话…',
         'state.unsupported': '当前页面没有提供会话数据，无法显示便笺。',
         'state.noWorkspace.title': '还没有工作区',
@@ -166,7 +166,7 @@ window.__ModuleLoader__.load({
         'settings.about': 'About',
         'settings.version': 'Version',
         'settings.author': 'Author',
-        'settings.project': 'Project address',
+        'settings.project': 'Project',
         'settings.shortcut': 'Send shortcut',
         'settings.shortcutCtrlEnter': 'Ctrl+Enter sends, Enter for a new line',
         'settings.shortcutEnter': 'Enter sends, Ctrl+Enter for a new line',
@@ -222,7 +222,7 @@ window.__ModuleLoader__.load({
         'time.createdDone': 'Created {created} · Completed {completed}',
         'footer.storage': 'Separate per session · saved only on this device',
         'footer.saved': 'Saved',
-        'footer.error': 'Browser storage is unavailable; changes may not persist',
+        'footer.error': 'Local storage is unavailable; changes may not persist',
         'state.loading': 'Reading sessions…',
         'state.unsupported': 'This page exposes no session data, so notes cannot render.',
         'state.noWorkspace.title': 'No workspace yet',

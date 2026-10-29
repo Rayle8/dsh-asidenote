@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.8.1
+
+- Reword the footer as “按会话隔离 · 数据仅保存在本地”, removing browser internals from the storage hint.
+- Match the prefix-prompt input's type size and 20px line box to its child-title label.
+- Show the author as 阿三石 and add a clickable link to the GitHub repository under About.
+- Lighten the note cards in the light theme and use a gentler hover tint.
+- Keep only a softer bottom-edge blur (32px band, 2px blur) and adopt the DSH workspace scrollbar: a 9px track with a 5px pill thumb inset 2px.
+
 ## 1.8.0
 
 - Turn the settings area into a full-bleed separator band with a labeled rule and top/bottom dividers; it no longer looks like another note card.
