@@ -196,3 +196,16 @@ test('radii, shadows and motion stay tokenised', () => {
   }
 })
 
+test('section toggles stay inside the scrolling list', () => {
+  const css = readCss()
+  // .dsh-wt-listArea clips on the x axis, so any horizontal pull on a section
+  // toggle (margin-left, including the calc(* -1) form) slices the rounded left
+  // edge off its hover pill.
+  assert.doesNotMatch(
+    css,
+    /[^{}]*\.dsh-wt-(?:doneToggle|sectionHead|doneHead)[^{]*\{[^}]*margin-left:/,
+    'section toggles must not pull left: .dsh-wt-listArea clips the rounded edge',
+  )
+})
+
+

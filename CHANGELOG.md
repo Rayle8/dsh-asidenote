@@ -6,6 +6,7 @@
 - Give every button the six states (default, hover, pressed, focus, disabled, loading); the copy action now reports its async work with a loading ring and a success tint.
 - Animate the panel in and stagger list rows by 40ms using only transform and opacity; the progress bar scales instead of resizing.
 - Fix hover feedback that was invisible in the light theme, and raise tertiary text and the check ring to WCAG AA contrast.
+- Keep the section toggle's hover pill inside the scrolling list, so its rounded left edge is no longer clipped away.
 - Add contract tests that keep the tokens honest, and a review report with before/after evidence under docs/.
 
 ## 1.6.3

@@ -224,12 +224,12 @@
 | `client.js` | `PLUGIN_VERSION` 同步为 `1.7.0` |
 | `package.json` | 版本 `1.7.0` |
 | `docs/ui-check/*.png` | 检查用的对比截图（明/暗、六态） |
-| `tests/contract.test.mjs` | 新增 4 条设计约束测试，防止规范被改回去 |
+| `tests/contract.test.mjs` | 新增 5 条设计约束测试，防止规范被改回去 |
 | `CHANGELOG.md` / `README.md` / `README.en.md` | 记录本次设计规范 |
 
 ## 10. 让规范可执行
 
-规范只在文档里等于没有规范，所以新增了 4 条合同测试（`npm test` 一并执行）：
+规范只在文档里等于没有规范，所以新增了 5 条合同测试（`npm test` 一并执行）：
 
 | 测试 | 守住什么 |
 | --- | --- |
@@ -237,6 +237,7 @@
 | `type scale and weight set stay small` | 所有 `font-size` 只能引用 5 个字号令牌；相邻字号比值必须是 1.25±0.03；字重不超过 3 种 |
 | `spacing snaps to the 4px scale` | `padding` / `margin` / `gap` 只能取 4 的倍数（1px 描边、2px 光学微调、负值对齐例外） |
 | `radii, shadows and motion stay tokenised` | `border-radius` 只能有 3 个令牌值；`box-shadow` 只能是令牌或 inset 描边；`@keyframes` 只能改 `opacity` / `transform`；`transition` 里的时长必须来自令牌 |
+| `section toggles stay inside the scrolling list` | 折叠按钮 / 分区标题不得设置 `margin-left`（含 `calc(... * -1)`），否则会被滚动区裁掉圆角 |
 
 这样下次有人手写 `border-radius:6px`、`#f5f5f5` 或 `.2s ease`，测试会直接拒绝。
 
@@ -253,6 +254,28 @@
 | 面板滚动 | 跟随 main 的 `overflow:hidden` + `.dsh-wt-listArea` 内部滚动，不再由面板整体滚动 |
 | 设置分组 | 保留 main 的 group/item 结构，间距改由 `gap` 与令牌表达，`--dsh-wt-settingIndent` 指向 12px 刻度 |
 
-合并后复核：main 的 109 个样式类一个没丢（加上本次新增的 `iconBtnDanger` 共 110 个），`npm test` 10/10 通过，明暗两套主题的对比度与合并前一致。
+合并后复核：main 的 109 个样式类一个没丢（加上本次新增的 `iconBtnDanger` 共 110 个），`npm test` 11/11 通过，明暗两套主题的对比度与合并前一致。
 
 ![合并后明暗对照](./ui-check/panel-light-dark.png)
+
+## 12. 合并后的回归：折叠按钮左侧圆角被裁
+
+合并完成后由评审发现的问题，记录在此以免同类问题再犯。
+
+**现象**：hover「未完成 / 已完成」时，药丸左边缘是直角，右边却是圆的。
+
+| 修复前 | 修复后 |
+| --- | --- |
+| ![左侧被裁](./ui-check/section-toggle-before.png) | ![圆角完整](./ui-check/section-toggle-after.png) |
+
+**原因**：两条规则单独都成立，叠在一起才出问题。
+
+1. main 在 1.6.x 给面板加了滚动区 `.dsh-wt-listArea{overflow-x:hidden}`，它以内容盒为裁剪边界；
+2. 我给折叠按钮加过 `margin-left:calc(var(--wt-space-1) * -1)`，想让箭头贴住内容左边缘；
+3. 两者相遇时，按钮被推出裁剪边界 4px，8px 圆角连同左边缘一起被裁掉——只剩直角。
+
+**为什么漏了**：六态验证是在"组件隔离"层面做的——六态画廊里的折叠按钮不在 `.dsh-wt-listArea` 内，圆角正常；面板整图又都是静止态，没有 hover 药丸。**状态覆盖到了，容器裁剪没覆盖到。**
+
+**修复**：去掉负外边距，把按钮左内边距从 4px 改成 0。静止态下箭头与文字位置不变（原来 12+4=16，现在 16+0=16），只有药丸左边缘从 12px 回到 16px——正好落在裁剪边界内。
+
+**防复发**：新增测试 `section toggles stay inside the scrolling list`，禁止 `doneToggle` / `sectionHead` / `doneHead` 出现 `margin-left`（包括 `calc(... * -1)` 这种写法），因为它一定会被滚动区裁掉。测试从 10 条增加到 11 条。
