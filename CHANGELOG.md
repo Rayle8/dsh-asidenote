@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.1
+
+- Slim the right-panel scrollbar from 6px to 4px and pin it to the panel's right edge, so it no longer narrows the todo cards.
+- Reserve the scrollbar gutter inside the panel padding, keeping cards, section headers, and the add box on the same content width.
+
 ## 1.7.0
 
 - Rebuild the panel styling on design tokens: an 11-step neutral ramp (50 to 950), a five-step 1.25 type scale, a 4px spacing scale, three radii, one layered shadow, and tokenised durations and easings.

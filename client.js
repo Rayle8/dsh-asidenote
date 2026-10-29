@@ -21,7 +21,7 @@ window.__ModuleLoader__.load({
     /** Fixed lead-in used when forwarding a note to the conversation composer. */
     const FORWARD_PREFIX = '完成以下任务：'
     /** Shown in the in-panel settings; keep in sync with package.json. */
-    const PLUGIN_VERSION = '1.7.0'
+    const PLUGIN_VERSION = '1.7.1'
     const PLUGIN_AUTHOR_URL = 'https://github.com/Rayle8'
     const PLUGIN_AUTHOR_LABEL = 'github.com/Rayle8'
     /** Enter-to-send preference; persisted across panel openings. */
@@ -439,10 +439,10 @@ window.__ModuleLoader__.load({
       '@media (max-width:640px){.dsh-wt-shell{padding:var(--wt-space-5) var(--wt-space-4) var(--wt-space-8)}.dsh-wt-head{gap:var(--wt-space-4)}.dsh-wt-title{font-size:var(--wt-fs-heading);line-height:var(--wt-lh-heading)}.dsh-wt-statNum{font-size:var(--wt-fs-heading);line-height:var(--wt-lh-heading)}.dsh-wt-select{max-width:210px}}',
       '@media (hover:none){.dsh-wt-actions{opacity:1;pointer-events:auto}}',
       '/* ── main 1.6.x 新增结构：滚动区 / 分组 / 半勾 / 转发态 ─────────── */',
-      '.dsh-wt-listArea{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--wt-line) transparent}',
-      '.dsh-wt-listArea::-webkit-scrollbar{width:6px;height:6px}',
+      '.dsh-wt-listArea{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--wt-space-4) * -1);padding-right:calc(var(--wt-space-4) - 4px);overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}',
+      '.dsh-wt-listArea::-webkit-scrollbar{width:4px;height:4px}',
       '.dsh-wt-listArea::-webkit-scrollbar-track{background:transparent}',
-      '.dsh-wt-listArea::-webkit-scrollbar-thumb{border-radius:var(--wt-radius-pill);background-color:var(--wt-line)}',
+      '.dsh-wt-listArea::-webkit-scrollbar-thumb{border-radius:var(--wt-radius-pill);background-color:var(--wt-line-strong)}',
       '.dsh-wt-listArea::-webkit-scrollbar-thumb:hover{background-color:var(--wt-ink-tertiary)}',
       '.dsh-wt-listSection{display:flex;flex-direction:column;gap:var(--wt-space-2);min-width:0}',
       '.dsh-wt-listSection+.dsh-wt-listSection{margin-top:var(--wt-space-1)}',

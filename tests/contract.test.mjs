@@ -153,6 +153,17 @@ test('colours come from the three-role token layer', () => {
   assert.ok(accentUses <= 6, `accent leaks into ${accentUses} fills`)
 })
 
+test('list scrollbar stays on the panel edge without shrinking cards', () => {
+  const css = readCss()
+  const rule = css.match(/\.dsh-wt-listArea\{([^}]*)\}/)
+  assert.ok(rule, 'missing listArea rule')
+  assert.match(rule[1], /margin-right:calc\(var\(--wt-space-4\) \* -1\)/, 'listArea must reach the panel edge')
+  assert.match(rule[1], /padding-right:calc\(var\(--wt-space-4\) - 4px\)/, 'listArea must compensate the scrollbar width')
+  assert.match(rule[1], /scrollbar-gutter:stable/, 'the gutter must stay reserved in both states')
+  assert.doesNotMatch(rule[1], /scrollbar-width:/, 'scrollbar-width would override the 4px webkit thumb')
+  assert.match(css, /\.dsh-wt-listArea::-webkit-scrollbar\{width:4px;height:4px\}/, 'scrollbar must stay thin')
+})
+
 test('type scale and weight set stay small', () => {
   const css = readCss()
   const sizes = [...new Set([...css.matchAll(/font-size:([^;}]+)/g)].map(match => match[1].trim()))]
