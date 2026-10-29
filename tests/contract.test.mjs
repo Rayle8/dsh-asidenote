@@ -383,6 +383,36 @@ test('section toggles stay inside the scrolling list', () => {
   )
 })
 
+test('the section counts carry the status hierarchy', () => {
+  const css = readCss()
+  // Section labels are quiet captions now, so the panel title is the only
+  // 14px/500 line at the top of the popover.
+  assert.match(css, /\.dsh-wt-doneToggle\{[^}]*font-size:var\(--wt-fs-caption\)/)
+  assert.match(css, /\.dsh-wt-doneToggle\{[^}]*color:var\(--dsw-alias-label-secondary\)/)
+  assert.match(css, /\.dsh-wt-popMeta\{[^}]*font-size:var\(--wt-fs-caption\)/)
+  assert.match(css, /\.dsh-wt-popMeta\{[^}]*font-weight:400/)
+  assert.match(css, /\.dsh-wt-popMeta\{[^}]*line-height:16px/)
+  // The title and count share one line, and the two icon actions sit together
+  // at the right, so the meta reads as a status instead of a second title.
+  assert.match(css, /\.dsh-wt-popTitleLine\{[^}]*flex:1 1 auto/)
+  assert.match(css, /\.dsh-wt-popActions\{[^}]*display:flex/)
+  const client = read('client.js')
+  assert.match(client, /className: 'dsh-wt-popActions'/)
+  assert.match(client, /className: 'dsh-wt-popTitleLine' \},\n\s+h\('div', \{ className: 'dsh-wt-popTitle' \}[^]*?h\('p', \{ className: 'dsh-wt-popMeta' \}/)
+  // Completed work gets the only success tint; an empty open section shows no
+  // zero badge, which is noise rather than information.
+  assert.match(
+    css,
+    /\.dsh-wt-sectionCount\[data-tone="done"\]\{[^}]*border-color:var\(--dsw-alias-state-success-primary\)[^}]*background:var\(--dsw-alias-state-success-tertiary\)[^}]*color:var\(--dsw-alias-label-primary\)/,
+  )
+  assert.match(client, /openCount \? h\('span', \{ className: 'dsh-wt-sectionCount' \}, String\(openCount\)\) : null/)
+  assert.match(client, /h\('span', \{ className: 'dsh-wt-sectionCount', 'data-tone': 'done' \}/)
+  // Cards and the add field share one card surface so the panel material stays
+  // the quietest layer, while the 0.5px card edge stays the strongest line.
+  assert.match(css, /\.dsh-wt-add\{[^}]*border:0\.5px solid var\(--dsw-alias-settings-card-stroke\)[^}]*background:var\(--dsw-alias-settings-card-fill\)/)
+  assert.match(css, /\.dsh-wt-rows\{[^}]*border:0\.5px solid var\(--dsw-alias-settings-card-stroke\)[^}]*background:var\(--dsw-alias-settings-card-fill\)/)
+})
+
 test('the panel never raises the soft keyboard on touch devices', () => {
   const client = read('client.js')
   assert.match(client, /\(hover: hover\) and \(pointer: fine\)/)
