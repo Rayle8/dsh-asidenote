@@ -73,8 +73,7 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /item\.forwarded/)
   assert.doesNotMatch(client, /dsh-wt-checkHalf|dsh-wt-checkForwarded|HALF_DONE_|item\.pendingCountdown|settings\.halfCheck/)
   assert.match(client, /edit\.hintEnter/)
-  assert.match(client, /settings\.forwardMark/)
-  assert.match(client, /settings\.forwardCheck/)
+  assert.doesNotMatch(client, /settings\.forward(?:Check|Mark)/, 'the stale forward-mark description is gone')
   assert.match(client, /settings\.forwardPrefixItem/)
   assert.match(client, /SECTION_STATE_KEY/)
   assert.match(client, /readSectionState/)
@@ -587,3 +586,18 @@ test('the clear confirmation band reuses card tokens and a danger confirm', () =
   assert.ok(hover, 'danger hover rule must stay inside the hover media block')
   assert.match(hover.media, /hover:hover/)
 })
+
+test('the prefix prompt is explained under the field, without a visible title', () => {
+  const client = read('client.js')
+  assert.doesNotMatch(client, /htmlFor: 'dsh-wt-forward-prefix'/, 'the prefix field no longer has a visible title')
+  assert.match(client, /'aria-label': say\('settings\.forwardPrefixItem'\)/, 'the field keeps an accessible name')
+  assert.match(client, /'aria-describedby': 'dsh-wt-forward-prefix-hint'/, 'the field points at the hint')
+  assert.match(client, /id: 'dsh-wt-forward-prefix-hint', className: 'dsh-wt-settingHint' \}, say\('settings\.forwardPrefixHint'\)/)
+  assert.doesNotMatch(readCss(), /dsh-wt-settingItemLabel/, 'the unused title style is gone')
+  const dict = readDict()
+  assert.match(dict.zh['settings.forwardPrefixHint'], /若输入框为空/)
+  assert.match(dict.zh['settings.forwardPrefixHint'], /留空则只转发便笺正文$/)
+  assert.match(dict.en['settings.forwardPrefixHint'], /empty composer/)
+  assert.match(dict.en['settings.forwardPrefixHint'], /leave it empty/)
+})
+

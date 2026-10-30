@@ -4,6 +4,8 @@
 
 - Hide the forward action on completed notes, so a done row only offers copy, edit, and delete.
 - Require a second confirmation for clearing completed notes: the header button opens an inline confirmation band with the live count, Cancel, and a destructive Confirm, which auto-dismisses after five seconds.
+- Remove the stale forwarded-marker description from settings; the mark on the forward button is self-explanatory.
+- Replace the prefix-prompt title with a hint under the field that explains both the lead-in and the empty-prefix behaviour.
 - Give the forwarded mark the forward icon's neutral palette instead of success green, and let a second click on the forward button remove the mark (with its own toast) rather than appending the note twice.
 - Drop the success tint from the completed count badge so it matches the open count exactly; the number stays quiet instead of competing for attention.
 - Stop forwarding from touching the checkbox: it keeps only open and done, the forward button gains a small check, and the half-check, three-second completion countdown, and gray forwarded-done check are gone.
