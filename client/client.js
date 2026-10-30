@@ -274,7 +274,7 @@ function makeSay(ctx, getLocaleId) {
 * stroke weight, optical size and currentColor stay consistent with the shell.
 * Tooltip and Toast are the seeded primitives — the bundle keeps them external.
 */
-const h$9 = react.default.createElement;
+const h$10 = react.default.createElement;
 const PRIMITIVES = _deepseek_ai_dsh_client_ui_primitives;
 const Tooltip = typeof PRIMITIVES.Tooltip === "function" ? PRIMITIVES.Tooltip : null;
 const Toast = typeof PRIMITIVES.Toast === "function" ? PRIMITIVES.Toast : null;
@@ -287,53 +287,138 @@ const icon = (name) => typeof PRIMITIVES[name] === "function" ? PRIMITIVES[name]
 function Glyph(props) {
 	const Component = icon(props.name);
 	if (!Component) return null;
-	return h$9(Component, { size: props.size });
+	return h$10(Component, { size: props.size });
 }
-const IconCheck = (props) => h$9(Glyph, {
+const IconCheck = (props) => h$10(Glyph, {
 	name: "IconCheckOutlineMedium",
 	size: props && props.size ? props.size : 12
 });
-const IconCopy = () => h$9(Glyph, {
+const IconCopy = () => h$10(Glyph, {
 	name: "IconCopyOutlineRegular",
 	size: 14
 });
-const IconForward = () => h$9(Glyph, {
+const IconForward = () => h$10(Glyph, {
 	name: "IconShareOutlineRegular",
 	size: 14
 });
-const IconGear = () => h$9(Glyph, {
+const IconGear = () => h$10(Glyph, {
 	name: "IconSettingsOutlineRegular",
 	size: 14
 });
-const IconPencil = () => h$9(Glyph, {
+const IconPencil = () => h$10(Glyph, {
 	name: "IconEditOutlineRegular",
 	size: 14
 });
-const IconTrash = () => h$9(Glyph, {
+const IconTrash = () => h$10(Glyph, {
 	name: "IconTrashOutlineRegular",
 	size: 14
 });
-const IconChevron = () => h$9(Glyph, {
+const IconChevron = () => h$10(Glyph, {
 	name: "IconChevronRightOutlineRegular",
 	size: 12
 });
-const IconEmpty = () => h$9(Glyph, {
+const IconEmpty = () => h$10(Glyph, {
 	name: "IconChecklistOutlineRegular",
 	size: 18
 });
-const IconClose = () => h$9(Glyph, {
+const IconClose = () => h$10(Glyph, {
 	name: "IconCloseOutlineRegular",
 	size: 14
 });
 /** Wrap one icon-only control in the shared tooltip; a bare button when absent. */
 function withTooltip(label, node) {
 	if (!Tooltip) return node;
-	return h$9(Tooltip, {
+	return h$10(Tooltip, {
 		label,
 		side: "top",
 		portal: true,
 		gap: 6
 	}, node);
+}
+
+// src/client/ui/toastSeat.ts
+/** Frame-wide toast seat: one notice at a time, dismissed when it fades. */
+const h$9 = react.default.createElement;
+const TOAST_COPY = {
+	copied: {
+		key: "toast.copied",
+		tone: "success"
+	},
+	forwarded: {
+		key: "toast.forwarded",
+		tone: "success"
+	},
+	unforwarded: {
+		key: "toast.unforwarded",
+		tone: "success"
+	},
+	deleted: {
+		key: "toast.deleted",
+		tone: "success"
+	},
+	cleared: {
+		key: "toast.cleared",
+		tone: "success"
+	},
+	copyFailed: { key: "toast.copyFailed" },
+	forwardFailed: { key: "toast.forwardFailed" },
+	saveFailed: { key: "toast.saveFailed" }
+};
+const WarningIcon = icon("IconWarningOutlineRegular");
+/**
+* Settled outcomes (copy, forward, delete, write failure) live in the frame,
+* not inside the panel: the panel unmounts on close, the banner must not.
+*/
+function createToastSeat(tr) {
+	const source = (() => {
+		let notice = null;
+		let sequence = 0;
+		const listeners = /* @__PURE__ */ new Set();
+		const publish = (next) => {
+			notice = next;
+			for (const listener of listeners) listener();
+		};
+		return {
+			hooks: { notice: {
+				getSnapshot: () => notice,
+				subscribe: (listener) => {
+					listeners.add(listener);
+					return () => {
+						listeners.delete(listener);
+					};
+				}
+			} },
+			show(kind) {
+				sequence += 1;
+				publish({
+					kind,
+					sequence
+				});
+			},
+			dismiss() {
+				publish(null);
+			}
+		};
+	})();
+	/** The slot the layout mounts once; it owns the only visible notice. */
+	function ToastHost(props) {
+		const notice = react.default.useSyncExternalStore(source.hooks.notice.subscribe, source.hooks.notice.getSnapshot);
+		if (!notice || !Toast) return null;
+		const copy = TOAST_COPY[notice.kind] || TOAST_COPY.saveFailed;
+		const bound = props && typeof props.t === "function" ? props.t(copy.key) : "";
+		const text = bound && bound !== copy.key ? bound : tr(copy.key);
+		return h$9(Toast, {
+			key: notice.sequence,
+			text,
+			tone: copy.tone,
+			icon: copy.tone ? void 0 : WarningIcon ? h$9(WarningIcon, { size: 16 }) : void 0,
+			onDone: source.dismiss
+		});
+	}
+	return {
+		show: source.show,
+		ToastHost
+	};
 }
 
 // src/client/domain/id.ts
@@ -432,6 +517,17 @@ function metaLabel(item, say, localeId) {
 	});
 }
 
+// src/client/storage/codec.ts
+/** The browser store, or null when storage is blocked. */
+/** The browser store, or null when storage is blocked. */
+function storage() {
+	try {
+		return window.localStorage;
+	} catch {
+		return null;
+	}
+}
+
 // src/client/storage/events.ts
 /**
 * Same-tab change bus.
@@ -447,17 +543,6 @@ function notifyTodoChange() {
 		listener();
 	} catch (error) {
 		console.error("dsh-asidenote: listener failed", error);
-	}
-}
-
-// src/client/storage/codec.ts
-/** The browser store, or null when storage is blocked. */
-/** The browser store, or null when storage is blocked. */
-function storage() {
-	try {
-		return window.localStorage;
-	} catch {
-		return null;
 	}
 }
 
@@ -520,6 +605,92 @@ function writeSessionRecord(sessionId, record) {
 	} catch {
 		return false;
 	}
+}
+
+// src/client/ui/headerEntry.ts
+/**
+* The host-owned notes button in the conversation header.
+*
+* It is a plain DOM node beside the shell's utilities row: a React portal there
+* would be reconciled away. The glyph is inlined for the same reason.
+*/
+const HEADER_ICON = "<svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.3\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.25 2.75h6.5l3 3v7.5c0 .55-.45 1-1 1H3.25c-.55 0-1-.45-1-1V3.75c0-.55.45-1 1-1Z\"/><path d=\"M9.75 2.75v3h3\"/><path d=\"M4.9 7.6h5.4M4.9 9.9h3.6\" stroke-linecap=\"round\"/></svg>";
+function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, tr, onOpen }) {
+	const refresh = () => {
+		const sessionId = getSessionId();
+		const host = document.querySelector("[class*=\"_headerUtilities\"]");
+		let button = host ? host.querySelector(":scope > .dsh-an-headerBtn") : null;
+		if (!host || !sessionId) {
+			if (button) button.remove();
+			return;
+		}
+		const store = readSessionStore();
+		const open = normalizeItems(store.sessions[sessionId] && store.sessions[sessionId].items).filter((item) => !item.done).length;
+		if (!button) {
+			button = document.createElement("button");
+			button.type = "button";
+			button.className = "dsh-an-headerBtn";
+			button.addEventListener("pointerdown", (event) => event.stopPropagation());
+			button.addEventListener("click", (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				onOpen(sessionId, button);
+			});
+			host.appendChild(button);
+		}
+		button.dataset.active = getActiveAnchor() === button ? "true" : "false";
+		const signature = `${getLocaleId()}:${sessionId}:${open}`;
+		if (button.dataset.signature !== signature) {
+			const icon = document.createElement("span");
+			icon.className = "dsh-an-headerIcon";
+			icon.innerHTML = HEADER_ICON;
+			button.replaceChildren(icon);
+			if (open > 0) {
+				const count = document.createElement("span");
+				count.className = "dsh-an-headerCount";
+				count.textContent = open > 99 ? "99+" : String(open);
+				button.appendChild(count);
+			}
+			button.dataset.signature = signature;
+		}
+		button.dataset.sessionId = sessionId;
+		button.title = open > 0 ? tr("header.tooltip", { n: open }) : tr("header.tooltipEmpty");
+		button.setAttribute("aria-label", open > 0 ? `${tr("dock.open")}, ${tr("dock.count", { n: open })}` : tr("dock.open"));
+	};
+	/** Watch the store, the DOM and the viewport; returns the cleanup. */
+	const attach = (onDispose) => {
+		let scheduled = false;
+		const schedule = () => {
+			if (scheduled) return;
+			scheduled = true;
+			requestAnimationFrame(() => {
+				scheduled = false;
+				refresh();
+			});
+		};
+		const onStorage = (event) => {
+			if (event.key === "dsh.aside-notes.v2") schedule();
+		};
+		TODO_LISTENERS.add(schedule);
+		window.addEventListener("storage", onStorage);
+		const observer = new MutationObserver(schedule);
+		observer.observe(document.body, {
+			childList: true,
+			subtree: true
+		});
+		refresh();
+		return () => {
+			TODO_LISTENERS.delete(schedule);
+			window.removeEventListener("storage", onStorage);
+			observer.disconnect();
+			onDispose();
+			for (const button of document.querySelectorAll(".dsh-an-headerBtn")) button.remove();
+		};
+	};
+	return {
+		refresh,
+		attach
+	};
 }
 
 // src/client/ui/useSessionMemoStore.ts
@@ -901,6 +1072,199 @@ function usePanelGeometry(anchorRef, placement, panelRef) {
 	};
 }
 
+// src/client/ui/useSections.ts
+/** Open/completed section visibility, remembered across panel opens. */
+function useSections() {
+	const [initial] = react.default.useState(readSectionState);
+	const [showOpen, setShowOpen] = react.default.useState(initial.open);
+	const [showDone, setShowDone] = react.default.useState(initial.done);
+	const sectionsRef = react.default.useRef(initial);
+	/** Apply one section state and remember it right away, using the next value. */
+	const applySections = (next) => {
+		sectionsRef.current = next;
+		setShowOpen(next.open);
+		setShowDone(next.done);
+		writeSectionState(next);
+	};
+	return {
+		sectionsRef,
+		showOpen,
+		showDone,
+		applySections,
+		toggleOpen: () => applySections({
+			open: !sectionsRef.current.open,
+			done: sectionsRef.current.done
+		}),
+		toggleDone: () => applySections({
+			open: sectionsRef.current.open,
+			done: !sectionsRef.current.done
+		})
+	};
+}
+
+// src/client/storage/forwarded.ts
+/** Per-session forwarded marks behind the forward button. */
+/** Empty forwarded-flag store; shape is { version, sessions: { [sessionId]: { [itemId]: true } } }. */
+function emptyForwardedStore() {
+	return {
+		version: 1,
+		sessions: {}
+	};
+}
+/** Read the forwarded-flag store; corrupt or unavailable reads as empty. */
+function readForwardedStore() {
+	const ls = storage();
+	if (!ls) return emptyForwardedStore();
+	try {
+		const raw = ls.getItem(FORWARDED_STORAGE_KEY);
+		if (!raw) return emptyForwardedStore();
+		const parsed = JSON.parse(raw);
+		if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return emptyForwardedStore();
+		const sessions = parsed.sessions;
+		if (!sessions || typeof sessions !== "object" || Array.isArray(sessions)) return emptyForwardedStore();
+		return {
+			version: 1,
+			sessions
+		};
+	} catch {
+		return emptyForwardedStore();
+	}
+}
+function writeForwardedStore(store) {
+	const ls = storage();
+	if (!ls) return false;
+	try {
+		ls.setItem(FORWARDED_STORAGE_KEY, JSON.stringify(store));
+		return true;
+	} catch {
+		return false;
+	}
+}
+/** Keep only `true` flags on non-empty ids; anything else in the stored record is dropped. */
+function normalizeForwardedRecord(record) {
+	if (!record || typeof record !== "object" || Array.isArray(record)) return {};
+	const next = {};
+	for (const [itemId, flag] of Object.entries(record)) if (itemId && flag === true) next[itemId] = true;
+	return next;
+}
+/** Forwarded item ids of one session, as an id -> true map. */
+function readForwardedIds(sessionId) {
+	const key = sessionId ? String(sessionId) : "";
+	if (!key) return {};
+	return normalizeForwardedRecord(readForwardedStore().sessions[key]);
+}
+/** Remember that one note was forwarded; best effort, never blocks the send. */
+function markForwarded(sessionId, itemId) {
+	const key = sessionId ? String(sessionId) : "";
+	const id = itemId ? String(itemId) : "";
+	if (!key || !id) return false;
+	const store = readForwardedStore();
+	store.sessions[key] = {
+		...normalizeForwardedRecord(store.sessions[key]),
+		[id]: true
+	};
+	return writeForwardedStore(store);
+}
+/** Drop forwarded flags that can no longer be rendered (deleted or cleared notes). */
+function forgetForwarded(sessionId, itemIds) {
+	const key = sessionId ? String(sessionId) : "";
+	if (!key) return false;
+	const ids = Array.isArray(itemIds) ? itemIds : [itemIds];
+	const store = readForwardedStore();
+	const record = normalizeForwardedRecord(store.sessions[key]);
+	let changed = false;
+	for (const rawId of ids) {
+		const id = rawId ? String(rawId) : "";
+		if (!id || !record[id]) continue;
+		delete record[id];
+		changed = true;
+	}
+	if (!changed) return false;
+	if (Object.keys(record).length) store.sessions[key] = record;
+	else delete store.sessions[key];
+	return writeForwardedStore(store);
+}
+
+// src/client/ui/useForwardMarks.ts
+/** Which notes were forwarded in this session, plus the toggle-off bookkeeping. */
+function useForwardMarks(sessionId) {
+	const [forwardedIds, setForwardedIds] = react.default.useState(() => readForwardedIds(sessionId));
+	const sessionRef = react.default.useRef(sessionId ? String(sessionId) : "");
+	react.default.useEffect(() => {
+		const key = sessionId ? String(sessionId) : "";
+		if (sessionRef.current === key) return;
+		sessionRef.current = key;
+		setForwardedIds(readForwardedIds(key));
+	}, [sessionId]);
+	/** Drop forwarded flags for notes that no longer render (deleted or cleared). */
+	const forgetForwardedItems = (itemIds) => {
+		const ids = (Array.isArray(itemIds) ? itemIds : [itemIds]).filter(Boolean);
+		if (!ids.length) return;
+		forgetForwarded(sessionId, ids);
+		setForwardedIds((current) => {
+			if (!ids.some((id) => current[id])) return current;
+			const next = { ...current };
+			for (const id of ids) delete next[id];
+			return next;
+		});
+	};
+	/** Remember a successful forward so the forward button keeps its check after closing the panel. */
+	const rememberForwarded = (item) => {
+		const id = item && item.id ? String(item.id) : "";
+		if (!id) return;
+		markForwarded(sessionId, id);
+		setForwardedIds((current) => current[id] ? current : {
+			...current,
+			[id]: true
+		});
+	};
+	/** Toggle the forward mark off; the note and its open/done state stay untouched. */
+	const unrememberForwarded = (item) => {
+		const id = item && item.id ? String(item.id) : "";
+		if (!id) return;
+		forgetForwardedItems(id);
+	};
+	return {
+		forwardedIds,
+		rememberForwarded,
+		unrememberForwarded,
+		forgetForwardedItems
+	};
+}
+
+// src/client/ui/usePanelSettings.ts
+/** Inline settings: send shortcut and the forward lead-in, both persisted. */
+function usePanelSettings() {
+	const [showSettings, setShowSettings] = react.default.useState(false);
+	const [sendShortcut, setSendShortcut] = react.default.useState(readSendShortcut);
+	const [forwardPrefix, setForwardPrefix] = react.default.useState(readForwardPrefix);
+	const prefixRef = react.default.useRef(null);
+	react.default.useLayoutEffect(() => {
+		const node = prefixRef.current;
+		if (!node) return;
+		node.style.height = "auto";
+		node.style.height = `${Math.min(138, node.scrollHeight + 2)}px`;
+	}, [forwardPrefix, showSettings]);
+	const chooseShortcut = (value) => {
+		setSendShortcut(value);
+		writeSendShortcut(value);
+	};
+	const changeForwardPrefix = (value) => {
+		const next = String(value || "").slice(0, 80);
+		setForwardPrefix(next);
+		writeForwardPrefix(next);
+	};
+	return {
+		showSettings,
+		setShowSettings,
+		sendShortcut,
+		chooseShortcut,
+		forwardPrefix,
+		changeForwardPrefix,
+		prefixRef
+	};
+}
+
 // src/client/storage/drafts.ts
 /** Unsaved add/edit drafts, so closing the panel never loses text. */
 /** Empty unsaved-draft store. */
@@ -998,87 +1362,299 @@ function clearEditDraft(sessionId, itemId) {
 	writeDraftStore(store);
 }
 
-// src/client/storage/forwarded.ts
-/** Per-session forwarded marks behind the forward button. */
-/** Empty forwarded-flag store; shape is { version, sessions: { [sessionId]: { [itemId]: true } } }. */
-function emptyForwardedStore() {
+// src/client/ui/useComposerDraft.ts
+/** The add box: draft persistence, auto-grow, send chords and newline insertion. */
+function useComposerDraft({ sessionId, commit, report, sendShortcut }) {
+	const [draft, setDraft] = react.default.useState(() => readSessionDrafts(sessionId).add);
+	const addRef = react.default.useRef(null);
+	const composingRef = react.default.useRef(false);
+	const resizeAdd = (node) => {
+		if (!node) return;
+		node.style.height = "auto";
+		node.style.height = `${node.scrollHeight + 2}px`;
+	};
+	react.default.useEffect(() => {
+		resizeAdd(addRef.current);
+	}, [draft]);
+	react.default.useLayoutEffect(() => {
+		const node = addRef.current;
+		if (!node) return;
+		if (typeof window.matchMedia === "function" && !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+		node.focus();
+		const end = node.value.length;
+		try {
+			node.setSelectionRange(end, end);
+		} catch {}
+	}, []);
+	const add = () => {
+		const text = draft.trim().slice(0, 280);
+		if (!text) return;
+		const now = Date.now();
+		if (!commit((currentItems) => [{
+			id: uid(),
+			text,
+			done: false,
+			createdAt: now,
+			updatedAt: now
+		}, ...currentItems])) {
+			report("saveFailed");
+			return;
+		}
+		setDraft("");
+		clearAddDraft(sessionId);
+	};
+	const insertDraftNewline = (node) => {
+		if (!node) return;
+		const start = node.selectionStart === null ? node.value.length : node.selectionStart;
+		const end = node.selectionEnd === null ? start : node.selectionEnd;
+		const next = `${node.value.slice(0, start)}\n${node.value.slice(end)}`;
+		setDraft(next);
+		saveAddDraft(sessionId, next);
+		window.requestAnimationFrame(() => {
+			node.selectionStart = start + 1;
+			node.selectionEnd = start + 1;
+			resizeAdd(node);
+		});
+	};
+	const onDraftChange = (event) => {
+		const value = event.target.value;
+		setDraft(value);
+		saveAddDraft(sessionId, value);
+		resizeAdd(event.target);
+	};
+	const onDraftKeyDown = (event) => {
+		const composing = event.isComposing || event.nativeEvent && event.nativeEvent.isComposing;
+		if (event.key === "Escape") {
+			event.currentTarget.blur();
+			return;
+		}
+		if (event.key !== "Enter") return;
+		if (composing) {
+			event.preventDefault();
+			return;
+		}
+		const chord = event.ctrlKey || event.metaKey;
+		const platformModifier = isSendModifier(event);
+		if (sendShortcut === "enter" ? !chord && !event.shiftKey : platformModifier) {
+			event.preventDefault();
+			add();
+			return;
+		}
+		if (sendShortcut === "enter" && (chord || event.shiftKey)) {
+			event.preventDefault();
+			insertDraftNewline(event.currentTarget);
+		}
+	};
 	return {
-		version: 1,
-		sessions: {}
+		draft,
+		addRef,
+		composingRef,
+		add,
+		onDraftChange,
+		onDraftKeyDown
 	};
 }
-/** Read the forwarded-flag store; corrupt or unavailable reads as empty. */
-function readForwardedStore() {
-	const ls = storage();
-	if (!ls) return emptyForwardedStore();
-	try {
-		const raw = ls.getItem(FORWARDED_STORAGE_KEY);
-		if (!raw) return emptyForwardedStore();
-		const parsed = JSON.parse(raw);
-		if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return emptyForwardedStore();
-		const sessions = parsed.sessions;
-		if (!sessions || typeof sessions !== "object" || Array.isArray(sessions)) return emptyForwardedStore();
-		return {
-			version: 1,
-			sessions
+
+// src/client/ui/useNoteActions.ts
+/** Row actions: toggle, delete, and the inline edit session. */
+function useNoteActions({ sessionId, commit, report, forgetForwardedItems }) {
+	const [editingId, setEditingId] = react.default.useState(null);
+	const [editDraft, setEditDraft] = react.default.useState("");
+	const editRef = react.default.useRef(null);
+	const cancelEditRef = react.default.useRef(false);
+	react.default.useEffect(() => {
+		if (!editingId || !editRef.current) return;
+		editRef.current.focus();
+		editRef.current.select();
+	}, [editingId]);
+	const resetEditing = (itemId) => {
+		if (!editingId || editingId !== itemId) return;
+		setEditingId(null);
+		setEditDraft("");
+	};
+	const toggle = (item) => {
+		if (!commit((currentItems) => currentItems.map((candidate) => {
+			if (candidate.id !== item.id) return candidate;
+			const now = Date.now();
+			return {
+				...candidate,
+				done: !candidate.done,
+				updatedAt: now,
+				...candidate.done ? { completedAt: void 0 } : { completedAt: now }
+			};
+		}))) {
+			report("saveFailed");
+			return;
+		}
+		if (item.id === editingId) {
+			setEditingId(null);
+			setEditDraft("");
+			clearEditDraft(sessionId, item.id);
+		}
+	};
+	const remove = (item) => {
+		if (!commit((currentItems) => currentItems.filter((candidate) => candidate.id !== item.id))) {
+			report("saveFailed");
+			return;
+		}
+		report("deleted");
+		clearEditDraft(sessionId, item.id);
+		forgetForwardedItems(item.id);
+		resetEditing(item.id);
+	};
+	const startEdit = (item) => {
+		cancelEditRef.current = false;
+		const saved = readEditDraft(sessionId, item.id);
+		setEditingId(item.id);
+		setEditDraft(saved === null ? item.text : saved);
+	};
+	const finishEdit = (item) => {
+		if (cancelEditRef.current) {
+			cancelEditRef.current = false;
+			return;
+		}
+		if (!editingId) return;
+		const text = editDraft.trim().slice(0, 280);
+		if (text && text !== item.text) {
+			if (!commit((currentItems) => currentItems.map((candidate) => {
+				if (candidate.id !== item.id) return candidate;
+				return {
+					...candidate,
+					text,
+					updatedAt: Date.now()
+				};
+			}))) {
+				report("saveFailed");
+				return;
+			}
+		}
+		setEditingId(null);
+		setEditDraft("");
+		clearEditDraft(sessionId, item.id);
+	};
+	const cancelEdit = () => {
+		cancelEditRef.current = true;
+		const currentId = editingId;
+		setEditingId(null);
+		setEditDraft("");
+		if (currentId) clearEditDraft(sessionId, currentId);
+	};
+	return {
+		editingId,
+		editDraft,
+		setEditDraft,
+		editRef,
+		startEdit,
+		finishEdit,
+		cancelEdit,
+		toggle,
+		remove
+	};
+}
+
+// src/client/ui/useClearConfirm.ts
+/** The inline second confirmation for clearing completed notes. */
+function useClearConfirm({ sessionId, showDone, doneCount, onConfirm }) {
+	const [confirmClear, setConfirmClear] = react.default.useState(false);
+	const clearConfirmTimerRef = react.default.useRef(0);
+	/** Drop the pending auto-dismiss clock without touching state. */
+	const stopClearConfirmTimer = () => {
+		if (!clearConfirmTimerRef.current) return;
+		window.clearTimeout(clearConfirmTimerRef.current);
+		clearConfirmTimerRef.current = 0;
+	};
+	/** Close the inline band and drop its pending timer. */
+	const dismissClearConfirm = () => {
+		stopClearConfirmTimer();
+		setConfirmClear(false);
+	};
+	/** Open the inline band; it retires itself after a short pause. */
+	const askClearConfirm = () => {
+		stopClearConfirmTimer();
+		setConfirmClear(true);
+		clearConfirmTimerRef.current = window.setTimeout(() => {
+			clearConfirmTimerRef.current = 0;
+			setConfirmClear(false);
+		}, CLEAR_CONFIRM_MS);
+	};
+	/** Only the destructive confirm action reaches the clear routine. */
+	const confirmClearDone = () => {
+		dismissClearConfirm();
+		onConfirm();
+	};
+	react.default.useEffect(() => () => stopClearConfirmTimer(), []);
+	react.default.useEffect(() => {
+		if (confirmClear && (!showDone || doneCount === 0)) dismissClearConfirm();
+	}, [
+		confirmClear,
+		showDone,
+		doneCount
+	]);
+	react.default.useEffect(() => {
+		dismissClearConfirm();
+	}, [sessionId]);
+	return {
+		confirmClear,
+		askClearConfirm,
+		dismissClearConfirm,
+		confirmClearDone
+	};
+}
+
+// src/client/ui/useListEdge.ts
+/** Tracks whether the note list can still scroll down, and updates sticky heads. */
+function useListEdge({ items, showOpen, showDone }) {
+	const listRef = react.default.useRef(null);
+	const [listHasMore, setListHasMore] = react.default.useState(false);
+	/** The bottom fade exists only while the list can still scroll down. */
+	const syncListEdge = react.default.useCallback(() => {
+		const node = listRef.current;
+		if (!node) return;
+		syncStickyHeads(node);
+		const more = node.scrollTop + node.clientHeight < node.scrollHeight - 1;
+		setListHasMore((current) => current === more ? current : more);
+	}, []);
+	react.default.useEffect(() => {
+		const node = listRef.current;
+		if (!node) return void 0;
+		syncListEdge();
+		if (typeof ResizeObserver !== "function") return void 0;
+		const observer = new ResizeObserver(syncListEdge);
+		observer.observe(node);
+		for (const section of node.children) observer.observe(section);
+		return () => observer.disconnect();
+	}, [
+		items,
+		showOpen,
+		showDone,
+		syncListEdge
+	]);
+	return {
+		listRef,
+		listHasMore,
+		syncListEdge
+	};
+}
+
+// src/client/ui/useOutsideDismiss.ts
+/** Close the panel on an outside pointerdown or Escape. */
+function useOutsideDismiss(panelRef, anchorRef, onClose) {
+	react.default.useEffect(() => {
+		const onPointerDown = (event) => {
+			if (panelRef.current && panelRef.current.contains(event.target)) return;
+			if (anchorRef.current && anchorRef.current.contains(event.target)) return;
+			onClose();
 		};
-	} catch {
-		return emptyForwardedStore();
-	}
-}
-function writeForwardedStore(store) {
-	const ls = storage();
-	if (!ls) return false;
-	try {
-		ls.setItem(FORWARDED_STORAGE_KEY, JSON.stringify(store));
-		return true;
-	} catch {
-		return false;
-	}
-}
-/** Keep only `true` flags on non-empty ids; anything else in the stored record is dropped. */
-function normalizeForwardedRecord(record) {
-	if (!record || typeof record !== "object" || Array.isArray(record)) return {};
-	const next = {};
-	for (const [itemId, flag] of Object.entries(record)) if (itemId && flag === true) next[itemId] = true;
-	return next;
-}
-/** Forwarded item ids of one session, as an id -> true map. */
-function readForwardedIds(sessionId) {
-	const key = sessionId ? String(sessionId) : "";
-	if (!key) return {};
-	return normalizeForwardedRecord(readForwardedStore().sessions[key]);
-}
-/** Remember that one note was forwarded; best effort, never blocks the send. */
-function markForwarded(sessionId, itemId) {
-	const key = sessionId ? String(sessionId) : "";
-	const id = itemId ? String(itemId) : "";
-	if (!key || !id) return false;
-	const store = readForwardedStore();
-	store.sessions[key] = {
-		...normalizeForwardedRecord(store.sessions[key]),
-		[id]: true
-	};
-	return writeForwardedStore(store);
-}
-/** Drop forwarded flags that can no longer be rendered (deleted or cleared notes). */
-function forgetForwarded(sessionId, itemIds) {
-	const key = sessionId ? String(sessionId) : "";
-	if (!key) return false;
-	const ids = Array.isArray(itemIds) ? itemIds : [itemIds];
-	const store = readForwardedStore();
-	const record = normalizeForwardedRecord(store.sessions[key]);
-	let changed = false;
-	for (const rawId of ids) {
-		const id = rawId ? String(rawId) : "";
-		if (!id || !record[id]) continue;
-		delete record[id];
-		changed = true;
-	}
-	if (!changed) return false;
-	if (Object.keys(record).length) store.sessions[key] = record;
-	else delete store.sessions[key];
-	return writeForwardedStore(store);
+		const onKeyDown = (event) => {
+			if (event.key === "Escape") onClose();
+		};
+		document.addEventListener("pointerdown", onPointerDown, true);
+		document.addEventListener("keydown", onKeyDown);
+		return () => {
+			document.removeEventListener("pointerdown", onPointerDown, true);
+			document.removeEventListener("keydown", onKeyDown);
+		};
+	}, [onClose, anchorRef]);
 }
 
 // src/client/domain/forward.ts
@@ -1521,288 +2097,40 @@ function MemoPopover(props) {
 	/** Settled outcomes go to the frame-wide toast host, not to inline marks. */
 	const report = typeof props.onToast === "function" ? props.onToast : () => {};
 	const { record, syncError, commit } = useSessionMemoStore(props.sessionId);
-	const [draft, setDraft] = react.default.useState(() => readSessionDrafts(sessionId).add);
-	const [editingId, setEditingId] = react.default.useState(null);
-	const [editDraft, setEditDraft] = react.default.useState("");
-	const [initialSections] = react.default.useState(readSectionState);
-	const [showDone, setShowDone] = react.default.useState(initialSections.done);
-	const [showOpen, setShowOpen] = react.default.useState(initialSections.open);
-	const [confirmClear, setConfirmClear] = react.default.useState(false);
-	const sectionsRef = react.default.useRef(initialSections);
-	const [showSettings, setShowSettings] = react.default.useState(false);
-	const [sendShortcut, setSendShortcut] = react.default.useState(readSendShortcut);
-	const [forwardPrefix, setForwardPrefix] = react.default.useState(readForwardPrefix);
-	const [forwardedIds, setForwardedIds] = react.default.useState(() => readForwardedIds(sessionId));
-	const forwardedSessionRef = react.default.useRef(sessionId ? String(sessionId) : "");
-	const [listHasMore, setListHasMore] = react.default.useState(false);
+	const { sectionsRef, showOpen, showDone, toggleOpen, toggleDone, applySections } = useSections();
+	const { forwardedIds, rememberForwarded, unrememberForwarded, forgetForwardedItems } = useForwardMarks(sessionId);
+	const { showSettings, setShowSettings, sendShortcut, chooseShortcut, forwardPrefix, changeForwardPrefix, prefixRef } = usePanelSettings();
+	const { draft, addRef, composingRef, add, onDraftChange, onDraftKeyDown } = useComposerDraft({
+		sessionId,
+		commit,
+		report,
+		sendShortcut
+	});
+	const { editingId, editDraft, setEditDraft, editRef, startEdit, finishEdit, cancelEdit, toggle, remove } = useNoteActions({
+		sessionId,
+		commit,
+		report,
+		forgetForwardedItems
+	});
+	const { confirmClear, askClearConfirm, dismissClearConfirm, confirmClearDone } = useClearConfirm({
+		sessionId,
+		showDone,
+		doneCount: record.items.filter((item) => item.done).length,
+		onConfirm: () => clearDone()
+	});
 	const panelRef = react.default.useRef(null);
 	const { style, commitPanelWidth, commitPanelHeight, startPanelResize, startPanelHeightResize, onPanelResizeKeyDown, onPanelHeightKeyDown } = usePanelGeometry(props.anchorRef, props.placement, panelRef);
-	const listRef = react.default.useRef(null);
-	const editRef = react.default.useRef(null);
-	const addRef = react.default.useRef(null);
-	const prefixRef = react.default.useRef(null);
-	const cancelEditRef = react.default.useRef(false);
-	const composingRef = react.default.useRef(false);
-	const clearConfirmTimerRef = react.default.useRef(0);
-	const resizeAdd = (node) => {
-		if (!node) return;
-		node.style.height = "auto";
-		node.style.height = `${node.scrollHeight + 2}px`;
-	};
-	react.default.useEffect(() => {
-		resizeAdd(addRef.current);
-	}, [draft]);
-	react.default.useLayoutEffect(() => {
-		const node = prefixRef.current;
-		if (!node) return;
-		node.style.height = "auto";
-		node.style.height = `${Math.min(138, node.scrollHeight + 2)}px`;
-	}, [forwardPrefix, showSettings]);
-	react.default.useEffect(() => {
-		const key = sessionId ? String(sessionId) : "";
-		if (forwardedSessionRef.current === key) return;
-		forwardedSessionRef.current = key;
-		setForwardedIds(readForwardedIds(key));
-	}, [sessionId]);
-	react.default.useLayoutEffect(() => {
-		const node = addRef.current;
-		if (!node) return;
-		if (typeof window.matchMedia === "function" && !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-		node.focus();
-		const end = node.value.length;
-		try {
-			node.setSelectionRange(end, end);
-		} catch {}
-	}, []);
-	react.default.useEffect(() => {
-		const onPointerDown = (event) => {
-			if (panelRef.current && panelRef.current.contains(event.target)) return;
-			if (props.anchorRef.current && props.anchorRef.current.contains(event.target)) return;
-			props.onClose();
-		};
-		const onKeyDown = (event) => {
-			if (event.key === "Escape") props.onClose();
-		};
-		document.addEventListener("pointerdown", onPointerDown, true);
-		document.addEventListener("keydown", onKeyDown);
-		return () => {
-			document.removeEventListener("pointerdown", onPointerDown, true);
-			document.removeEventListener("keydown", onKeyDown);
-		};
-	}, [props.onClose, props.anchorRef]);
-	react.default.useEffect(() => {
-		if (!editingId || !editRef.current) return;
-		editRef.current.focus();
-		editRef.current.select();
-	}, [editingId]);
 	const items = record.items || [];
 	const openItems = items.filter((item) => !item.done);
 	const doneItems = items.filter((item) => item.done).sort(compareDoneItems);
 	const openCount = openItems.length;
 	const total = items.length;
-	react.default.useEffect(() => () => stopClearConfirmTimer(), []);
-	react.default.useEffect(() => {
-		if (confirmClear && (!showDone || doneItems.length === 0)) dismissClearConfirm();
-	}, [
-		confirmClear,
-		showDone,
-		doneItems.length
-	]);
-	react.default.useEffect(() => {
-		dismissClearConfirm();
-	}, [sessionId]);
-	/** The bottom fade exists only while the list can still scroll down. */
-	const syncListEdge = react.default.useCallback(() => {
-		const node = listRef.current;
-		if (!node) return;
-		syncStickyHeads(node);
-		const more = node.scrollTop + node.clientHeight < node.scrollHeight - 1;
-		setListHasMore((current) => current === more ? current : more);
-	}, []);
-	react.default.useEffect(() => {
-		const node = listRef.current;
-		if (!node) return void 0;
-		syncListEdge();
-		if (typeof ResizeObserver !== "function") return void 0;
-		const observer = new ResizeObserver(syncListEdge);
-		observer.observe(node);
-		for (const section of node.children) observer.observe(section);
-		return () => observer.disconnect();
-	}, [
+	const { listRef, listHasMore, syncListEdge } = useListEdge({
 		items,
 		showOpen,
-		showDone,
-		syncListEdge
-	]);
-	const chooseShortcut = (value) => {
-		setSendShortcut(value);
-		writeSendShortcut(value);
-	};
-	const changeForwardPrefix = (value) => {
-		const next = String(value || "").slice(0, 80);
-		setForwardPrefix(next);
-		writeForwardPrefix(next);
-	};
-	const add = () => {
-		const text = draft.trim().slice(0, 280);
-		if (!text) return;
-		const now = Date.now();
-		if (!commit((currentItems) => [{
-			id: uid(),
-			text,
-			done: false,
-			createdAt: now,
-			updatedAt: now
-		}, ...currentItems])) {
-			report("saveFailed");
-			return;
-		}
-		setDraft("");
-		clearAddDraft(sessionId);
-	};
-	const insertDraftNewline = (node) => {
-		if (!node) return;
-		const start = node.selectionStart === null ? node.value.length : node.selectionStart;
-		const end = node.selectionEnd === null ? start : node.selectionEnd;
-		const next = `${node.value.slice(0, start)}\n${node.value.slice(end)}`;
-		setDraft(next);
-		saveAddDraft(sessionId, next);
-		window.requestAnimationFrame(() => {
-			node.selectionStart = start + 1;
-			node.selectionEnd = start + 1;
-			resizeAdd(node);
-		});
-	};
-	const toggle = (item) => {
-		if (!commit((currentItems) => currentItems.map((candidate) => {
-			if (candidate.id !== item.id) return candidate;
-			const now = Date.now();
-			return {
-				...candidate,
-				done: !candidate.done,
-				updatedAt: now,
-				...candidate.done ? { completedAt: void 0 } : { completedAt: now }
-			};
-		}))) {
-			report("saveFailed");
-			return;
-		}
-		if (item.id === editingId) {
-			setEditingId(null);
-			setEditDraft("");
-			clearEditDraft(sessionId, item.id);
-		}
-	};
-	/** Drop forwarded flags for notes that no longer render (deleted or cleared). */
-	const forgetForwardedItems = (itemIds) => {
-		const ids = (Array.isArray(itemIds) ? itemIds : [itemIds]).filter(Boolean);
-		if (!ids.length) return;
-		forgetForwarded(sessionId, ids);
-		setForwardedIds((current) => {
-			if (!ids.some((id) => current[id])) return current;
-			const next = { ...current };
-			for (const id of ids) delete next[id];
-			return next;
-		});
-	};
-	/** Remember a successful forward so the forward button keeps its check after closing the panel. */
-	const rememberForwarded = (item) => {
-		const id = item && item.id ? String(item.id) : "";
-		if (!id) return;
-		markForwarded(sessionId, id);
-		setForwardedIds((current) => current[id] ? current : {
-			...current,
-			[id]: true
-		});
-	};
-	/** Toggle the forward mark off; the note and its open/done state stay untouched. */
-	const unrememberForwarded = (item) => {
-		const id = item && item.id ? String(item.id) : "";
-		if (!id) return;
-		forgetForwardedItems(id);
-	};
-	const remove = (item) => {
-		if (!commit((currentItems) => currentItems.filter((candidate) => candidate.id !== item.id))) {
-			report("saveFailed");
-			return;
-		}
-		report("deleted");
-		clearEditDraft(sessionId, item.id);
-		forgetForwardedItems(item.id);
-		if (item.id === editingId) {
-			setEditingId(null);
-			setEditDraft("");
-		}
-	};
-	const startEdit = (item) => {
-		cancelEditRef.current = false;
-		const saved = readEditDraft(sessionId, item.id);
-		setEditingId(item.id);
-		setEditDraft(saved === null ? item.text : saved);
-	};
-	const finishEdit = (item) => {
-		if (cancelEditRef.current) {
-			cancelEditRef.current = false;
-			return;
-		}
-		if (!editingId) return;
-		const text = editDraft.trim().slice(0, 280);
-		if (text && text !== item.text) {
-			if (!commit((currentItems) => currentItems.map((candidate) => {
-				if (candidate.id !== item.id) return candidate;
-				return {
-					...candidate,
-					text,
-					updatedAt: Date.now()
-				};
-			}))) {
-				report("saveFailed");
-				return;
-			}
-		}
-		setEditingId(null);
-		setEditDraft("");
-		clearEditDraft(sessionId, item.id);
-	};
-	const cancelEdit = () => {
-		cancelEditRef.current = true;
-		const currentId = editingId;
-		setEditingId(null);
-		setEditDraft("");
-		if (currentId) clearEditDraft(sessionId, currentId);
-	};
-	/** Apply one section state and remember it right away, using the next value. */
-	const applySections = (next) => {
-		sectionsRef.current = next;
-		setShowOpen(next.open);
-		setShowDone(next.done);
-		writeSectionState(next);
-	};
-	/** Drop the pending auto-dismiss clock without touching state. */
-	const stopClearConfirmTimer = () => {
-		if (!clearConfirmTimerRef.current) return;
-		window.clearTimeout(clearConfirmTimerRef.current);
-		clearConfirmTimerRef.current = 0;
-	};
-	/** Close the inline band and drop its pending timer. */
-	const dismissClearConfirm = () => {
-		stopClearConfirmTimer();
-		setConfirmClear(false);
-	};
-	/** Open the inline band; it retires itself after a short pause. */
-	const askClearConfirm = () => {
-		stopClearConfirmTimer();
-		setConfirmClear(true);
-		clearConfirmTimerRef.current = window.setTimeout(() => {
-			clearConfirmTimerRef.current = 0;
-			setConfirmClear(false);
-		}, CLEAR_CONFIRM_MS);
-	};
-	/** Only the destructive confirm action reaches the existing clear routine. */
-	const confirmClearDone = () => {
-		dismissClearConfirm();
-		clearDone();
-	};
+		showDone
+	});
+	useOutsideDismiss(panelRef, props.anchorRef, props.onClose);
 	const clearDone = () => {
 		const clearedItems = items.filter((item) => item.done);
 		if (!commit((currentItems) => currentItems.filter((item) => !item.done))) {
@@ -1814,18 +2142,6 @@ function MemoPopover(props) {
 		applySections({
 			open: sectionsRef.current.open,
 			done: false
-		});
-	};
-	const toggleOpen = () => {
-		applySections({
-			open: !sectionsRef.current.open,
-			done: sectionsRef.current.done
-		});
-	};
-	const toggleDone = () => {
-		applySections({
-			open: sectionsRef.current.open,
-			done: !sectionsRef.current.done
 		});
 	};
 	const row = (item) => h$1(TodoRow, {
@@ -1851,35 +2167,6 @@ function MemoPopover(props) {
 		onForwarded: rememberForwarded,
 		onUnforwarded: unrememberForwarded
 	});
-	const onDraftChange = (event) => {
-		const value = event.target.value;
-		setDraft(value);
-		saveAddDraft(sessionId, value);
-		resizeAdd(event.target);
-	};
-	const onDraftKeyDown = (event) => {
-		const composing = event.isComposing || event.nativeEvent && event.nativeEvent.isComposing;
-		if (event.key === "Escape") {
-			event.currentTarget.blur();
-			return;
-		}
-		if (event.key !== "Enter") return;
-		if (composing) {
-			event.preventDefault();
-			return;
-		}
-		const chord = event.ctrlKey || event.metaKey;
-		const platformModifier = isSendModifier(event);
-		if (sendShortcut === "enter" ? !chord && !event.shiftKey : platformModifier) {
-			event.preventDefault();
-			add();
-			return;
-		}
-		if (sendShortcut === "enter" && (chord || event.shiftKey)) {
-			event.preventDefault();
-			insertDraftNewline(event.currentTarget);
-		}
-	};
 	const content = h$1("div", {
 		ref: panelRef,
 		className: props.placement === "right" ? "dsh-an-popover dsh-an-popoverRight" : "dsh-an-popover",
@@ -2040,77 +2327,8 @@ function apply(ctx) {
 	const tr = (key, vars) => fill(say(key), vars);
 	let activePopover = null;
 	let activeSessionId = "";
-	const toastSource = (() => {
-		let notice = null;
-		let sequence = 0;
-		const listeners = /* @__PURE__ */ new Set();
-		const publish = (next) => {
-			notice = next;
-			for (const listener of listeners) listener();
-		};
-		return {
-			hooks: { notice: {
-				getSnapshot: () => notice,
-				subscribe: (listener) => {
-					listeners.add(listener);
-					return () => {
-						listeners.delete(listener);
-					};
-				}
-			} },
-			show(kind) {
-				sequence += 1;
-				publish({
-					kind,
-					sequence
-				});
-			},
-			dismiss() {
-				publish(null);
-			}
-		};
-	})();
-	const TOAST_COPY = {
-		copied: {
-			key: "toast.copied",
-			tone: "success"
-		},
-		forwarded: {
-			key: "toast.forwarded",
-			tone: "success"
-		},
-		unforwarded: {
-			key: "toast.unforwarded",
-			tone: "success"
-		},
-		deleted: {
-			key: "toast.deleted",
-			tone: "success"
-		},
-		cleared: {
-			key: "toast.cleared",
-			tone: "success"
-		},
-		copyFailed: { key: "toast.copyFailed" },
-		forwardFailed: { key: "toast.forwardFailed" },
-		saveFailed: { key: "toast.saveFailed" }
-	};
-	const WarningIcon = icon("IconWarningOutlineRegular");
-	/** The frame-wide toast seat: one notice at a time, dismissed when faded. */
-	function ToastHost(props) {
-		const notice = react.default.useSyncExternalStore(toastSource.hooks.notice.subscribe, toastSource.hooks.notice.getSnapshot);
-		if (!notice || !Toast) return null;
-		const copy = TOAST_COPY[notice.kind] || TOAST_COPY.saveFailed;
-		const bound = props && typeof props.t === "function" ? props.t(copy.key) : "";
-		const text = bound && bound !== copy.key ? bound : tr(copy.key);
-		return h(Toast, {
-			key: notice.sequence,
-			text,
-			tone: copy.tone,
-			icon: copy.tone ? void 0 : WarningIcon ? h(WarningIcon, { size: 16 }) : void 0,
-			onDone: toastSource.dismiss
-		});
-	}
+	const toastSeat = createToastSeat(tr);
+	let refreshHeaderEntry = () => {};
 	const closeMemoPopover = () => {
 		const current = activePopover;
 		activePopover = null;
@@ -2147,80 +2365,19 @@ function apply(ctx) {
 			anchorRef: { current: anchor },
 			placement,
 			onClose: closeMemoPopover,
-			onToast: (kind) => toastSource.show(kind)
+			onToast: (kind) => toastSeat.show(kind)
 		}));
 		refreshHeaderEntry();
 	};
-	const HEADER_ICON = "<svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.3\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.25 2.75h6.5l3 3v7.5c0 .55-.45 1-1 1H3.25c-.55 0-1-.45-1-1V3.75c0-.55.45-1 1-1Z\"/><path d=\"M9.75 2.75v3h3\"/><path d=\"M4.9 7.6h5.4M4.9 9.9h3.6\" stroke-linecap=\"round\"/></svg>";
-	const refreshHeaderEntry = () => {
-		const host = document.querySelector("[class*=\"_headerUtilities\"]");
-		let button = host ? host.querySelector(":scope > .dsh-an-headerBtn") : null;
-		if (!host || !activeSessionId) {
-			if (button) button.remove();
-			return;
-		}
-		const store = readSessionStore();
-		const open = normalizeItems(store.sessions[activeSessionId] && store.sessions[activeSessionId].items).filter((item) => !item.done).length;
-		if (!button) {
-			button = document.createElement("button");
-			button.type = "button";
-			button.className = "dsh-an-headerBtn";
-			button.addEventListener("pointerdown", (event) => event.stopPropagation());
-			button.addEventListener("click", (event) => {
-				event.preventDefault();
-				event.stopPropagation();
-				openMemoPopover(activeSessionId, button, "right");
-			});
-			host.appendChild(button);
-		}
-		button.dataset.active = activePopover && activePopover.anchor === button ? "true" : "false";
-		const signature = `${localeId()}:${activeSessionId}:${open}`;
-		if (button.dataset.signature !== signature) {
-			const icon = document.createElement("span");
-			icon.className = "dsh-an-headerIcon";
-			icon.innerHTML = HEADER_ICON;
-			button.replaceChildren(icon);
-			if (open > 0) {
-				const count = document.createElement("span");
-				count.className = "dsh-an-headerCount";
-				count.textContent = open > 99 ? "99+" : String(open);
-				button.appendChild(count);
-			}
-			button.dataset.signature = signature;
-		}
-		button.dataset.sessionId = activeSessionId;
-		button.title = open > 0 ? tr("header.tooltip", { n: open }) : tr("header.tooltipEmpty");
-		button.setAttribute("aria-label", open > 0 ? `${tr("dock.open")}, ${tr("dock.count", { n: open })}` : tr("dock.open"));
-	};
-	ctx.effect(() => {
-		let scheduled = false;
-		const schedule = () => {
-			if (scheduled) return;
-			scheduled = true;
-			requestAnimationFrame(() => {
-				scheduled = false;
-				refreshHeaderEntry();
-			});
-		};
-		const onStorage = (event) => {
-			if (event.key === "dsh.aside-notes.v2") schedule();
-		};
-		TODO_LISTENERS.add(schedule);
-		window.addEventListener("storage", onStorage);
-		const observer = new MutationObserver(schedule);
-		observer.observe(document.body, {
-			childList: true,
-			subtree: true
-		});
-		refreshHeaderEntry();
-		return () => {
-			TODO_LISTENERS.delete(schedule);
-			window.removeEventListener("storage", onStorage);
-			observer.disconnect();
-			closeMemoPopover();
-			for (const button of document.querySelectorAll(".dsh-an-headerBtn")) button.remove();
-		};
-	}, "dsh-asidenote: right-side entry");
+	const headerEntry = createHeaderEntry({
+		getSessionId: () => activeSessionId,
+		getActiveAnchor: () => activePopover ? activePopover.anchor : null,
+		getLocaleId: () => localeId(),
+		tr,
+		onOpen: (sessionId, anchor) => openMemoPopover(sessionId, anchor, "right")
+	});
+	refreshHeaderEntry = headerEntry.refresh;
+	ctx.effect(() => headerEntry.attach(() => closeMemoPopover()), "dsh-asidenote: right-side entry");
 	function BoundSessionCapture(props) {
 		const sessionId = props.sessionId || "";
 		react.default.useEffect(() => {
@@ -2243,7 +2400,7 @@ function apply(ctx) {
 		id: `${PANEL_ID}.toast`,
 		order: 60,
 		locale: NS
-	}, ToastHost));
+	}, toastSeat.ToastHost));
 }
 module.exports = {
 	inject: ["slots"],
