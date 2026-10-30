@@ -65,11 +65,10 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /readEditDraft/)
   assert.match(client, /dsh-wt-listArea/)
   assert.match(client, /dsh-wt-listSection/)
-  // Section heads are pinned on an opaque surface token: a transparent band
-  // would let rows read through the header, while re-painting the translucent
-  // menu material would double-fill and leave a visible seam.
-  assert.match(client, /\.dsh-wt-sectionHead,\.dsh-wt-doneHead\{[^}]*position:sticky[^}]*top:0/)
-  assert.match(client, /\.dsh-wt-sectionHead,\.dsh-wt-doneHead\{[^}]*background:var\(--dsw-alias-bg-layer-1\)/)
+  // Sticky heads stay transparent in flow and only take the menu group-header
+  // fill while pinned, so no opaque block sits over the list at rest.
+  assert.match(client, /\.dsh-wt-sectionHead,\.dsh-wt-doneHead\{[^}]*position:sticky[^}]*top:0[^}]*background:transparent/)
+  assert.match(client, /\[data-stuck\][^{]*\{[^}]*background:var\(--dsw-alias-menu-group-header-fill\)/)
   assert.match(client, /FORWARDED_STORAGE_KEY/)
   assert.match(client, /dsh-wt-forwardMark/)
   assert.match(client, /item\.forwarded/)
@@ -671,3 +670,12 @@ test('the prefix prompt is explained under the field, without a visible title', 
   assert.match(dict.en['settings.forwardPrefixHint'], /leave it empty/)
 })
 
+
+test('sticky heads are filled only while pinned, not at rest', () => {
+  const client = read('client.js')
+  assert.match(client, /function syncStickyHeads\(node\)/)
+  assert.match(client, /const naturalTop = head\.offsetTop - node\.offsetTop/)
+  assert.match(client, /const pinned = node\.scrollTop > naturalTop && top >= areaTop - 1 && top <= areaTop \+ 1/)
+  assert.match(client, /head\.toggleAttribute\('data-stuck', pinned\)/)
+  assert.match(client, /syncStickyHeads\(node\)/)
+})

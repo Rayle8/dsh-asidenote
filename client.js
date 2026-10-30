@@ -262,7 +262,8 @@ window.__ModuleLoader__.load({
       '.dsh-wt-listArea{--dsh-scrollbar-width:var(--dsh-wt-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-wt-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-wt-listGutter) - var(--dsh-wt-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}',
       '.dsh-wt-listSection{display:flex;flex-direction:column;gap:var(--wt-space-2);min-width:0}',
       '.dsh-wt-listSection+.dsh-wt-listSection{margin-top:var(--wt-space-2)}',
-      '.dsh-wt-sectionHead,.dsh-wt-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-3);min-height:28px;margin:0;padding:var(--wt-space-1) 0;background:var(--dsw-alias-bg-layer-1)}',
+      '.dsh-wt-sectionHead,.dsh-wt-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-3);min-height:28px;margin:0;padding:var(--wt-space-1) 0;background:transparent;transition:background-color var(--wt-dur-fast) var(--wt-ease)}',
+      '.dsh-wt-sectionHead[data-stuck],.dsh-wt-doneHead[data-stuck]{background:var(--dsw-alias-menu-group-header-fill)}',
       '.dsh-wt-doneToggle{display:flex;align-items:center;gap:var(--wt-space-2);flex:none;min-width:0;margin:0;padding:var(--wt-space-1) var(--wt-space-2) var(--wt-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--wt-transition)}',
       '.dsh-wt-doneToggle:active{background:var(--wt-active)}',
       '.dsh-wt-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}',
@@ -1008,6 +1009,21 @@ window.__ModuleLoader__.load({
       return bCreated - aCreated
     }
 
+    /**
+     * Mark the section head that is actually pinned to the scroller's top edge.
+     * Sticky heads stay transparent in flow; only the pinned one takes the menu
+     * group-header fill, so no full-width layer sits over the list at rest.
+     */
+    function syncStickyHeads(node) {
+      const areaTop = node.getBoundingClientRect().top
+      for (const head of node.querySelectorAll('.dsh-wt-sectionHead, .dsh-wt-doneHead')) {
+        const naturalTop = head.offsetTop - node.offsetTop
+        const top = head.getBoundingClientRect().top
+        const pinned = node.scrollTop > naturalTop && top >= areaTop - 1 && top <= areaTop + 1
+        head.toggleAttribute('data-stuck', pinned)
+      }
+    }
+
     /** Done notes show creation and completion age; open ones show creation age only. */
     function metaLabel(item, say, localeId) {
       const created = ageLabel(item && item.createdAt, say, localeId)
@@ -1619,6 +1635,7 @@ window.__ModuleLoader__.load({
       const syncListEdge = React.useCallback(() => {
         const node = listRef.current
         if (!node) return
+        syncStickyHeads(node)
         const more = node.scrollTop + node.clientHeight < node.scrollHeight - 1
         setListHasMore(current => (current === more ? current : more))
       }, [])

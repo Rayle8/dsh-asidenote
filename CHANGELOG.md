@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Keep the sticky section headers transparent in flow and paint the menu group-header fill only while they are actually pinned; the full-width `bg-layer-1` block no longer sits over the list.
+
 ## 1.9.5
 
 - Restore sticky **Open** and **Completed** headers while the note list scrolls. They sit on the opaque `bg-layer-1` surface rather than the translucent menu fill, so rows cannot read through them and the header does not double-paint a seam over the panel.
