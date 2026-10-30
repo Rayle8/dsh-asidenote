@@ -68,7 +68,7 @@ test('host and browser entries use the package identity', () => {
   // Sticky heads stay transparent in flow and only take the panel's raised
   // surface while pinned, so no differently coloured block sits at rest.
   assert.match(client, /\.dsh-wt-sectionHead,\.dsh-wt-doneHead\{[^}]*position:sticky[^}]*top:0[^}]*background:transparent/)
-  assert.match(client, /\[data-stuck\][^{]*\{[^}]*background:linear-gradient\(var\(--dsw-alias-menu-group-header-fill\),var\(--dsw-alias-menu-group-header-fill\)\),var\(--dsw-alias-menu-group-header-fill\)/)
+  assert.match(client, /\[data-stuck\][^{]*\{[^}]*background:var\(--dsh-wt-panelSurface,var\(--dsw-alias-bg-layer-2\)\)/)
   assert.match(client, /FORWARDED_STORAGE_KEY/)
   assert.match(client, /dsh-wt-forwardMark/)
   assert.match(client, /item\.forwarded/)
@@ -304,7 +304,8 @@ test('the floating panel is borderless and elevated, with no second stroke', () 
   assert.ok(panel, 'panel rule missing')
   assert.match(panel.body, /border:0(?:;|$)/)
   assert.match(panel.body, /box-shadow:var\(--dsw-elevation-panel\)/)
-  assert.match(panel.body, /background:var\(--dsw-specific-menu\)/)
+  assert.match(panel.body, /background:var\(--dsh-wt-panelSurface\)/)
+  assert.doesNotMatch(panel.body, /backdrop-filter/, 'the opaque panel no longer blurs its backdrop')
   for (const rule of rules) {
     const hasNeutralBorder = /border:0?\.?5?px solid var\(--dsw-alias-border/.test(rule.body)
     const hasElevation = /box-shadow:var\(--dsw-elevation-/.test(rule.body)
@@ -744,7 +745,7 @@ test('sticky heads are filled only while pinned, not at rest', () => {
   const rules = cssRules()
   const stuck = rules.find(rule => rule.selector === '.dsh-wt-sectionHead[data-stuck],.dsh-wt-doneHead[data-stuck]')
   assert.ok(stuck, 'stuck header rule missing')
-  assert.match(stuck.body, /background:linear-gradient\(var\(--dsw-alias-menu-group-header-fill\),var\(--dsw-alias-menu-group-header-fill\)\),var\(--dsw-alias-menu-group-header-fill\)/)
+  assert.match(stuck.body, /background:var\(--dsh-wt-panelSurface,var\(--dsw-alias-bg-layer-2\)\)/)
   assert.doesNotMatch(stuck.body, /backdrop-filter/, 'the stuck fill stays opaque until the blur is approved')
   const base = rules.find(rule => rule.selector === '.dsh-wt-sectionHead,.dsh-wt-doneHead')
   assert.ok(base, 'base header rule missing')
@@ -756,19 +757,12 @@ test('the pinned header keeps its plain title style over a solid fill', () => {
   const client = read('client.js')
   const rule = css.match(/\.dsh-wt-sectionHead\[data-stuck\],\.dsh-wt-doneHead\[data-stuck\]\{([^}]*)\}/)
   assert.ok(rule, 'stuck header rule missing')
-  assert.match(rule[1], /background:linear-gradient\(var\(--dsw-alias-menu-group-header-fill\),var\(--dsw-alias-menu-group-header-fill\)\),var\(--dsw-alias-menu-group-header-fill\)/)
+  assert.match(rule[1], /background:var\(--dsh-wt-panelSurface,var\(--dsw-alias-bg-layer-2\)\)/)
   assert.doesNotMatch(rule[1], /border-radius|border-top-left-radius|border-top-right-radius/, 'the title keeps its plain shape')
   assert.doesNotMatch(rule[1], /backdrop-filter|opacity/, 'the header does not go translucent')
   assert.doesNotMatch(css, /\[data-stuck\][^{]*::before/, 'no extra corner underlay')
 
-  // Five stacked strips fade a backdrop blur from the header edge downward;
-  // Chromium drops backdrop-filter under a mask, so this uses discrete bands.
-  assert.match(css, /\.dsh-wt-headBlur\{[^}]*display:none[^}]*top:100%[^}]*height:20px/)
-  assert.match(css, /\[data-stuck\] \.dsh-wt-headBlur[^{]*\{display:block\}/)
-  for (const [index, radius] of [[1, 20], [2, 14], [3, 9], [4, 5], [5, 2]]) {
-    assert.match(css, new RegExp(`\\.dsh-wt-headBlurBand:nth-child\\(${index}\\)\\{[^}]*backdrop-filter:blur\\(${radius}px\\)`))
-  }
-  assert.equal((client.match(/h\(HeadBlur, null\)/g) || []).length, 2, 'both section heads need the blur band')
-  assert.match(client, /const HeadBlur = \(\) => h\('span', \{ className: 'dsh-wt-headBlur', 'aria-hidden': true \}/)
-  assert.doesNotMatch(css, /dsh-wt-headBlur[^{]*mask-image/, 'masking the band would drop the blur')
+  // The opaque panel makes a top blur band unnecessary.
+  assert.doesNotMatch(css, /dsh-wt-headBlur/)
+  assert.doesNotMatch(client, /HeadBlur/)
 })

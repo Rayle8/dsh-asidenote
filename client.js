@@ -229,7 +229,7 @@ window.__ModuleLoader__.load({
       'body{--wt-space-1:4px;--wt-space-2:8px;--wt-space-3:12px;--wt-space-4:16px;--wt-space-5:24px;--wt-space-6:32px;--wt-radius-pill:999px;--wt-fs-caption:12px;--wt-lh-caption:20px;--wt-fs-row:13px;--wt-lh-row:20px;--wt-fs-title:14px;--wt-lh-title:20px;--wt-hover:var(--dsw-alias-interactive-bg-hover);--wt-active:var(--dsw-alias-interactive-bg-active);--wt-field:var(--dsw-alias-bg-layer-1);--wt-field-line:var(--dsw-alias-border-l4);--wt-divider:var(--dsw-alias-border-l2);--wt-dur-fast:var(--ds-transition-duration-fast);--wt-dur-base:var(--ds-transition-duration);--wt-dur-spin:700ms;--wt-ease:var(--ds-ease-in-out);--wt-transition:background-color var(--wt-dur-fast) var(--wt-ease),border-color var(--wt-dur-fast) var(--wt-ease),color var(--wt-dur-fast) var(--wt-ease),opacity var(--wt-dur-fast) var(--wt-ease),transform var(--wt-dur-fast) var(--wt-ease),box-shadow var(--wt-dur-fast) var(--wt-ease)}',
       '',
       '/* ── 2 浮层 · 菜单材质 + 三层阴影，边框为 0（发丝线在阴影第一层） ── */',
-      '.dsh-wt-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--wt-space-3);min-height:0;padding:var(--wt-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsw-specific-menu);-webkit-backdrop-filter:var(--dsw-menu-backdrop-filter);backdrop-filter:var(--dsw-menu-backdrop-filter);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--wt-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--wt-divider)));--dsh-wt-listGutter:var(--wt-space-4);--dsh-wt-scrollRail:9px;--dsh-wt-scrollInset:2px;overflow:hidden;animation:dsh-wt-pop-in var(--wt-dur-base) var(--wt-ease) both}',
+      '.dsh-wt-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--wt-space-3);min-height:0;padding:var(--wt-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsh-wt-panelSurface);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--wt-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--wt-divider)));--dsh-wt-panelSurface:var(--dsw-alias-bg-layer-2);--dsh-wt-listGutter:var(--wt-space-4);--dsh-wt-scrollRail:9px;--dsh-wt-scrollInset:2px;overflow:hidden;animation:dsh-wt-pop-in var(--wt-dur-base) var(--wt-ease) both}',
       '.dsh-wt-popoverRight{padding-left:var(--wt-space-4)}',
       '',
       '/* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */',
@@ -263,15 +263,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-listSection{display:flex;flex-direction:column;gap:var(--wt-space-2);min-width:0}',
       '.dsh-wt-listSection+.dsh-wt-listSection{margin-top:var(--wt-space-2)}',
       '.dsh-wt-sectionHead,.dsh-wt-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-3);min-height:28px;margin:0;padding:var(--wt-space-1) 0;background:transparent;transition:background-color var(--wt-dur-fast) var(--wt-ease)}',
-      '.dsh-wt-sectionHead[data-stuck],.dsh-wt-doneHead[data-stuck]{background:linear-gradient(var(--dsw-alias-menu-group-header-fill),var(--dsw-alias-menu-group-header-fill)),var(--dsw-alias-menu-group-header-fill)}',
-      '.dsh-wt-headBlur{display:none;position:absolute;top:100%;left:0;right:0;height:20px;pointer-events:none}',
-      '.dsh-wt-sectionHead[data-stuck] .dsh-wt-headBlur,.dsh-wt-doneHead[data-stuck] .dsh-wt-headBlur{display:block}',
-      '.dsh-wt-headBlurBand{position:absolute;left:0;right:0;height:4px;pointer-events:none}',
-      '.dsh-wt-headBlurBand:nth-child(1){top:0;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}',
-      '.dsh-wt-headBlurBand:nth-child(2){top:4px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}',
-      '.dsh-wt-headBlurBand:nth-child(3){top:8px;-webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px)}',
-      '.dsh-wt-headBlurBand:nth-child(4){top:12px;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}',
-      '.dsh-wt-headBlurBand:nth-child(5){top:16px;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}',
+      '.dsh-wt-sectionHead[data-stuck],.dsh-wt-doneHead[data-stuck]{background:var(--dsh-wt-panelSurface,var(--dsw-alias-bg-layer-2))}',
       '.dsh-wt-doneToggle{display:flex;align-items:center;gap:var(--wt-space-2);flex:none;min-width:0;margin:0;padding:var(--wt-space-1) var(--wt-space-2) var(--wt-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--wt-transition)}',
       '.dsh-wt-doneToggle:active{background:var(--wt-active)}',
       '.dsh-wt-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}',
@@ -1063,10 +1055,6 @@ window.__ModuleLoader__.load({
     const IconPencil = () => h(Glyph, { name: 'IconEditOutlineRegular', size: 14 })
     const IconTrash = () => h(Glyph, { name: 'IconTrashOutlineRegular', size: 14 })
 
-    /** Five stacked blur strips under a pinned header; the strongest sits at the header edge and fades downward. */
-    const HeadBlur = () => h('span', { className: 'dsh-wt-headBlur', 'aria-hidden': true },
-      ...[0, 1, 2, 3, 4].map(index => h('span', { key: index, className: 'dsh-wt-headBlurBand' })),
-    )
     const IconChevron = () => h(Glyph, { name: 'IconChevronRightOutlineRegular', size: 12 })
     const IconEmpty = () => h(Glyph, { name: 'IconChecklistOutlineRegular', size: 18 })
     const IconClose = () => h(Glyph, { name: 'IconCloseOutlineRegular', size: 14 })
@@ -2167,7 +2155,6 @@ window.__ModuleLoader__.load({
                   say('list.open'),
                   openCount ? h('span', { className: 'dsh-wt-sectionCount' }, String(openCount)) : null,
                 ),
-                h(HeadBlur, null),
               ),
               showOpen
                 ? openItems.length
@@ -2205,7 +2192,6 @@ window.__ModuleLoader__.load({
                           onClick: askClearConfirm,
                         }, say('popover.clearDone'))
                       : null,
-                    h(HeadBlur, null),
                   ),
                   showDone && confirmClear
                     ? h(

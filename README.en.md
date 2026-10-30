@@ -46,7 +46,7 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - The send-shortcut hint sits in the empty space left of the Add button and updates with the setting, keeping the input placeholder short.
 - Unsaved add/edit drafts are saved per session and restored after closing and reopening the panel, with the add caret at the end of the draft; they clear after add, save, cancel, or delete.
 - Expanding **Completed** does not compress the **Open** list; only the open/completed list region scrolls, while the header, settings, composer, and footer stay fixed.
-- The **Open** and **Completed** headers stick inside the list: transparent until pinned, then filled with two stacked layers of `--dsw-alias-menu-group-header-fill` so the fill is effectively opaque. The title typography stays unchanged, with no rounded corners or underlay and no translucency in the fill. Five stacked 4px strips fade a 20px-to-2px backdrop blur into the rows so the solid edge blends away.
+- The **Open** and **Completed** headers stick inside the list: transparent until pinned, then filled with the same opaque `--dsh-wt-panelSurface` as the popover. The title typography stays unchanged, with no rounded corners, underlay, translucency, or top blur band.
 - Completed notes show both the creation and the completion age and sort by newest completion; open notes show the creation age only.
 - The open/completed expand state is remembered and restored when the panel is reopened.
 - Note-card copy/edit/delete actions appear on hover or keyboard focus while keeping their layout space; touch devices keep them visible.
@@ -54,7 +54,7 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - The sidebar reminder stays visible while the session is running.
 - Syncs across tabs in the same browser.
 - Chinese and English copy, following the DSH locale.
-- Every style reuses DSH design tokens: semantic colour aliases, shared radii and elevation, the menu material, and the shared scrollbar skin. Type collapses to three sizes (12 / 13 / 14), weight caps at 500, neutral strokes are 0.5px hairlines, hover styling only runs on hover-capable devices, and settled outcomes report through the frame-wide toast. See the [UI / interaction review](./docs/ui-design-check.md).
+- Every style reuses DSH design tokens: semantic colour aliases, shared radii and elevation, an opaque raised surface, and the shared scrollbar skin. Type collapses to three sizes (12 / 13 / 14), weight caps at 500, neutral strokes are 0.5px hairlines, hover styling only runs on hover-capable devices, and settled outcomes report through the frame-wide toast. See the [UI / interaction review](./docs/ui-design-check.md).
 
 ## Feature screenshots
 
@@ -105,7 +105,7 @@ The panel and the entry button read from one token block at the top of `client.j
 | Spacing | `--wt-space-1 … -6` | 4 / 8 / 12 / 16 / 24 / 32 |
 | Radius | `--dsw-radius-sm/md/lg/panel` + 999 | 8 (compact controls) / 16 (groups and fields) / 28 (floating panel) / pills paired with `corner-shape:round` |
 | Shadow | `--dsw-elevation-panel` | the panel is `border:0`; the 0.5px hairline is the shadow's first layer |
-| Material | `--dsw-specific-menu` + `--dsw-menu-backdrop-filter` | the same material as DSH menus and popovers |
+| Material | `--dsh-wt-panelSurface` (`--dsw-alias-bg-layer-2`) | opaque panel surface shared with the pinned header |
 | Motion | `--ds-transition-duration*`, `--ds-ease-in-out` | 100 / 200ms, opacity and transform only |
 | Scrollbar | shared theme skin | the panel rebinds `--dsh-scrollbar-*` to l2 and gives the list a 9px rail with a 2px inset |
 
