@@ -1019,10 +1019,13 @@ window.__ModuleLoader__.load({
     function syncStickyHeads(node) {
       const areaTop = node.getBoundingClientRect().top
       for (const head of node.querySelectorAll('.dsh-wt-sectionHead, .dsh-wt-doneHead')) {
-        const naturalTop = head.offsetTop - node.offsetTop
-        const top = head.getBoundingClientRect().top
-        const pinned = node.scrollTop > naturalTop && top >= areaTop - 1 && top <= areaTop + 1
-        head.toggleAttribute('data-stuck', pinned)
+        // The head is sticky only while its section straddles the scroller's
+        // top edge. Reading the section avoids the sticky element's own
+        // offsetTop, which moves with the pinned position in some engines.
+        const section = head.parentElement
+        if (!section) continue
+        const rect = section.getBoundingClientRect()
+        head.toggleAttribute('data-stuck', rect.top < areaTop && rect.bottom > areaTop)
       }
     }
 
