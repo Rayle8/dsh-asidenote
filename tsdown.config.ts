@@ -11,9 +11,36 @@
  * https://github.com/bowenliang123/dsh-context and https://github.com/dsh-market/dsh-market
  */
 import { readFileSync } from 'node:fs'
+import { dirname, resolve as resolvePath } from 'node:path'
 import { defineConfig } from 'tsdown'
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
+
+const CSS_INLINE = '?inline'
+const CSS_VIRTUAL_PREFIX = '\0dsh-css:'
+
+/**
+ * `import css from './x.css?inline'` yields the file's text.
+ *
+ * The sheet is injected by the entry module rather than by the bundler, so the
+ * plugin owns one <style> tag and can remove it on dispose. The virtual id must
+ * not end in `.css`: tsdown's own css pipeline matches on that suffix.
+ */
+function inlineCss() {
+  return {
+    name: 'dsh-css-inline',
+    resolveId(source: string, importer: string | undefined) {
+      if (!source.endsWith(`.css${CSS_INLINE}`)) return null
+      const file = source.slice(0, -CSS_INLINE.length)
+      return CSS_VIRTUAL_PREFIX + (importer ? resolvePath(dirname(importer), file) : file) + '.mjs'
+    },
+    load(id: string) {
+      if (!id.startsWith(CSS_VIRTUAL_PREFIX)) return null
+      const file = id.slice(CSS_VIRTUAL_PREFIX.length, -'.mjs'.length)
+      return `export default ${JSON.stringify(readFileSync(file, 'utf8'))}`
+    },
+  }
+}
 
 /** Modules the loader seeds into the factory's `require`; never bundled. */
 const CLIENT_EXTERNALS = [
@@ -45,6 +72,7 @@ export default defineConfig({
     // table cannot answer throws at boot.
     alwaysBundle: source => (CLIENT_EXTERNALS.includes(source) ? undefined : true),
   },
+  plugins: [inlineCss()],
   outputOptions: {
     entryFileNames: 'client.js',
     banner: `window.__ModuleLoader__.load({ id: ${JSON.stringify(pkg.name)}, factory: (require) => {`,

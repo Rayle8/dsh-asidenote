@@ -34,7 +34,7 @@ test('package declares the DSH bundle and web client halves', () => {
 
 test('client version matches the package version', () => {
   const manifest = JSON.parse(read('package.json'))
-  assert.match(read('src/client/index.ts'), new RegExp(`PLUGIN_VERSION = '${manifest.version.replace(/\./g, '\\.')}'`))
+  assert.match(read('src/client/constants.ts'), new RegExp(`PLUGIN_VERSION = '${manifest.version.replace(/\./g, '\\.')}'`))
 })
 
 test('patch inserts exactly the package host row', () => {
@@ -71,8 +71,8 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /dsh-wt-listSection/)
   // Sticky heads stay transparent in flow and only take the panel's raised
   // surface while pinned, so no differently coloured block sits at rest.
-  assert.match(client, /\.dsh-wt-sectionHead,\.dsh-wt-doneHead\{[^}]*position:sticky[^}]*top:0[^}]*background:transparent/)
-  assert.match(client, /\[data-stuck\][^{]*\{[^}]*background:var\(--dsh-wt-panelSurface,var\(--dsw-alias-bg-layer-2\)\)/)
+  assert.match(readCss(), /\.dsh-wt-sectionHead,\.dsh-wt-doneHead\{[^}]*position:sticky[^}]*top:0[^}]*background:transparent/)
+  assert.match(readCss(), /\[data-stuck\][^{]*\{[^}]*background:var\(--dsh-wt-panelSurface,var\(--dsw-alias-bg-layer-2\)\)/)
   assert.match(client, /FORWARDED_STORAGE_KEY/)
   assert.match(client, /dsh-wt-forwardMark/)
   assert.match(client, /item\.forwarded/)
@@ -111,7 +111,7 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /'settings\.project'/)
   assert.match(client, /PLUGIN_REPO_URL/)
   assert.match(client, /SESSION_STORAGE_KEY/)
-  assert.match(client, /dsh\.session-memos\.v1/)
+  assert.match(read('src/client/constants.ts'), /dsh\.session-memos\.v1/)
   assert.doesNotMatch(client, /selectPanel/)
   assert.match(client, /document\.head\.appendChild\(style\)/)
   assert.doesNotMatch(client, /h\('style'/)
@@ -139,9 +139,8 @@ test('locale files carry the whole dictionary', () => {
     assert.equal(zh[key], dict.zh[key], `zh.json value drifted for ${key}`)
     assert.equal(en[key], dict.en[key], `en.json value drifted for ${key}`)
   }
-  const client = read('src/client/index.ts')
-  assert.match(client, /'title': '便笺'/)
-  assert.match(client, /'dock\.open': '打开便笺'/)
+  assert.equal(dict.zh['title'], '便笺')
+  assert.equal(dict.zh['dock.open'], '打开便笺')
   // The clear-completed confirmation is localised in both bundles and both files.
   assert.equal(zh['popover.clearConfirm'], '清除 {n} 项已完成便笺？')
   assert.equal(en['popover.clearConfirm'], 'Clear {n} completed notes?')
@@ -183,15 +182,9 @@ test('feature screenshots ship in both themes', () => {
   }
 })
 
-/** The stylesheet is a string array; flatten it back into CSS for inspection. */
+/** The panel stylesheet is a plain .css file now. */
 function readCss() {
-  const client = read('src/client/index.ts')
-  const start = client.indexOf('const CSS = [')
-  const end = client.indexOf("].join('')", start)
-  assert.ok(start > 0 && end > start, 'CSS array not found')
-  return [...client.slice(start, end).matchAll(/'(?:[^'\\]|\\.)*'/g)]
-    .map(match => match[0].slice(1, -1).replace(/\\'/g, "'"))
-    .join('\n')
+  return read('src/client/styles/panel.css')
 }
 
 /** Split the stylesheet into whole rules, keeping their at-rule context. */
@@ -222,12 +215,19 @@ function cssRules() {
 
 /** The bundled dictionary, evaluated straight from the module source. */
 function readDict() {
-  const client = read('src/client/index.ts')
-  const start = client.indexOf('const DICT = ')
-  const end = client.indexOf('const CSS = [')
-  assert.ok(start >= 0 && end > start, 'DICT not found')
-  const literal = client.slice(start + 'const DICT = '.length, end).trim().replace(/,$/, '')
-  return new Function(`return (${literal})`)()
+  return {
+    zh: readLiteral('src/client/i18n/zh.ts', 'zh'),
+    en: readLiteral('src/client/i18n/en.ts', 'en'),
+  }
+}
+
+/** Pull one JSON-compatible object literal out of a TypeScript module. */
+function readLiteral(file, name) {
+  const text = read(file)
+  const start = text.indexOf('{', text.indexOf(`export const ${name}`))
+  const end = text.lastIndexOf('}')
+  assert.ok(start >= 0 && end > start, `${name} literal not found in ${file}`)
+  return JSON.parse(text.slice(start, end + 1))
 }
 
 test('colours come from theme aliases, never from a second palette', () => {
@@ -585,7 +585,7 @@ test('completed notes sort by newest completion', () => {
 })
 
 test('send shortcuts default to Enter and name the platform modifier', () => {
-  const client = read('src/client/index.ts')
+  const client = read('src/client/constants.ts')
   assert.match(client, /const SEND_SHORTCUT_DEFAULT = 'enter'/)
   assert.match(client, /const IS_MAC = \(/)
   assert.match(client, /const MOD_LABEL = IS_MAC \? '⌘' : 'Ctrl'/)
@@ -673,7 +673,7 @@ test('clearing completed notes asks for a second confirmation', () => {
   assert.match(client, /className: 'dsh-wt-clearConfirm',\n\s+role: 'group',\n\s+'aria-live': 'polite',/)
   assert.match(client, /say\('popover\.clearConfirm', \{ n: doneItems\.length \}\)/)
   // Five-second auto-dismiss, with every teardown path dropping the timer.
-  assert.match(client, /const CLEAR_CONFIRM_MS = 5000/)
+  assert.match(read('src/client/constants.ts'), /const CLEAR_CONFIRM_MS = 5000/)
   assert.match(client, /clearConfirmTimerRef\.current = window\.setTimeout\(\(\) => \{\n\s+clearConfirmTimerRef\.current = 0\n\s+setConfirmClear\(false\)\n\s+\}, CLEAR_CONFIRM_MS\)/)
   assert.match(client, /React\.useEffect\(\(\) => \(\) => stopClearConfirmTimer\(\), \[\]\)/)
   assert.match(client, /if \(confirmClear && \(!showDone \|\| doneItems\.length === 0\)\) dismissClearConfirm\(\)/)

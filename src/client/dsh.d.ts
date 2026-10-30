@@ -48,3 +48,9 @@ declare module '@deepseek-ai/dsh-client-ui-primitives' {
   const primitives: Record<string, any>
   export default primitives
 }
+
+/** `?inline` stylesheets arrive as a string, not as a side-effectful import. */
+declare module '*.css?inline' {
+  const css: string
+  export default css
+}

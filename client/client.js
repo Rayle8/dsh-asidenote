@@ -36,20 +36,16 @@ react_dom_client = __toESM(react_dom_client, 1);
 let _deepseek_ai_dsh_client_ui_primitives = require("@deepseek-ai/dsh-client-ui-primitives");
 _deepseek_ai_dsh_client_ui_primitives = __toESM(_deepseek_ai_dsh_client_ui_primitives, 1);
 
-// src/client/index.ts
+// \0dsh-css:./src/client/styles/panel.css.mjs
+var panel_css_default = "/*\n * Panel, composer dock, header entry and toast styles.\n *\n * Only DSH semantic aliases and the shared scale are used here — no palette of\n * its own. The entry point injects this sheet once for the whole frame, because\n * the dock mounts outside the panel tree.\n */\n/* ── 1 令牌 · 只映射 DSH 语义别名与共享尺度，不新建调色板 ─────────── */\nbody{--wt-space-1:4px;--wt-space-2:8px;--wt-space-3:12px;--wt-space-4:16px;--wt-space-5:24px;--wt-space-6:32px;--wt-radius-pill:999px;--wt-fs-caption:12px;--wt-lh-caption:20px;--wt-fs-row:13px;--wt-lh-row:20px;--wt-fs-title:14px;--wt-lh-title:20px;--wt-hover:var(--dsw-alias-interactive-bg-hover);--wt-active:var(--dsw-alias-interactive-bg-active);--wt-field:var(--dsw-alias-bg-layer-1);--wt-field-line:var(--dsw-alias-border-l4);--wt-divider:var(--dsw-alias-border-l2);--wt-dur-fast:var(--ds-transition-duration-fast);--wt-dur-base:var(--ds-transition-duration);--wt-dur-spin:700ms;--wt-ease:var(--ds-ease-in-out);--wt-transition:background-color var(--wt-dur-fast) var(--wt-ease),border-color var(--wt-dur-fast) var(--wt-ease),color var(--wt-dur-fast) var(--wt-ease),opacity var(--wt-dur-fast) var(--wt-ease),transform var(--wt-dur-fast) var(--wt-ease),box-shadow var(--wt-dur-fast) var(--wt-ease)}\n\n/* ── 2 浮层 · 菜单材质 + 三层阴影，边框为 0（发丝线在阴影第一层） ── */\n.dsh-wt-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--wt-space-3);min-height:0;padding:var(--wt-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsh-wt-panelSurface);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--wt-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--wt-divider)));--dsh-wt-panelSurface:var(--dsw-alias-bg-layer-2);--dsh-wt-listGutter:var(--wt-space-4);--dsh-wt-scrollRail:9px;--dsh-wt-scrollInset:2px;overflow:hidden;animation:dsh-wt-pop-in var(--wt-dur-base) var(--wt-ease) both}\n.dsh-wt-popoverRight{padding-left:var(--wt-space-4)}\n\n/* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */\n.dsh-wt-popHead{display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-3);min-width:0}\n.dsh-wt-popTitleLine{display:flex;align-items:center;gap:var(--wt-space-3);flex:1 1 auto;min-width:0}\n.dsh-wt-popTitle{min-width:0;overflow:hidden;font-size:var(--wt-fs-title);line-height:var(--wt-lh-title);font-weight:500;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-wt-popMeta{min-width:0;margin:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:16px;color:var(--dsw-alias-label-secondary);font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}\n.dsh-wt-popActions{display:flex;align-items:center;flex:none;gap:var(--wt-space-2)}\n.dsh-wt-popClose,.dsh-wt-settingsBtn{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--wt-transition)}\n.dsh-wt-popClose:active,.dsh-wt-settingsBtn:active{background:var(--wt-active)}\n.dsh-wt-settingsBtn[data-active=\"true\"]{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}\n\n/* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */\n.dsh-wt-add{display:flex;flex-direction:column;gap:var(--wt-space-2);padding:var(--wt-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--wt-transition)}\n.dsh-wt-add:focus-within{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-wt-input{display:block;flex:0 0 auto;width:100%;min-width:0;box-sizing:border-box;min-height:var(--wt-lh-row);max-height:120px;padding:0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);resize:none;overflow-y:auto;overflow-x:hidden}\n.dsh-wt-input::placeholder{color:var(--dsw-alias-label-secondary)}\n.dsh-wt-addFoot{display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-2);width:100%;min-width:0}\n.dsh-wt-addShortcut{min-width:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-wt-addBtn{display:inline-flex;align-items:center;justify-content:center;flex:none;height:28px;padding:0 var(--wt-space-2);border:0;border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;cursor:pointer;transition:var(--wt-transition)}\n.dsh-wt-addBtn:active{background:var(--dsw-alias-button-primary-dimmed);transform:scale(.97)}\n.dsh-wt-addBtn[disabled]{background:transparent;color:var(--dsw-alias-label-secondary);box-shadow:inset 0 0 0 0.5px var(--wt-field-line);cursor:not-allowed}\n\n/* ── 5 分区与列表 · 9px 轨道内嵌 2px，底部羽化只盖内容不盖滚动条 ──── */\n/* The viewport grows into the popover padding so the 9px rail does not steal from the cards; the list pays the padding back minus the rail, so cards and the add field keep one content width at every panel size. */\n.dsh-wt-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--dsh-wt-listGutter) * -1)}\n/* Bottom edge treatment: a viewport-fixed alpha mask over the scroller itself, exactly like the DSH scroll areas. The first gradient fades the last 48px to transparent; the second keeps the 9px scrollbar rail opaque so the thumb stays crisp. There is no backdrop-filter layer, so there is no hard compositing edge to see. */\n.dsh-wt-listViewport[data-bottom=\"true\"] .dsh-wt-listArea{--dsh-wt-fadeHeight:calc(var(--wt-space-6) + var(--wt-space-4));-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-wt-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-wt-scrollRail)),currentColor calc(100% - var(--dsh-wt-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-wt-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-wt-scrollRail)),currentColor calc(100% - var(--dsh-wt-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n/* Geometry only: the shared DSH skin paints the thumb, so the plugin declares no scrollbar pseudo-elements. The popover already binds the l2 thumb pair for the menu material. */\n.dsh-wt-listArea{--dsh-scrollbar-width:var(--dsh-wt-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-wt-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-wt-listGutter) - var(--dsh-wt-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}\n.dsh-wt-listSection{display:flex;flex-direction:column;gap:var(--wt-space-2);min-width:0}\n.dsh-wt-listSection+.dsh-wt-listSection{margin-top:var(--wt-space-2)}\n.dsh-wt-sectionHead,.dsh-wt-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-3);min-height:28px;margin:0;padding:var(--wt-space-1) 0;background:transparent;transition:background-color var(--wt-dur-fast) var(--wt-ease)}\n.dsh-wt-sectionHead[data-stuck],.dsh-wt-doneHead[data-stuck]{background:var(--dsh-wt-panelSurface,var(--dsw-alias-bg-layer-2))}\n.dsh-wt-doneToggle{display:flex;align-items:center;gap:var(--wt-space-2);flex:none;min-width:0;margin:0;padding:var(--wt-space-1) var(--wt-space-2) var(--wt-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--wt-transition)}\n.dsh-wt-doneToggle:active{background:var(--wt-active)}\n.dsh-wt-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-wt-chevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);transition:transform var(--wt-dur-fast) var(--wt-ease)}\n.dsh-wt-chevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-wt-sectionCount{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 var(--wt-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--wt-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--wt-fs-caption);line-height:16px;font-weight:500;font-variant-numeric:tabular-nums}\n.dsh-wt-clear{display:inline-flex;align-items:center;flex:none;height:24px;margin-left:auto;padding:0 var(--wt-space-2);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;cursor:pointer;transition:var(--wt-transition)}\n.dsh-wt-clear:active{background:var(--wt-active);color:var(--dsw-alias-label-primary)}\n.dsh-wt-clearConfirm{display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-2);min-width:0;margin-top:var(--wt-space-1);padding:var(--wt-space-2);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-wt-clearConfirmText{flex:1 1 auto;min-width:0;margin:0;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-primary);overflow-wrap:anywhere}\n.dsh-wt-clearConfirmActions{display:flex;align-items:center;flex:none;gap:var(--wt-space-1)}\n.dsh-wt-doneRows{margin-top:var(--wt-space-2)}\n.dsh-wt-rows{list-style:none;margin:0;padding:0;border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);overflow:hidden}\n.dsh-wt-row{display:flex;align-items:flex-start;gap:var(--wt-space-2);padding:var(--wt-space-2);border-top:0.5px solid var(--wt-divider);transition:var(--wt-transition)}\n.dsh-wt-row:first-child{border-top:0}\n\n/* ── 6 一行便笺 · 勾选圈 14px，命中区 24px ─────────────────────────── */\n.dsh-wt-check{display:flex;align-items:center;justify-content:center;flex:none;width:24px;height:24px;margin:-2px 0 0;padding:0;border:0;border-radius:var(--wt-radius-pill);corner-shape:round;background:transparent;color:transparent;font:inherit;cursor:pointer;transition:var(--wt-transition)}\n.dsh-wt-checkCircle{display:flex;align-items:center;justify-content:center;width:14px;height:14px;box-sizing:border-box;border:0.5px solid var(--dsw-alias-label-tertiary);border-radius:var(--wt-radius-pill);corner-shape:round;background:transparent;color:transparent;transition:border-color var(--wt-dur-fast) var(--wt-ease),background-color var(--wt-dur-fast) var(--wt-ease),color var(--wt-dur-fast) var(--wt-ease),transform var(--wt-dur-fast) var(--wt-ease)}\n.dsh-wt-check:active .dsh-wt-checkCircle{transform:scale(.9)}\n.dsh-wt-check[aria-checked=\"true\"] .dsh-wt-checkCircle{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-wt-itemBody{display:flex;flex:1;flex-direction:column;gap:var(--wt-space-1);min-width:0}\n.dsh-wt-text{display:block;width:100%;margin:0;padding:0;border:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;cursor:text;user-select:text;-webkit-user-select:text}\n.dsh-wt-rowDone .dsh-wt-text{color:var(--dsw-alias-label-secondary);text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:var(--dsw-alias-label-tertiary)}\n.dsh-wt-rowFoot{display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-2);min-height:24px}\n.dsh-wt-meta{flex:0 1 auto;min-width:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}\n\n/* ── 7 行操作 · 图标按钮 H24/R8，触摸端常显 ────────────────────────── */\n.dsh-wt-actions{display:flex;flex:none;gap:var(--wt-space-1)}\n.dsh-wt-iconBtn{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--wt-transition)}\n.dsh-wt-iconBtn:active{background:var(--wt-active);color:var(--dsw-alias-label-primary);transform:scale(.94)}\n.dsh-wt-iconBtn:disabled,.dsh-wt-iconBtn[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-wt-forwardMark{position:absolute;right:0;bottom:0;display:flex;align-items:center;justify-content:center;width:10px;height:10px;border-radius:var(--wt-radius-pill);corner-shape:round;background:var(--dsw-alias-label-secondary);color:var(--dsw-alias-label-primary-foreground);pointer-events:none}\n\n/* ── 8 就地编辑 · 保存/取消为紧凑描边按钮 ──────────────────────────── */\n.dsh-wt-edit{display:flex;flex-direction:column;gap:var(--wt-space-1);width:100%}\n.dsh-wt-editInput{display:block;width:100%;box-sizing:border-box;min-height:var(--wt-lh-row);max-height:160px;padding:var(--wt-space-1) var(--wt-space-2);border:0.5px solid var(--wt-field-line);border-radius:var(--dsw-radius-sm);background:var(--wt-field);color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);outline:0;resize:none;overflow-y:auto;overflow-x:hidden;transition:var(--wt-transition)}\n.dsh-wt-editInput:focus{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-wt-editActions{display:flex;align-items:center;gap:var(--wt-space-1)}\n.dsh-wt-editHint{flex:1 1 auto;min-width:0;margin-left:auto;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);text-align:right;color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-wt-mini{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--wt-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;cursor:pointer;transition:var(--wt-transition)}\n.dsh-wt-mini:active{background:var(--wt-active)}\n.dsh-wt-mini[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-wt-miniPrimary{border-color:transparent;background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-wt-miniPrimary:active{background:var(--dsw-alias-button-primary-dimmed)}\n.dsh-wt-miniDanger{border-color:transparent;background:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-wt-miniDanger:active{background:var(--dsw-alias-state-error-primary)}\n\n/* ── 9 空态 · 虚线 1px，说明 12/次级墨色 ──────────────────────────── */\n.dsh-wt-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--wt-space-2);padding:var(--wt-space-5) var(--wt-space-4);border:1px dashed var(--wt-divider);border-radius:var(--dsw-radius-lg);text-align:center}\n.dsh-wt-emptyIcon{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0 0 var(--wt-space-1);border-radius:var(--dsw-radius-md);background:var(--wt-hover);color:var(--dsw-alias-label-secondary)}\n.dsh-wt-emptyTitle{font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-wt-emptyBody{max-width:36ch;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n\n/* ── 10 设置 · 分组 R16，项间 0.5px 分隔线，链接走 --dsw-alias-link ── */\n.dsh-wt-settings{--dsh-wt-settingIndent:var(--wt-space-3);display:flex;flex-direction:column;gap:var(--wt-space-2);margin:0;padding:var(--wt-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-wt-settingsHead{font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-wt-settingGroup{display:flex;flex-direction:column;gap:var(--wt-space-1);min-width:0}\n.dsh-wt-settingGroup+.dsh-wt-settingGroup{margin-top:var(--wt-space-2);padding-top:var(--wt-space-2);border-top:0.5px solid var(--wt-divider)}\n.dsh-wt-settingLabel{font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-wt-settingBody{display:flex;flex-direction:column;gap:var(--wt-space-1);padding-left:var(--dsh-wt-settingIndent)}\n.dsh-wt-settingItem{display:flex;flex-direction:column;gap:var(--wt-space-1);min-width:0}\n.dsh-wt-settingItem+.dsh-wt-settingItem{margin-top:var(--wt-space-2);padding-top:var(--wt-space-2);border-top:0.5px solid var(--wt-divider)}\n.dsh-wt-settingChoices{display:flex;flex-direction:column;gap:var(--wt-space-1)}\n.dsh-wt-settingChoice{display:flex;align-items:flex-start;gap:var(--wt-space-2);font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);color:var(--dsw-alias-label-primary);cursor:pointer}\n.dsh-wt-settingChoice input{appearance:none;flex:none;width:14px;height:14px;margin:calc((var(--wt-lh-row) - 14px) / 2) 0 0;box-sizing:border-box;border:0.5px solid var(--dsw-alias-label-tertiary);border-radius:var(--wt-radius-pill);corner-shape:round;background:transparent;cursor:pointer;transition:var(--wt-transition)}\n.dsh-wt-settingChoice input:checked{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-brand-primary);box-shadow:inset 0 0 0 3px var(--wt-field)}\n.dsh-wt-settingInput{box-sizing:border-box;width:100%;height:28px;padding:0 var(--wt-space-2);border:0.5px solid var(--wt-field-line);border-radius:var(--dsw-radius-sm);background:var(--wt-field);color:var(--dsw-alias-label-primary);font-family:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);font-weight:500;outline:0;transition:var(--wt-transition)}\n.dsh-wt-settingItem>.dsh-wt-settingInput{font-family:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);font-weight:500}\n.dsh-wt-settingInput:focus{border-color:var(--dsw-alias-state-business-primary)}\n/* 前缀提示词改为文本域：min-height 兜住三行，空态也不会被内联高度压扁 */\n.dsh-wt-settingTextarea{display:block;height:auto;min-height:calc(var(--wt-lh-row) + var(--wt-space-4) + 2px);padding:var(--wt-space-2);resize:none;overflow-y:auto;white-space:pre-wrap;overflow-wrap:anywhere}\n.dsh-wt-settingHint{margin:0;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-wt-settingHintNote{margin-top:var(--wt-space-1)}\n.dsh-wt-settingAbout{display:flex;align-items:baseline;gap:var(--wt-space-1);min-width:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}\n.dsh-wt-settingAbout>span{flex:none}\n.dsh-wt-settingProject{display:flex;align-items:baseline;gap:var(--wt-space-1);min-width:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}\n.dsh-wt-settingProject>span{flex:none}\n.dsh-wt-settingDot{flex:none;color:var(--dsw-alias-label-tertiary)}\n.dsh-wt-settingLink{flex:0 1 auto;min-width:0;overflow:hidden;color:var(--dsw-alias-link);font-weight:500;text-decoration:none;text-overflow:ellipsis;transition:var(--wt-transition)}\n.dsh-wt-settingLink:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n\n/* ── 11 面板脚注 · 存储状态就地提示，错误用状态色 ─────────────────── */\n.dsh-wt-popFoot{margin:0;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-wt-error{color:var(--dsw-alias-state-error-primary)}\n\n/* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */\n.dsh-wt-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--wt-transition)}\n.dsh-wt-headerBtn:active{background:var(--wt-active);color:var(--dsw-alias-label-primary)}\n.dsh-wt-headerBtn[data-active=\"true\"]{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}\n.dsh-wt-headerBtn[data-disabled=\"true\"]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-wt-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}\n.dsh-wt-headerCount{position:absolute;top:-2px;right:-2px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 var(--wt-space-1);border:0.5px solid var(--dsw-alias-bg-base);border-radius:var(--wt-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-secondary);font-size:var(--wt-fs-caption);line-height:14px;font-weight:500;font-variant-numeric:tabular-nums}\n\n/* ── 13 拖拽把手 · 8px 命中带，3px 视觉条 ─────────────────────────── */\n.dsh-wt-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--wt-space-2);cursor:ew-resize;touch-action:none;outline:0}\n.dsh-wt-resizeHandle::before{content:\"\";width:3px;height:var(--wt-space-6);border-radius:var(--wt-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--wt-dur-fast) var(--wt-ease),background-color var(--wt-dur-fast) var(--wt-ease)}\n.dsh-wt-resizeHandle:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-wt-resizeHandle:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n.dsh-wt-resizeHandleBottom{position:absolute;left:50%;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--wt-space-6);height:var(--wt-space-3);transform:translateX(-50%);cursor:ns-resize;touch-action:none;outline:0}\n.dsh-wt-resizeHandleBottom::before{content:\"\";width:var(--wt-space-5);height:3px;border-radius:var(--wt-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--wt-dur-fast) var(--wt-ease),background-color var(--wt-dur-fast) var(--wt-ease)}\n.dsh-wt-resizeHandleBottom:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-wt-resizeHandleBottom:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n\n/* ── 14 加载 · 控件内 12px 环，文字隐藏，不报\"进行中\" ──────────────── */\n[data-loading=\"true\"]{position:relative;color:transparent!important;pointer-events:none;cursor:progress}\n[data-loading=\"true\"]>*{visibility:hidden}\n[data-loading=\"true\"]::after{content:\"\";position:absolute;left:50%;top:50%;box-sizing:border-box;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid var(--dsw-alias-label-secondary);border-top-color:transparent;border-radius:var(--wt-radius-pill);corner-shape:round;animation:dsh-wt-spin var(--wt-dur-spin) linear infinite}\n\n/* ── 15 悬停 · 只在支持 hover 的设备上启用（触摸端常显操作） ────────── */\n@media (hover:hover){\n.dsh-wt-row:hover{background:var(--wt-hover)}\n.dsh-wt-actions{opacity:0;pointer-events:none}\n.dsh-wt-row:hover .dsh-wt-actions,.dsh-wt-row:focus-within .dsh-wt-actions{opacity:1;pointer-events:auto}\n.dsh-wt-iconBtn:hover{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}\n.dsh-wt-iconBtnDanger:hover{background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-wt-popClose:hover,.dsh-wt-settingsBtn:hover{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}\n.dsh-wt-addBtn:hover:not([disabled]){background:var(--dsw-alias-button-primary-hover)}\n.dsh-wt-mini:hover:not([disabled]){background:var(--wt-hover)}\n.dsh-wt-miniPrimary:hover:not([disabled]){background:var(--dsw-alias-button-primary-hover);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-wt-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-wt-clear:hover{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}\n.dsh-wt-doneToggle:hover{background:var(--wt-hover)}\n.dsh-wt-check:hover .dsh-wt-checkCircle{border-color:var(--dsw-alias-label-primary)}\n.dsh-wt-settingChoice:hover input{border-color:var(--dsw-alias-label-primary)}\n.dsh-wt-settingLink:hover{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-wt-headerBtn:hover{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}\n.dsh-wt-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}\n.dsh-wt-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}\n}\n\n/* ── 16 动效 · 只动 opacity/transform，错峰出场封顶 ─────────────────── */\n@media (prefers-reduced-motion:no-preference){\n.dsh-wt-rows>.dsh-wt-row{animation:dsh-wt-row-in var(--wt-dur-base) var(--wt-ease) both}\n.dsh-wt-rows>.dsh-wt-row:nth-child(2){animation-delay:var(--wt-space-1)}\n.dsh-wt-rows>.dsh-wt-row:nth-child(3){animation-delay:var(--wt-space-2)}\n.dsh-wt-rows>.dsh-wt-row:nth-child(4){animation-delay:calc(var(--wt-space-2) + var(--wt-space-1))}\n.dsh-wt-rows>.dsh-wt-row:nth-child(n+5){animation-delay:var(--wt-space-3)}\n}\n@keyframes dsh-wt-pop-in{from{opacity:0}to{opacity:1}}\n@keyframes dsh-wt-row-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}\n@keyframes dsh-wt-spin{to{transform:rotate(360deg)}}\n@media (prefers-reduced-motion:reduce){\n.dsh-wt-popover,.dsh-wt-rows>.dsh-wt-row,.dsh-wt-chevron,[data-loading=\"true\"]::after{animation:none}\n.dsh-wt-popover,.dsh-wt-row,.dsh-wt-actions,.dsh-wt-iconBtn{transition-duration:1ms}\n}\n\n/* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */\n@media (max-width:480px){\n.dsh-wt-popover{padding:var(--wt-space-3);--dsh-wt-listGutter:var(--wt-space-3)}\n.dsh-wt-popoverRight{padding-left:var(--wt-space-4)}\n.dsh-wt-popHead{gap:var(--wt-space-2)}\n.dsh-wt-add{padding:var(--wt-space-2) var(--wt-space-3)}\n.dsh-wt-sectionHead,.dsh-wt-doneHead{min-height:24px}\n}\n\n";
+
+// src/client/constants.ts
 /**
-* SessionNote browser half.
+* Plugin identity, storage keys, limits and platform helpers.
 *
-* The shell loads this bundle through `dsh.client`; the host half is the
-* no-op `index.js` at the package root. Today this module still carries copy,
-* storage, domain rules and the panel UI together — P2 splits it by concern;
-* P1 only replaces the hand-written loader shell with the build.
+* Everything whose value is part of the on-disk contract lives here; the
+* storage modules and the panel import it instead of repeating literals.
 */
-const h = react.default.createElement;
-const PRIMITIVES = _deepseek_ai_dsh_client_ui_primitives;
-const Tooltip = typeof PRIMITIVES.Tooltip === "function" ? PRIMITIVES.Tooltip : null;
-const Toast = typeof PRIMITIVES.Toast === "function" ? PRIMITIVES.Toast : null;
-const icon = (name) => typeof PRIMITIVES[name] === "function" ? PRIMITIVES[name] : null;
 /** Locale namespace of this plugin's copy (also binds the renderer's `t` prop). */
 const NS = "workspace-todos";
 /** Sidebar launcher id and the main panel key it addresses. */
@@ -92,16 +88,189 @@ const SECTION_STATE_DEFAULT = {
 const CLEAR_CONFIRM_MS = 5e3;
 /** Persisted width of the experimental right-side panel. */
 const PANEL_WIDTH_KEY = "dsh.memo.panel-width.v1";
-const PANEL_DEFAULT_WIDTH = 360;
-const PANEL_MIN_WIDTH = 280;
-const PANEL_MAX_WIDTH = 720;
 /** Persisted height of the experimental right-side panel; 0 means content-sized. */
 const PANEL_HEIGHT_KEY = "dsh.memo.panel-height.v1";
-const PANEL_MIN_HEIGHT = 240;
-/** A note is meant to stay brief; this is the hard cap. */
-const MAX_TEXT = 280;
-/** Defensive cap so a corrupted store cannot freeze the panel. */
-const MAX_ITEMS = 300;
+
+// src/client/i18n/en.ts
+/** English copy; a missing key fails the typecheck rather than falling back at runtime. */
+const en = {
+	"nav.label": "Notes",
+	"title": "Notes",
+	"popover.title": "Notes",
+	"popover.close": "Close notes",
+	"popover.count": "{open} open · {total} total",
+	"popover.completed": "Completed",
+	"popover.clearCancel": "Cancel",
+	"popover.clearConfirm": "Clear {n} completed notes?",
+	"popover.clearConfirmAction": "Clear",
+	"popover.clearDone": "Clear completed",
+	"popover.storage": "Separate per session · saved only on this device",
+	"popover.empty.title": "No notes yet",
+	"popover.empty.body": "Write down one follow-up for this session",
+	"settings.open": "Settings",
+	"settings.title": "Settings",
+	"settings.about": "About",
+	"settings.version": "Version",
+	"settings.author": "Author",
+	"settings.project": "Project",
+	"settings.shortcut": "Send shortcut",
+	"settings.shortcutCtrlEnter": "{mod}+Enter sends, Enter for a new line",
+	"settings.shortcutEnter": "Enter sends, {mod}+Enter for a new line",
+	"settings.forward": "One-click forward",
+	"settings.forwardPrefixItem": "Prefix prompt",
+	"settings.forwardPrefixHint": "When forwarding into an empty composer, this prompt is written before the note; leave it empty to forward the note on its own",
+	"add.placeholder": "Write a note",
+	"add.shortcut": "{mod}+Enter sends · Enter for a new line",
+	"add.shortcutEnter": "Enter sends · {mod}+Enter for a new line",
+	"add.action": "Add",
+	"list.open": "Open",
+	"list.allDone.title": "Nothing left open",
+	"list.allDone.body": "Add another note, or expand completed below to look back",
+	"item.markDone": "Mark as done",
+	"item.markOpen": "Mark as open",
+	"item.copy": "Copy",
+	"item.forward": "Forward to chat",
+	"item.forwarded": "Forwarded to chat — click to remove the mark",
+	"item.edit": "Edit",
+	"item.delete": "Delete",
+	"item.editHint": "Double-click to edit",
+	"edit.save": "Save",
+	"edit.cancel": "Cancel",
+	"edit.hintCtrlEnter": "{mod}+Enter saves · Enter for a new line",
+	"edit.hintEnter": "Enter saves · {mod}+Enter for a new line",
+	"time.now": "just now",
+	"time.minutes": "{n} min ago",
+	"time.hours": "{n} hr ago",
+	"time.days": "{n} d ago",
+	"time.createdDone": "Created {created} · Completed {completed}",
+	"storage.failed": "Local storage is unavailable; changes may not persist",
+	"forward.prefix": "Complete this task:",
+	"resize.width": "Resize notes width",
+	"resize.height": "Resize notes height",
+	"resize.hint": "Drag to resize, double-click to reset",
+	"dock.open": "Open notes",
+	"dock.count": "{n} open",
+	"header.tooltip": "Session notes {n}",
+	"header.tooltipEmpty": "Session notes",
+	"toast.copied": "Copied",
+	"toast.copyFailed": "Copy failed — try again",
+	"toast.forwarded": "Forwarded to chat",
+	"toast.unforwarded": "Forward mark removed",
+	"toast.forwardFailed": "No composer found — nothing was forwarded",
+	"toast.deleted": "Deleted",
+	"toast.cleared": "Cleared completed",
+	"toast.saveFailed": "Save failed — nothing changed"
+};
+
+// src/client/i18n/zh.ts
+/** Chinese copy — the single source of truth for the message keys. */
+const zh = {
+	"nav.label": "便笺",
+	"title": "便笺",
+	"popover.title": "便笺",
+	"popover.close": "关闭便笺",
+	"popover.count": "{open} 未完成 · {total} 条",
+	"popover.completed": "已完成",
+	"popover.clearCancel": "取消",
+	"popover.clearConfirm": "清除 {n} 项已完成便笺？",
+	"popover.clearConfirmAction": "确认清除",
+	"popover.clearDone": "清除已完成",
+	"popover.storage": "按会话隔离 · 数据仅保存在本地",
+	"popover.empty.title": "还没有便笺",
+	"popover.empty.body": "记下这个会话要跟进的一件事",
+	"settings.open": "设置",
+	"settings.title": "设置",
+	"settings.about": "关于",
+	"settings.version": "版本",
+	"settings.author": "作者",
+	"settings.project": "项目地址",
+	"settings.shortcut": "发送快捷键",
+	"settings.shortcutCtrlEnter": "{mod}+Enter 发送，Enter 换行",
+	"settings.shortcutEnter": "Enter 发送，{mod}+Enter 换行",
+	"settings.forward": "一键转发",
+	"settings.forwardPrefixItem": "前缀提示词",
+	"settings.forwardPrefixHint": "转发到会话时，若输入框为空，会先写入这段提示词，再追加便笺正文；留空则只转发便笺正文",
+	"add.placeholder": "记一条便笺",
+	"add.shortcut": "{mod}+Enter 发送 · Enter 换行",
+	"add.shortcutEnter": "Enter 发送 · {mod}+Enter 换行",
+	"add.action": "添加",
+	"list.open": "未完成",
+	"list.allDone.title": "未完成的都清空了",
+	"list.allDone.body": "可以继续添加，或展开下方回看已完成",
+	"item.markDone": "标记为完成",
+	"item.markOpen": "标记为未完成",
+	"item.copy": "复制",
+	"item.forward": "转发到会话",
+	"item.forwarded": "已转发到会话，点击可移除标识",
+	"item.edit": "编辑",
+	"item.delete": "删除",
+	"item.editHint": "双击编辑",
+	"edit.save": "保存",
+	"edit.cancel": "取消",
+	"edit.hintCtrlEnter": "{mod}+Enter 保存 · Enter 换行",
+	"edit.hintEnter": "Enter 保存 · {mod}+Enter 换行",
+	"time.now": "刚刚",
+	"time.minutes": "{n} 分钟前",
+	"time.hours": "{n} 小时前",
+	"time.days": "{n} 天前",
+	"time.createdDone": "{created}创建，{completed}完成",
+	"storage.failed": "本地存储不可用，改动不会保留",
+	"forward.prefix": "完成以下任务：",
+	"resize.width": "调整便笺宽度",
+	"resize.height": "调整便笺高度",
+	"resize.hint": "拖动调整，双击复位",
+	"dock.open": "打开便笺",
+	"dock.count": "{n} 项未完成",
+	"header.tooltip": "会话便笺 {n}",
+	"header.tooltipEmpty": "会话便笺",
+	"toast.copied": "已复制",
+	"toast.copyFailed": "复制失败，请重试",
+	"toast.forwarded": "已转发到会话",
+	"toast.unforwarded": "已取消转发标识",
+	"toast.forwardFailed": "没有找到输入框，转发失败",
+	"toast.deleted": "已删除",
+	"toast.cleared": "已清除已完成",
+	"toast.saveFailed": "保存失败，内容没有改动"
+};
+
+// src/client/i18n/index.ts
+/** Both locales, in the shape `locale.register` expects. */
+const DICT = {
+	zh,
+	en
+};
+/** Interpolate `{name}` placeholders; an absent value leaves the placeholder alone. */
+function fill(template, vars) {
+	return String(template).replace(/\{(\w+)\}/g, (match, name) => {
+		return vars && vars[name] !== void 0 && vars[name] !== null ? String(vars[name]) : match;
+	});
+}
+/**
+* Translate through the locale service, falling back to the bundled copy.
+*
+* `say` stays string-keyed for now: the panel passes keys through props and
+* literal objects, so a stricter key type waits until those call sites settle.
+*/
+function makeSay(ctx, getLocaleId) {
+	const locale = ctx.get("locale");
+	const bound = locale && typeof locale.bind === "function" ? locale.bind(NS) : null;
+	return (key) => {
+		if (bound) try {
+			const value = bound(key);
+			if (typeof value === "string" && value && value !== key) return value;
+		} catch {}
+		const language = String(getLocaleId()).split("-")[0];
+		return (DICT[language] || DICT.zh)[key] || DICT.zh[key] || key;
+	};
+}
+
+// src/client/storage/events.ts
+/**
+* Same-tab change bus.
+*
+* The `storage` event only crosses tabs, so a write here wakes the readers in
+* this tab — the header count and an open panel.
+*/
 /** Same-tab subscribers, so the composer dock's count follows panel edits. */
 const TODO_LISTENERS = /* @__PURE__ */ new Set();
 /** Notify same-tab readers after a successful write (storage events only cross tabs). */
@@ -112,353 +281,26 @@ function notifyTodoChange() {
 		console.error("workspace-todos: listener failed", error);
 	}
 }
-const DICT = {
-	zh: {
-		"nav.label": "便笺",
-		"title": "便笺",
-		"popover.title": "便笺",
-		"popover.close": "关闭便笺",
-		"popover.count": "{open} 未完成 · {total} 条",
-		"popover.completed": "已完成",
-		"popover.clearCancel": "取消",
-		"popover.clearConfirm": "清除 {n} 项已完成便笺？",
-		"popover.clearConfirmAction": "确认清除",
-		"popover.clearDone": "清除已完成",
-		"popover.storage": "按会话隔离 · 数据仅保存在本地",
-		"popover.empty.title": "还没有便笺",
-		"popover.empty.body": "记下这个会话要跟进的一件事",
-		"settings.open": "设置",
-		"settings.title": "设置",
-		"settings.about": "关于",
-		"settings.version": "版本",
-		"settings.author": "作者",
-		"settings.project": "项目地址",
-		"settings.shortcut": "发送快捷键",
-		"settings.shortcutCtrlEnter": "{mod}+Enter 发送，Enter 换行",
-		"settings.shortcutEnter": "Enter 发送，{mod}+Enter 换行",
-		"settings.forward": "一键转发",
-		"settings.forwardPrefixItem": "前缀提示词",
-		"settings.forwardPrefixHint": "转发到会话时，若输入框为空，会先写入这段提示词，再追加便笺正文；留空则只转发便笺正文",
-		"add.placeholder": "记一条便笺",
-		"add.shortcut": "{mod}+Enter 发送 · Enter 换行",
-		"add.shortcutEnter": "Enter 发送 · {mod}+Enter 换行",
-		"add.action": "添加",
-		"list.open": "未完成",
-		"list.allDone.title": "未完成的都清空了",
-		"list.allDone.body": "可以继续添加，或展开下方回看已完成",
-		"item.markDone": "标记为完成",
-		"item.markOpen": "标记为未完成",
-		"item.copy": "复制",
-		"item.forward": "转发到会话",
-		"item.forwarded": "已转发到会话，点击可移除标识",
-		"item.edit": "编辑",
-		"item.delete": "删除",
-		"item.editHint": "双击编辑",
-		"edit.save": "保存",
-		"edit.cancel": "取消",
-		"edit.hintCtrlEnter": "{mod}+Enter 保存 · Enter 换行",
-		"edit.hintEnter": "Enter 保存 · {mod}+Enter 换行",
-		"time.now": "刚刚",
-		"time.minutes": "{n} 分钟前",
-		"time.hours": "{n} 小时前",
-		"time.days": "{n} 天前",
-		"time.createdDone": "{created}创建，{completed}完成",
-		"storage.failed": "本地存储不可用，改动不会保留",
-		"forward.prefix": "完成以下任务：",
-		"resize.width": "调整便笺宽度",
-		"resize.height": "调整便笺高度",
-		"resize.hint": "拖动调整，双击复位",
-		"dock.open": "打开便笺",
-		"dock.count": "{n} 项未完成",
-		"header.tooltip": "会话便笺 {n}",
-		"header.tooltipEmpty": "会话便笺",
-		"toast.copied": "已复制",
-		"toast.copyFailed": "复制失败，请重试",
-		"toast.forwarded": "已转发到会话",
-		"toast.unforwarded": "已取消转发标识",
-		"toast.forwardFailed": "没有找到输入框，转发失败",
-		"toast.deleted": "已删除",
-		"toast.cleared": "已清除已完成",
-		"toast.saveFailed": "保存失败，内容没有改动"
-	},
-	en: {
-		"nav.label": "Notes",
-		"title": "Notes",
-		"popover.title": "Notes",
-		"popover.close": "Close notes",
-		"popover.count": "{open} open · {total} total",
-		"popover.completed": "Completed",
-		"popover.clearCancel": "Cancel",
-		"popover.clearConfirm": "Clear {n} completed notes?",
-		"popover.clearConfirmAction": "Clear",
-		"popover.clearDone": "Clear completed",
-		"popover.storage": "Separate per session · saved only on this device",
-		"popover.empty.title": "No notes yet",
-		"popover.empty.body": "Write down one follow-up for this session",
-		"settings.open": "Settings",
-		"settings.title": "Settings",
-		"settings.about": "About",
-		"settings.version": "Version",
-		"settings.author": "Author",
-		"settings.project": "Project",
-		"settings.shortcut": "Send shortcut",
-		"settings.shortcutCtrlEnter": "{mod}+Enter sends, Enter for a new line",
-		"settings.shortcutEnter": "Enter sends, {mod}+Enter for a new line",
-		"settings.forward": "One-click forward",
-		"settings.forwardPrefixItem": "Prefix prompt",
-		"settings.forwardPrefixHint": "When forwarding into an empty composer, this prompt is written before the note; leave it empty to forward the note on its own",
-		"add.placeholder": "Write a note",
-		"add.shortcut": "{mod}+Enter sends · Enter for a new line",
-		"add.shortcutEnter": "Enter sends · {mod}+Enter for a new line",
-		"add.action": "Add",
-		"list.open": "Open",
-		"list.allDone.title": "Nothing left open",
-		"list.allDone.body": "Add another note, or expand completed below to look back",
-		"item.markDone": "Mark as done",
-		"item.markOpen": "Mark as open",
-		"item.copy": "Copy",
-		"item.forward": "Forward to chat",
-		"item.forwarded": "Forwarded to chat — click to remove the mark",
-		"item.edit": "Edit",
-		"item.delete": "Delete",
-		"item.editHint": "Double-click to edit",
-		"edit.save": "Save",
-		"edit.cancel": "Cancel",
-		"edit.hintCtrlEnter": "{mod}+Enter saves · Enter for a new line",
-		"edit.hintEnter": "Enter saves · {mod}+Enter for a new line",
-		"time.now": "just now",
-		"time.minutes": "{n} min ago",
-		"time.hours": "{n} hr ago",
-		"time.days": "{n} d ago",
-		"time.createdDone": "Created {created} · Completed {completed}",
-		"storage.failed": "Local storage is unavailable; changes may not persist",
-		"forward.prefix": "Complete this task:",
-		"resize.width": "Resize notes width",
-		"resize.height": "Resize notes height",
-		"resize.hint": "Drag to resize, double-click to reset",
-		"dock.open": "Open notes",
-		"dock.count": "{n} open",
-		"header.tooltip": "Session notes {n}",
-		"header.tooltipEmpty": "Session notes",
-		"toast.copied": "Copied",
-		"toast.copyFailed": "Copy failed — try again",
-		"toast.forwarded": "Forwarded to chat",
-		"toast.unforwarded": "Forward mark removed",
-		"toast.forwardFailed": "No composer found — nothing was forwarded",
-		"toast.deleted": "Deleted",
-		"toast.cleared": "Cleared completed",
-		"toast.saveFailed": "Save failed — nothing changed"
-	}
-};
-const CSS = [
-	"/* ── 1 令牌 · 只映射 DSH 语义别名与共享尺度，不新建调色板 ─────────── */",
-	"body{--wt-space-1:4px;--wt-space-2:8px;--wt-space-3:12px;--wt-space-4:16px;--wt-space-5:24px;--wt-space-6:32px;--wt-radius-pill:999px;--wt-fs-caption:12px;--wt-lh-caption:20px;--wt-fs-row:13px;--wt-lh-row:20px;--wt-fs-title:14px;--wt-lh-title:20px;--wt-hover:var(--dsw-alias-interactive-bg-hover);--wt-active:var(--dsw-alias-interactive-bg-active);--wt-field:var(--dsw-alias-bg-layer-1);--wt-field-line:var(--dsw-alias-border-l4);--wt-divider:var(--dsw-alias-border-l2);--wt-dur-fast:var(--ds-transition-duration-fast);--wt-dur-base:var(--ds-transition-duration);--wt-dur-spin:700ms;--wt-ease:var(--ds-ease-in-out);--wt-transition:background-color var(--wt-dur-fast) var(--wt-ease),border-color var(--wt-dur-fast) var(--wt-ease),color var(--wt-dur-fast) var(--wt-ease),opacity var(--wt-dur-fast) var(--wt-ease),transform var(--wt-dur-fast) var(--wt-ease),box-shadow var(--wt-dur-fast) var(--wt-ease)}",
-	"",
-	"/* ── 2 浮层 · 菜单材质 + 三层阴影，边框为 0（发丝线在阴影第一层） ── */",
-	".dsh-wt-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--wt-space-3);min-height:0;padding:var(--wt-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsh-wt-panelSurface);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--wt-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--wt-divider)));--dsh-wt-panelSurface:var(--dsw-alias-bg-layer-2);--dsh-wt-listGutter:var(--wt-space-4);--dsh-wt-scrollRail:9px;--dsh-wt-scrollInset:2px;overflow:hidden;animation:dsh-wt-pop-in var(--wt-dur-base) var(--wt-ease) both}",
-	".dsh-wt-popoverRight{padding-left:var(--wt-space-4)}",
-	"",
-	"/* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */",
-	".dsh-wt-popHead{display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-3);min-width:0}",
-	".dsh-wt-popTitleLine{display:flex;align-items:center;gap:var(--wt-space-3);flex:1 1 auto;min-width:0}",
-	".dsh-wt-popTitle{min-width:0;overflow:hidden;font-size:var(--wt-fs-title);line-height:var(--wt-lh-title);font-weight:500;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis}",
-	".dsh-wt-popMeta{min-width:0;margin:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:16px;color:var(--dsw-alias-label-secondary);font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}",
-	".dsh-wt-popActions{display:flex;align-items:center;flex:none;gap:var(--wt-space-2)}",
-	".dsh-wt-popClose,.dsh-wt-settingsBtn{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--wt-transition)}",
-	".dsh-wt-popClose:active,.dsh-wt-settingsBtn:active{background:var(--wt-active)}",
-	".dsh-wt-settingsBtn[data-active=\"true\"]{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}",
-	"",
-	"/* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */",
-	".dsh-wt-add{display:flex;flex-direction:column;gap:var(--wt-space-2);padding:var(--wt-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--wt-transition)}",
-	".dsh-wt-add:focus-within{border-color:var(--dsw-alias-state-business-primary)}",
-	".dsh-wt-input{display:block;flex:0 0 auto;width:100%;min-width:0;box-sizing:border-box;min-height:var(--wt-lh-row);max-height:120px;padding:0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);resize:none;overflow-y:auto;overflow-x:hidden}",
-	".dsh-wt-input::placeholder{color:var(--dsw-alias-label-secondary)}",
-	".dsh-wt-addFoot{display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-2);width:100%;min-width:0}",
-	".dsh-wt-addShortcut{min-width:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis}",
-	".dsh-wt-addBtn{display:inline-flex;align-items:center;justify-content:center;flex:none;height:28px;padding:0 var(--wt-space-2);border:0;border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;cursor:pointer;transition:var(--wt-transition)}",
-	".dsh-wt-addBtn:active{background:var(--dsw-alias-button-primary-dimmed);transform:scale(.97)}",
-	".dsh-wt-addBtn[disabled]{background:transparent;color:var(--dsw-alias-label-secondary);box-shadow:inset 0 0 0 0.5px var(--wt-field-line);cursor:not-allowed}",
-	"",
-	"/* ── 5 分区与列表 · 9px 轨道内嵌 2px，底部羽化只盖内容不盖滚动条 ──── */",
-	"/* The viewport grows into the popover padding so the 9px rail does not steal from the cards; the list pays the padding back minus the rail, so cards and the add field keep one content width at every panel size. */",
-	".dsh-wt-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--dsh-wt-listGutter) * -1)}",
-	"/* Bottom edge treatment: a viewport-fixed alpha mask over the scroller itself, exactly like the DSH scroll areas. The first gradient fades the last 48px to transparent; the second keeps the 9px scrollbar rail opaque so the thumb stays crisp. There is no backdrop-filter layer, so there is no hard compositing edge to see. */",
-	".dsh-wt-listViewport[data-bottom=\"true\"] .dsh-wt-listArea{--dsh-wt-fadeHeight:calc(var(--wt-space-6) + var(--wt-space-4));-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-wt-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-wt-scrollRail)),currentColor calc(100% - var(--dsh-wt-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-wt-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-wt-scrollRail)),currentColor calc(100% - var(--dsh-wt-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}",
-	"/* Geometry only: the shared DSH skin paints the thumb, so the plugin declares no scrollbar pseudo-elements. The popover already binds the l2 thumb pair for the menu material. */",
-	".dsh-wt-listArea{--dsh-scrollbar-width:var(--dsh-wt-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-wt-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-wt-listGutter) - var(--dsh-wt-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}",
-	".dsh-wt-listSection{display:flex;flex-direction:column;gap:var(--wt-space-2);min-width:0}",
-	".dsh-wt-listSection+.dsh-wt-listSection{margin-top:var(--wt-space-2)}",
-	".dsh-wt-sectionHead,.dsh-wt-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-3);min-height:28px;margin:0;padding:var(--wt-space-1) 0;background:transparent;transition:background-color var(--wt-dur-fast) var(--wt-ease)}",
-	".dsh-wt-sectionHead[data-stuck],.dsh-wt-doneHead[data-stuck]{background:var(--dsh-wt-panelSurface,var(--dsw-alias-bg-layer-2))}",
-	".dsh-wt-doneToggle{display:flex;align-items:center;gap:var(--wt-space-2);flex:none;min-width:0;margin:0;padding:var(--wt-space-1) var(--wt-space-2) var(--wt-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--wt-transition)}",
-	".dsh-wt-doneToggle:active{background:var(--wt-active)}",
-	".dsh-wt-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}",
-	".dsh-wt-chevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);transition:transform var(--wt-dur-fast) var(--wt-ease)}",
-	".dsh-wt-chevron[data-open=\"true\"]{transform:rotate(90deg)}",
-	".dsh-wt-sectionCount{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 var(--wt-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--wt-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--wt-fs-caption);line-height:16px;font-weight:500;font-variant-numeric:tabular-nums}",
-	".dsh-wt-clear{display:inline-flex;align-items:center;flex:none;height:24px;margin-left:auto;padding:0 var(--wt-space-2);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;cursor:pointer;transition:var(--wt-transition)}",
-	".dsh-wt-clear:active{background:var(--wt-active);color:var(--dsw-alias-label-primary)}",
-	".dsh-wt-clearConfirm{display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-2);min-width:0;margin-top:var(--wt-space-1);padding:var(--wt-space-2);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}",
-	".dsh-wt-clearConfirmText{flex:1 1 auto;min-width:0;margin:0;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-primary);overflow-wrap:anywhere}",
-	".dsh-wt-clearConfirmActions{display:flex;align-items:center;flex:none;gap:var(--wt-space-1)}",
-	".dsh-wt-doneRows{margin-top:var(--wt-space-2)}",
-	".dsh-wt-rows{list-style:none;margin:0;padding:0;border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);overflow:hidden}",
-	".dsh-wt-row{display:flex;align-items:flex-start;gap:var(--wt-space-2);padding:var(--wt-space-2);border-top:0.5px solid var(--wt-divider);transition:var(--wt-transition)}",
-	".dsh-wt-row:first-child{border-top:0}",
-	"",
-	"/* ── 6 一行便笺 · 勾选圈 14px，命中区 24px ─────────────────────────── */",
-	".dsh-wt-check{display:flex;align-items:center;justify-content:center;flex:none;width:24px;height:24px;margin:-2px 0 0;padding:0;border:0;border-radius:var(--wt-radius-pill);corner-shape:round;background:transparent;color:transparent;font:inherit;cursor:pointer;transition:var(--wt-transition)}",
-	".dsh-wt-checkCircle{display:flex;align-items:center;justify-content:center;width:14px;height:14px;box-sizing:border-box;border:0.5px solid var(--dsw-alias-label-tertiary);border-radius:var(--wt-radius-pill);corner-shape:round;background:transparent;color:transparent;transition:border-color var(--wt-dur-fast) var(--wt-ease),background-color var(--wt-dur-fast) var(--wt-ease),color var(--wt-dur-fast) var(--wt-ease),transform var(--wt-dur-fast) var(--wt-ease)}",
-	".dsh-wt-check:active .dsh-wt-checkCircle{transform:scale(.9)}",
-	".dsh-wt-check[aria-checked=\"true\"] .dsh-wt-checkCircle{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-label-primary-foreground)}",
-	".dsh-wt-itemBody{display:flex;flex:1;flex-direction:column;gap:var(--wt-space-1);min-width:0}",
-	".dsh-wt-text{display:block;width:100%;margin:0;padding:0;border:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;cursor:text;user-select:text;-webkit-user-select:text}",
-	".dsh-wt-rowDone .dsh-wt-text{color:var(--dsw-alias-label-secondary);text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:var(--dsw-alias-label-tertiary)}",
-	".dsh-wt-rowFoot{display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-2);min-height:24px}",
-	".dsh-wt-meta{flex:0 1 auto;min-width:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}",
-	"",
-	"/* ── 7 行操作 · 图标按钮 H24/R8，触摸端常显 ────────────────────────── */",
-	".dsh-wt-actions{display:flex;flex:none;gap:var(--wt-space-1)}",
-	".dsh-wt-iconBtn{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--wt-transition)}",
-	".dsh-wt-iconBtn:active{background:var(--wt-active);color:var(--dsw-alias-label-primary);transform:scale(.94)}",
-	".dsh-wt-iconBtn:disabled,.dsh-wt-iconBtn[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}",
-	".dsh-wt-forwardMark{position:absolute;right:0;bottom:0;display:flex;align-items:center;justify-content:center;width:10px;height:10px;border-radius:var(--wt-radius-pill);corner-shape:round;background:var(--dsw-alias-label-secondary);color:var(--dsw-alias-label-primary-foreground);pointer-events:none}",
-	"",
-	"/* ── 8 就地编辑 · 保存/取消为紧凑描边按钮 ──────────────────────────── */",
-	".dsh-wt-edit{display:flex;flex-direction:column;gap:var(--wt-space-1);width:100%}",
-	".dsh-wt-editInput{display:block;width:100%;box-sizing:border-box;min-height:var(--wt-lh-row);max-height:160px;padding:var(--wt-space-1) var(--wt-space-2);border:0.5px solid var(--wt-field-line);border-radius:var(--dsw-radius-sm);background:var(--wt-field);color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);outline:0;resize:none;overflow-y:auto;overflow-x:hidden;transition:var(--wt-transition)}",
-	".dsh-wt-editInput:focus{border-color:var(--dsw-alias-state-business-primary)}",
-	".dsh-wt-editActions{display:flex;align-items:center;gap:var(--wt-space-1)}",
-	".dsh-wt-editHint{flex:1 1 auto;min-width:0;margin-left:auto;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);text-align:right;color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis}",
-	".dsh-wt-mini{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--wt-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;cursor:pointer;transition:var(--wt-transition)}",
-	".dsh-wt-mini:active{background:var(--wt-active)}",
-	".dsh-wt-mini[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}",
-	".dsh-wt-miniPrimary{border-color:transparent;background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground)}",
-	".dsh-wt-miniPrimary:active{background:var(--dsw-alias-button-primary-dimmed)}",
-	".dsh-wt-miniDanger{border-color:transparent;background:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary-foreground)}",
-	".dsh-wt-miniDanger:active{background:var(--dsw-alias-state-error-primary)}",
-	"",
-	"/* ── 9 空态 · 虚线 1px，说明 12/次级墨色 ──────────────────────────── */",
-	".dsh-wt-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--wt-space-2);padding:var(--wt-space-5) var(--wt-space-4);border:1px dashed var(--wt-divider);border-radius:var(--dsw-radius-lg);text-align:center}",
-	".dsh-wt-emptyIcon{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0 0 var(--wt-space-1);border-radius:var(--dsw-radius-md);background:var(--wt-hover);color:var(--dsw-alias-label-secondary)}",
-	".dsh-wt-emptyTitle{font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}",
-	".dsh-wt-emptyBody{max-width:36ch;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}",
-	"",
-	"/* ── 10 设置 · 分组 R16，项间 0.5px 分隔线，链接走 --dsw-alias-link ── */",
-	".dsh-wt-settings{--dsh-wt-settingIndent:var(--wt-space-3);display:flex;flex-direction:column;gap:var(--wt-space-2);margin:0;padding:var(--wt-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}",
-	".dsh-wt-settingsHead{font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}",
-	".dsh-wt-settingGroup{display:flex;flex-direction:column;gap:var(--wt-space-1);min-width:0}",
-	".dsh-wt-settingGroup+.dsh-wt-settingGroup{margin-top:var(--wt-space-2);padding-top:var(--wt-space-2);border-top:0.5px solid var(--wt-divider)}",
-	".dsh-wt-settingLabel{font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}",
-	".dsh-wt-settingBody{display:flex;flex-direction:column;gap:var(--wt-space-1);padding-left:var(--dsh-wt-settingIndent)}",
-	".dsh-wt-settingItem{display:flex;flex-direction:column;gap:var(--wt-space-1);min-width:0}",
-	".dsh-wt-settingItem+.dsh-wt-settingItem{margin-top:var(--wt-space-2);padding-top:var(--wt-space-2);border-top:0.5px solid var(--wt-divider)}",
-	".dsh-wt-settingChoices{display:flex;flex-direction:column;gap:var(--wt-space-1)}",
-	".dsh-wt-settingChoice{display:flex;align-items:flex-start;gap:var(--wt-space-2);font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);color:var(--dsw-alias-label-primary);cursor:pointer}",
-	".dsh-wt-settingChoice input{appearance:none;flex:none;width:14px;height:14px;margin:calc((var(--wt-lh-row) - 14px) / 2) 0 0;box-sizing:border-box;border:0.5px solid var(--dsw-alias-label-tertiary);border-radius:var(--wt-radius-pill);corner-shape:round;background:transparent;cursor:pointer;transition:var(--wt-transition)}",
-	".dsh-wt-settingChoice input:checked{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-brand-primary);box-shadow:inset 0 0 0 3px var(--wt-field)}",
-	".dsh-wt-settingInput{box-sizing:border-box;width:100%;height:28px;padding:0 var(--wt-space-2);border:0.5px solid var(--wt-field-line);border-radius:var(--dsw-radius-sm);background:var(--wt-field);color:var(--dsw-alias-label-primary);font-family:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);font-weight:500;outline:0;transition:var(--wt-transition)}",
-	".dsh-wt-settingItem>.dsh-wt-settingInput{font-family:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);font-weight:500}",
-	".dsh-wt-settingInput:focus{border-color:var(--dsw-alias-state-business-primary)}",
-	"/* 前缀提示词改为文本域：min-height 兜住三行，空态也不会被内联高度压扁 */",
-	".dsh-wt-settingTextarea{display:block;height:auto;min-height:calc(var(--wt-lh-row) + var(--wt-space-4) + 2px);padding:var(--wt-space-2);resize:none;overflow-y:auto;white-space:pre-wrap;overflow-wrap:anywhere}",
-	".dsh-wt-settingHint{margin:0;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary)}",
-	".dsh-wt-settingHintNote{margin-top:var(--wt-space-1)}",
-	".dsh-wt-settingAbout{display:flex;align-items:baseline;gap:var(--wt-space-1);min-width:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}",
-	".dsh-wt-settingAbout>span{flex:none}",
-	".dsh-wt-settingProject{display:flex;align-items:baseline;gap:var(--wt-space-1);min-width:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}",
-	".dsh-wt-settingProject>span{flex:none}",
-	".dsh-wt-settingDot{flex:none;color:var(--dsw-alias-label-tertiary)}",
-	".dsh-wt-settingLink{flex:0 1 auto;min-width:0;overflow:hidden;color:var(--dsw-alias-link);font-weight:500;text-decoration:none;text-overflow:ellipsis;transition:var(--wt-transition)}",
-	".dsh-wt-settingLink:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}",
-	"",
-	"/* ── 11 面板脚注 · 存储状态就地提示，错误用状态色 ─────────────────── */",
-	".dsh-wt-popFoot{margin:0;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary)}",
-	".dsh-wt-error{color:var(--dsw-alias-state-error-primary)}",
-	"",
-	"/* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */",
-	".dsh-wt-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--wt-transition)}",
-	".dsh-wt-headerBtn:active{background:var(--wt-active);color:var(--dsw-alias-label-primary)}",
-	".dsh-wt-headerBtn[data-active=\"true\"]{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}",
-	".dsh-wt-headerBtn[data-disabled=\"true\"]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}",
-	".dsh-wt-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}",
-	".dsh-wt-headerCount{position:absolute;top:-2px;right:-2px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 var(--wt-space-1);border:0.5px solid var(--dsw-alias-bg-base);border-radius:var(--wt-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-secondary);font-size:var(--wt-fs-caption);line-height:14px;font-weight:500;font-variant-numeric:tabular-nums}",
-	"",
-	"/* ── 13 拖拽把手 · 8px 命中带，3px 视觉条 ─────────────────────────── */",
-	".dsh-wt-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--wt-space-2);cursor:ew-resize;touch-action:none;outline:0}",
-	".dsh-wt-resizeHandle::before{content:\"\";width:3px;height:var(--wt-space-6);border-radius:var(--wt-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--wt-dur-fast) var(--wt-ease),background-color var(--wt-dur-fast) var(--wt-ease)}",
-	".dsh-wt-resizeHandle:focus-visible::before{background:var(--dsw-alias-label-secondary)}",
-	".dsh-wt-resizeHandle:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}",
-	".dsh-wt-resizeHandleBottom{position:absolute;left:50%;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--wt-space-6);height:var(--wt-space-3);transform:translateX(-50%);cursor:ns-resize;touch-action:none;outline:0}",
-	".dsh-wt-resizeHandleBottom::before{content:\"\";width:var(--wt-space-5);height:3px;border-radius:var(--wt-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--wt-dur-fast) var(--wt-ease),background-color var(--wt-dur-fast) var(--wt-ease)}",
-	".dsh-wt-resizeHandleBottom:focus-visible::before{background:var(--dsw-alias-label-secondary)}",
-	".dsh-wt-resizeHandleBottom:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}",
-	"",
-	"/* ── 14 加载 · 控件内 12px 环，文字隐藏，不报\"进行中\" ──────────────── */",
-	"[data-loading=\"true\"]{position:relative;color:transparent!important;pointer-events:none;cursor:progress}",
-	"[data-loading=\"true\"]>*{visibility:hidden}",
-	"[data-loading=\"true\"]::after{content:\"\";position:absolute;left:50%;top:50%;box-sizing:border-box;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid var(--dsw-alias-label-secondary);border-top-color:transparent;border-radius:var(--wt-radius-pill);corner-shape:round;animation:dsh-wt-spin var(--wt-dur-spin) linear infinite}",
-	"",
-	"/* ── 15 悬停 · 只在支持 hover 的设备上启用（触摸端常显操作） ────────── */",
-	"@media (hover:hover){",
-	".dsh-wt-row:hover{background:var(--wt-hover)}",
-	".dsh-wt-actions{opacity:0;pointer-events:none}",
-	".dsh-wt-row:hover .dsh-wt-actions,.dsh-wt-row:focus-within .dsh-wt-actions{opacity:1;pointer-events:auto}",
-	".dsh-wt-iconBtn:hover{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}",
-	".dsh-wt-iconBtnDanger:hover{background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}",
-	".dsh-wt-popClose:hover,.dsh-wt-settingsBtn:hover{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}",
-	".dsh-wt-addBtn:hover:not([disabled]){background:var(--dsw-alias-button-primary-hover)}",
-	".dsh-wt-mini:hover:not([disabled]){background:var(--wt-hover)}",
-	".dsh-wt-miniPrimary:hover:not([disabled]){background:var(--dsw-alias-button-primary-hover);color:var(--dsw-alias-label-primary-foreground)}",
-	".dsh-wt-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}",
-	".dsh-wt-clear:hover{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}",
-	".dsh-wt-doneToggle:hover{background:var(--wt-hover)}",
-	".dsh-wt-check:hover .dsh-wt-checkCircle{border-color:var(--dsw-alias-label-primary)}",
-	".dsh-wt-settingChoice:hover input{border-color:var(--dsw-alias-label-primary)}",
-	".dsh-wt-settingLink:hover{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}",
-	".dsh-wt-headerBtn:hover{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}",
-	".dsh-wt-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}",
-	".dsh-wt-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}",
-	"}",
-	"",
-	"/* ── 16 动效 · 只动 opacity/transform，错峰出场封顶 ─────────────────── */",
-	"@media (prefers-reduced-motion:no-preference){",
-	".dsh-wt-rows>.dsh-wt-row{animation:dsh-wt-row-in var(--wt-dur-base) var(--wt-ease) both}",
-	".dsh-wt-rows>.dsh-wt-row:nth-child(2){animation-delay:var(--wt-space-1)}",
-	".dsh-wt-rows>.dsh-wt-row:nth-child(3){animation-delay:var(--wt-space-2)}",
-	".dsh-wt-rows>.dsh-wt-row:nth-child(4){animation-delay:calc(var(--wt-space-2) + var(--wt-space-1))}",
-	".dsh-wt-rows>.dsh-wt-row:nth-child(n+5){animation-delay:var(--wt-space-3)}",
-	"}",
-	"@keyframes dsh-wt-pop-in{from{opacity:0}to{opacity:1}}",
-	"@keyframes dsh-wt-row-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}",
-	"@keyframes dsh-wt-spin{to{transform:rotate(360deg)}}",
-	"@media (prefers-reduced-motion:reduce){",
-	".dsh-wt-popover,.dsh-wt-rows>.dsh-wt-row,.dsh-wt-chevron,[data-loading=\"true\"]::after{animation:none}",
-	".dsh-wt-popover,.dsh-wt-row,.dsh-wt-actions,.dsh-wt-iconBtn{transition-duration:1ms}",
-	"}",
-	"",
-	"/* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */",
-	"@media (max-width:480px){",
-	".dsh-wt-popover{padding:var(--wt-space-3);--dsh-wt-listGutter:var(--wt-space-3)}",
-	".dsh-wt-popoverRight{padding-left:var(--wt-space-4)}",
-	".dsh-wt-popHead{gap:var(--wt-space-2)}",
-	".dsh-wt-add{padding:var(--wt-space-2) var(--wt-space-3)}",
-	".dsh-wt-sectionHead,.dsh-wt-doneHead{min-height:24px}",
-	"}",
-	""
-].join("");
-/** Unique note id, with a fallback for browsers without randomUUID. */
+
+// src/client/index.ts
+/**
+* AsideNote browser half.
+*
+* The plugin entry: injects the stylesheet, binds the locale namespace and
+* seats the two slots (session capture + frame-wide toast host) plus the
+* host-owned header entry. Copy, storage, domain rules and the panel UI live
+* in their own modules; P2 splits the remaining UI out of this file.
+*/
+const h = react.default.createElement;
+const PRIMITIVES = _deepseek_ai_dsh_client_ui_primitives;
+const Tooltip = typeof PRIMITIVES.Tooltip === "function" ? PRIMITIVES.Tooltip : null;
+const Toast = typeof PRIMITIVES.Toast === "function" ? PRIMITIVES.Toast : null;
+const icon = (name) => typeof PRIMITIVES[name] === "function" ? PRIMITIVES[name] : null;
 function uid() {
 	try {
 		if (globalThis.crypto && typeof globalThis.crypto.randomUUID === "function") return globalThis.crypto.randomUUID();
 	} catch {}
 	return `todo-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
-}
-/** Replace `{name}` placeholders in one localized template. */
-function fill(template, vars) {
-	return String(template).replace(/\{(\w+)\}/g, (match, name) => {
-		return vars && vars[name] !== void 0 && vars[name] !== null ? String(vars[name]) : match;
-	});
 }
 /** Copy plain text, with a synchronous fallback for restricted clipboards. */
 async function copyText(text) {
@@ -558,7 +400,7 @@ function normalizeItems(items) {
 	const normalized = [];
 	for (const raw of items) {
 		if (!raw || typeof raw !== "object") continue;
-		const text = String(raw.text || "").trim().slice(0, MAX_TEXT);
+		const text = String(raw.text || "").trim().slice(0, 280);
 		if (!text) continue;
 		let id = typeof raw.id === "string" && raw.id ? raw.id : uid();
 		if (seen.has(id)) id = uid();
@@ -574,7 +416,7 @@ function normalizeItems(items) {
 			updatedAt,
 			...done && Number.isFinite(raw.completedAt) ? { completedAt: raw.completedAt } : {}
 		});
-		if (normalized.length >= MAX_ITEMS) break;
+		if (normalized.length >= 300) break;
 	}
 	return normalized;
 }
@@ -607,12 +449,12 @@ function readSessionStore() {
 /** Read the persisted right-panel width, clamped for the current viewport. */
 function readPanelWidth() {
 	const ls = storage();
-	const max = Math.min(PANEL_MAX_WIDTH, Math.max(PANEL_MIN_WIDTH, window.innerWidth - 32));
+	const max = Math.min(720, Math.max(280, window.innerWidth - 32));
 	try {
-		const saved = ls && Number(ls.getItem(PANEL_WIDTH_KEY));
-		if (Number.isFinite(saved) && saved > 0) return Math.max(PANEL_MIN_WIDTH, Math.min(max, saved));
+		const saved = ls && Number(ls.getItem("dsh.memo.panel-width.v1"));
+		if (Number.isFinite(saved) && saved > 0) return Math.max(280, Math.min(max, saved));
 	} catch {}
-	return Math.max(PANEL_MIN_WIDTH, Math.min(max, PANEL_DEFAULT_WIDTH));
+	return Math.max(280, Math.min(max, 360));
 }
 /** Persist the right-panel width so it survives reopening the popover. */
 function writePanelWidth(width) {
@@ -626,7 +468,7 @@ function writePanelWidth(width) {
 function readPanelHeight() {
 	const ls = storage();
 	try {
-		const saved = ls && Number(ls.getItem(PANEL_HEIGHT_KEY));
+		const saved = ls && Number(ls.getItem("dsh.memo.panel-height.v1"));
 		if (Number.isFinite(saved) && saved > 0) return saved;
 	} catch {}
 	return 0;
@@ -643,7 +485,7 @@ function writePanelHeight(height) {
 /** Read the Enter-to-send preference. */
 function readSendShortcut() {
 	try {
-		const saved = storage() && storage().getItem(SEND_SHORTCUT_KEY);
+		const saved = storage() && storage().getItem("dsh.memo.send-shortcut.v1");
 		return saved === "enter" || saved === "ctrl-enter" ? saved : SEND_SHORTCUT_DEFAULT;
 	} catch {
 		return SEND_SHORTCUT_DEFAULT;
@@ -759,7 +601,7 @@ function saveAddDraft(sessionId, text) {
 	if (!key) return;
 	const store = readDraftStore();
 	const record = store.sessions[key] || {};
-	const value = String(text || "").slice(0, MAX_TEXT);
+	const value = String(text || "").slice(0, 280);
 	if (value) record.add = value;
 	else delete record.add;
 	record.edits = record.edits && typeof record.edits === "object" ? record.edits : {};
@@ -782,7 +624,7 @@ function saveEditDraft(sessionId, itemId, text) {
 	const store = readDraftStore();
 	const record = store.sessions[key] || {};
 	record.edits = record.edits && typeof record.edits === "object" ? record.edits : {};
-	record.edits[itemId] = String(text || "").slice(0, MAX_TEXT);
+	record.edits[itemId] = String(text || "").slice(0, 280);
 	store.sessions[key] = record;
 	writeDraftStore(store);
 }
@@ -923,7 +765,7 @@ function useSessionMemoStore(sessionId) {
 	}, [sessionKey]);
 	react.default.useEffect(() => {
 		const onStorage = (event) => {
-			if (event.key !== SESSION_STORAGE_KEY) return;
+			if (event.key !== "dsh.session-memos.v1") return;
 			setRecord(readSessionRecord(sessionRef.current));
 		};
 		const onLocal = () => setRecord(readSessionRecord(sessionRef.current));
@@ -1149,7 +991,7 @@ function TodoRow(props) {
 		className: "dsh-wt-editInput",
 		value: editDraft,
 		rows: 1,
-		maxLength: MAX_TEXT,
+		maxLength: 280,
 		"aria-label": say("item.edit"),
 		onChange: (event) => {
 			const value = event.target.value;
@@ -1268,8 +1110,8 @@ function overlayTopFloor(margin) {
 function memoPopoverStyle(anchor, placement, requestedWidth, requestedHeight) {
 	const margin = window.innerWidth <= 480 ? 12 : 16;
 	const topFloor = overlayTopFloor(margin);
-	const available = Math.max(PANEL_MIN_WIDTH, window.innerWidth - margin * 2);
-	const width = Math.max(PANEL_MIN_WIDTH, Math.min(PANEL_MAX_WIDTH, available, requestedWidth || PANEL_DEFAULT_WIDTH));
+	const available = Math.max(280, window.innerWidth - margin * 2);
+	const width = Math.max(280, Math.min(720, available, requestedWidth || 360));
 	if (placement === "right") {
 		const rect = anchor && anchor.isConnected ? anchor.getBoundingClientRect() : null;
 		let desiredRight = rect && rect.width > 0 ? rect.right : window.innerWidth - margin;
@@ -1281,7 +1123,7 @@ function memoPopoverStyle(anchor, placement, requestedWidth, requestedHeight) {
 		const rightInset = Math.max(margin, Math.min(window.innerWidth - margin, window.innerWidth - desiredRight));
 		const top = rect && rect.width > 0 ? Math.max(topFloor, Math.round(rect.bottom + 8)) : topFloor;
 		const maxHeight = Math.max(160, window.innerHeight - top - margin);
-		const height = requestedHeight ? Math.max(Math.min(PANEL_MIN_HEIGHT, maxHeight), Math.min(maxHeight, requestedHeight)) : 0;
+		const height = requestedHeight ? Math.max(Math.min(240, maxHeight), Math.min(maxHeight, requestedHeight)) : 0;
 		const style = {
 			right: `${rightInset}px`,
 			left: "auto",
@@ -1397,8 +1239,8 @@ function MemoPopover(props) {
 		panelHeightRef.current = panelHeight;
 	}, [panelHeight]);
 	const clampPanelWidth = (value) => {
-		const max = Math.min(PANEL_MAX_WIDTH, Math.max(PANEL_MIN_WIDTH, window.innerWidth - 32));
-		return Math.max(PANEL_MIN_WIDTH, Math.min(max, value));
+		const max = Math.min(720, Math.max(280, window.innerWidth - 32));
+		return Math.max(280, Math.min(max, value));
 	};
 	const commitPanelWidth = (value) => {
 		const next = clampPanelWidth(value);
@@ -1437,12 +1279,12 @@ function MemoPopover(props) {
 			commitPanelWidth(panelWidthRef.current - 16);
 		} else if (event.key === "Home") {
 			event.preventDefault();
-			commitPanelWidth(PANEL_DEFAULT_WIDTH);
+			commitPanelWidth(360);
 		}
 	};
 	const clampPanelHeight = (value) => {
-		const max = Math.max(PANEL_MIN_HEIGHT, window.innerHeight - 64 - 16);
-		return Math.max(PANEL_MIN_HEIGHT, Math.min(max, value));
+		const max = Math.max(240, window.innerHeight - 64 - 16);
+		return Math.max(240, Math.min(max, value));
 	};
 	const commitPanelHeight = (value) => {
 		const next = value > 0 ? clampPanelHeight(value) : 0;
@@ -1575,7 +1417,7 @@ function MemoPopover(props) {
 		writeForwardPrefix(next);
 	};
 	const add = () => {
-		const text = draft.trim().slice(0, MAX_TEXT);
+		const text = draft.trim().slice(0, 280);
 		if (!text) return;
 		const now = Date.now();
 		if (!commit((currentItems) => [{
@@ -1677,7 +1519,7 @@ function MemoPopover(props) {
 			return;
 		}
 		if (!editingId) return;
-		const text = editDraft.trim().slice(0, MAX_TEXT);
+		const text = editDraft.trim().slice(0, 280);
 		if (text && text !== item.text) {
 			if (!commit((currentItems) => currentItems.map((candidate) => {
 				if (candidate.id !== item.id) return candidate;
@@ -1796,7 +1638,7 @@ function MemoPopover(props) {
 		tabIndex: 0,
 		title: say("resize.hint"),
 		onPointerDown: startPanelResize,
-		onDoubleClick: () => commitPanelWidth(PANEL_DEFAULT_WIDTH),
+		onDoubleClick: () => commitPanelWidth(360),
 		onKeyDown: onPanelResizeKeyDown
 	}) : null, props.placement === "right" ? h("div", {
 		className: "dsh-wt-resizeHandleBottom",
@@ -1874,7 +1716,7 @@ function MemoPopover(props) {
 		className: "dsh-wt-input",
 		value: draft,
 		rows: 1,
-		maxLength: MAX_TEXT,
+		maxLength: 280,
 		placeholder: say("add.placeholder"),
 		"aria-label": say("add.placeholder"),
 		onChange: (event) => {
@@ -1966,25 +1808,12 @@ function MemoPopover(props) {
 	}, h("span", { className: syncError ? "dsh-wt-error" : void 0 }, say(syncError ? "storage.failed" : "popover.storage"))));
 	return react_dom.default.createPortal(content, document.body);
 }
-/** Translate through the locale service, falling back to the bundled copy. */
-function makeSay(ctx, getLocaleId) {
-	const locale = ctx.get("locale");
-	const bound = locale && typeof locale.bind === "function" ? locale.bind(NS) : null;
-	return (key) => {
-		if (bound) try {
-			const value = bound(key);
-			if (typeof value === "string" && value && value !== key) return value;
-		} catch {}
-		const language = String(getLocaleId()).split("-")[0];
-		return (DICT[language] || DICT.zh)[key] || DICT.zh[key] || key;
-	};
-}
 function apply(ctx) {
 	const locale = ctx.get("locale");
 	ctx.effect(() => {
 		const style = document.createElement("style");
 		style.dataset.dshPlugin = "workspace-todos";
-		style.textContent = CSS;
+		style.textContent = panel_css_default;
 		document.head.appendChild(style);
 		return () => {
 			style.remove();
@@ -2167,7 +1996,7 @@ function apply(ctx) {
 			});
 		};
 		const onStorage = (event) => {
-			if (event.key === SESSION_STORAGE_KEY) schedule();
+			if (event.key === "dsh.session-memos.v1") schedule();
 		};
 		TODO_LISTENERS.add(schedule);
 		window.addEventListener("storage", onStorage);
