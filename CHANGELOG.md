@@ -2,9 +2,8 @@
 
 ## Unreleased
 
-- Round the top corners of the pinned section headers and add a square, opaque panel-tone underlay behind them, so rows cannot peek through the corner cut-outs; the underlay mixes the shared layer tokens and has no visible colour difference.
 - Re-shoot the README and store previews in a clean, isolated DSH session: `preview-right.png` (panel open), `preview-badge.png` (top-right entry with the open count), and `preview.png` (panel close-up), plus the dark-theme twins `preview-right-dark.png`, `preview-badge-dark.png`, and `preview-dark.png`. Both themes come from one session and one set of notes, so the pair differs only in colour, and neither carries names from other projects. Drop `preview-history.png`, which showed the retired composer status-strip entry.
-- Keep the sticky section headers transparent in flow and, once pinned, fill them with `--dsw-alias-menu-group-header-fill`; its #303136 base matches the measured panel surface (#303035) within 1/255, so the fill no longer reads as a differently coloured bar. The backdrop blur stays off for now.
+- Keep the sticky section headers transparent in flow and fill them only while pinned; the title keeps its normal typography and the fill is a plain solid menu-group surface, with no rounded corners, corner underlay, or backdrop blur.
 
 ## 1.9.7
 
