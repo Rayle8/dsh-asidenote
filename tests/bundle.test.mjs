@@ -146,6 +146,70 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 40)) })
   assert.equal(document.querySelector('.dsh-an-headerCount').textContent, '2')
 
+  // Settings: the shortcut radio persists, and so does the forward prefix.
+  await act(async () => { popover.querySelector('.dsh-an-settingsBtn').click() })
+  assert.ok(popover.querySelector('.dsh-an-settings'), 'the gear must open the settings card')
+  const radios = popover.querySelectorAll('input[type="radio"]')
+  assert.equal(radios.length, 2)
+  await act(async () => { radios[1].click() })
+  assert.equal(window.localStorage.getItem('dsh.aside-notes.send-shortcut.v2'), 'ctrl-enter')
+
+  const prefixField = popover.querySelector('#dsh-an-forward-prefix')
+  await act(async () => {
+    valueSetter.call(prefixField, '请处理：')
+    prefixField.dispatchEvent(new window.Event('input', { bubbles: true }))
+  })
+  assert.equal(window.localStorage.getItem('dsh.aside-notes.forward-prefix.v2'), '请处理：')
+
+  // Complete one note, then clear the completed list through its confirmation.
+  const check = popover.querySelector('.dsh-an-check')
+  assert.ok(check, 'the row must render its checkbox')
+  await act(async () => { check.click() })
+  await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 40)) })
+  assert.equal(document.querySelector('.dsh-an-headerCount').textContent, '1')
+  await act(async () => { popover.querySelector('.dsh-an-doneHead .dsh-an-doneToggle').click() })
+  const clearButton = popover.querySelector('.dsh-an-clear')
+  assert.ok(clearButton, 'the completed section must offer clear')
+  await act(async () => { clearButton.click() })
+  assert.ok(popover.querySelector('.dsh-an-clearConfirm'), 'clearing asks for a second click')
+  await act(async () => { popover.querySelector('.dsh-an-miniDanger').click() })
+  const afterClear = JSON.parse(window.localStorage.getItem('dsh.aside-notes.v2'))
+  assert.equal(afterClear.sessions['session-1'].items.length, 1)
+  assert.equal(afterClear.sessions['session-1'].items[0].done, false)
+
+  // Edit the remaining note in place.
+  const editButton = popover.querySelector('.dsh-an-iconBtn[aria-label="编辑"]')
+  assert.ok(editButton, 'the row must offer edit')
+  await act(async () => { editButton.click() })
+  const editInput = popover.querySelector('.dsh-an-editInput')
+  assert.ok(editInput, 'editing swaps in the inline editor')
+  await act(async () => {
+    valueSetter.call(editInput, '改过的便笺')
+    editInput.dispatchEvent(new window.Event('input', { bubbles: true }))
+  })
+  await act(async () => { popover.querySelector('.dsh-an-miniPrimary').click() })
+  const afterEdit = JSON.parse(window.localStorage.getItem('dsh.aside-notes.v2'))
+  assert.equal(afterEdit.sessions['session-1'].items[0].text, '改过的便笺')
+
+  const widthHandle = popover.querySelector('.dsh-an-resizeHandle')
+  assert.ok(widthHandle, 'a right-side panel exposes the width handle')
+  const widthBefore = Number(window.localStorage.getItem('dsh.aside-notes.panel-width.v2')) || 360
+  await act(async () => { widthHandle.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true })) })
+  assert.ok(Number(window.localStorage.getItem('dsh.aside-notes.panel-width.v2')) > widthBefore)
+
+  // Delete the last note; the store empties and the panel falls back to the empty state.
+  const deleteButton = popover.querySelector('.dsh-an-iconBtnDanger[aria-label="删除"]')
+  assert.ok(deleteButton, 'the row must offer delete')
+  await act(async () => { deleteButton.click() })
+  const afterDelete = JSON.parse(window.localStorage.getItem('dsh.aside-notes.v2'))
+  assert.equal(afterDelete.sessions['session-1'].items.length, 0)
+  assert.ok(popover.querySelector('.dsh-an-empty'), 'the list falls back to the empty state')
+
+  // Section collapse is remembered.
+  await act(async () => { popover.querySelector('.dsh-an-sectionHead .dsh-an-doneToggle').click() })
+  const sections = JSON.parse(window.localStorage.getItem('dsh.aside-notes.sections.v2'))
+  assert.equal(sections.open, false)
+
   await act(async () => { reactRoot.unmount() })
   for (const dispose of disposers) dispose()
   assert.equal(document.querySelector('style[data-dsh-plugin="dsh-asidenote"]'), null,
