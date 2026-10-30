@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.9.6
 
+- Change the settings prefix prompt into a three-line textarea that grows up to six lines as you type, then scrolls; Enter inserts a newline and the 80-character limit still applies to the whole value.
 - Keep the sticky section headers transparent in flow and paint the menu group-header fill only while they are actually pinned; the full-width `bg-layer-1` block no longer sits over the list.
 
 ## 1.9.5
