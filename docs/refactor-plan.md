@@ -8,12 +8,12 @@
 |---|---|---|
 | P0 冻结与兜底 | 完成 | tag `pre-refactor-1.9.7`；合并分支清理；`docs/archive/notes-trash-ux-checklist.md` |
 | P1 工具链骨架 | 完成 | `f9e399b`（tsdown + tsc + oxlint + 产物一致性门 + 真机前 jsdom 冒烟） |
-| P2 拆模块 | 进行中 | `96e4414` 常量/i18n/CSS；`0a1821b` storage/domain/hook；`8e0bc4c` 行/空态/定位/图标；本次 头部/设置/输入/列表/确认拆成组件。入口 2,507 → 1,009 行 |
+| P2 拆模块 | 进行中 | `96e4414` 常量/i18n/CSS；`0a1821b` storage/domain/hook；`8e0bc4c` 行/空态/定位/图标；头部/设置/输入/列表/确认拆成组件；几何抽成 `usePanelGeometry`；面板整体移入 `ui/MemoPopover.ts`。入口 2,507 → 332 行 |
 | P3 改名 + 迁移 | 完成 | `198d673`（AsideNote，`dsh.aside-notes.*.v2`，旧键只读保留） |
 | P4 资产与文档 | 待办 | 截图正被并行重拍，等 README 定稿后一次性移动 |
 | P5 发布 | 待办 | CI 已更新；打 tag / 发布前需重启 DSH 做真机冒烟 |
 
-剩余：把 `MemoPopover` 剩下的状态与处理器抽成 hook（几何/动作/草稿），入口降到 200 行以内；补编辑与转发的交互测试；契约测试迁到 Vitest + jsdom；真机冒烟。
+剩余：`ui/MemoPopover.ts`（530 行）的状态与处理器抽成 hook（动作/草稿/转发/分区）；契约测试迁到 Vitest + jsdom；截图与 README 收尾；打 tag。真机冒烟已通过（重启 DSH 后面板与入口正常）。
 
 ## 0. 结论
 

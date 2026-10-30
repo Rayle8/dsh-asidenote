@@ -362,7 +362,7 @@ test('the rail grows into the popover padding without shrinking the cards', () =
 
 test('the bottom edge fades only while notes sit below the fold', () => {
   const css = readCss()
-  const client = read('src/client/index.ts') + read('src/client/ui/NoteList.ts')
+  const client = read('src/client/index.ts') + read('src/client/ui/NoteList.ts') + read('src/client/ui/MemoPopover.ts')
   // The fade is an alpha mask on the scroller, not a blurred overlay: a mask
   // has no compositing edge to show as a crisp-to-blurred line.
   assert.doesNotMatch(css, /\.dsh-an-listViewport::(?:before|after)/, 'the bottom fade must not use an overlay pseudo-element')
@@ -434,7 +434,7 @@ test('transient outcomes go to the frame-wide toast seat', () => {
 })
 
 test('a failed write keeps the row and says so', () => {
-  const client = read('src/client/index.ts') + read('src/client/ui/useSessionMemoStore.ts')
+  const client = read('src/client/index.ts') + read('src/client/ui/useSessionMemoStore.ts') + read('src/client/ui/MemoPopover.ts')
   assert.match(client, /if \(!ok\) return false/)
   assert.match(client, /if \(!ok\) \{\n\s+report\('saveFailed'\)/)
   assert.match(client, /A failed delete keeps the row/)
@@ -571,7 +571,7 @@ test('the section counts carry the status hierarchy', () => {
 })
 
 test('the panel never raises the soft keyboard on touch devices', () => {
-  const client = read('src/client/index.ts')
+  const client = read('src/client/index.ts') + read('src/client/ui/MemoPopover.ts')
   assert.match(client, /\(hover: hover\) and \(pointer: fine\)/)
 })
 
@@ -643,7 +643,7 @@ test('the forwarded mark borrows the forward icon palette, not a state colour', 
 })
 
 test('clicking a forwarded note removes the mark instead of forwarding again', () => {
-  const client = read('src/client/index.ts') + read('src/client/ui/TodoRow.ts')
+  const client = read('src/client/index.ts') + read('src/client/ui/TodoRow.ts') + read('src/client/ui/MemoPopover.ts')
   const start = client.indexOf('const forward = () => {')
   assert.ok(start > 0, 'forward handler missing')
   const end = client.indexOf('\n      }', start)
@@ -669,7 +669,7 @@ test('clicking a forwarded note removes the mark instead of forwarding again', (
 })
 
 test('clearing completed notes asks for a second confirmation', () => {
-  const client = read('src/client/index.ts') + read('src/client/ui/ClearConfirm.ts') + read('src/client/ui/NoteList.ts')
+  const client = read('src/client/index.ts') + read('src/client/ui/ClearConfirm.ts') + read('src/client/ui/NoteList.ts') + read('src/client/ui/MemoPopover.ts')
   assert.match(client, /const \[confirmClear, setConfirmClear\] = React\.useState\(false\)/)
   assert.match(client, /const clearConfirmTimerRef = React\.useRef\(0\)/)
   // The section button opens the band; it never clears on the first click.
@@ -728,7 +728,7 @@ test('the prefix prompt is explained under the field, without a visible title', 
 })
 
 test('the prefix prompt is a multiline field that grows with its content', () => {
-  const client = read('src/client/index.ts') + read('src/client/ui/SettingsPanel.ts')
+  const client = read('src/client/index.ts') + read('src/client/ui/SettingsPanel.ts') + read('src/client/ui/MemoPopover.ts')
   const idAt = client.indexOf("id: 'dsh-an-forward-prefix'")
   assert.ok(idAt >= 0, 'the prefix field must keep its id')
   const fieldStart = client.lastIndexOf("h('textarea', {", idAt)

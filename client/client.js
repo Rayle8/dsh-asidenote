@@ -29,12 +29,12 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 
 let react = require("react");
 react = __toESM(react, 1);
-let react_dom = require("react-dom");
-react_dom = __toESM(react_dom, 1);
 let react_dom_client = require("react-dom/client");
 react_dom_client = __toESM(react_dom_client, 1);
 let _deepseek_ai_dsh_client_ui_primitives = require("@deepseek-ai/dsh-client-ui-primitives");
 _deepseek_ai_dsh_client_ui_primitives = __toESM(_deepseek_ai_dsh_client_ui_primitives, 1);
+let react_dom = require("react-dom");
+react_dom = __toESM(react_dom, 1);
 
 // \0dsh-css:src/client/styles/panel.css.mjs
 var panel_css_default = "/*\n * Panel, composer dock, header entry and toast styles.\n *\n * Only DSH semantic aliases and the shared scale are used here — no palette of\n * its own. The entry point injects this sheet once for the whole frame, because\n * the dock mounts outside the panel tree.\n */\n/* ── 1 令牌 · 只映射 DSH 语义别名与共享尺度，不新建调色板 ─────────── */\nbody{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-space-5:24px;--an-space-6:32px;--an-radius-pill:999px;--an-fs-caption:12px;--an-lh-caption:20px;--an-fs-row:13px;--an-lh-row:20px;--an-fs-title:14px;--an-lh-title:20px;--an-hover:var(--dsw-alias-interactive-bg-hover);--an-active:var(--dsw-alias-interactive-bg-active);--an-field:var(--dsw-alias-bg-layer-1);--an-field-line:var(--dsw-alias-border-l4);--an-divider:var(--dsw-alias-border-l2);--an-dur-fast:var(--ds-transition-duration-fast);--an-dur-base:var(--ds-transition-duration);--an-dur-spin:700ms;--an-ease:var(--ds-ease-in-out);--an-transition:background-color var(--an-dur-fast) var(--an-ease),border-color var(--an-dur-fast) var(--an-ease),color var(--an-dur-fast) var(--an-ease),opacity var(--an-dur-fast) var(--an-ease),transform var(--an-dur-fast) var(--an-ease),box-shadow var(--an-dur-fast) var(--an-ease)}\n\n/* ── 2 浮层 · 菜单材质 + 三层阴影，边框为 0（发丝线在阴影第一层） ── */\n.dsh-an-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--an-space-3);min-height:0;padding:var(--an-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--an-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--an-divider)));--dsh-an-panelSurface:var(--dsw-alias-bg-layer-2);--dsh-an-listGutter:var(--an-space-4);--dsh-an-scrollRail:9px;--dsh-an-scrollInset:2px;overflow:hidden;animation:dsh-an-pop-in var(--an-dur-base) var(--an-ease) both}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n\n/* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */\n.dsh-an-popHead{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-width:0}\n.dsh-an-popTitleLine{display:flex;align-items:center;gap:var(--an-space-3);flex:1 1 auto;min-width:0}\n.dsh-an-popTitle{min-width:0;overflow:hidden;font-size:var(--an-fs-title);line-height:var(--an-lh-title);font-weight:500;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popMeta{min-width:0;margin:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:16px;color:var(--dsw-alias-label-secondary);font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popActions{display:flex;align-items:center;flex:none;gap:var(--an-space-2)}\n.dsh-an-popClose,.dsh-an-settingsBtn{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-popClose:active,.dsh-an-settingsBtn:active{background:var(--an-active)}\n.dsh-an-settingsBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n\n/* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */\n.dsh-an-add{display:flex;flex-direction:column;gap:var(--an-space-2);padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--an-transition)}\n.dsh-an-add:focus-within{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-an-input{display:block;flex:0 0 auto;width:100%;min-width:0;box-sizing:border-box;min-height:var(--an-lh-row);max-height:120px;padding:0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);resize:none;overflow-y:auto;overflow-x:hidden}\n.dsh-an-input::placeholder{color:var(--dsw-alias-label-secondary)}\n.dsh-an-addFoot{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);width:100%;min-width:0}\n.dsh-an-addShortcut{min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-addBtn{display:inline-flex;align-items:center;justify-content:center;flex:none;height:28px;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-addBtn:active{background:var(--dsw-alias-button-primary-dimmed);transform:scale(.97)}\n.dsh-an-addBtn[disabled]{background:transparent;color:var(--dsw-alias-label-secondary);box-shadow:inset 0 0 0 0.5px var(--an-field-line);cursor:not-allowed}\n\n/* ── 5 分区与列表 · 9px 轨道内嵌 2px，底部羽化只盖内容不盖滚动条 ──── */\n/* The viewport grows into the popover padding so the 9px rail does not steal from the cards; the list pays the padding back minus the rail, so cards and the add field keep one content width at every panel size. */\n.dsh-an-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--dsh-an-listGutter) * -1)}\n/* Bottom edge treatment: a viewport-fixed alpha mask over the scroller itself, exactly like the DSH scroll areas. The first gradient fades the last 48px to transparent; the second keeps the 9px scrollbar rail opaque so the thumb stays crisp. There is no backdrop-filter layer, so there is no hard compositing edge to see. */\n.dsh-an-listViewport[data-bottom=\"true\"] .dsh-an-listArea{--dsh-an-fadeHeight:calc(var(--an-space-6) + var(--an-space-4));-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n/* Geometry only: the shared DSH skin paints the thumb, so the plugin declares no scrollbar pseudo-elements. The popover already binds the l2 thumb pair for the menu material. */\n.dsh-an-listArea{--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}\n.dsh-an-listSection{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-listSection+.dsh-an-listSection{margin-top:var(--an-space-2)}\n.dsh-an-sectionHead,.dsh-an-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-height:28px;margin:0;padding:var(--an-space-1) 0;background:transparent;transition:background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-sectionHead[data-stuck],.dsh-an-doneHead[data-stuck]{background:var(--dsh-an-panelSurface,var(--dsw-alias-bg-layer-2))}\n.dsh-an-doneToggle{display:flex;align-items:center;gap:var(--an-space-2);flex:none;min-width:0;margin:0;padding:var(--an-space-1) var(--an-space-2) var(--an-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-doneToggle:active{background:var(--an-active)}\n.dsh-an-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-chevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-chevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-sectionCount{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500;font-variant-numeric:tabular-nums}\n.dsh-an-clear{display:inline-flex;align-items:center;flex:none;height:24px;margin-left:auto;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-clear:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-clearConfirm{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);min-width:0;margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-clearConfirmText{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-primary);overflow-wrap:anywhere}\n.dsh-an-clearConfirmActions{display:flex;align-items:center;flex:none;gap:var(--an-space-1)}\n.dsh-an-doneRows{margin-top:var(--an-space-2)}\n.dsh-an-rows{list-style:none;margin:0;padding:0;border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);overflow:hidden}\n.dsh-an-row{display:flex;align-items:flex-start;gap:var(--an-space-2);padding:var(--an-space-2);border-top:0.5px solid var(--an-divider);transition:var(--an-transition)}\n.dsh-an-row:first-child{border-top:0}\n\n/* ── 6 一行便笺 · 勾选圈 14px，命中区 24px ─────────────────────────── */\n.dsh-an-check{display:flex;align-items:center;justify-content:center;flex:none;width:24px;height:24px;margin:-2px 0 0;padding:0;border:0;border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;color:transparent;font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-checkCircle{display:flex;align-items:center;justify-content:center;width:14px;height:14px;box-sizing:border-box;border:0.5px solid var(--dsw-alias-label-tertiary);border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;color:transparent;transition:border-color var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease),color var(--an-dur-fast) var(--an-ease),transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-check:active .dsh-an-checkCircle{transform:scale(.9)}\n.dsh-an-check[aria-checked=\"true\"] .dsh-an-checkCircle{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-itemBody{display:flex;flex:1;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-text{display:block;width:100%;margin:0;padding:0;border:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;cursor:text;user-select:text;-webkit-user-select:text}\n.dsh-an-rowDone .dsh-an-text{color:var(--dsw-alias-label-secondary);text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:var(--dsw-alias-label-tertiary)}\n.dsh-an-rowFoot{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);min-height:24px}\n.dsh-an-meta{flex:0 1 auto;min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}\n\n/* ── 7 行操作 · 图标按钮 H24/R8，触摸端常显 ────────────────────────── */\n.dsh-an-actions{display:flex;flex:none;gap:var(--an-space-1)}\n.dsh-an-iconBtn{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-iconBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary);transform:scale(.94)}\n.dsh-an-iconBtn:disabled,.dsh-an-iconBtn[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-forwardMark{position:absolute;right:0;bottom:0;display:flex;align-items:center;justify-content:center;width:10px;height:10px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-label-secondary);color:var(--dsw-alias-label-primary-foreground);pointer-events:none}\n\n/* ── 8 就地编辑 · 保存/取消为紧凑描边按钮 ──────────────────────────── */\n.dsh-an-edit{display:flex;flex-direction:column;gap:var(--an-space-1);width:100%}\n.dsh-an-editInput{display:block;width:100%;box-sizing:border-box;min-height:var(--an-lh-row);max-height:160px;padding:var(--an-space-1) var(--an-space-2);border:0.5px solid var(--an-field-line);border-radius:var(--dsw-radius-sm);background:var(--an-field);color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);outline:0;resize:none;overflow-y:auto;overflow-x:hidden;transition:var(--an-transition)}\n.dsh-an-editInput:focus{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-an-editActions{display:flex;align-items:center;gap:var(--an-space-1)}\n.dsh-an-editHint{flex:1 1 auto;min-width:0;margin-left:auto;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);text-align:right;color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-mini{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-mini:active{background:var(--an-active)}\n.dsh-an-mini[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-miniPrimary{border-color:transparent;background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniPrimary:active{background:var(--dsw-alias-button-primary-dimmed)}\n.dsh-an-miniDanger{border-color:transparent;background:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniDanger:active{background:var(--dsw-alias-state-error-primary)}\n\n/* ── 9 空态 · 虚线 1px，说明 12/次级墨色 ──────────────────────────── */\n.dsh-an-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--an-space-2);padding:var(--an-space-5) var(--an-space-4);border:1px dashed var(--an-divider);border-radius:var(--dsw-radius-lg);text-align:center}\n.dsh-an-emptyIcon{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0 0 var(--an-space-1);border-radius:var(--dsw-radius-md);background:var(--an-hover);color:var(--dsw-alias-label-secondary)}\n.dsh-an-emptyTitle{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-emptyBody{max-width:36ch;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n\n/* ── 10 设置 · 分组 R16，项间 0.5px 分隔线，链接走 --dsw-alias-link ── */\n.dsh-an-settings{--dsh-an-settingIndent:var(--an-space-3);display:flex;flex-direction:column;gap:var(--an-space-2);margin:0;padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-settingsHead{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-settingGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-settingGroup+.dsh-an-settingGroup{margin-top:var(--an-space-2);padding-top:var(--an-space-2);border-top:0.5px solid var(--an-divider)}\n.dsh-an-settingLabel{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-an-settingBody{display:flex;flex-direction:column;gap:var(--an-space-1);padding-left:var(--dsh-an-settingIndent)}\n.dsh-an-settingItem{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-settingItem+.dsh-an-settingItem{margin-top:var(--an-space-2);padding-top:var(--an-space-2);border-top:0.5px solid var(--an-divider)}\n.dsh-an-settingChoices{display:flex;flex-direction:column;gap:var(--an-space-1)}\n.dsh-an-settingChoice{display:flex;align-items:flex-start;gap:var(--an-space-2);font-size:var(--an-fs-row);line-height:var(--an-lh-row);color:var(--dsw-alias-label-primary);cursor:pointer}\n.dsh-an-settingChoice input{appearance:none;flex:none;width:14px;height:14px;margin:calc((var(--an-lh-row) - 14px) / 2) 0 0;box-sizing:border-box;border:0.5px solid var(--dsw-alias-label-tertiary);border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-settingChoice input:checked{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-brand-primary);box-shadow:inset 0 0 0 3px var(--an-field)}\n.dsh-an-settingInput{box-sizing:border-box;width:100%;height:28px;padding:0 var(--an-space-2);border:0.5px solid var(--an-field-line);border-radius:var(--dsw-radius-sm);background:var(--an-field);color:var(--dsw-alias-label-primary);font-family:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;outline:0;transition:var(--an-transition)}\n.dsh-an-settingItem>.dsh-an-settingInput{font-family:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500}\n.dsh-an-settingInput:focus{border-color:var(--dsw-alias-state-business-primary)}\n/* 前缀提示词改为文本域：min-height 兜住三行，空态也不会被内联高度压扁 */\n.dsh-an-settingTextarea{display:block;height:auto;min-height:calc(var(--an-lh-row) + var(--an-space-4) + 2px);padding:var(--an-space-2);resize:none;overflow-y:auto;white-space:pre-wrap;overflow-wrap:anywhere}\n.dsh-an-settingHint{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-settingHintNote{margin-top:var(--an-space-1)}\n.dsh-an-settingAbout{display:flex;align-items:baseline;gap:var(--an-space-1);min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}\n.dsh-an-settingAbout>span{flex:none}\n.dsh-an-settingProject{display:flex;align-items:baseline;gap:var(--an-space-1);min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}\n.dsh-an-settingProject>span{flex:none}\n.dsh-an-settingDot{flex:none;color:var(--dsw-alias-label-tertiary)}\n.dsh-an-settingLink{flex:0 1 auto;min-width:0;overflow:hidden;color:var(--dsw-alias-link);font-weight:500;text-decoration:none;text-overflow:ellipsis;transition:var(--an-transition)}\n.dsh-an-settingLink:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n\n/* ── 11 面板脚注 · 存储状态就地提示，错误用状态色 ─────────────────── */\n.dsh-an-popFoot{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-error{color:var(--dsw-alias-state-error-primary)}\n\n/* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */\n.dsh-an-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-headerBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-disabled=\"true\"]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}\n.dsh-an-headerCount{position:absolute;top:-2px;right:-2px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-bg-base);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:14px;font-weight:500;font-variant-numeric:tabular-nums}\n\n/* ── 13 拖拽把手 · 8px 命中带，3px 视觉条 ─────────────────────────── */\n.dsh-an-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-2);cursor:ew-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandle::before{content:\"\";width:3px;height:var(--an-space-6);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandle:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandle:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n.dsh-an-resizeHandleBottom{position:absolute;left:50%;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-6);height:var(--an-space-3);transform:translateX(-50%);cursor:ns-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandleBottom::before{content:\"\";width:var(--an-space-5);height:3px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandleBottom:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n\n/* ── 14 加载 · 控件内 12px 环，文字隐藏，不报\"进行中\" ──────────────── */\n[data-loading=\"true\"]{position:relative;color:transparent!important;pointer-events:none;cursor:progress}\n[data-loading=\"true\"]>*{visibility:hidden}\n[data-loading=\"true\"]::after{content:\"\";position:absolute;left:50%;top:50%;box-sizing:border-box;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid var(--dsw-alias-label-secondary);border-top-color:transparent;border-radius:var(--an-radius-pill);corner-shape:round;animation:dsh-an-spin var(--an-dur-spin) linear infinite}\n\n/* ── 15 悬停 · 只在支持 hover 的设备上启用（触摸端常显操作） ────────── */\n@media (hover:hover){\n.dsh-an-row:hover{background:var(--an-hover)}\n.dsh-an-actions{opacity:0;pointer-events:none}\n.dsh-an-row:hover .dsh-an-actions,.dsh-an-row:focus-within .dsh-an-actions{opacity:1;pointer-events:auto}\n.dsh-an-iconBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-iconBtnDanger:hover{background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-an-popClose:hover,.dsh-an-settingsBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-addBtn:hover:not([disabled]){background:var(--dsw-alias-button-primary-hover)}\n.dsh-an-mini:hover:not([disabled]){background:var(--an-hover)}\n.dsh-an-miniPrimary:hover:not([disabled]){background:var(--dsw-alias-button-primary-hover);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-an-clear:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-doneToggle:hover{background:var(--an-hover)}\n.dsh-an-check:hover .dsh-an-checkCircle{border-color:var(--dsw-alias-label-primary)}\n.dsh-an-settingChoice:hover input{border-color:var(--dsw-alias-label-primary)}\n.dsh-an-settingLink:hover{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-headerBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}\n}\n\n/* ── 16 动效 · 只动 opacity/transform，错峰出场封顶 ─────────────────── */\n@media (prefers-reduced-motion:no-preference){\n.dsh-an-rows>.dsh-an-row{animation:dsh-an-row-in var(--an-dur-base) var(--an-ease) both}\n.dsh-an-rows>.dsh-an-row:nth-child(2){animation-delay:var(--an-space-1)}\n.dsh-an-rows>.dsh-an-row:nth-child(3){animation-delay:var(--an-space-2)}\n.dsh-an-rows>.dsh-an-row:nth-child(4){animation-delay:calc(var(--an-space-2) + var(--an-space-1))}\n.dsh-an-rows>.dsh-an-row:nth-child(n+5){animation-delay:var(--an-space-3)}\n}\n@keyframes dsh-an-pop-in{from{opacity:0}to{opacity:1}}\n@keyframes dsh-an-row-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}\n@keyframes dsh-an-spin{to{transform:rotate(360deg)}}\n@media (prefers-reduced-motion:reduce){\n.dsh-an-popover,.dsh-an-rows>.dsh-an-row,.dsh-an-chevron,[data-loading=\"true\"]::after{animation:none}\n.dsh-an-popover,.dsh-an-row,.dsh-an-actions,.dsh-an-iconBtn{transition-duration:1ms}\n}\n\n/* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */\n@media (max-width:480px){\n.dsh-an-popover{padding:var(--an-space-3);--dsh-an-listGutter:var(--an-space-3)}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n.dsh-an-popHead{gap:var(--an-space-2)}\n.dsh-an-add{padding:var(--an-space-2) var(--an-space-3)}\n.dsh-an-sectionHead,.dsh-an-doneHead{min-height:24px}\n}\n\n";
@@ -274,7 +274,7 @@ function makeSay(ctx, getLocaleId) {
 * stroke weight, optical size and currentColor stay consistent with the shell.
 * Tooltip and Toast are the seeded primitives — the bundle keeps them external.
 */
-const h$8 = react.default.createElement;
+const h$9 = react.default.createElement;
 const PRIMITIVES = _deepseek_ai_dsh_client_ui_primitives;
 const Tooltip = typeof PRIMITIVES.Tooltip === "function" ? PRIMITIVES.Tooltip : null;
 const Toast = typeof PRIMITIVES.Toast === "function" ? PRIMITIVES.Toast : null;
@@ -287,139 +287,53 @@ const icon = (name) => typeof PRIMITIVES[name] === "function" ? PRIMITIVES[name]
 function Glyph(props) {
 	const Component = icon(props.name);
 	if (!Component) return null;
-	return h$8(Component, { size: props.size });
+	return h$9(Component, { size: props.size });
 }
-const IconCheck = (props) => h$8(Glyph, {
+const IconCheck = (props) => h$9(Glyph, {
 	name: "IconCheckOutlineMedium",
 	size: props && props.size ? props.size : 12
 });
-const IconCopy = () => h$8(Glyph, {
+const IconCopy = () => h$9(Glyph, {
 	name: "IconCopyOutlineRegular",
 	size: 14
 });
-const IconForward = () => h$8(Glyph, {
+const IconForward = () => h$9(Glyph, {
 	name: "IconShareOutlineRegular",
 	size: 14
 });
-const IconGear = () => h$8(Glyph, {
+const IconGear = () => h$9(Glyph, {
 	name: "IconSettingsOutlineRegular",
 	size: 14
 });
-const IconPencil = () => h$8(Glyph, {
+const IconPencil = () => h$9(Glyph, {
 	name: "IconEditOutlineRegular",
 	size: 14
 });
-const IconTrash = () => h$8(Glyph, {
+const IconTrash = () => h$9(Glyph, {
 	name: "IconTrashOutlineRegular",
 	size: 14
 });
-const IconChevron = () => h$8(Glyph, {
+const IconChevron = () => h$9(Glyph, {
 	name: "IconChevronRightOutlineRegular",
 	size: 12
 });
-const IconEmpty = () => h$8(Glyph, {
+const IconEmpty = () => h$9(Glyph, {
 	name: "IconChecklistOutlineRegular",
 	size: 18
 });
-const IconClose = () => h$8(Glyph, {
+const IconClose = () => h$9(Glyph, {
 	name: "IconCloseOutlineRegular",
 	size: 14
 });
 /** Wrap one icon-only control in the shared tooltip; a bare button when absent. */
 function withTooltip(label, node) {
 	if (!Tooltip) return node;
-	return h$8(Tooltip, {
+	return h$9(Tooltip, {
 		label,
 		side: "top",
 		portal: true,
 		gap: 6
 	}, node);
-}
-
-// src/client/domain/forward.ts
-/** Append a note to the conversation composer (Lexical contenteditable or textarea). */
-/** Append one note to the conversation composer (Lexical contenteditable or textarea). */
-function appendToConversation(text, prefix = "") {
-	const note = String(text || "").replace(/^\s+|\s+$/g, "");
-	if (!note) return false;
-	const bullet = `- ${note}`;
-	const lead = prefix ? String(prefix).trim() : "";
-	const emptyBlock = lead ? `${lead}\n${bullet}` : bullet;
-	const visible = (node) => {
-		const rect = node.getBoundingClientRect();
-		return rect.width > 0 && rect.height > 0;
-	};
-	const specific = [...document.querySelectorAll("[data-composer-input]")].filter(visible);
-	const editor = (specific.length ? specific : [...document.querySelectorAll("[contenteditable=\"true\"][role=\"textbox\"], textarea[role=\"textbox\"]")].filter(visible))[0];
-	if (!editor) return false;
-	/** Payload for a composer whose current plain text is `current`. */
-	const payloadFor = (current) => {
-		const value = typeof current === "string" ? current : "";
-		if (!value.trim()) return emptyBlock;
-		return value.endsWith("\n") ? bullet : `\n${bullet}`;
-	};
-	if (editor.tagName === "TEXTAREA") {
-		const textarea = editor;
-		const current = textarea.value;
-		const payload = payloadFor(current);
-		Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value").set.call(textarea, `${current}${payload}`);
-		textarea.dispatchEvent(new Event("input", { bubbles: true }));
-		textarea.focus();
-		const end = textarea.value.length;
-		textarea.setSelectionRange(end, end);
-		return true;
-	}
-	const payload = payloadFor(typeof editor.innerText === "string" ? editor.innerText : "");
-	editor.focus();
-	try {
-		const range = document.createRange();
-		range.selectNodeContents(editor);
-		range.collapse(false);
-		const selection = window.getSelection();
-		selection.removeAllRanges();
-		selection.addRange(range);
-	} catch {}
-	try {
-		const data = new DataTransfer();
-		data.setData("text/plain", payload);
-		const event = new ClipboardEvent("paste", {
-			bubbles: true,
-			cancelable: true,
-			clipboardData: data
-		});
-		if (!editor.dispatchEvent(event)) return true;
-	} catch {}
-	try {
-		return document.execCommand("insertText", false, payload);
-	} catch {
-		return false;
-	}
-}
-
-// src/client/domain/clipboard.ts
-/** Clipboard write with a synchronous fallback. */
-/** Copy plain text, with a synchronous fallback for restricted clipboards. */
-async function copyText(text) {
-	try {
-		if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
-			await navigator.clipboard.writeText(text);
-			return true;
-		}
-	} catch {}
-	try {
-		const area = document.createElement("textarea");
-		area.value = text;
-		area.setAttribute("readonly", "");
-		area.style.position = "fixed";
-		area.style.opacity = "0";
-		document.body.appendChild(area);
-		area.select();
-		const ok = document.execCommand("copy");
-		area.remove();
-		return ok;
-	} catch {
-		return false;
-	}
 }
 
 // src/client/domain/id.ts
@@ -518,434 +432,6 @@ function metaLabel(item, say, localeId) {
 	});
 }
 
-// src/client/ui/TodoRow.ts
-/** One note: checkbox, actions, inline edit and the forwarded mark. */
-const h$7 = react.default.createElement;
-function TodoRow(props) {
-	const { item, done, say, onToast, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onEditDraftChange, onFinishEdit, onCancelEdit, editRef, forwardPrefix, sendShortcut = SEND_SHORTCUT_DEFAULT, forwarded = false, onForwarded, onUnforwarded } = props;
-	const editHintKey = sendShortcut === "enter" ? "edit.hintEnter" : "edit.hintCtrlEnter";
-	const [pending, setPending] = react.default.useState("");
-	const mountedRef = react.default.useRef(true);
-	react.default.useEffect(() => {
-		mountedRef.current = true;
-		return () => {
-			mountedRef.current = false;
-		};
-	}, []);
-	const copy = async () => {
-		if (pending) return;
-		setPending("copy");
-		let ok = false;
-		try {
-			ok = await copyText(item.text);
-		} finally {
-			if (mountedRef.current) setPending("");
-		}
-		if (!mountedRef.current) return;
-		if (onToast) onToast(ok ? "copied" : "copyFailed");
-	};
-	const forward = () => {
-		if (forwarded) {
-			if (onUnforwarded) onUnforwarded(item);
-			if (onToast) onToast("unforwarded");
-			return;
-		}
-		if (!appendToConversation(item.text, forwardPrefix)) {
-			if (onToast) onToast("forwardFailed");
-			return;
-		}
-		if (onForwarded) onForwarded(item);
-		if (onToast) onToast("forwarded");
-	};
-	const toggleCheck = () => onToggle(item);
-	const resizeEditor = (node) => {
-		if (!node) return;
-		node.style.height = "auto";
-		node.style.height = `${node.scrollHeight + 2}px`;
-	};
-	const setEditorRef = react.default.useCallback((node) => {
-		editRef.current = node;
-		if (node) {
-			node.style.height = "auto";
-			node.style.height = `${node.scrollHeight + 2}px`;
-		}
-	}, [editRef]);
-	/** Insert a line break at the caret of the controlled edit textarea and keep focus there. */
-	const insertEditNewline = (node) => {
-		if (!node) return;
-		const start = node.selectionStart === null ? node.value.length : node.selectionStart;
-		const end = node.selectionEnd === null ? start : node.selectionEnd;
-		const next = `${node.value.slice(0, start)}\n${node.value.slice(end)}`;
-		const caret = start + 1;
-		setEditDraft(next);
-		if (onEditDraftChange) onEditDraftChange(next);
-		window.requestAnimationFrame(() => {
-			node.focus();
-			try {
-				node.setSelectionRange(caret, caret);
-			} catch {}
-			resizeEditor(node);
-		});
-	};
-	const body = editing ? h$7("div", { className: "dsh-an-edit" }, h$7("textarea", {
-		ref: setEditorRef,
-		className: "dsh-an-editInput",
-		value: editDraft,
-		rows: 1,
-		maxLength: 280,
-		"aria-label": say("item.edit"),
-		onChange: (event) => {
-			const value = event.target.value;
-			setEditDraft(value);
-			if (onEditDraftChange) onEditDraftChange(value);
-			resizeEditor(event.target);
-		},
-		onKeyDown: (event) => {
-			if (event.isComposing || event.nativeEvent && event.nativeEvent.isComposing) return;
-			if (event.key === "Escape") {
-				event.preventDefault();
-				onCancelEdit();
-				return;
-			}
-			if (event.key !== "Enter") return;
-			const chord = event.ctrlKey || event.metaKey;
-			const platformModifier = isSendModifier(event);
-			if (sendShortcut === "enter") {
-				if (!chord && !event.shiftKey) {
-					event.preventDefault();
-					onFinishEdit(item);
-				} else {
-					event.preventDefault();
-					insertEditNewline(event.currentTarget);
-				}
-				return;
-			}
-			if (platformModifier) {
-				event.preventDefault();
-				if (event.shiftKey) insertEditNewline(event.currentTarget);
-				else onFinishEdit(item);
-			} else if (event.shiftKey) {
-				event.preventDefault();
-				insertEditNewline(event.currentTarget);
-			}
-		},
-		onBlur: () => onFinishEdit(item)
-	}), h$7("div", { className: "dsh-an-editActions" }, h$7("button", {
-		type: "button",
-		className: "dsh-an-mini dsh-an-miniPrimary",
-		onMouseDown: (event) => event.preventDefault(),
-		onClick: () => onFinishEdit(item)
-	}, say("edit.save")), h$7("button", {
-		type: "button",
-		className: "dsh-an-mini",
-		onMouseDown: (event) => event.preventDefault(),
-		onClick: onCancelEdit
-	}, say("edit.cancel")), h$7("span", {
-		className: "dsh-an-editHint",
-		title: say(editHintKey, { mod: MOD_LABEL })
-	}, say(editHintKey, { mod: MOD_LABEL })))) : h$7("div", {
-		className: "dsh-an-text",
-		title: say("item.editHint"),
-		onDoubleClick: () => onStartEdit(item)
-	}, item.text);
-	const checked = done === true;
-	return h$7("li", { className: done ? "dsh-an-row dsh-an-rowDone" : "dsh-an-row" }, h$7("button", {
-		type: "button",
-		className: "dsh-an-check",
-		role: "checkbox",
-		"aria-checked": checked ? "true" : "false",
-		"aria-label": say(done ? "item.markOpen" : "item.markDone"),
-		onClick: toggleCheck
-	}, h$7("span", { className: "dsh-an-checkCircle" }, checked ? h$7(IconCheck, { size: 9 }) : null)), h$7("div", { className: "dsh-an-itemBody" }, body, editing ? null : h$7("div", { className: "dsh-an-rowFoot" }, h$7("span", {
-		className: "dsh-an-meta",
-		title: metaLabel(item, say, props.localeId)
-	}, metaLabel(item, say, props.localeId)), h$7("div", { className: "dsh-an-actions" }, withTooltip(say("item.copy"), h$7("button", {
-		type: "button",
-		className: "dsh-an-iconBtn",
-		"aria-label": say("item.copy"),
-		"aria-busy": pending === "copy" ? "true" : "false",
-		"data-loading": pending === "copy" ? "true" : void 0,
-		onClick: copy
-	}, h$7(IconCopy, null))), done ? null : withTooltip(say(forwarded ? "item.forwarded" : "item.forward"), h$7("button", {
-		type: "button",
-		className: "dsh-an-iconBtn",
-		"aria-label": say(forwarded ? "item.forwarded" : "item.forward"),
-		"data-forwarded": forwarded ? "true" : void 0,
-		onClick: forward
-	}, h$7(IconForward, null), forwarded ? h$7("span", {
-		className: "dsh-an-forwardMark",
-		"aria-hidden": true
-	}, h$7(IconCheck, { size: 8 })) : null)), withTooltip(say("item.edit"), h$7("button", {
-		type: "button",
-		className: "dsh-an-iconBtn",
-		"aria-label": say("item.edit"),
-		onClick: () => onStartEdit(item)
-	}, h$7(IconPencil, null))), withTooltip(say("item.delete"), h$7("button", {
-		type: "button",
-		className: "dsh-an-iconBtn dsh-an-iconBtnDanger",
-		"aria-label": say("item.delete"),
-		onClick: () => onDelete(item)
-	}, h$7(IconTrash, null)))))));
-}
-
-// src/client/ui/position.ts
-/**
-* Mark the section head that is actually pinned to the scroller's top edge.
-* Sticky heads stay transparent in flow; only the pinned one takes the menu
-* group-header fill, so no full-width layer sits over the list at rest.
-*/
-function syncStickyHeads(node) {
-	const areaTop = node.getBoundingClientRect().top;
-	for (const head of node.querySelectorAll(".dsh-an-sectionHead, .dsh-an-doneHead")) {
-		const section = head.parentElement;
-		if (!section) continue;
-		const rect = section.getBoundingClientRect();
-		head.toggleAttribute("data-stuck", rect.top < areaTop && rect.bottom > areaTop);
-	}
-}
-/**
-* Frame-owned top safety margin for floating surfaces. Read from the layout
-* rather than baked in, so macOS window chrome and the Windows titlebar both
-* keep their clearance without this page touching the global variable.
-*/
-function overlayTopFloor(margin) {
-	try {
-		const raw = getComputedStyle(document.body).getPropertyValue("--dsh-frame-overlay-top").trim();
-		const value = Number.parseFloat(raw);
-		if (Number.isFinite(value) && value > 0) return Math.max(margin, value);
-	} catch {}
-	return margin;
-}
-/**
-* Fixed panel placement: a right-side panel for the experimental entry,
-* otherwise below the anchor. Both stay inside the viewport margin, and the
-* gap side is only abandoned when the opposite side genuinely fits.
-*/
-function memoPopoverStyle(anchor, placement, requestedWidth, requestedHeight) {
-	const margin = window.innerWidth <= 480 ? 12 : 16;
-	const topFloor = overlayTopFloor(margin);
-	const available = Math.max(280, window.innerWidth - margin * 2);
-	const width = Math.max(280, Math.min(720, available, requestedWidth || 360));
-	if (placement === "right") {
-		const rect = anchor && anchor.isConnected ? anchor.getBoundingClientRect() : null;
-		let desiredRight = rect && rect.width > 0 ? rect.right : window.innerWidth - margin;
-		const sidebar = [...document.querySelectorAll("[data-sidebar-right-panel][data-sidebar-right-open]")].find((node) => {
-			const box = node.getBoundingClientRect();
-			return box.width > 24 && box.left > 0 && box.left < window.innerWidth - 24;
-		});
-		if (sidebar) desiredRight = Math.min(desiredRight, sidebar.getBoundingClientRect().left - 8);
-		const rightInset = Math.max(margin, Math.min(window.innerWidth - margin, window.innerWidth - desiredRight));
-		const top = rect && rect.width > 0 ? Math.max(topFloor, Math.round(rect.bottom + 8)) : topFloor;
-		const maxHeight = Math.max(160, window.innerHeight - top - margin);
-		const height = requestedHeight ? Math.max(Math.min(240, maxHeight), Math.min(maxHeight, requestedHeight)) : 0;
-		const style = {
-			right: `${rightInset}px`,
-			left: "auto",
-			top: `${top}px`,
-			width: `${width}px`,
-			maxHeight: `${maxHeight}px`
-		};
-		if (height) style.height = `${height}px`;
-		return style;
-	}
-	const maxHeight = Math.max(160, Math.min(460, window.innerHeight - topFloor - margin));
-	if (!anchor) return {
-		left: `${margin}px`,
-		top: `${topFloor}px`,
-		width: `${width}px`,
-		maxHeight: `${maxHeight}px`
-	};
-	const rect = anchor.getBoundingClientRect();
-	const left = rect.left < 420 ? Math.max(margin, rect.left) : Math.max(margin, Math.min(rect.right - width, window.innerWidth - width - margin));
-	let top = rect.bottom + 8;
-	if (top + maxHeight > window.innerHeight - margin) top = Math.max(topFloor, rect.top - maxHeight - 8);
-	return {
-		left: `${left}px`,
-		top: `${top}px`,
-		width: `${width}px`,
-		maxHeight: `${maxHeight}px`
-	};
-}
-
-// src/client/ui/PanelHead.ts
-/** Panel title, counts and the settings/close actions. */
-const h$6 = react.default.createElement;
-function PanelHead(props) {
-	const { say, openCount, total, showSettings, onToggleSettings, onClose } = props;
-	return h$6("div", { className: "dsh-an-popHead" }, h$6("div", { className: "dsh-an-popTitleLine" }, h$6("div", { className: "dsh-an-popTitle" }, say("popover.title")), h$6("p", { className: "dsh-an-popMeta" }, say("popover.count", {
-		open: openCount,
-		total
-	}))), h$6("div", { className: "dsh-an-popActions" }, withTooltip(say("settings.open"), h$6("button", {
-		type: "button",
-		className: "dsh-an-settingsBtn",
-		"data-active": showSettings ? "true" : void 0,
-		"aria-label": say("settings.open"),
-		"aria-expanded": showSettings,
-		onClick: onToggleSettings
-	}, h$6(IconGear, null))), withTooltip(say("popover.close"), h$6("button", {
-		type: "button",
-		className: "dsh-an-popClose",
-		"aria-label": say("popover.close"),
-		onClick: onClose
-	}, h$6(IconClose, null)))));
-}
-
-// src/client/ui/SettingsPanel.ts
-/** Settings card: send shortcut, forward prefix and about. */
-const h$5 = react.default.createElement;
-function SettingsPanel(props) {
-	const { say, sendShortcut, chooseShortcut, forwardPrefix, changeForwardPrefix, prefixRef } = props;
-	return h$5("div", { className: "dsh-an-settings" }, h$5("div", { className: "dsh-an-settingsHead" }, say("settings.title")), h$5("div", { className: "dsh-an-settingGroup" }, h$5("div", { className: "dsh-an-settingLabel" }, say("settings.shortcut")), h$5("div", { className: "dsh-an-settingBody" }, h$5("div", { className: "dsh-an-settingChoices" }, h$5("label", { className: "dsh-an-settingChoice" }, h$5("input", {
-		type: "radio",
-		name: "dsh-an-send-shortcut",
-		checked: sendShortcut === "enter",
-		onChange: () => chooseShortcut("enter")
-	}), h$5("span", null, say("settings.shortcutEnter", { mod: MOD_LABEL }))), h$5("label", { className: "dsh-an-settingChoice" }, h$5("input", {
-		type: "radio",
-		name: "dsh-an-send-shortcut",
-		checked: sendShortcut === "ctrl-enter",
-		onChange: () => chooseShortcut("ctrl-enter")
-	}), h$5("span", null, say("settings.shortcutCtrlEnter", { mod: MOD_LABEL })))))), h$5("div", { className: "dsh-an-settingGroup" }, h$5("div", { className: "dsh-an-settingLabel" }, say("settings.forward")), h$5("div", { className: "dsh-an-settingBody" }, h$5("div", { className: "dsh-an-settingItem" }, h$5("textarea", {
-		id: "dsh-an-forward-prefix",
-		ref: prefixRef,
-		className: "dsh-an-settingInput dsh-an-settingTextarea",
-		value: forwardPrefix,
-		rows: 1,
-		maxLength: 80,
-		placeholder: say("forward.prefix"),
-		"aria-label": say("settings.forwardPrefixItem"),
-		"aria-describedby": "dsh-an-forward-prefix-hint",
-		style: {
-			fontFamily: "inherit",
-			fontSize: "var(--an-fs-row)",
-			lineHeight: "var(--an-lh-row)",
-			fontWeight: 500
-		},
-		onChange: (event) => changeForwardPrefix(event.target.value)
-	}), h$5("p", {
-		id: "dsh-an-forward-prefix-hint",
-		className: "dsh-an-settingHint"
-	}, say("settings.forwardPrefixHint"))))), h$5("div", { className: "dsh-an-settingGroup" }, h$5("div", { className: "dsh-an-settingLabel" }, say("settings.about")), h$5("div", { className: "dsh-an-settingBody" }, h$5("div", { className: "dsh-an-settingAbout" }, h$5("span", null, `${say("settings.version")} ${PLUGIN_VERSION}`), h$5("span", {
-		className: "dsh-an-settingDot",
-		"aria-hidden": true
-	}, "·"), h$5("span", null, `${say("settings.author")} ${PLUGIN_AUTHOR}`)), h$5("div", { className: "dsh-an-settingProject" }, h$5("span", null, say("settings.project")), h$5("a", {
-		className: "dsh-an-settingLink",
-		href: PLUGIN_REPO_URL,
-		target: "_blank",
-		rel: "noreferrer",
-		title: PLUGIN_REPO_URL
-	}, PLUGIN_REPO_LABEL)))));
-}
-
-// src/client/ui/ComposerForm.ts
-/** The add form: one growing textarea, the shortcut hint and the submit button. */
-const h$4 = react.default.createElement;
-function ComposerForm(props) {
-	const { say, draft, inputRef, sendShortcut, onDraftChange, onCompositionStart, onCompositionEnd, onKeyDown, onSubmit } = props;
-	return h$4("form", {
-		className: "dsh-an-add",
-		onSubmit
-	}, h$4("textarea", {
-		ref: inputRef,
-		className: "dsh-an-input",
-		value: draft,
-		rows: 1,
-		maxLength: 280,
-		placeholder: say("add.placeholder"),
-		"aria-label": say("add.placeholder"),
-		onChange: onDraftChange,
-		onCompositionStart,
-		onCompositionEnd,
-		onKeyDown
-	}), h$4("div", { className: "dsh-an-addFoot" }, h$4("span", { className: "dsh-an-addShortcut" }, say(sendShortcut === "enter" ? "add.shortcutEnter" : "add.shortcut", { mod: MOD_LABEL })), h$4("button", {
-		type: "submit",
-		className: "dsh-an-addBtn",
-		disabled: !draft.trim()
-	}, say("add.action"))));
-}
-
-// src/client/ui/ClearConfirm.ts
-/** Inline second confirmation for clearing the completed notes. */
-const h$3 = react.default.createElement;
-function ClearConfirm(props) {
-	const { say, count, onCancel, onConfirm } = props;
-	return h$3("div", {
-		className: "dsh-an-clearConfirm",
-		role: "group",
-		"aria-live": "polite",
-		"aria-label": say("popover.clearConfirm", { n: count })
-	}, h$3("p", { className: "dsh-an-clearConfirmText" }, say("popover.clearConfirm", { n: count })), h$3("div", { className: "dsh-an-clearConfirmActions" }, h$3("button", {
-		type: "button",
-		className: "dsh-an-mini",
-		onClick: onCancel
-	}, say("popover.clearCancel")), h$3("button", {
-		type: "button",
-		className: "dsh-an-mini dsh-an-miniDanger",
-		onClick: onConfirm
-	}, say("popover.clearConfirmAction"))));
-}
-
-// src/client/ui/EmptyState.ts
-const h$2 = react.default.createElement;
-function EmptyState(props) {
-	return h$2("div", { className: "dsh-an-empty" }, h$2("div", { className: "dsh-an-emptyIcon" }, h$2(IconEmpty, null)), h$2("div", { className: "dsh-an-emptyTitle" }, props.title), h$2("div", { className: "dsh-an-emptyBody" }, props.body));
-}
-
-// src/client/ui/NoteList.ts
-/** Open/completed sections, their sticky heads, rows and the clear confirmation. */
-const h$1 = react.default.createElement;
-function NoteList(props) {
-	const { say, listRef, listHasMore, syncListEdge, showOpen, toggleOpen, openItems, openCount, total, row, showDone, toggleDone, doneItems, confirmClear, askClearConfirm, dismissClearConfirm, confirmClearDone } = props;
-	return h$1("div", {
-		className: "dsh-an-listViewport",
-		"data-bottom": listHasMore ? "true" : void 0
-	}, h$1("div", {
-		className: "dsh-an-listArea",
-		ref: listRef,
-		onScroll: syncListEdge
-	}, h$1("div", { className: "dsh-an-listSection" }, h$1("div", { className: "dsh-an-sectionHead" }, h$1("button", {
-		type: "button",
-		className: "dsh-an-doneToggle",
-		"aria-expanded": showOpen ? "true" : "false",
-		onClick: toggleOpen
-	}, h$1("span", {
-		className: "dsh-an-chevron",
-		"data-open": showOpen ? "true" : "false"
-	}, h$1(IconChevron, null)), say("list.open"), openCount ? h$1("span", { className: "dsh-an-sectionCount" }, String(openCount)) : null)), showOpen ? openItems.length ? h$1("ul", { className: "dsh-an-rows" }, openItems.map(row)) : h$1(EmptyState, {
-		title: say(total ? "list.allDone.title" : "popover.empty.title"),
-		body: say(total ? "list.allDone.body" : "popover.empty.body")
-	}) : null), doneItems.length ? h$1("div", { className: "dsh-an-listSection" }, h$1("div", { className: "dsh-an-doneHead" }, h$1("button", {
-		type: "button",
-		className: "dsh-an-doneToggle",
-		"aria-expanded": showDone ? "true" : "false",
-		onClick: toggleDone
-	}, h$1("span", {
-		className: "dsh-an-chevron",
-		"data-open": showDone ? "true" : "false"
-	}, h$1(IconChevron, null)), say("popover.completed"), h$1("span", { className: "dsh-an-sectionCount" }, String(doneItems.length))), showDone ? h$1("button", {
-		type: "button",
-		className: "dsh-an-clear",
-		"aria-expanded": confirmClear ? "true" : "false",
-		onClick: askClearConfirm
-	}, say("popover.clearDone")) : null), showDone && confirmClear ? h$1(ClearConfirm, {
-		say,
-		count: doneItems.length,
-		onCancel: dismissClearConfirm,
-		onConfirm: confirmClearDone
-	}) : null, showDone ? h$1("ul", { className: "dsh-an-rows dsh-an-doneRows" }, doneItems.map(row)) : null) : null));
-}
-
-// src/client/storage/codec.ts
-/** The browser store, or null when storage is blocked. */
-/** The browser store, or null when storage is blocked. */
-function storage() {
-	try {
-		return window.localStorage;
-	} catch {
-		return null;
-	}
-}
-
 // src/client/storage/events.ts
 /**
 * Same-tab change bus.
@@ -961,6 +447,17 @@ function notifyTodoChange() {
 		listener();
 	} catch (error) {
 		console.error("dsh-asidenote: listener failed", error);
+	}
+}
+
+// src/client/storage/codec.ts
+/** The browser store, or null when storage is blocked. */
+/** The browser store, or null when storage is blocked. */
+function storage() {
+	try {
+		return window.localStorage;
+	} catch {
+		return null;
 	}
 }
 
@@ -1025,44 +522,54 @@ function writeSessionRecord(sessionId, record) {
 	}
 }
 
-// src/client/storage/migrate.ts
-/** One-time marker; its presence means the copy below already ran successfully. */
-const MIGRATED_KEY = "dsh.aside-notes.migrated.v2";
-/**
-* The 1.x keys, read once and copied verbatim.
-*
-* They are never deleted: a user who rolls back to 1.9.x still finds their
-* notes, and a half-finished copy is retried on the next load because the
-* marker is only written after the whole loop succeeds.
-*/
-const LEGACY_KEYS = [
-	[SESSION_STORAGE_KEY, "dsh.session-memos.v1"],
-	[DRAFT_STORAGE_KEY, "dsh.memo.drafts.v1"],
-	[FORWARDED_STORAGE_KEY, "dsh.memo.forwarded.v1"],
-	[SECTION_STATE_KEY, "dsh.memo.sections.v1"],
-	[PANEL_WIDTH_KEY, "dsh.memo.panel-width.v1"],
-	[PANEL_HEIGHT_KEY, "dsh.memo.panel-height.v1"],
-	[SEND_SHORTCUT_KEY, "dsh.memo.send-shortcut.v1"],
-	[FORWARD_PREFIX_STORAGE_KEY, "dsh.memo.forward-prefix.v1"]
-];
-/**
-* Copy 1.x storage into the AsideNote keys.
-*
-* Runs before anything reads the store. A newer value already present wins, so
-* the migration never overwrites what the user did after upgrading.
-*/
-function migrateLegacyStorage() {
-	const ls = storage();
-	if (!ls) return;
-	try {
-		if (ls.getItem(MIGRATED_KEY) !== null) return;
-		for (const [next, legacy] of LEGACY_KEYS) {
-			if (ls.getItem(next) !== null) continue;
-			const raw = ls.getItem(legacy);
-			if (raw !== null) ls.setItem(next, raw);
-		}
-		ls.setItem(MIGRATED_KEY, (/* @__PURE__ */ new Date()).toISOString());
-	} catch {}
+// src/client/ui/useSessionMemoStore.ts
+/** Per-session notes plus a synchronous writer that never invents state. */
+/** Per-session memos plus a synchronous writer that never invents state. */
+function useSessionMemoStore(sessionId) {
+	const sessionKey = sessionId ? String(sessionId) : "";
+	const sessionRef = react.default.useRef(sessionKey);
+	sessionRef.current = sessionKey;
+	const [record, setRecord] = react.default.useState(() => readSessionRecord(sessionKey));
+	const [syncError, setSyncError] = react.default.useState(false);
+	const recordRef = react.default.useRef(record);
+	recordRef.current = record;
+	react.default.useEffect(() => {
+		setRecord(readSessionRecord(sessionRef.current));
+		setSyncError(false);
+	}, [sessionKey]);
+	react.default.useEffect(() => {
+		const onStorage = (event) => {
+			if (event.key !== "dsh.aside-notes.v2") return;
+			setRecord(readSessionRecord(sessionRef.current));
+		};
+		const onLocal = () => setRecord(readSessionRecord(sessionRef.current));
+		TODO_LISTENERS.add(onLocal);
+		window.addEventListener("storage", onStorage);
+		return () => {
+			TODO_LISTENERS.delete(onLocal);
+			window.removeEventListener("storage", onStorage);
+		};
+	}, []);
+	return {
+		record,
+		syncError,
+		commit: react.default.useCallback((updater) => {
+			const current = recordRef.current || {
+				items: [],
+				updatedAt: 0
+			};
+			const next = {
+				items: normalizeItems(updater(current.items || [])),
+				updatedAt: Date.now()
+			};
+			const ok = writeSessionRecord(sessionRef.current, next);
+			setSyncError(!ok);
+			if (!ok) return false;
+			recordRef.current = next;
+			setRecord(next);
+			return true;
+		}, [])
+	};
 }
 
 // src/client/storage/prefs.ts
@@ -1164,6 +671,234 @@ function writeSectionState(state) {
 			done: state.done === true
 		}));
 	} catch {}
+}
+
+// src/client/ui/position.ts
+/**
+* Mark the section head that is actually pinned to the scroller's top edge.
+* Sticky heads stay transparent in flow; only the pinned one takes the menu
+* group-header fill, so no full-width layer sits over the list at rest.
+*/
+function syncStickyHeads(node) {
+	const areaTop = node.getBoundingClientRect().top;
+	for (const head of node.querySelectorAll(".dsh-an-sectionHead, .dsh-an-doneHead")) {
+		const section = head.parentElement;
+		if (!section) continue;
+		const rect = section.getBoundingClientRect();
+		head.toggleAttribute("data-stuck", rect.top < areaTop && rect.bottom > areaTop);
+	}
+}
+/**
+* Frame-owned top safety margin for floating surfaces. Read from the layout
+* rather than baked in, so macOS window chrome and the Windows titlebar both
+* keep their clearance without this page touching the global variable.
+*/
+function overlayTopFloor(margin) {
+	try {
+		const raw = getComputedStyle(document.body).getPropertyValue("--dsh-frame-overlay-top").trim();
+		const value = Number.parseFloat(raw);
+		if (Number.isFinite(value) && value > 0) return Math.max(margin, value);
+	} catch {}
+	return margin;
+}
+/**
+* Fixed panel placement: a right-side panel for the experimental entry,
+* otherwise below the anchor. Both stay inside the viewport margin, and the
+* gap side is only abandoned when the opposite side genuinely fits.
+*/
+function memoPopoverStyle(anchor, placement, requestedWidth, requestedHeight) {
+	const margin = window.innerWidth <= 480 ? 12 : 16;
+	const topFloor = overlayTopFloor(margin);
+	const available = Math.max(280, window.innerWidth - margin * 2);
+	const width = Math.max(280, Math.min(720, available, requestedWidth || 360));
+	if (placement === "right") {
+		const rect = anchor && anchor.isConnected ? anchor.getBoundingClientRect() : null;
+		let desiredRight = rect && rect.width > 0 ? rect.right : window.innerWidth - margin;
+		const sidebar = [...document.querySelectorAll("[data-sidebar-right-panel][data-sidebar-right-open]")].find((node) => {
+			const box = node.getBoundingClientRect();
+			return box.width > 24 && box.left > 0 && box.left < window.innerWidth - 24;
+		});
+		if (sidebar) desiredRight = Math.min(desiredRight, sidebar.getBoundingClientRect().left - 8);
+		const rightInset = Math.max(margin, Math.min(window.innerWidth - margin, window.innerWidth - desiredRight));
+		const top = rect && rect.width > 0 ? Math.max(topFloor, Math.round(rect.bottom + 8)) : topFloor;
+		const maxHeight = Math.max(160, window.innerHeight - top - margin);
+		const height = requestedHeight ? Math.max(Math.min(240, maxHeight), Math.min(maxHeight, requestedHeight)) : 0;
+		const style = {
+			right: `${rightInset}px`,
+			left: "auto",
+			top: `${top}px`,
+			width: `${width}px`,
+			maxHeight: `${maxHeight}px`
+		};
+		if (height) style.height = `${height}px`;
+		return style;
+	}
+	const maxHeight = Math.max(160, Math.min(460, window.innerHeight - topFloor - margin));
+	if (!anchor) return {
+		left: `${margin}px`,
+		top: `${topFloor}px`,
+		width: `${width}px`,
+		maxHeight: `${maxHeight}px`
+	};
+	const rect = anchor.getBoundingClientRect();
+	const left = rect.left < 420 ? Math.max(margin, rect.left) : Math.max(margin, Math.min(rect.right - width, window.innerWidth - width - margin));
+	let top = rect.bottom + 8;
+	if (top + maxHeight > window.innerHeight - margin) top = Math.max(topFloor, rect.top - maxHeight - 8);
+	return {
+		left: `${left}px`,
+		top: `${top}px`,
+		width: `${width}px`,
+		maxHeight: `${maxHeight}px`
+	};
+}
+
+// src/client/ui/usePanelGeometry.ts
+/** Panel geometry: remembered width/height, pointer and keyboard resize, placement. */
+function usePanelGeometry(anchorRef, placement, panelRef) {
+	const [panelWidth, setPanelWidth] = react.default.useState(readPanelWidth);
+	const [panelHeight, setPanelHeight] = react.default.useState(readPanelHeight);
+	const [style, setStyle] = react.default.useState(() => memoPopoverStyle(anchorRef.current, placement, panelWidth, panelHeight));
+	const panelWidthRef = react.default.useRef(panelWidth);
+	const panelHeightRef = react.default.useRef(panelHeight);
+	const lastStyleRef = react.default.useRef("");
+	const updatePosition = react.default.useCallback(() => {
+		if (anchorRef.current || placement === "right") {
+			const next = memoPopoverStyle(anchorRef.current, placement, panelWidth, panelHeight);
+			const key = JSON.stringify(next);
+			if (key === lastStyleRef.current) return;
+			lastStyleRef.current = key;
+			setStyle(next);
+		}
+	}, [
+		anchorRef,
+		placement,
+		panelWidth,
+		panelHeight
+	]);
+	react.default.useEffect(() => {
+		panelWidthRef.current = panelWidth;
+	}, [panelWidth]);
+	react.default.useEffect(() => {
+		panelHeightRef.current = panelHeight;
+	}, [panelHeight]);
+	const clampPanelWidth = (value) => {
+		const max = Math.min(720, Math.max(280, window.innerWidth - 32));
+		return Math.max(280, Math.min(max, value));
+	};
+	const commitPanelWidth = (value) => {
+		const next = clampPanelWidth(value);
+		panelWidthRef.current = next;
+		setPanelWidth(next);
+		writePanelWidth(next);
+	};
+	const startPanelResize = (event) => {
+		if (event.button !== 0) return;
+		event.preventDefault();
+		const startX = event.clientX;
+		const startWidth = panelWidthRef.current;
+		const onMove = (moveEvent) => {
+			const next = clampPanelWidth(startWidth + (startX - moveEvent.clientX));
+			panelWidthRef.current = next;
+			setPanelWidth(next);
+		};
+		const onUp = () => {
+			window.removeEventListener("pointermove", onMove);
+			window.removeEventListener("pointerup", onUp);
+			document.body.style.userSelect = "";
+			document.body.style.cursor = "";
+			writePanelWidth(panelWidthRef.current);
+		};
+		window.addEventListener("pointermove", onMove);
+		window.addEventListener("pointerup", onUp, { once: true });
+		document.body.style.userSelect = "none";
+		document.body.style.cursor = "ew-resize";
+	};
+	const onPanelResizeKeyDown = (event) => {
+		if (event.key === "ArrowLeft") {
+			event.preventDefault();
+			commitPanelWidth(panelWidthRef.current + 16);
+		} else if (event.key === "ArrowRight") {
+			event.preventDefault();
+			commitPanelWidth(panelWidthRef.current - 16);
+		} else if (event.key === "Home") {
+			event.preventDefault();
+			commitPanelWidth(360);
+		}
+	};
+	const clampPanelHeight = (value) => {
+		const max = Math.max(240, window.innerHeight - 64 - 16);
+		return Math.max(240, Math.min(max, value));
+	};
+	const commitPanelHeight = (value) => {
+		const next = value > 0 ? clampPanelHeight(value) : 0;
+		panelHeightRef.current = next;
+		setPanelHeight(next);
+		writePanelHeight(next);
+	};
+	const startPanelHeightResize = (event) => {
+		if (event.button !== 0) return;
+		event.preventDefault();
+		const startY = event.clientY;
+		const startHeight = panelHeightRef.current || (panelRef.current ? panelRef.current.getBoundingClientRect().height : 360);
+		const onMove = (moveEvent) => {
+			const next = clampPanelHeight(startHeight + (moveEvent.clientY - startY));
+			panelHeightRef.current = next;
+			setPanelHeight(next);
+		};
+		const onUp = () => {
+			window.removeEventListener("pointermove", onMove);
+			window.removeEventListener("pointerup", onUp);
+			document.body.style.userSelect = "";
+			document.body.style.cursor = "";
+			writePanelHeight(panelHeightRef.current);
+		};
+		window.addEventListener("pointermove", onMove);
+		window.addEventListener("pointerup", onUp, { once: true });
+		document.body.style.userSelect = "none";
+		document.body.style.cursor = "ns-resize";
+	};
+	const onPanelHeightKeyDown = (event) => {
+		if (event.key === "ArrowDown") {
+			event.preventDefault();
+			commitPanelHeight((panelHeightRef.current || 360) + 16);
+		} else if (event.key === "ArrowUp") {
+			event.preventDefault();
+			commitPanelHeight((panelHeightRef.current || 360) - 16);
+		} else if (event.key === "Home") {
+			event.preventDefault();
+			commitPanelHeight(0);
+		}
+	};
+	react.default.useLayoutEffect(() => {
+		updatePosition();
+		window.addEventListener("resize", updatePosition);
+		window.addEventListener("scroll", updatePosition, true);
+		return () => {
+			window.removeEventListener("resize", updatePosition);
+			window.removeEventListener("scroll", updatePosition, true);
+		};
+	}, [updatePosition]);
+	react.default.useEffect(() => {
+		const anchor = anchorRef.current;
+		if (!anchor || typeof ResizeObserver !== "function") return void 0;
+		const target = anchor.closest("[class*=\"_header\"]") || anchor;
+		const observer = new ResizeObserver(updatePosition);
+		observer.observe(target);
+		return () => observer.disconnect();
+	}, [anchorRef, updatePosition]);
+	react.default.useEffect(() => {
+		const timer = window.setInterval(updatePosition, 400);
+		return () => window.clearInterval(timer);
+	}, [updatePosition]);
+	return {
+		style,
+		commitPanelWidth,
+		commitPanelHeight,
+		startPanelResize,
+		startPanelHeightResize,
+		onPanelResizeKeyDown,
+		onPanelHeightKeyDown
+	};
 }
 
 // src/client/storage/drafts.ts
@@ -1346,67 +1081,439 @@ function forgetForwarded(sessionId, itemIds) {
 	return writeForwardedStore(store);
 }
 
-// src/client/ui/useSessionMemoStore.ts
-/** Per-session notes plus a synchronous writer that never invents state. */
-/** Per-session memos plus a synchronous writer that never invents state. */
-function useSessionMemoStore(sessionId) {
-	const sessionKey = sessionId ? String(sessionId) : "";
-	const sessionRef = react.default.useRef(sessionKey);
-	sessionRef.current = sessionKey;
-	const [record, setRecord] = react.default.useState(() => readSessionRecord(sessionKey));
-	const [syncError, setSyncError] = react.default.useState(false);
-	const recordRef = react.default.useRef(record);
-	recordRef.current = record;
-	react.default.useEffect(() => {
-		setRecord(readSessionRecord(sessionRef.current));
-		setSyncError(false);
-	}, [sessionKey]);
-	react.default.useEffect(() => {
-		const onStorage = (event) => {
-			if (event.key !== "dsh.aside-notes.v2") return;
-			setRecord(readSessionRecord(sessionRef.current));
-		};
-		const onLocal = () => setRecord(readSessionRecord(sessionRef.current));
-		TODO_LISTENERS.add(onLocal);
-		window.addEventListener("storage", onStorage);
-		return () => {
-			TODO_LISTENERS.delete(onLocal);
-			window.removeEventListener("storage", onStorage);
-		};
-	}, []);
-	return {
-		record,
-		syncError,
-		commit: react.default.useCallback((updater) => {
-			const current = recordRef.current || {
-				items: [],
-				updatedAt: 0
-			};
-			const next = {
-				items: normalizeItems(updater(current.items || [])),
-				updatedAt: Date.now()
-			};
-			const ok = writeSessionRecord(sessionRef.current, next);
-			setSyncError(!ok);
-			if (!ok) return false;
-			recordRef.current = next;
-			setRecord(next);
-			return true;
-		}, [])
+// src/client/domain/forward.ts
+/** Append a note to the conversation composer (Lexical contenteditable or textarea). */
+/** Append one note to the conversation composer (Lexical contenteditable or textarea). */
+function appendToConversation(text, prefix = "") {
+	const note = String(text || "").replace(/^\s+|\s+$/g, "");
+	if (!note) return false;
+	const bullet = `- ${note}`;
+	const lead = prefix ? String(prefix).trim() : "";
+	const emptyBlock = lead ? `${lead}\n${bullet}` : bullet;
+	const visible = (node) => {
+		const rect = node.getBoundingClientRect();
+		return rect.width > 0 && rect.height > 0;
 	};
+	const specific = [...document.querySelectorAll("[data-composer-input]")].filter(visible);
+	const editor = (specific.length ? specific : [...document.querySelectorAll("[contenteditable=\"true\"][role=\"textbox\"], textarea[role=\"textbox\"]")].filter(visible))[0];
+	if (!editor) return false;
+	/** Payload for a composer whose current plain text is `current`. */
+	const payloadFor = (current) => {
+		const value = typeof current === "string" ? current : "";
+		if (!value.trim()) return emptyBlock;
+		return value.endsWith("\n") ? bullet : `\n${bullet}`;
+	};
+	if (editor.tagName === "TEXTAREA") {
+		const textarea = editor;
+		const current = textarea.value;
+		const payload = payloadFor(current);
+		Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value").set.call(textarea, `${current}${payload}`);
+		textarea.dispatchEvent(new Event("input", { bubbles: true }));
+		textarea.focus();
+		const end = textarea.value.length;
+		textarea.setSelectionRange(end, end);
+		return true;
+	}
+	const payload = payloadFor(typeof editor.innerText === "string" ? editor.innerText : "");
+	editor.focus();
+	try {
+		const range = document.createRange();
+		range.selectNodeContents(editor);
+		range.collapse(false);
+		const selection = window.getSelection();
+		selection.removeAllRanges();
+		selection.addRange(range);
+	} catch {}
+	try {
+		const data = new DataTransfer();
+		data.setData("text/plain", payload);
+		const event = new ClipboardEvent("paste", {
+			bubbles: true,
+			cancelable: true,
+			clipboardData: data
+		});
+		if (!editor.dispatchEvent(event)) return true;
+	} catch {}
+	try {
+		return document.execCommand("insertText", false, payload);
+	} catch {
+		return false;
+	}
 }
 
-// src/client/index.ts
+// src/client/domain/clipboard.ts
+/** Clipboard write with a synchronous fallback. */
+/** Copy plain text, with a synchronous fallback for restricted clipboards. */
+async function copyText(text) {
+	try {
+		if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+			await navigator.clipboard.writeText(text);
+			return true;
+		}
+	} catch {}
+	try {
+		const area = document.createElement("textarea");
+		area.value = text;
+		area.setAttribute("readonly", "");
+		area.style.position = "fixed";
+		area.style.opacity = "0";
+		document.body.appendChild(area);
+		area.select();
+		const ok = document.execCommand("copy");
+		area.remove();
+		return ok;
+	} catch {
+		return false;
+	}
+}
+
+// src/client/ui/TodoRow.ts
+/** One note: checkbox, actions, inline edit and the forwarded mark. */
+const h$8 = react.default.createElement;
+function TodoRow(props) {
+	const { item, done, say, onToast, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onEditDraftChange, onFinishEdit, onCancelEdit, editRef, forwardPrefix, sendShortcut = SEND_SHORTCUT_DEFAULT, forwarded = false, onForwarded, onUnforwarded } = props;
+	const editHintKey = sendShortcut === "enter" ? "edit.hintEnter" : "edit.hintCtrlEnter";
+	const [pending, setPending] = react.default.useState("");
+	const mountedRef = react.default.useRef(true);
+	react.default.useEffect(() => {
+		mountedRef.current = true;
+		return () => {
+			mountedRef.current = false;
+		};
+	}, []);
+	const copy = async () => {
+		if (pending) return;
+		setPending("copy");
+		let ok = false;
+		try {
+			ok = await copyText(item.text);
+		} finally {
+			if (mountedRef.current) setPending("");
+		}
+		if (!mountedRef.current) return;
+		if (onToast) onToast(ok ? "copied" : "copyFailed");
+	};
+	const forward = () => {
+		if (forwarded) {
+			if (onUnforwarded) onUnforwarded(item);
+			if (onToast) onToast("unforwarded");
+			return;
+		}
+		if (!appendToConversation(item.text, forwardPrefix)) {
+			if (onToast) onToast("forwardFailed");
+			return;
+		}
+		if (onForwarded) onForwarded(item);
+		if (onToast) onToast("forwarded");
+	};
+	const toggleCheck = () => onToggle(item);
+	const resizeEditor = (node) => {
+		if (!node) return;
+		node.style.height = "auto";
+		node.style.height = `${node.scrollHeight + 2}px`;
+	};
+	const setEditorRef = react.default.useCallback((node) => {
+		editRef.current = node;
+		if (node) {
+			node.style.height = "auto";
+			node.style.height = `${node.scrollHeight + 2}px`;
+		}
+	}, [editRef]);
+	/** Insert a line break at the caret of the controlled edit textarea and keep focus there. */
+	const insertEditNewline = (node) => {
+		if (!node) return;
+		const start = node.selectionStart === null ? node.value.length : node.selectionStart;
+		const end = node.selectionEnd === null ? start : node.selectionEnd;
+		const next = `${node.value.slice(0, start)}\n${node.value.slice(end)}`;
+		const caret = start + 1;
+		setEditDraft(next);
+		if (onEditDraftChange) onEditDraftChange(next);
+		window.requestAnimationFrame(() => {
+			node.focus();
+			try {
+				node.setSelectionRange(caret, caret);
+			} catch {}
+			resizeEditor(node);
+		});
+	};
+	const body = editing ? h$8("div", { className: "dsh-an-edit" }, h$8("textarea", {
+		ref: setEditorRef,
+		className: "dsh-an-editInput",
+		value: editDraft,
+		rows: 1,
+		maxLength: 280,
+		"aria-label": say("item.edit"),
+		onChange: (event) => {
+			const value = event.target.value;
+			setEditDraft(value);
+			if (onEditDraftChange) onEditDraftChange(value);
+			resizeEditor(event.target);
+		},
+		onKeyDown: (event) => {
+			if (event.isComposing || event.nativeEvent && event.nativeEvent.isComposing) return;
+			if (event.key === "Escape") {
+				event.preventDefault();
+				onCancelEdit();
+				return;
+			}
+			if (event.key !== "Enter") return;
+			const chord = event.ctrlKey || event.metaKey;
+			const platformModifier = isSendModifier(event);
+			if (sendShortcut === "enter") {
+				if (!chord && !event.shiftKey) {
+					event.preventDefault();
+					onFinishEdit(item);
+				} else {
+					event.preventDefault();
+					insertEditNewline(event.currentTarget);
+				}
+				return;
+			}
+			if (platformModifier) {
+				event.preventDefault();
+				if (event.shiftKey) insertEditNewline(event.currentTarget);
+				else onFinishEdit(item);
+			} else if (event.shiftKey) {
+				event.preventDefault();
+				insertEditNewline(event.currentTarget);
+			}
+		},
+		onBlur: () => onFinishEdit(item)
+	}), h$8("div", { className: "dsh-an-editActions" }, h$8("button", {
+		type: "button",
+		className: "dsh-an-mini dsh-an-miniPrimary",
+		onMouseDown: (event) => event.preventDefault(),
+		onClick: () => onFinishEdit(item)
+	}, say("edit.save")), h$8("button", {
+		type: "button",
+		className: "dsh-an-mini",
+		onMouseDown: (event) => event.preventDefault(),
+		onClick: onCancelEdit
+	}, say("edit.cancel")), h$8("span", {
+		className: "dsh-an-editHint",
+		title: say(editHintKey, { mod: MOD_LABEL })
+	}, say(editHintKey, { mod: MOD_LABEL })))) : h$8("div", {
+		className: "dsh-an-text",
+		title: say("item.editHint"),
+		onDoubleClick: () => onStartEdit(item)
+	}, item.text);
+	const checked = done === true;
+	return h$8("li", { className: done ? "dsh-an-row dsh-an-rowDone" : "dsh-an-row" }, h$8("button", {
+		type: "button",
+		className: "dsh-an-check",
+		role: "checkbox",
+		"aria-checked": checked ? "true" : "false",
+		"aria-label": say(done ? "item.markOpen" : "item.markDone"),
+		onClick: toggleCheck
+	}, h$8("span", { className: "dsh-an-checkCircle" }, checked ? h$8(IconCheck, { size: 9 }) : null)), h$8("div", { className: "dsh-an-itemBody" }, body, editing ? null : h$8("div", { className: "dsh-an-rowFoot" }, h$8("span", {
+		className: "dsh-an-meta",
+		title: metaLabel(item, say, props.localeId)
+	}, metaLabel(item, say, props.localeId)), h$8("div", { className: "dsh-an-actions" }, withTooltip(say("item.copy"), h$8("button", {
+		type: "button",
+		className: "dsh-an-iconBtn",
+		"aria-label": say("item.copy"),
+		"aria-busy": pending === "copy" ? "true" : "false",
+		"data-loading": pending === "copy" ? "true" : void 0,
+		onClick: copy
+	}, h$8(IconCopy, null))), done ? null : withTooltip(say(forwarded ? "item.forwarded" : "item.forward"), h$8("button", {
+		type: "button",
+		className: "dsh-an-iconBtn",
+		"aria-label": say(forwarded ? "item.forwarded" : "item.forward"),
+		"data-forwarded": forwarded ? "true" : void 0,
+		onClick: forward
+	}, h$8(IconForward, null), forwarded ? h$8("span", {
+		className: "dsh-an-forwardMark",
+		"aria-hidden": true
+	}, h$8(IconCheck, { size: 8 })) : null)), withTooltip(say("item.edit"), h$8("button", {
+		type: "button",
+		className: "dsh-an-iconBtn",
+		"aria-label": say("item.edit"),
+		onClick: () => onStartEdit(item)
+	}, h$8(IconPencil, null))), withTooltip(say("item.delete"), h$8("button", {
+		type: "button",
+		className: "dsh-an-iconBtn dsh-an-iconBtnDanger",
+		"aria-label": say("item.delete"),
+		onClick: () => onDelete(item)
+	}, h$8(IconTrash, null)))))));
+}
+
+// src/client/ui/PanelHead.ts
+/** Panel title, counts and the settings/close actions. */
+const h$7 = react.default.createElement;
+function PanelHead(props) {
+	const { say, openCount, total, showSettings, onToggleSettings, onClose } = props;
+	return h$7("div", { className: "dsh-an-popHead" }, h$7("div", { className: "dsh-an-popTitleLine" }, h$7("div", { className: "dsh-an-popTitle" }, say("popover.title")), h$7("p", { className: "dsh-an-popMeta" }, say("popover.count", {
+		open: openCount,
+		total
+	}))), h$7("div", { className: "dsh-an-popActions" }, withTooltip(say("settings.open"), h$7("button", {
+		type: "button",
+		className: "dsh-an-settingsBtn",
+		"data-active": showSettings ? "true" : void 0,
+		"aria-label": say("settings.open"),
+		"aria-expanded": showSettings,
+		onClick: onToggleSettings
+	}, h$7(IconGear, null))), withTooltip(say("popover.close"), h$7("button", {
+		type: "button",
+		className: "dsh-an-popClose",
+		"aria-label": say("popover.close"),
+		onClick: onClose
+	}, h$7(IconClose, null)))));
+}
+
+// src/client/ui/SettingsPanel.ts
+/** Settings card: send shortcut, forward prefix and about. */
+const h$6 = react.default.createElement;
+function SettingsPanel(props) {
+	const { say, sendShortcut, chooseShortcut, forwardPrefix, changeForwardPrefix, prefixRef } = props;
+	return h$6("div", { className: "dsh-an-settings" }, h$6("div", { className: "dsh-an-settingsHead" }, say("settings.title")), h$6("div", { className: "dsh-an-settingGroup" }, h$6("div", { className: "dsh-an-settingLabel" }, say("settings.shortcut")), h$6("div", { className: "dsh-an-settingBody" }, h$6("div", { className: "dsh-an-settingChoices" }, h$6("label", { className: "dsh-an-settingChoice" }, h$6("input", {
+		type: "radio",
+		name: "dsh-an-send-shortcut",
+		checked: sendShortcut === "enter",
+		onChange: () => chooseShortcut("enter")
+	}), h$6("span", null, say("settings.shortcutEnter", { mod: MOD_LABEL }))), h$6("label", { className: "dsh-an-settingChoice" }, h$6("input", {
+		type: "radio",
+		name: "dsh-an-send-shortcut",
+		checked: sendShortcut === "ctrl-enter",
+		onChange: () => chooseShortcut("ctrl-enter")
+	}), h$6("span", null, say("settings.shortcutCtrlEnter", { mod: MOD_LABEL })))))), h$6("div", { className: "dsh-an-settingGroup" }, h$6("div", { className: "dsh-an-settingLabel" }, say("settings.forward")), h$6("div", { className: "dsh-an-settingBody" }, h$6("div", { className: "dsh-an-settingItem" }, h$6("textarea", {
+		id: "dsh-an-forward-prefix",
+		ref: prefixRef,
+		className: "dsh-an-settingInput dsh-an-settingTextarea",
+		value: forwardPrefix,
+		rows: 1,
+		maxLength: 80,
+		placeholder: say("forward.prefix"),
+		"aria-label": say("settings.forwardPrefixItem"),
+		"aria-describedby": "dsh-an-forward-prefix-hint",
+		style: {
+			fontFamily: "inherit",
+			fontSize: "var(--an-fs-row)",
+			lineHeight: "var(--an-lh-row)",
+			fontWeight: 500
+		},
+		onChange: (event) => changeForwardPrefix(event.target.value)
+	}), h$6("p", {
+		id: "dsh-an-forward-prefix-hint",
+		className: "dsh-an-settingHint"
+	}, say("settings.forwardPrefixHint"))))), h$6("div", { className: "dsh-an-settingGroup" }, h$6("div", { className: "dsh-an-settingLabel" }, say("settings.about")), h$6("div", { className: "dsh-an-settingBody" }, h$6("div", { className: "dsh-an-settingAbout" }, h$6("span", null, `${say("settings.version")} ${PLUGIN_VERSION}`), h$6("span", {
+		className: "dsh-an-settingDot",
+		"aria-hidden": true
+	}, "·"), h$6("span", null, `${say("settings.author")} ${PLUGIN_AUTHOR}`)), h$6("div", { className: "dsh-an-settingProject" }, h$6("span", null, say("settings.project")), h$6("a", {
+		className: "dsh-an-settingLink",
+		href: PLUGIN_REPO_URL,
+		target: "_blank",
+		rel: "noreferrer",
+		title: PLUGIN_REPO_URL
+	}, PLUGIN_REPO_LABEL)))));
+}
+
+// src/client/ui/ComposerForm.ts
+/** The add form: one growing textarea, the shortcut hint and the submit button. */
+const h$5 = react.default.createElement;
+function ComposerForm(props) {
+	const { say, draft, inputRef, sendShortcut, onDraftChange, onCompositionStart, onCompositionEnd, onKeyDown, onSubmit } = props;
+	return h$5("form", {
+		className: "dsh-an-add",
+		onSubmit
+	}, h$5("textarea", {
+		ref: inputRef,
+		className: "dsh-an-input",
+		value: draft,
+		rows: 1,
+		maxLength: 280,
+		placeholder: say("add.placeholder"),
+		"aria-label": say("add.placeholder"),
+		onChange: onDraftChange,
+		onCompositionStart,
+		onCompositionEnd,
+		onKeyDown
+	}), h$5("div", { className: "dsh-an-addFoot" }, h$5("span", { className: "dsh-an-addShortcut" }, say(sendShortcut === "enter" ? "add.shortcutEnter" : "add.shortcut", { mod: MOD_LABEL })), h$5("button", {
+		type: "submit",
+		className: "dsh-an-addBtn",
+		disabled: !draft.trim()
+	}, say("add.action"))));
+}
+
+// src/client/ui/ClearConfirm.ts
+/** Inline second confirmation for clearing the completed notes. */
+const h$4 = react.default.createElement;
+function ClearConfirm(props) {
+	const { say, count, onCancel, onConfirm } = props;
+	return h$4("div", {
+		className: "dsh-an-clearConfirm",
+		role: "group",
+		"aria-live": "polite",
+		"aria-label": say("popover.clearConfirm", { n: count })
+	}, h$4("p", { className: "dsh-an-clearConfirmText" }, say("popover.clearConfirm", { n: count })), h$4("div", { className: "dsh-an-clearConfirmActions" }, h$4("button", {
+		type: "button",
+		className: "dsh-an-mini",
+		onClick: onCancel
+	}, say("popover.clearCancel")), h$4("button", {
+		type: "button",
+		className: "dsh-an-mini dsh-an-miniDanger",
+		onClick: onConfirm
+	}, say("popover.clearConfirmAction"))));
+}
+
+// src/client/ui/EmptyState.ts
+const h$3 = react.default.createElement;
+function EmptyState(props) {
+	return h$3("div", { className: "dsh-an-empty" }, h$3("div", { className: "dsh-an-emptyIcon" }, h$3(IconEmpty, null)), h$3("div", { className: "dsh-an-emptyTitle" }, props.title), h$3("div", { className: "dsh-an-emptyBody" }, props.body));
+}
+
+// src/client/ui/NoteList.ts
+/** Open/completed sections, their sticky heads, rows and the clear confirmation. */
+const h$2 = react.default.createElement;
+function NoteList(props) {
+	const { say, listRef, listHasMore, syncListEdge, showOpen, toggleOpen, openItems, openCount, total, row, showDone, toggleDone, doneItems, confirmClear, askClearConfirm, dismissClearConfirm, confirmClearDone } = props;
+	return h$2("div", {
+		className: "dsh-an-listViewport",
+		"data-bottom": listHasMore ? "true" : void 0
+	}, h$2("div", {
+		className: "dsh-an-listArea",
+		ref: listRef,
+		onScroll: syncListEdge
+	}, h$2("div", { className: "dsh-an-listSection" }, h$2("div", { className: "dsh-an-sectionHead" }, h$2("button", {
+		type: "button",
+		className: "dsh-an-doneToggle",
+		"aria-expanded": showOpen ? "true" : "false",
+		onClick: toggleOpen
+	}, h$2("span", {
+		className: "dsh-an-chevron",
+		"data-open": showOpen ? "true" : "false"
+	}, h$2(IconChevron, null)), say("list.open"), openCount ? h$2("span", { className: "dsh-an-sectionCount" }, String(openCount)) : null)), showOpen ? openItems.length ? h$2("ul", { className: "dsh-an-rows" }, openItems.map(row)) : h$2(EmptyState, {
+		title: say(total ? "list.allDone.title" : "popover.empty.title"),
+		body: say(total ? "list.allDone.body" : "popover.empty.body")
+	}) : null), doneItems.length ? h$2("div", { className: "dsh-an-listSection" }, h$2("div", { className: "dsh-an-doneHead" }, h$2("button", {
+		type: "button",
+		className: "dsh-an-doneToggle",
+		"aria-expanded": showDone ? "true" : "false",
+		onClick: toggleDone
+	}, h$2("span", {
+		className: "dsh-an-chevron",
+		"data-open": showDone ? "true" : "false"
+	}, h$2(IconChevron, null)), say("popover.completed"), h$2("span", { className: "dsh-an-sectionCount" }, String(doneItems.length))), showDone ? h$2("button", {
+		type: "button",
+		className: "dsh-an-clear",
+		"aria-expanded": confirmClear ? "true" : "false",
+		onClick: askClearConfirm
+	}, say("popover.clearDone")) : null), showDone && confirmClear ? h$2(ClearConfirm, {
+		say,
+		count: doneItems.length,
+		onCancel: dismissClearConfirm,
+		onConfirm: confirmClearDone
+	}) : null, showDone ? h$2("ul", { className: "dsh-an-rows dsh-an-doneRows" }, doneItems.map(row)) : null) : null));
+}
+
+// src/client/ui/MemoPopover.ts
 /**
-* AsideNote browser half.
+* The floating notes panel.
 *
-* The plugin entry: injects the stylesheet, binds the locale namespace and
-* seats the two slots (session capture + frame-wide toast host) plus the
-* host-owned header entry. Copy, storage, domain rules and the panel UI live
-* in their own modules; P2 splits the remaining UI out of this file.
+* State, handlers and effects for one session's notes; the markup lives in the
+* sibling components, the geometry in usePanelGeometry and the store in
+* useSessionMemoStore.
 */
-const h = react.default.createElement;
-/** Compact floating memo list, anchored to the entry that opened it. */
+const h$1 = react.default.createElement;
 function MemoPopover(props) {
 	const say = props.say;
 	const localeId = props.localeId;
@@ -1427,15 +1534,10 @@ function MemoPopover(props) {
 	const [forwardPrefix, setForwardPrefix] = react.default.useState(readForwardPrefix);
 	const [forwardedIds, setForwardedIds] = react.default.useState(() => readForwardedIds(sessionId));
 	const forwardedSessionRef = react.default.useRef(sessionId ? String(sessionId) : "");
-	const [panelWidth, setPanelWidth] = react.default.useState(readPanelWidth);
-	const [panelHeight, setPanelHeight] = react.default.useState(readPanelHeight);
-	const [style, setStyle] = react.default.useState(() => memoPopoverStyle(props.anchorRef.current, props.placement, panelWidth, panelHeight));
 	const [listHasMore, setListHasMore] = react.default.useState(false);
 	const panelRef = react.default.useRef(null);
+	const { style, commitPanelWidth, commitPanelHeight, startPanelResize, startPanelHeightResize, onPanelResizeKeyDown, onPanelHeightKeyDown } = usePanelGeometry(props.anchorRef, props.placement, panelRef);
 	const listRef = react.default.useRef(null);
-	const panelWidthRef = react.default.useRef(panelWidth);
-	const panelHeightRef = react.default.useRef(panelHeight);
-	const lastStyleRef = react.default.useRef("");
 	const editRef = react.default.useRef(null);
 	const addRef = react.default.useRef(null);
 	const prefixRef = react.default.useRef(null);
@@ -1472,135 +1574,6 @@ function MemoPopover(props) {
 			node.setSelectionRange(end, end);
 		} catch {}
 	}, []);
-	const updatePosition = react.default.useCallback(() => {
-		if (props.anchorRef.current || props.placement === "right") {
-			const next = memoPopoverStyle(props.anchorRef.current, props.placement, panelWidth, panelHeight);
-			const key = JSON.stringify(next);
-			if (key === lastStyleRef.current) return;
-			lastStyleRef.current = key;
-			setStyle(next);
-		}
-	}, [
-		props.anchorRef,
-		props.placement,
-		panelWidth,
-		panelHeight
-	]);
-	react.default.useEffect(() => {
-		panelWidthRef.current = panelWidth;
-	}, [panelWidth]);
-	react.default.useEffect(() => {
-		panelHeightRef.current = panelHeight;
-	}, [panelHeight]);
-	const clampPanelWidth = (value) => {
-		const max = Math.min(720, Math.max(280, window.innerWidth - 32));
-		return Math.max(280, Math.min(max, value));
-	};
-	const commitPanelWidth = (value) => {
-		const next = clampPanelWidth(value);
-		panelWidthRef.current = next;
-		setPanelWidth(next);
-		writePanelWidth(next);
-	};
-	const startPanelResize = (event) => {
-		if (event.button !== 0) return;
-		event.preventDefault();
-		const startX = event.clientX;
-		const startWidth = panelWidthRef.current;
-		const onMove = (moveEvent) => {
-			const next = clampPanelWidth(startWidth + (startX - moveEvent.clientX));
-			panelWidthRef.current = next;
-			setPanelWidth(next);
-		};
-		const onUp = () => {
-			window.removeEventListener("pointermove", onMove);
-			window.removeEventListener("pointerup", onUp);
-			document.body.style.userSelect = "";
-			document.body.style.cursor = "";
-			writePanelWidth(panelWidthRef.current);
-		};
-		window.addEventListener("pointermove", onMove);
-		window.addEventListener("pointerup", onUp, { once: true });
-		document.body.style.userSelect = "none";
-		document.body.style.cursor = "ew-resize";
-	};
-	const onPanelResizeKeyDown = (event) => {
-		if (event.key === "ArrowLeft") {
-			event.preventDefault();
-			commitPanelWidth(panelWidthRef.current + 16);
-		} else if (event.key === "ArrowRight") {
-			event.preventDefault();
-			commitPanelWidth(panelWidthRef.current - 16);
-		} else if (event.key === "Home") {
-			event.preventDefault();
-			commitPanelWidth(360);
-		}
-	};
-	const clampPanelHeight = (value) => {
-		const max = Math.max(240, window.innerHeight - 64 - 16);
-		return Math.max(240, Math.min(max, value));
-	};
-	const commitPanelHeight = (value) => {
-		const next = value > 0 ? clampPanelHeight(value) : 0;
-		panelHeightRef.current = next;
-		setPanelHeight(next);
-		writePanelHeight(next);
-	};
-	const startPanelHeightResize = (event) => {
-		if (event.button !== 0) return;
-		event.preventDefault();
-		const startY = event.clientY;
-		const startHeight = panelHeightRef.current || (panelRef.current ? panelRef.current.getBoundingClientRect().height : 360);
-		const onMove = (moveEvent) => {
-			const next = clampPanelHeight(startHeight + (moveEvent.clientY - startY));
-			panelHeightRef.current = next;
-			setPanelHeight(next);
-		};
-		const onUp = () => {
-			window.removeEventListener("pointermove", onMove);
-			window.removeEventListener("pointerup", onUp);
-			document.body.style.userSelect = "";
-			document.body.style.cursor = "";
-			writePanelHeight(panelHeightRef.current);
-		};
-		window.addEventListener("pointermove", onMove);
-		window.addEventListener("pointerup", onUp, { once: true });
-		document.body.style.userSelect = "none";
-		document.body.style.cursor = "ns-resize";
-	};
-	const onPanelHeightKeyDown = (event) => {
-		if (event.key === "ArrowDown") {
-			event.preventDefault();
-			commitPanelHeight((panelHeightRef.current || 360) + 16);
-		} else if (event.key === "ArrowUp") {
-			event.preventDefault();
-			commitPanelHeight((panelHeightRef.current || 360) - 16);
-		} else if (event.key === "Home") {
-			event.preventDefault();
-			commitPanelHeight(0);
-		}
-	};
-	react.default.useLayoutEffect(() => {
-		updatePosition();
-		window.addEventListener("resize", updatePosition);
-		window.addEventListener("scroll", updatePosition, true);
-		return () => {
-			window.removeEventListener("resize", updatePosition);
-			window.removeEventListener("scroll", updatePosition, true);
-		};
-	}, [updatePosition]);
-	react.default.useEffect(() => {
-		const anchor = props.anchorRef.current;
-		if (!anchor || typeof ResizeObserver !== "function") return void 0;
-		const target = anchor.closest("[class*=\"_header\"]") || anchor;
-		const observer = new ResizeObserver(updatePosition);
-		observer.observe(target);
-		return () => observer.disconnect();
-	}, [props.anchorRef, updatePosition]);
-	react.default.useEffect(() => {
-		const timer = window.setInterval(updatePosition, 400);
-		return () => window.clearInterval(timer);
-	}, [updatePosition]);
 	react.default.useEffect(() => {
 		const onPointerDown = (event) => {
 			if (panelRef.current && panelRef.current.contains(event.target)) return;
@@ -1855,7 +1828,7 @@ function MemoPopover(props) {
 			done: !sectionsRef.current.done
 		});
 	};
-	const row = (item) => h(TodoRow, {
+	const row = (item) => h$1(TodoRow, {
 		key: item.id,
 		item,
 		done: item.done,
@@ -1907,13 +1880,13 @@ function MemoPopover(props) {
 			insertDraftNewline(event.currentTarget);
 		}
 	};
-	const content = h("div", {
+	const content = h$1("div", {
 		ref: panelRef,
 		className: props.placement === "right" ? "dsh-an-popover dsh-an-popoverRight" : "dsh-an-popover",
 		style,
 		role: "dialog",
 		"aria-label": say("popover.title")
-	}, props.placement === "right" ? h("div", {
+	}, props.placement === "right" ? h$1("div", {
 		className: "dsh-an-resizeHandle",
 		role: "separator",
 		"aria-orientation": "vertical",
@@ -1923,7 +1896,7 @@ function MemoPopover(props) {
 		onPointerDown: startPanelResize,
 		onDoubleClick: () => commitPanelWidth(360),
 		onKeyDown: onPanelResizeKeyDown
-	}) : null, props.placement === "right" ? h("div", {
+	}) : null, props.placement === "right" ? h$1("div", {
 		className: "dsh-an-resizeHandleBottom",
 		role: "separator",
 		"aria-orientation": "horizontal",
@@ -1933,21 +1906,21 @@ function MemoPopover(props) {
 		onPointerDown: startPanelHeightResize,
 		onDoubleClick: () => commitPanelHeight(0),
 		onKeyDown: onPanelHeightKeyDown
-	}) : null, h(PanelHead, {
+	}) : null, h$1(PanelHead, {
 		say,
 		openCount,
 		total,
 		showSettings,
 		onToggleSettings: () => setShowSettings((value) => !value),
 		onClose: props.onClose
-	}), showSettings ? h(SettingsPanel, {
+	}), showSettings ? h$1(SettingsPanel, {
 		say,
 		sendShortcut,
 		chooseShortcut,
 		forwardPrefix,
 		changeForwardPrefix,
 		prefixRef
-	}) : null, h(ComposerForm, {
+	}) : null, h$1(ComposerForm, {
 		say,
 		draft,
 		inputRef: addRef,
@@ -1965,7 +1938,7 @@ function MemoPopover(props) {
 			if (composingRef.current) return;
 			add();
 		}
-	}), h(NoteList, {
+	}), h$1(NoteList, {
 		say,
 		listRef,
 		listHasMore,
@@ -1983,12 +1956,64 @@ function MemoPopover(props) {
 		askClearConfirm,
 		dismissClearConfirm,
 		confirmClearDone
-	}), h("div", {
+	}), h$1("div", {
 		className: "dsh-an-popFoot",
 		role: "status"
-	}, h("span", { className: syncError ? "dsh-an-error" : void 0 }, say(syncError ? "storage.failed" : "popover.storage"))));
+	}, h$1("span", { className: syncError ? "dsh-an-error" : void 0 }, say(syncError ? "storage.failed" : "popover.storage"))));
 	return react_dom.default.createPortal(content, document.body);
 }
+
+// src/client/storage/migrate.ts
+/** One-time marker; its presence means the copy below already ran successfully. */
+const MIGRATED_KEY = "dsh.aside-notes.migrated.v2";
+/**
+* The 1.x keys, read once and copied verbatim.
+*
+* They are never deleted: a user who rolls back to 1.9.x still finds their
+* notes, and a half-finished copy is retried on the next load because the
+* marker is only written after the whole loop succeeds.
+*/
+const LEGACY_KEYS = [
+	[SESSION_STORAGE_KEY, "dsh.session-memos.v1"],
+	[DRAFT_STORAGE_KEY, "dsh.memo.drafts.v1"],
+	[FORWARDED_STORAGE_KEY, "dsh.memo.forwarded.v1"],
+	[SECTION_STATE_KEY, "dsh.memo.sections.v1"],
+	[PANEL_WIDTH_KEY, "dsh.memo.panel-width.v1"],
+	[PANEL_HEIGHT_KEY, "dsh.memo.panel-height.v1"],
+	[SEND_SHORTCUT_KEY, "dsh.memo.send-shortcut.v1"],
+	[FORWARD_PREFIX_STORAGE_KEY, "dsh.memo.forward-prefix.v1"]
+];
+/**
+* Copy 1.x storage into the AsideNote keys.
+*
+* Runs before anything reads the store. A newer value already present wins, so
+* the migration never overwrites what the user did after upgrading.
+*/
+function migrateLegacyStorage() {
+	const ls = storage();
+	if (!ls) return;
+	try {
+		if (ls.getItem(MIGRATED_KEY) !== null) return;
+		for (const [next, legacy] of LEGACY_KEYS) {
+			if (ls.getItem(next) !== null) continue;
+			const raw = ls.getItem(legacy);
+			if (raw !== null) ls.setItem(next, raw);
+		}
+		ls.setItem(MIGRATED_KEY, (/* @__PURE__ */ new Date()).toISOString());
+	} catch {}
+}
+
+// src/client/index.ts
+/**
+* AsideNote browser half.
+*
+* The plugin entry: injects the stylesheet, binds the locale namespace and
+* seats the two slots (session capture + frame-wide toast host) plus the
+* host-owned header entry. Copy, storage, domain rules and the panel UI live
+* in their own modules; P2 splits the remaining UI out of this file.
+*/
+const h = react.default.createElement;
+/** Compact floating memo list, anchored to the entry that opened it. */
 function apply(ctx) {
 	migrateLegacyStorage();
 	const locale = ctx.get("locale");
