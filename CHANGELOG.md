@@ -4,6 +4,15 @@
 
 - Keep the sticky section headers transparent in flow and, once pinned, fill them with the panel's raised `bg-layer-2` surface so the fill matches the panel instead of showing a differently coloured menu bar; the backdrop blur is deferred until the colour match is reviewed.
 
+## 1.9.7
+
+- Start the prefix-prompt textarea at one line (38px including padding and border) and let it grow with wrapped text up to six lines before scrolling, instead of reserving three empty rows.
+
+## 1.9.6
+
+- Change the settings prefix prompt into a three-line textarea that grows up to six lines as you type, then scrolls; Enter inserts a newline and the 80-character limit still applies to the whole value.
+- Keep the sticky section headers transparent in flow and, only while they are actually pinned, paint the menu group-header fill with the DSH menu backdrop blur behind it; the full-width `bg-layer-1` block no longer sits over the list and rows no longer read through the header.
+
 ## 1.9.5
 
 - Restore sticky **Open** and **Completed** headers while the note list scrolls. They sit on the opaque `bg-layer-1` surface rather than the translucent menu fill, so rows cannot read through them and the header does not double-paint a seam over the panel.

@@ -32,7 +32,7 @@ window.__ModuleLoader__.load({
     /** Notes already forwarded to the composer, per session; marks the forward button. */
     const FORWARDED_STORAGE_KEY = 'dsh.memo.forwarded.v1'
     /** Shown in the in-panel settings; keep in sync with package.json. */
-    const PLUGIN_VERSION = '1.9.5'
+    const PLUGIN_VERSION = '1.9.7'
     const PLUGIN_AUTHOR = '阿三石'
     const PLUGIN_REPO_URL = 'https://github.com/Rayle8/dsh-workspace-todos'
     const PLUGIN_REPO_LABEL = 'github.com/Rayle8/dsh-workspace-todos'
@@ -334,6 +334,8 @@ window.__ModuleLoader__.load({
       '.dsh-wt-settingInput{box-sizing:border-box;width:100%;height:28px;padding:0 var(--wt-space-2);border:0.5px solid var(--wt-field-line);border-radius:var(--dsw-radius-sm);background:var(--wt-field);color:var(--dsw-alias-label-primary);font-family:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);font-weight:500;outline:0;transition:var(--wt-transition)}',
       '.dsh-wt-settingItem>.dsh-wt-settingInput{font-family:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);font-weight:500}',
       '.dsh-wt-settingInput:focus{border-color:var(--dsw-alias-state-business-primary)}',
+      '/* 前缀提示词改为文本域：min-height 兜住三行，空态也不会被内联高度压扁 */',
+      '.dsh-wt-settingTextarea{display:block;height:auto;min-height:calc(var(--wt-lh-row) + var(--wt-space-4) + 2px);padding:var(--wt-space-2);resize:none;overflow-y:auto;white-space:pre-wrap;overflow-wrap:anywhere}',
       '.dsh-wt-settingHint{margin:0;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary)}',
       '.dsh-wt-settingHintNote{margin-top:var(--wt-space-1)}',
       '.dsh-wt-settingAbout{display:flex;align-items:baseline;gap:var(--wt-space-1);min-width:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}',
@@ -1419,6 +1421,7 @@ window.__ModuleLoader__.load({
       const lastStyleRef = React.useRef('')
       const editRef = React.useRef(null)
       const addRef = React.useRef(null)
+      const prefixRef = React.useRef(null)
       const cancelEditRef = React.useRef(false)
       const composingRef = React.useRef(false)
       const clearConfirmTimerRef = React.useRef(0)
@@ -1432,6 +1435,16 @@ window.__ModuleLoader__.load({
       React.useEffect(() => {
         resizeAdd(addRef.current)
       }, [draft])
+
+      // The prefix field starts one line tall and grows with wrapped content
+      // up to a six-line cap, then scrolls. Re-measure whenever the draft
+      // changes or settings remount.
+      React.useLayoutEffect(() => {
+        const node = prefixRef.current
+        if (!node) return
+        node.style.height = 'auto'
+        node.style.height = `${Math.min(138, node.scrollHeight + 2)}px`
+      }, [forwardPrefix, showSettings])
 
       // Only a genuine session switch re-reads the flags; parent re-renders keep this state.
       React.useEffect(() => {
@@ -1998,10 +2011,12 @@ window.__ModuleLoader__.load({
                   h(
                     'div',
                     { className: 'dsh-wt-settingItem' },
-                    h('input', {
+                    h('textarea', {
                       id: 'dsh-wt-forward-prefix',
-                      className: 'dsh-wt-settingInput',
+                      ref: prefixRef,
+                      className: 'dsh-wt-settingInput dsh-wt-settingTextarea',
                       value: forwardPrefix,
+                      rows: 1,
                       maxLength: 80,
                       placeholder: say('forward.prefix'),
                       'aria-label': say('settings.forwardPrefixItem'),
