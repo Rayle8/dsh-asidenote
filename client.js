@@ -1416,6 +1416,7 @@ window.__ModuleLoader__.load({
       const lastStyleRef = React.useRef('')
       const editRef = React.useRef(null)
       const addRef = React.useRef(null)
+      const prefixRef = React.useRef(null)
       const cancelEditRef = React.useRef(false)
       const composingRef = React.useRef(false)
       const clearConfirmTimerRef = React.useRef(0)
@@ -1429,6 +1430,15 @@ window.__ModuleLoader__.load({
       React.useEffect(() => {
         resizeAdd(addRef.current)
       }, [draft])
+
+      // The prefix field grows with its content up to a six-line cap and then
+      // scrolls. Re-measure whenever the draft changes or settings remount.
+      React.useLayoutEffect(() => {
+        const node = prefixRef.current
+        if (!node) return
+        node.style.height = 'auto'
+        node.style.height = `${Math.min(120, node.scrollHeight)}px`
+      }, [forwardPrefix, showSettings])
 
       // Only a genuine session switch re-reads the flags; parent re-renders keep this state.
       React.useEffect(() => {
@@ -1995,10 +2005,12 @@ window.__ModuleLoader__.load({
                   h(
                     'div',
                     { className: 'dsh-wt-settingItem' },
-                    h('input', {
+                    h('textarea', {
                       id: 'dsh-wt-forward-prefix',
-                      className: 'dsh-wt-settingInput',
+                      ref: prefixRef,
+                      className: 'dsh-wt-settingInput dsh-wt-settingTextarea',
                       value: forwardPrefix,
+                      rows: 3,
                       maxLength: 80,
                       placeholder: say('forward.prefix'),
                       'aria-label': say('settings.forwardPrefixItem'),

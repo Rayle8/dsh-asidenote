@@ -670,6 +670,29 @@ test('the prefix prompt is explained under the field, without a visible title', 
   assert.match(dict.en['settings.forwardPrefixHint'], /leave it empty/)
 })
 
+test('the prefix prompt is a multiline field that grows with its content', () => {
+  const client = read('client.js')
+  const idAt = client.indexOf("id: 'dsh-wt-forward-prefix'")
+  assert.ok(idAt >= 0, 'the prefix field must keep its id')
+  const fieldStart = client.lastIndexOf("h('textarea', {", idAt)
+  const fieldEnd = client.indexOf("id: 'dsh-wt-forward-prefix-hint'", idAt)
+  assert.ok(fieldStart >= 0 && fieldStart < idAt, 'the prefix field must be a textarea')
+  assert.ok(fieldEnd > idAt, 'the prefix hint must follow the field')
+  const field = client.slice(fieldStart, fieldEnd)
+  assert.match(field, /ref: prefixRef/, 'the field exposes a ref for auto-grow')
+  assert.match(field, /rows: 3/, 'the field opens three lines tall')
+  assert.match(field, /className: 'dsh-wt-settingInput dsh-wt-settingTextarea'/, 'the textarea keeps the shared field skin')
+  assert.match(field, /maxLength: 80/, 'the whole value stays capped at 80 characters')
+  assert.match(field, /onChange: event => changeForwardPrefix\(event\.target\.value\)/, 'the field stays a controlled draft')
+  assert.doesNotMatch(field, /h\('input'/, 'the old single-line input is gone')
+
+  assert.match(client, /const prefixRef = React\.useRef\(null\)/, 'the prefix field needs its own ref')
+  const effect = client.match(/React\.useLayoutEffect\(\(\) => \{\s*const node = prefixRef\.current[\s\S]*?\}, \[forwardPrefix, showSettings\]\)/)
+  assert.ok(effect, 'the field re-measures when the value changes or settings reopen')
+  assert.match(effect[0], /node\.style\.height = 'auto'/, 'auto-grow resets the height before measuring')
+  assert.match(effect[0], /Math\.min\(120, node\.scrollHeight\)/, 'auto-grow caps at six lines and then scrolls')
+})
+
 
 test('sticky heads are filled only while pinned, not at rest', () => {
   const client = read('client.js')
