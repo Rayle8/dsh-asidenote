@@ -282,11 +282,59 @@ test('the floating panel is borderless and elevated, with no second stroke', () 
   }
 })
 
-test('scrollbars keep the shared theme skin', () => {
+test('scrollbars keep the shared theme skin at the DSH rail geometry', () => {
   const css = readCss()
   assert.doesNotMatch(css, /::-webkit-scrollbar/, 'component scrollbar selectors replace the shared skin')
-  assert.doesNotMatch(css, /scrollbar-width|scrollbar-color/, 'the standard scrollbar properties silence the shared hover skin')
-  assert.match(css, /--dsh-scrollbar-thumb:var\(--dsw-alias-scrollbar-bg-l2\)/)
+  assert.doesNotMatch(css, /(?:^|[;{])scrollbar-(?:width|color):/, 'the standard scrollbar properties silence the shared hover skin')
+  // The popover is an elevated menu surface, so the l2 pair is the DSH binding;
+  // the fallback keeps a visible thumb on a theme that lacks the alias.
+  assert.match(css, /--dsh-scrollbar-thumb:var\(--dsw-alias-scrollbar-bg-l2,var\(--wt-divider\)\)/)
+  assert.match(css, /--dsh-scrollbar-thumb-hover:var\(--dsw-alias-scrollbar-hover-l2,var\(--dsw-alias-scrollbar-bg-l2,var\(--wt-divider\)\)\)/)
+  // A 9px rail whose 2px transparent border leaves a 5px inset pill. Only the
+  // geometry is rebound; the shared skin still owns every pseudo-element.
+  assert.match(css, /--dsh-wt-scrollRail:9px/)
+  assert.match(css, /--dsh-wt-scrollInset:2px/)
+  assert.match(css, /--dsh-scrollbar-width:var\(--dsh-wt-scrollRail\)/)
+  assert.match(css, /--dsh-scrollbar-thumb-border:var\(--dsh-wt-scrollInset\)/)
+})
+
+test('the rail grows into the popover padding without shrinking the cards', () => {
+  const css = readCss()
+  assert.match(css, /--dsh-wt-listGutter:var\(--wt-space-4\)/)
+  assert.match(css, /@media \(max-width:480px\)\{[^@]*--dsh-wt-listGutter:var\(--wt-space-3\)/)
+  const viewport = /\.dsh-wt-listViewport\{([^}]*)\}/.exec(css)
+  assert.ok(viewport, 'missing list viewport')
+  assert.match(viewport[1], /margin-right:calc\(var\(--dsh-wt-listGutter\) \* -1\)/)
+  const list = /\.dsh-wt-listArea\{([^}]*)\}/.exec(css)
+  assert.ok(list, 'missing list scroll container')
+  // Cards and the add field keep one content width: the padding pays back what
+  // the rail consumes, and the stable gutter keeps that width when idle.
+  assert.match(list[1], /padding-right:calc\(var\(--dsh-wt-listGutter\) - var\(--dsh-wt-scrollRail\)\)/)
+  assert.match(list[1], /scrollbar-gutter:stable/)
+})
+
+test('the bottom edge fades only while notes sit below the fold', () => {
+  const css = readCss()
+  const client = read('client.js')
+  assert.doesNotMatch(css, /\.dsh-wt-listViewport::before/, 'no top fade')
+  const fade = /\.dsh-wt-listViewport::after\{([^}]*)\}/.exec(css)
+  assert.ok(fade, 'missing bottom fade overlay')
+  // 28px band: surface-coloured gradient, gentle blur, alpha-mask shaped.
+  assert.match(fade[1], /height:calc\(var\(--wt-space-5\) \+ var\(--wt-space-1\)\)/)
+  assert.match(fade[1], /background:linear-gradient\(to top,var\(--dsw-specific-menu\),transparent\)/)
+  assert.match(fade[1], /backdrop-filter:blur\(2px\)/)
+  assert.match(fade[1], /mask-image:linear-gradient\(to top,currentColor,color-mix\(in srgb,currentColor 55%,transparent\) 55%,transparent\)/)
+  assert.match(fade[1], /opacity:0/)
+  assert.match(fade[1], /pointer-events:none/)
+  // The overlay ends where the 9px rail starts, so the scrollbar stays crisp.
+  assert.match(fade[1], /right:var\(--dsh-wt-scrollRail\)/)
+  assert.match(css, /\.dsh-wt-listViewport\[data-bottom="true"\]::after\{opacity:1\}/)
+  // It lives outside the scroller and follows scroll + ResizeObserver state.
+  assert.match(client, /className: 'dsh-wt-listViewport'[\s\S]{0,240}className: 'dsh-wt-listArea', ref: listRef/)
+  assert.match(client, /'data-bottom': listHasMore \? 'true' : undefined/)
+  assert.match(client, /onScroll: syncListEdge/)
+  assert.match(client, /new ResizeObserver\(syncListEdge\)/)
+  assert.match(client, /node.scrollTop \+ node.clientHeight < node.scrollHeight - 1/)
 })
 
 test('hover styling is gated on hover capability', () => {

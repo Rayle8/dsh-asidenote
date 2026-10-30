@@ -216,7 +216,7 @@ window.__ModuleLoader__.load({
       'body{--wt-space-1:4px;--wt-space-2:8px;--wt-space-3:12px;--wt-space-4:16px;--wt-space-5:24px;--wt-space-6:32px;--wt-radius-pill:999px;--wt-fs-caption:12px;--wt-lh-caption:20px;--wt-fs-row:13px;--wt-lh-row:20px;--wt-fs-title:14px;--wt-lh-title:20px;--wt-hover:var(--dsw-alias-interactive-bg-hover);--wt-active:var(--dsw-alias-interactive-bg-active);--wt-field:var(--dsw-alias-bg-layer-1);--wt-field-line:var(--dsw-alias-border-l4);--wt-divider:var(--dsw-alias-border-l2);--wt-dur-fast:var(--ds-transition-duration-fast);--wt-dur-base:var(--ds-transition-duration);--wt-dur-spin:700ms;--wt-ease:var(--ds-ease-in-out);--wt-transition:background-color var(--wt-dur-fast) var(--wt-ease),border-color var(--wt-dur-fast) var(--wt-ease),color var(--wt-dur-fast) var(--wt-ease),opacity var(--wt-dur-fast) var(--wt-ease),transform var(--wt-dur-fast) var(--wt-ease),box-shadow var(--wt-dur-fast) var(--wt-ease)}',
       '',
       '/* ── 2 浮层 · 菜单材质 + 三层阴影，边框为 0（发丝线在阴影第一层） ── */',
-      '.dsh-wt-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--wt-space-3);min-height:0;padding:var(--wt-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsw-specific-menu);-webkit-backdrop-filter:var(--dsw-menu-backdrop-filter);backdrop-filter:var(--dsw-menu-backdrop-filter);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2);--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2);overflow:hidden;animation:dsh-wt-pop-in var(--wt-dur-base) var(--wt-ease) both}',
+      '.dsh-wt-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--wt-space-3);min-height:0;padding:var(--wt-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsw-specific-menu);-webkit-backdrop-filter:var(--dsw-menu-backdrop-filter);backdrop-filter:var(--dsw-menu-backdrop-filter);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--wt-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--wt-divider)));--dsh-wt-listGutter:var(--wt-space-4);--dsh-wt-scrollRail:9px;--dsh-wt-scrollInset:2px;overflow:hidden;animation:dsh-wt-pop-in var(--wt-dur-base) var(--wt-ease) both}',
       '.dsh-wt-popoverRight{padding-left:var(--wt-space-4)}',
       '',
       '/* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */',
@@ -240,8 +240,14 @@ window.__ModuleLoader__.load({
       '.dsh-wt-addBtn:active{background:var(--dsw-alias-button-primary-dimmed);transform:scale(.97)}',
       '.dsh-wt-addBtn[disabled]{background:transparent;color:var(--dsw-alias-label-secondary);box-shadow:inset 0 0 0 0.5px var(--wt-field-line);cursor:not-allowed}',
       '',
-      '/* ── 5 分区与列表 · 标题随列表滚动，列表自己滚动 ───────────────────── */',
-      '.dsh-wt-listArea{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow-x:hidden;overflow-y:auto}',
+      '/* ── 5 分区与列表 · 9px 轨道内嵌 2px，底部羽化只盖内容不盖滚动条 ──── */',
+      '/* The viewport grows into the popover padding so the 9px rail does not steal from the cards; the list pays the padding back minus the rail, so cards and the add field keep one content width at every panel size. */',
+      '.dsh-wt-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--dsh-wt-listGutter) * -1)}',
+      '/* Bottom edge treatment: surface-coloured gradient plus a 2px blur, shaped by an alpha mask so it reads as a soft fade over clipped cards instead of a bar. currentColor only carries mask alpha, never a palette colour. The right edge stops at the rail so the scrollbar stays crisp. */',
+      '.dsh-wt-listViewport::after{content:"";position:absolute;left:0;right:var(--dsh-wt-scrollRail);bottom:0;z-index:2;height:calc(var(--wt-space-5) + var(--wt-space-1));pointer-events:none;opacity:0;background:linear-gradient(to top,var(--dsw-specific-menu),transparent);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);-webkit-mask-image:linear-gradient(to top,currentColor,color-mix(in srgb,currentColor 55%,transparent) 55%,transparent);mask-image:linear-gradient(to top,currentColor,color-mix(in srgb,currentColor 55%,transparent) 55%,transparent);transition:opacity var(--wt-dur-fast) var(--wt-ease)}',
+      '.dsh-wt-listViewport[data-bottom="true"]::after{opacity:1}',
+      '/* Geometry only: the shared DSH skin paints the thumb, so the plugin declares no scrollbar pseudo-elements. The popover already binds the l2 thumb pair for the menu material. */',
+      '.dsh-wt-listArea{--dsh-scrollbar-width:var(--dsh-wt-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-wt-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-wt-listGutter) - var(--dsh-wt-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}',
       '.dsh-wt-listSection{display:flex;flex-direction:column;gap:var(--wt-space-2);min-width:0}',
       '.dsh-wt-listSection+.dsh-wt-listSection{margin-top:var(--wt-space-2)}',
       '.dsh-wt-sectionHead,.dsh-wt-doneHead{display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-3);min-height:28px;margin:0;padding:var(--wt-space-1) 0}',
@@ -385,12 +391,12 @@ window.__ModuleLoader__.load({
       '@keyframes dsh-wt-spin{to{transform:rotate(360deg)}}',
       '@media (prefers-reduced-motion:reduce){',
       '.dsh-wt-popover,.dsh-wt-rows>.dsh-wt-row,.dsh-wt-chevron,[data-loading="true"]::after{animation:none}',
-      '.dsh-wt-popover,.dsh-wt-row,.dsh-wt-actions,.dsh-wt-iconBtn{transition-duration:1ms}',
+      '.dsh-wt-popover,.dsh-wt-row,.dsh-wt-actions,.dsh-wt-iconBtn,.dsh-wt-listViewport::after{transition-duration:1ms}',
       '}',
       '',
       '/* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */',
       '@media (max-width:480px){',
-      '.dsh-wt-popover{padding:var(--wt-space-3)}',
+      '.dsh-wt-popover{padding:var(--wt-space-3);--dsh-wt-listGutter:var(--wt-space-3)}',
       '.dsh-wt-popoverRight{padding-left:var(--wt-space-4)}',
       '.dsh-wt-popHead{gap:var(--wt-space-2)}',
       '.dsh-wt-add{padding:var(--wt-space-2) var(--wt-space-3)}',
@@ -1491,7 +1497,9 @@ window.__ModuleLoader__.load({
       const [panelWidth, setPanelWidth] = React.useState(readPanelWidth)
       const [panelHeight, setPanelHeight] = React.useState(readPanelHeight)
       const [style, setStyle] = React.useState(() => memoPopoverStyle(props.anchorRef.current, props.placement, panelWidth, panelHeight))
+      const [listHasMore, setListHasMore] = React.useState(false)
       const panelRef = React.useRef(null)
+      const listRef = React.useRef(null)
       const panelWidthRef = React.useRef(panelWidth)
       const panelHeightRef = React.useRef(panelHeight)
       const lastStyleRef = React.useRef('')
@@ -1700,6 +1708,27 @@ window.__ModuleLoader__.load({
       const doneItems = items.filter(item => item.done).sort(compareDoneItems)
       const openCount = openItems.length
       const total = items.length
+
+      /** The bottom fade exists only while the list can still scroll down. */
+      const syncListEdge = React.useCallback(() => {
+        const node = listRef.current
+        if (!node) return
+        const more = node.scrollTop + node.clientHeight < node.scrollHeight - 1
+        setListHasMore(current => (current === more ? current : more))
+      }, [])
+
+      React.useEffect(() => {
+        const node = listRef.current
+        if (!node) return undefined
+        syncListEdge()
+        if (typeof ResizeObserver !== 'function') return undefined
+        const observer = new ResizeObserver(syncListEdge)
+        observer.observe(node)
+        // Section boxes report added, removed, and edited notes; the viewport box
+        // reports panel resizes. Neither needs to re-measure on every render.
+        for (const section of node.children) observer.observe(section)
+        return () => observer.disconnect()
+      }, [items, showOpen, showDone, syncListEdge])
 
       const chooseShortcut = value => {
         setSendShortcut(value)
@@ -2118,61 +2147,68 @@ window.__ModuleLoader__.load({
         ),
         h(
           'div',
-          { className: 'dsh-wt-listArea' },
+          {
+            className: 'dsh-wt-listViewport',
+            'data-bottom': listHasMore ? 'true' : undefined,
+          },
           h(
             'div',
-            { className: 'dsh-wt-listSection' },
+            { className: 'dsh-wt-listArea', ref: listRef, onScroll: syncListEdge },
             h(
               'div',
-              { className: 'dsh-wt-sectionHead' },
+              { className: 'dsh-wt-listSection' },
               h(
-                'button',
-                {
-                  type: 'button',
-                  className: 'dsh-wt-doneToggle',
-                  'aria-expanded': showOpen ? 'true' : 'false',
-                  onClick: toggleOpen,
-                },
-                h('span', { className: 'dsh-wt-chevron', 'data-open': showOpen ? 'true' : 'false' }, h(IconChevron, null)),
-                say('list.open'),
-                openCount ? h('span', { className: 'dsh-wt-sectionCount' }, String(openCount)) : null,
+                'div',
+                { className: 'dsh-wt-sectionHead' },
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'dsh-wt-doneToggle',
+                    'aria-expanded': showOpen ? 'true' : 'false',
+                    onClick: toggleOpen,
+                  },
+                  h('span', { className: 'dsh-wt-chevron', 'data-open': showOpen ? 'true' : 'false' }, h(IconChevron, null)),
+                  say('list.open'),
+                  openCount ? h('span', { className: 'dsh-wt-sectionCount' }, String(openCount)) : null,
+                ),
               ),
+              showOpen
+                ? openItems.length
+                  ? h('ul', { className: 'dsh-wt-rows' }, openItems.map(row))
+                  : h(EmptyState, {
+                      title: say(total ? 'list.allDone.title' : 'popover.empty.title'),
+                      body: say(total ? 'list.allDone.body' : 'popover.empty.body'),
+                    })
+                : null,
             ),
-            showOpen
-              ? openItems.length
-                ? h('ul', { className: 'dsh-wt-rows' }, openItems.map(row))
-                : h(EmptyState, {
-                    title: say(total ? 'list.allDone.title' : 'popover.empty.title'),
-                    body: say(total ? 'list.allDone.body' : 'popover.empty.body'),
-                  })
+            doneItems.length
+              ? h(
+                  'div',
+                  { className: 'dsh-wt-listSection' },
+                  h(
+                    'div',
+                    { className: 'dsh-wt-doneHead' },
+                    h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'dsh-wt-doneToggle',
+                        'aria-expanded': showDone ? 'true' : 'false',
+                        onClick: toggleDone,
+                      },
+                      h('span', { className: 'dsh-wt-chevron', 'data-open': showDone ? 'true' : 'false' }, h(IconChevron, null)),
+                      say('popover.completed'),
+                      h('span', { className: 'dsh-wt-sectionCount', 'data-tone': 'done' }, String(doneItems.length)),
+                    ),
+                    showDone
+                      ? h('button', { type: 'button', className: 'dsh-wt-clear', onClick: clearDone }, say('popover.clearDone'))
+                      : null,
+                  ),
+                  showDone ? h('ul', { className: 'dsh-wt-rows dsh-wt-doneRows' }, doneItems.map(row)) : null,
+                )
               : null,
           ),
-          doneItems.length
-            ? h(
-                'div',
-                { className: 'dsh-wt-listSection' },
-                h(
-                  'div',
-                  { className: 'dsh-wt-doneHead' },
-                  h(
-                    'button',
-                    {
-                      type: 'button',
-                      className: 'dsh-wt-doneToggle',
-                      'aria-expanded': showDone ? 'true' : 'false',
-                      onClick: toggleDone,
-                    },
-                    h('span', { className: 'dsh-wt-chevron', 'data-open': showDone ? 'true' : 'false' }, h(IconChevron, null)),
-                    say('popover.completed'),
-                    h('span', { className: 'dsh-wt-sectionCount', 'data-tone': 'done' }, String(doneItems.length)),
-                  ),
-                  showDone
-                    ? h('button', { type: 'button', className: 'dsh-wt-clear', onClick: clearDone }, say('popover.clearDone'))
-                    : null,
-                ),
-                showDone ? h('ul', { className: 'dsh-wt-rows dsh-wt-doneRows' }, doneItems.map(row)) : null,
-              )
-            : null,
         ),
         h(
           'div',
