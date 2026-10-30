@@ -7,13 +7,15 @@
 | 阶段 | 状态 | 提交 |
 |---|---|---|
 | P0 冻结与兜底 | 完成 | tag `pre-refactor-1.9.7`；合并分支清理；`docs/archive/notes-trash-ux-checklist.md` |
-| P1 工具链骨架 | 完成 | `f9e399b`（tsdown + tsc + oxlint + 产物一致性门 + 真机前 jsdom 冒烟） |
-| P2 拆模块 | 进行中 | `96e4414` 常量/i18n/CSS；`0a1821b` storage/domain/hook；`8e0bc4c` 行/空态/定位/图标；组件与 8 个 hook 拆完（几何/分区/转发/设置/草稿/行操作/清除确认/列表边缘），Toast 座位与顶部入口也独立成模块。入口 2,507 → 203 行 |
+| P1 工具链骨架 | 完成 | `41ddc0d`（tsdown + tsc + oxlint + 产物一致性门 + 真机前 jsdom 冒烟） |
+| P2 拆模块 | 完成（不再细拆） | `96e4414` 常量/i18n/CSS；`0a1821b` storage/domain/hook；`8e0bc4c` 行/空态/定位/图标；组件与 8 个 hook 拆完（几何/分区/转发/设置/草稿/行操作/清除确认/列表边缘），Toast 座位与顶部入口也独立成模块。入口 2,507 → 203 行 |
 | P3 改名 + 迁移 | 完成 | `198d673`（AsideNote，`dsh.aside-notes.*.v2`，旧键只读保留） |
-| P4 资产与文档 | 待办 | 截图正被并行重拍，等 README 定稿后一次性移动 |
-| P5 发布 | 待办 | CI 已更新；打 tag / 发布前需重启 DSH 做真机冒烟 |
+| P4 资产与文档 | 待办 | 依赖 README 与截图定稿；目录移动会改动两版 README 的图片链接 |
+| P5 发布 | 待办 | CI 已更新，真机冒烟已通过；待打 `v2.0.0` tag 并发布 |
 
-剩余：`ui/TodoRow.ts`（264 行，当前最大文件）再拆编辑区；契约测试迁到 Vitest + jsdom；截图与 README 收尾；打 tag。真机冒烟已通过（重启 DSH 后面板与入口正常）。
+决定：`ui/TodoRow.ts` 264 行保持现状，不再细拆（单组件内聚，收益低于风险）。
+
+剩余：契约测试迁 Vitest + jsdom（可选，现有 43 个测试已全绿）；P4 资产与 README 收尾；打 `v2.0.0` tag 并发布。
 
 ## 0. 结论
 
