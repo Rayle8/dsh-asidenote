@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Keep the sticky section headers transparent in flow and, once pinned, fill them with the panel's raised `bg-layer-2` surface so the fill matches the panel instead of showing a differently coloured menu bar; the backdrop blur is deferred until the colour match is reviewed.
+- Keep the sticky section headers transparent in flow and, once pinned, fill them with `--dsw-alias-menu-group-header-fill`; its #303136 base matches the measured panel surface (#303035) within 1/255, so the fill no longer reads as a differently coloured bar. The backdrop blur stays off for now.
 
 ## 1.9.7
 

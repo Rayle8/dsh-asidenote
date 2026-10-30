@@ -68,7 +68,7 @@ test('host and browser entries use the package identity', () => {
   // Sticky heads stay transparent in flow and only take the panel's raised
   // surface while pinned, so no differently coloured block sits at rest.
   assert.match(client, /\.dsh-wt-sectionHead,\.dsh-wt-doneHead\{[^}]*position:sticky[^}]*top:0[^}]*background:transparent/)
-  assert.match(client, /\[data-stuck\][^{]*\{[^}]*background:var\(--dsw-alias-bg-layer-2\)/)
+  assert.match(client, /\[data-stuck\][^{]*\{[^}]*background:var\(--dsw-alias-menu-group-header-fill\)/)
   assert.match(client, /FORWARDED_STORAGE_KEY/)
   assert.match(client, /dsh-wt-forwardMark/)
   assert.match(client, /item\.forwarded/)
@@ -724,7 +724,7 @@ test('sticky heads are filled only while pinned, not at rest', () => {
   const rules = cssRules()
   const stuck = rules.find(rule => rule.selector === '.dsh-wt-sectionHead[data-stuck],.dsh-wt-doneHead[data-stuck]')
   assert.ok(stuck, 'stuck header rule missing')
-  assert.match(stuck.body, /background:var\(--dsw-alias-bg-layer-2\)/)
+  assert.match(stuck.body, /background:var\(--dsw-alias-menu-group-header-fill\)/)
   assert.doesNotMatch(stuck.body, /backdrop-filter/, 'the stuck fill stays opaque until the blur is approved')
   const base = rules.find(rule => rule.selector === '.dsh-wt-sectionHead,.dsh-wt-doneHead')
   assert.ok(base, 'base header rule missing')
