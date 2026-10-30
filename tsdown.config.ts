@@ -11,7 +11,7 @@
  * https://github.com/bowenliang123/dsh-context and https://github.com/dsh-market/dsh-market
  */
 import { readFileSync } from 'node:fs'
-import { dirname, resolve as resolvePath } from 'node:path'
+import { dirname, relative, resolve as resolvePath } from 'node:path'
 import { defineConfig } from 'tsdown'
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
@@ -32,11 +32,14 @@ function inlineCss() {
     resolveId(source: string, importer: string | undefined) {
       if (!source.endsWith(`.css${CSS_INLINE}`)) return null
       const file = source.slice(0, -CSS_INLINE.length)
-      return CSS_VIRTUAL_PREFIX + (importer ? resolvePath(dirname(importer), file) : file) + '.mjs'
+      const absolute = importer ? resolvePath(dirname(importer), file) : file
+      // Keep the virtual id relative: rolldown echoes it in a comment, and an
+      // absolute path would leak the author's machine and break the CI diff gate.
+      return CSS_VIRTUAL_PREFIX + relative(process.cwd(), absolute) + '.mjs'
     },
     load(id: string) {
       if (!id.startsWith(CSS_VIRTUAL_PREFIX)) return null
-      const file = id.slice(CSS_VIRTUAL_PREFIX.length, -'.mjs'.length)
+      const file = resolvePath(process.cwd(), id.slice(CSS_VIRTUAL_PREFIX.length, -'.mjs'.length))
       return `export default ${JSON.stringify(readFileSync(file, 'utf8'))}`
     },
   }

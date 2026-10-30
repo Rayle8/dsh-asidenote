@@ -1,4 +1,4 @@
-# SessionNote 重构方案
+# AsideNote 重构方案
 
 > 状态：方案待评审　|　目标版本：v2.0.0　|　参考实现：[dsh-context](https://github.com/bowenliang123/dsh-context)、[dsh-market](https://github.com/dsh-market/dsh-market)
 
@@ -27,7 +27,7 @@
 | 3 | 文案双份且被测试锁死 | `DICT`（66 键 × 2 语言）+ `locale/{zh,en}.json`（66 键 × 2）**完全相同**；契约测试比对二者 | 改一句文案要改 4 处；测试把重复当正确 |
 | 4 | CSS 存在 JS 字符串数组里 | 197 个数组元素、74 个类选择器、237 处 `dsh-wt-` 引用 | 无法用 stylelint/编辑器格式化；引号转义易错 |
 | 5 | 测试测的是文本不是行为 | `tests/contract.test.mjs` 768 行 / 42 个 test / **332 条 assert**，绝大多数是 `assert.match(client, /.../)` | 重排代码即红；无法证明交互正确；59 次提交都在修它 |
-| 6 | 命名三层漂移 | 产品 SessionNote；包 `dsh-workspace-todos`；id/NS `workspace-todos`；CSS `dsh-wt-*`；storage `dsh.session-memos.v1`；描述以 "Notes:" 开头；keywords 仍是 todo | 新人无法从名字判断是什么；市场条目与文档口径不一 |
+| 6 | 命名三层漂移 | 产品 AsideNote；包 `dsh-workspace-todos`；id/NS `workspace-todos`；CSS `dsh-wt-*`；storage `dsh.session-memos.v1`；描述以 "Notes:" 开头；keywords 仍是 todo | 新人无法从名字判断是什么；市场条目与文档口径不一 |
 | 7 | 版本号双写 | `PLUGIN_VERSION` 与 `package.json` 各一份，靠测试对齐 | 每次发版两处改 |
 | 8 | 资产全部入库且散落 | 32 张 PNG ≈ 3.8 MB：根目录 6 张（668 KB）+ `docs/features/` 10 张（1.1 MB）+ `docs/ui-check/` 16 张（2.0 MB） | 根目录视觉噪音；`preview.png`/`preview-dark.png` 已无文档引用却仍在 `files` 里发布 |
 | 9 | 文档指向仓库外 | `docs/ui-design-check.md` L3 链接 `../../deepseek-harness/...` | 对读者是死链 |
@@ -44,14 +44,14 @@
 ### 2.1 目录
 
 ```text
-dsh-session-note/
-├─ package.json                 # name dsh-session-note，exports ./client → client/client.js
+dsh-asidenote/
+├─ package.json                 # name dsh-asidenote，exports ./client → client/client.js
 ├─ tsdown.config.ts             # 两份构建：host(ESM) + client(CJS closure factory)
 ├─ tsconfig.json                # src
 ├─ tsconfig.tests.json          # tests
 ├─ oxlintrc.json  (或 .oxlintrc.json)
 ├─ vitest.config.ts             # jsdom + coverage
-├─ cordis.patch.yml             # id: dsh-session-note
+├─ cordis.patch.yml             # id: dsh-asidenote
 ├─ index.js                     # host half（保留 8 行 no-op，不引入 host 构建）
 ├─ icon.svg
 ├─ README.md · README.en.md · CHANGELOG.md · LICENSE
@@ -127,7 +127,7 @@ dsh-session-note/
 | `domain/clipboard.ts` | L445–470 | ~30 |
 | `domain/forward.ts` | L471–534 | ~65 |
 | `storage/*` | L535–920（33 个函数） | 6 个文件，各 &lt; 120 |
-| `ui/useSessionNotes.ts` | L923–970 | ~50 |
+| `ui/useAsideNotes.ts` | L923–970 | ~50 |
 | `domain/items.ts` | L971–1018、L1033–1044 | ~60 |
 | `ui/Glyph.tsx`、图标 | L1045–1066 | ~25 |
 | `ui/TodoRow.tsx` | L1068–1322（255 行） | ~150 + 子组件 |
@@ -185,7 +185,7 @@ dsh-session-note/
   define: { __SN_VERSION__: JSON.stringify(pkg.version) },   // 取代 PLUGIN_VERSION
   outputOptions: {
     entryFileNames: 'client.js',
-    banner: `window.__ModuleLoader__.load({ id: "dsh-session-note", factory: (require) => {`,
+    banner: `window.__ModuleLoader__.load({ id: "dsh-asidenote", factory: (require) => {`,
     intro: 'var module = { exports: {} }; var exports = module.exports;',
     footer: 'return module.exports; } });',
   },
@@ -196,7 +196,7 @@ dsh-session-note/
 要点：
 
 - **闭包工厂**的 banner/intro/footer 必须与当前 `client.js` 的手写外壳一致，否则 loader 不认。
-- **CSS 走 `?inline` 通道**：`import css from './styles/index.css?inline'`，插件用 lightningcss 压成字符串，`apply()` 里插一个 `<style data-dsh-plugin="dsh-session-note">`，dispose 时移除。沿用当前"一张表覆盖面板 + 输入框 dock"的语义，避免 FOUC。不要用 `.module.css`——我们的类名是全局语义名 `dsh-sn-*`，不需要 hash。
+- **CSS 走 `?inline` 通道**：`import css from './styles/index.css?inline'`，插件用 lightningcss 压成字符串，`apply()` 里插一个 `<style data-dsh-plugin="dsh-asidenote">`，dispose 时移除。沿用当前"一张表覆盖面板 + 输入框 dock"的语义，避免 FOUC。不要用 `.module.css`——我们的类名是全局语义名 `dsh-an-*`，不需要 hash。
 - **external 清单**要与代码里真实的 `require()` 对齐。当前代码只 require 4 个模块（react、react-dom、react-dom/client、ui-primitives），但 `package.json#dsh.client.inject` 声明了 6 个、且**漏了 ui-primitives**。P1 要查清 `inject` 的语义（"必须加载的宿主模块"还是"提供 slot 的插件"）再收敛，不要直接删。
 
 ### 3.3 质量门
@@ -224,30 +224,30 @@ CI（`.github/workflows/ci.yml`）按顺序：install → build → **`git diff 
 
 | 位置 | 现在 | 目标 |
 |---|---|---|
-| `package.json#name` | `dsh-workspace-todos` | `dsh-session-note` |
-| patch id / name | `workspace-todos` / `dsh-workspace-todos` | `dsh-session-note` / `dsh-session-note` |
-| loader id | `dsh-workspace-todos` | `dsh-session-note` |
-| locale NS | `workspace-todos` | `dsh-session-note` |
+| `package.json#name` | `dsh-workspace-todos` | `dsh-asidenote` |
+| patch id / name | `workspace-todos` / `dsh-workspace-todos` | `dsh-asidenote` / `dsh-asidenote` |
+| loader id | `dsh-workspace-todos` | `dsh-asidenote` |
+| locale NS | `workspace-todos` | `dsh-asidenote` |
 | panel / slot id | `workspace-todos` | `session-note` |
-| CSS 前缀 | `dsh-wt-*`、`--dsh-wt-*` | `dsh-sn-*`、`--dsh-sn-*` |
-| style/data 属性 | `data-dsh-plugin="workspace-todos"`、`dataset.dshMemoPopoverRoot` | `data-dsh-plugin="dsh-session-note"`、`data-dshSessionNoteRoot` |
-| 便笺存储 | `dsh.session-memos.v1` | `dsh.session-notes.v2` |
-| 草稿 | `dsh.memo.drafts.v1` | `dsh.session-notes.drafts.v2` |
-| 转发标记 | `dsh.memo.forwarded.v1` | `dsh.session-notes.forwarded.v2` |
-| 分区状态 | `dsh.memo.sections.v1` | `dsh.session-notes.sections.v2` |
-| 宽 / 高 | `dsh.memo.panel-width.v1` / `-height.v1` | `dsh.session-notes.panel-width.v2` / `-height.v2` |
-| 发送快捷键 | `dsh.memo.send-shortcut.v1` | `dsh.session-notes.send-shortcut.v2` |
-| 转发前缀 | `dsh.memo.forward-prefix.v1` | `dsh.session-notes.forward-prefix.v2` |
-| 仓库 / 链接 | `Rayle8/dsh-workspace-todos` | `Rayle8/dsh-session-note`（GitHub 改名会自动重定向） |
+| CSS 前缀 | `dsh-wt-*`、`--dsh-wt-*` | `dsh-an-*`、`--dsh-an-*` |
+| style/data 属性 | `data-dsh-plugin="workspace-todos"`、`dataset.dshMemoPopoverRoot` | `data-dsh-plugin="dsh-asidenote"`、`data-dshAsideNoteRoot` |
+| 便笺存储 | `dsh.session-memos.v1` | `dsh.aside-notes.v2` |
+| 草稿 | `dsh.memo.drafts.v1` | `dsh.aside-notes.drafts.v2` |
+| 转发标记 | `dsh.memo.forwarded.v1` | `dsh.aside-notes.forwarded.v2` |
+| 分区状态 | `dsh.memo.sections.v1` | `dsh.aside-notes.sections.v2` |
+| 宽 / 高 | `dsh.memo.panel-width.v1` / `-height.v1` | `dsh.aside-notes.panel-width.v2` / `-height.v2` |
+| 发送快捷键 | `dsh.memo.send-shortcut.v1` | `dsh.aside-notes.send-shortcut.v2` |
+| 转发前缀 | `dsh.memo.forward-prefix.v1` | `dsh.aside-notes.forward-prefix.v2` |
+| 仓库 / 链接 | `Rayle8/dsh-workspace-todos` | 暂不改（发布名 `dsh-asidenote`，仓库沿用旧名，链接继续有效） |
 | 版本 | 1.9.7 | 2.0.0 |
 
-CSS 前缀的替换是一次 `sed -i '' 's/dsh-wt-/dsh-sn-/g'`，但**存储 key 不能 sed**——要在 `storage/migrate.ts` 里显式建 v1→v2 映射表，因为结构也可能演化。
+CSS 前缀的替换是一次 `sed -i '' 's/dsh-wt-/dsh-an-/g'`，但**存储 key 不能 sed**——要在 `storage/migrate.ts` 里显式建 v1→v2 映射表，因为结构也可能演化。
 
 ### 4.2 迁移策略
 
 ```ts
 // storage/migrate.ts
-const MIGRATED = 'dsh.session-notes.migrated.v2'
+const MIGRATED = 'dsh.aside-notes.migrated.v2'
 
 const V1_KEYS = {
   notes:     'dsh.session-memos.v1',
@@ -281,7 +281,7 @@ export function migrateLegacyStorage(store: Storage = localStorage): void {
 
 ### 4.3 最大的风险：新旧插件并存
 
-id 从 `workspace-todos` 变成 `dsh-session-note` 后，市场里的旧条目和新条目是**两个插件**：同时安装会出现两个入口按钮，分别读写不同 key。
+id 从 `workspace-todos` 变成 `dsh-asidenote` 后，市场里的旧条目和新条目是**两个插件**：同时安装会出现两个入口按钮，分别读写不同 key。
 
 处理：
 
@@ -378,8 +378,8 @@ export const en: Record<MessageKey, string> = { /* 缺键 = tsc 报错 */ }
 1. 按 4.1 表全量替换（包名、id、NS、CSS 前缀、data 属性、文档、README 安装段）。
 2. 新增 `storage/migrate.ts` + specs；在 `apply()` 首次读取前调用。
 3. `package.json` 升 `2.0.0`；`__SN_VERSION__` 注入，删掉 `PLUGIN_VERSION` 常量。
-4. GitHub 仓库改名为 `dsh-session-note`（旧链接自动 301），更新 `repository/homepage/bugs`、README 徽章与安装命令。
-5. 旧包 `npm deprecate dsh-workspace-todos@1.9.7 "Renamed to dsh-session-note"`（发布后做）。
+4. GitHub 仓库改名为 `dsh-asidenote`（旧链接自动 301），更新 `repository/homepage/bugs`、README 徽章与安装命令。
+5. 旧包 `npm deprecate dsh-workspace-todos@1.9.7 "Renamed to dsh-asidenote"`（发布后做）。
 
 **退出条件**：全仓 `grep -r "dsh-wt-\|workspace-todos"` 只剩迁移映射表和 CHANGELOG 历史；迁移在真机上把旧便笺搬过来。
 

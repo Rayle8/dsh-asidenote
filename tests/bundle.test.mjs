@@ -27,6 +27,14 @@ test('the built bundle boots, applies, and seats its slots', async () => {
   globalThis.document = window.document
   globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
+  // 1.x data must survive the rename: seed the old keys before the plugin
+  // boots, then expect copies under the AsideNote keys plus the marker.
+  window.localStorage.setItem('dsh.session-memos.v1', JSON.stringify({
+    version: 1,
+    sessions: { 'session-1': { items: [{ id: 'seed', text: '旧便笺', done: false, createdAt: 1, updatedAt: 1 }] } },
+  }))
+  window.localStorage.setItem('dsh.memo.send-shortcut.v1', 'ctrl-enter')
+
   // Loaded after the DOM globals exist: react-dom decides `canUseDOM` at import.
   const React = await import('react')
   const ReactDOM = await import('react-dom')
@@ -37,7 +45,7 @@ test('the built bundle boots, applies, and seats its slots', async () => {
   window.__ModuleLoader__ = { load: spec => { loaded = spec } }
   window.eval(bundle)
 
-  assert.equal(loaded.id, 'dsh-workspace-todos')
+  assert.equal(loaded.id, 'dsh-asidenote')
   const moduleTable = {
     react: React,
     'react-dom': ReactDOM,
@@ -86,9 +94,15 @@ test('the built bundle boots, applies, and seats its slots', async () => {
   assert.equal(registered.length, 2, 'both slots must be registered')
   assert.deepEqual(registered.map(entry => entry.meta.name).sort(), injected)
 
-  const style = document.querySelector('style[data-dsh-plugin="workspace-todos"]')
+  const migrated = JSON.parse(window.localStorage.getItem('dsh.aside-notes.v2'))
+  assert.equal(migrated.sessions['session-1'].items[0].text, '旧便笺')
+  assert.equal(window.localStorage.getItem('dsh.aside-notes.send-shortcut.v2'), 'ctrl-enter')
+  assert.ok(window.localStorage.getItem('dsh.aside-notes.migrated.v2'), 'the migration marker must be set')
+  assert.ok(window.localStorage.getItem('dsh.session-memos.v1'), 'old keys stay readable for a rollback')
+
+  const style = document.querySelector('style[data-dsh-plugin="dsh-asidenote"]')
   assert.ok(style, 'the document-level stylesheet must be injected')
-  assert.match(style.textContent, /\.dsh-wt-popover\{/)
+  assert.match(style.textContent, /\.dsh-an-popover\{/)
 
   // Render the session capture the shell would mount, then let its effect seat
   // the header entry into the host-owned utilities row.
@@ -100,14 +114,14 @@ test('the built bundle boots, applies, and seats its slots', async () => {
     reactRoot.render(React.createElement(capture, { sessionId: 'session-1' }))
   })
 
-  const button = document.querySelector('._headerUtilities > .dsh-wt-headerBtn')
+  const button = document.querySelector('._headerUtilities > .dsh-an-headerBtn')
   assert.ok(button, 'the header entry must be injected into the host utilities row')
   assert.equal(button.dataset.sessionId, 'session-1')
   assert.match(button.getAttribute('aria-label'), /便笺/)
 
   await act(async () => { reactRoot.unmount() })
   for (const dispose of disposers) dispose()
-  assert.equal(document.querySelector('style[data-dsh-plugin="workspace-todos"]'), null,
+  assert.equal(document.querySelector('style[data-dsh-plugin="dsh-asidenote"]'), null,
     'the stylesheet must be removed when the plugin is disposed')
   dom.window.close()
 })

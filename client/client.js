@@ -1,4 +1,4 @@
-window.__ModuleLoader__.load({ id: "dsh-workspace-todos", factory: (require) => {
+window.__ModuleLoader__.load({ id: "dsh-asidenote", factory: (require) => {
 
 var module = { exports: {} }; var exports = module.exports;
 // \0rolldown/runtime.js
@@ -36,8 +36,8 @@ react_dom_client = __toESM(react_dom_client, 1);
 let _deepseek_ai_dsh_client_ui_primitives = require("@deepseek-ai/dsh-client-ui-primitives");
 _deepseek_ai_dsh_client_ui_primitives = __toESM(_deepseek_ai_dsh_client_ui_primitives, 1);
 
-// \0dsh-css:./src/client/styles/panel.css.mjs
-var panel_css_default = "/*\n * Panel, composer dock, header entry and toast styles.\n *\n * Only DSH semantic aliases and the shared scale are used here — no palette of\n * its own. The entry point injects this sheet once for the whole frame, because\n * the dock mounts outside the panel tree.\n */\n/* ── 1 令牌 · 只映射 DSH 语义别名与共享尺度，不新建调色板 ─────────── */\nbody{--wt-space-1:4px;--wt-space-2:8px;--wt-space-3:12px;--wt-space-4:16px;--wt-space-5:24px;--wt-space-6:32px;--wt-radius-pill:999px;--wt-fs-caption:12px;--wt-lh-caption:20px;--wt-fs-row:13px;--wt-lh-row:20px;--wt-fs-title:14px;--wt-lh-title:20px;--wt-hover:var(--dsw-alias-interactive-bg-hover);--wt-active:var(--dsw-alias-interactive-bg-active);--wt-field:var(--dsw-alias-bg-layer-1);--wt-field-line:var(--dsw-alias-border-l4);--wt-divider:var(--dsw-alias-border-l2);--wt-dur-fast:var(--ds-transition-duration-fast);--wt-dur-base:var(--ds-transition-duration);--wt-dur-spin:700ms;--wt-ease:var(--ds-ease-in-out);--wt-transition:background-color var(--wt-dur-fast) var(--wt-ease),border-color var(--wt-dur-fast) var(--wt-ease),color var(--wt-dur-fast) var(--wt-ease),opacity var(--wt-dur-fast) var(--wt-ease),transform var(--wt-dur-fast) var(--wt-ease),box-shadow var(--wt-dur-fast) var(--wt-ease)}\n\n/* ── 2 浮层 · 菜单材质 + 三层阴影，边框为 0（发丝线在阴影第一层） ── */\n.dsh-wt-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--wt-space-3);min-height:0;padding:var(--wt-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsh-wt-panelSurface);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--wt-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--wt-divider)));--dsh-wt-panelSurface:var(--dsw-alias-bg-layer-2);--dsh-wt-listGutter:var(--wt-space-4);--dsh-wt-scrollRail:9px;--dsh-wt-scrollInset:2px;overflow:hidden;animation:dsh-wt-pop-in var(--wt-dur-base) var(--wt-ease) both}\n.dsh-wt-popoverRight{padding-left:var(--wt-space-4)}\n\n/* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */\n.dsh-wt-popHead{display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-3);min-width:0}\n.dsh-wt-popTitleLine{display:flex;align-items:center;gap:var(--wt-space-3);flex:1 1 auto;min-width:0}\n.dsh-wt-popTitle{min-width:0;overflow:hidden;font-size:var(--wt-fs-title);line-height:var(--wt-lh-title);font-weight:500;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-wt-popMeta{min-width:0;margin:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:16px;color:var(--dsw-alias-label-secondary);font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}\n.dsh-wt-popActions{display:flex;align-items:center;flex:none;gap:var(--wt-space-2)}\n.dsh-wt-popClose,.dsh-wt-settingsBtn{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--wt-transition)}\n.dsh-wt-popClose:active,.dsh-wt-settingsBtn:active{background:var(--wt-active)}\n.dsh-wt-settingsBtn[data-active=\"true\"]{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}\n\n/* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */\n.dsh-wt-add{display:flex;flex-direction:column;gap:var(--wt-space-2);padding:var(--wt-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--wt-transition)}\n.dsh-wt-add:focus-within{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-wt-input{display:block;flex:0 0 auto;width:100%;min-width:0;box-sizing:border-box;min-height:var(--wt-lh-row);max-height:120px;padding:0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);resize:none;overflow-y:auto;overflow-x:hidden}\n.dsh-wt-input::placeholder{color:var(--dsw-alias-label-secondary)}\n.dsh-wt-addFoot{display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-2);width:100%;min-width:0}\n.dsh-wt-addShortcut{min-width:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-wt-addBtn{display:inline-flex;align-items:center;justify-content:center;flex:none;height:28px;padding:0 var(--wt-space-2);border:0;border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;cursor:pointer;transition:var(--wt-transition)}\n.dsh-wt-addBtn:active{background:var(--dsw-alias-button-primary-dimmed);transform:scale(.97)}\n.dsh-wt-addBtn[disabled]{background:transparent;color:var(--dsw-alias-label-secondary);box-shadow:inset 0 0 0 0.5px var(--wt-field-line);cursor:not-allowed}\n\n/* ── 5 分区与列表 · 9px 轨道内嵌 2px，底部羽化只盖内容不盖滚动条 ──── */\n/* The viewport grows into the popover padding so the 9px rail does not steal from the cards; the list pays the padding back minus the rail, so cards and the add field keep one content width at every panel size. */\n.dsh-wt-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--dsh-wt-listGutter) * -1)}\n/* Bottom edge treatment: a viewport-fixed alpha mask over the scroller itself, exactly like the DSH scroll areas. The first gradient fades the last 48px to transparent; the second keeps the 9px scrollbar rail opaque so the thumb stays crisp. There is no backdrop-filter layer, so there is no hard compositing edge to see. */\n.dsh-wt-listViewport[data-bottom=\"true\"] .dsh-wt-listArea{--dsh-wt-fadeHeight:calc(var(--wt-space-6) + var(--wt-space-4));-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-wt-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-wt-scrollRail)),currentColor calc(100% - var(--dsh-wt-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-wt-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-wt-scrollRail)),currentColor calc(100% - var(--dsh-wt-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n/* Geometry only: the shared DSH skin paints the thumb, so the plugin declares no scrollbar pseudo-elements. The popover already binds the l2 thumb pair for the menu material. */\n.dsh-wt-listArea{--dsh-scrollbar-width:var(--dsh-wt-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-wt-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-wt-listGutter) - var(--dsh-wt-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}\n.dsh-wt-listSection{display:flex;flex-direction:column;gap:var(--wt-space-2);min-width:0}\n.dsh-wt-listSection+.dsh-wt-listSection{margin-top:var(--wt-space-2)}\n.dsh-wt-sectionHead,.dsh-wt-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-3);min-height:28px;margin:0;padding:var(--wt-space-1) 0;background:transparent;transition:background-color var(--wt-dur-fast) var(--wt-ease)}\n.dsh-wt-sectionHead[data-stuck],.dsh-wt-doneHead[data-stuck]{background:var(--dsh-wt-panelSurface,var(--dsw-alias-bg-layer-2))}\n.dsh-wt-doneToggle{display:flex;align-items:center;gap:var(--wt-space-2);flex:none;min-width:0;margin:0;padding:var(--wt-space-1) var(--wt-space-2) var(--wt-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--wt-transition)}\n.dsh-wt-doneToggle:active{background:var(--wt-active)}\n.dsh-wt-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-wt-chevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);transition:transform var(--wt-dur-fast) var(--wt-ease)}\n.dsh-wt-chevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-wt-sectionCount{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 var(--wt-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--wt-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--wt-fs-caption);line-height:16px;font-weight:500;font-variant-numeric:tabular-nums}\n.dsh-wt-clear{display:inline-flex;align-items:center;flex:none;height:24px;margin-left:auto;padding:0 var(--wt-space-2);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;cursor:pointer;transition:var(--wt-transition)}\n.dsh-wt-clear:active{background:var(--wt-active);color:var(--dsw-alias-label-primary)}\n.dsh-wt-clearConfirm{display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-2);min-width:0;margin-top:var(--wt-space-1);padding:var(--wt-space-2);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-wt-clearConfirmText{flex:1 1 auto;min-width:0;margin:0;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-primary);overflow-wrap:anywhere}\n.dsh-wt-clearConfirmActions{display:flex;align-items:center;flex:none;gap:var(--wt-space-1)}\n.dsh-wt-doneRows{margin-top:var(--wt-space-2)}\n.dsh-wt-rows{list-style:none;margin:0;padding:0;border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);overflow:hidden}\n.dsh-wt-row{display:flex;align-items:flex-start;gap:var(--wt-space-2);padding:var(--wt-space-2);border-top:0.5px solid var(--wt-divider);transition:var(--wt-transition)}\n.dsh-wt-row:first-child{border-top:0}\n\n/* ── 6 一行便笺 · 勾选圈 14px，命中区 24px ─────────────────────────── */\n.dsh-wt-check{display:flex;align-items:center;justify-content:center;flex:none;width:24px;height:24px;margin:-2px 0 0;padding:0;border:0;border-radius:var(--wt-radius-pill);corner-shape:round;background:transparent;color:transparent;font:inherit;cursor:pointer;transition:var(--wt-transition)}\n.dsh-wt-checkCircle{display:flex;align-items:center;justify-content:center;width:14px;height:14px;box-sizing:border-box;border:0.5px solid var(--dsw-alias-label-tertiary);border-radius:var(--wt-radius-pill);corner-shape:round;background:transparent;color:transparent;transition:border-color var(--wt-dur-fast) var(--wt-ease),background-color var(--wt-dur-fast) var(--wt-ease),color var(--wt-dur-fast) var(--wt-ease),transform var(--wt-dur-fast) var(--wt-ease)}\n.dsh-wt-check:active .dsh-wt-checkCircle{transform:scale(.9)}\n.dsh-wt-check[aria-checked=\"true\"] .dsh-wt-checkCircle{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-wt-itemBody{display:flex;flex:1;flex-direction:column;gap:var(--wt-space-1);min-width:0}\n.dsh-wt-text{display:block;width:100%;margin:0;padding:0;border:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;cursor:text;user-select:text;-webkit-user-select:text}\n.dsh-wt-rowDone .dsh-wt-text{color:var(--dsw-alias-label-secondary);text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:var(--dsw-alias-label-tertiary)}\n.dsh-wt-rowFoot{display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-2);min-height:24px}\n.dsh-wt-meta{flex:0 1 auto;min-width:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}\n\n/* ── 7 行操作 · 图标按钮 H24/R8，触摸端常显 ────────────────────────── */\n.dsh-wt-actions{display:flex;flex:none;gap:var(--wt-space-1)}\n.dsh-wt-iconBtn{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--wt-transition)}\n.dsh-wt-iconBtn:active{background:var(--wt-active);color:var(--dsw-alias-label-primary);transform:scale(.94)}\n.dsh-wt-iconBtn:disabled,.dsh-wt-iconBtn[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-wt-forwardMark{position:absolute;right:0;bottom:0;display:flex;align-items:center;justify-content:center;width:10px;height:10px;border-radius:var(--wt-radius-pill);corner-shape:round;background:var(--dsw-alias-label-secondary);color:var(--dsw-alias-label-primary-foreground);pointer-events:none}\n\n/* ── 8 就地编辑 · 保存/取消为紧凑描边按钮 ──────────────────────────── */\n.dsh-wt-edit{display:flex;flex-direction:column;gap:var(--wt-space-1);width:100%}\n.dsh-wt-editInput{display:block;width:100%;box-sizing:border-box;min-height:var(--wt-lh-row);max-height:160px;padding:var(--wt-space-1) var(--wt-space-2);border:0.5px solid var(--wt-field-line);border-radius:var(--dsw-radius-sm);background:var(--wt-field);color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);outline:0;resize:none;overflow-y:auto;overflow-x:hidden;transition:var(--wt-transition)}\n.dsh-wt-editInput:focus{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-wt-editActions{display:flex;align-items:center;gap:var(--wt-space-1)}\n.dsh-wt-editHint{flex:1 1 auto;min-width:0;margin-left:auto;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);text-align:right;color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-wt-mini{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--wt-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;cursor:pointer;transition:var(--wt-transition)}\n.dsh-wt-mini:active{background:var(--wt-active)}\n.dsh-wt-mini[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-wt-miniPrimary{border-color:transparent;background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-wt-miniPrimary:active{background:var(--dsw-alias-button-primary-dimmed)}\n.dsh-wt-miniDanger{border-color:transparent;background:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-wt-miniDanger:active{background:var(--dsw-alias-state-error-primary)}\n\n/* ── 9 空态 · 虚线 1px，说明 12/次级墨色 ──────────────────────────── */\n.dsh-wt-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--wt-space-2);padding:var(--wt-space-5) var(--wt-space-4);border:1px dashed var(--wt-divider);border-radius:var(--dsw-radius-lg);text-align:center}\n.dsh-wt-emptyIcon{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0 0 var(--wt-space-1);border-radius:var(--dsw-radius-md);background:var(--wt-hover);color:var(--dsw-alias-label-secondary)}\n.dsh-wt-emptyTitle{font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-wt-emptyBody{max-width:36ch;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n\n/* ── 10 设置 · 分组 R16，项间 0.5px 分隔线，链接走 --dsw-alias-link ── */\n.dsh-wt-settings{--dsh-wt-settingIndent:var(--wt-space-3);display:flex;flex-direction:column;gap:var(--wt-space-2);margin:0;padding:var(--wt-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-wt-settingsHead{font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-wt-settingGroup{display:flex;flex-direction:column;gap:var(--wt-space-1);min-width:0}\n.dsh-wt-settingGroup+.dsh-wt-settingGroup{margin-top:var(--wt-space-2);padding-top:var(--wt-space-2);border-top:0.5px solid var(--wt-divider)}\n.dsh-wt-settingLabel{font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-wt-settingBody{display:flex;flex-direction:column;gap:var(--wt-space-1);padding-left:var(--dsh-wt-settingIndent)}\n.dsh-wt-settingItem{display:flex;flex-direction:column;gap:var(--wt-space-1);min-width:0}\n.dsh-wt-settingItem+.dsh-wt-settingItem{margin-top:var(--wt-space-2);padding-top:var(--wt-space-2);border-top:0.5px solid var(--wt-divider)}\n.dsh-wt-settingChoices{display:flex;flex-direction:column;gap:var(--wt-space-1)}\n.dsh-wt-settingChoice{display:flex;align-items:flex-start;gap:var(--wt-space-2);font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);color:var(--dsw-alias-label-primary);cursor:pointer}\n.dsh-wt-settingChoice input{appearance:none;flex:none;width:14px;height:14px;margin:calc((var(--wt-lh-row) - 14px) / 2) 0 0;box-sizing:border-box;border:0.5px solid var(--dsw-alias-label-tertiary);border-radius:var(--wt-radius-pill);corner-shape:round;background:transparent;cursor:pointer;transition:var(--wt-transition)}\n.dsh-wt-settingChoice input:checked{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-brand-primary);box-shadow:inset 0 0 0 3px var(--wt-field)}\n.dsh-wt-settingInput{box-sizing:border-box;width:100%;height:28px;padding:0 var(--wt-space-2);border:0.5px solid var(--wt-field-line);border-radius:var(--dsw-radius-sm);background:var(--wt-field);color:var(--dsw-alias-label-primary);font-family:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);font-weight:500;outline:0;transition:var(--wt-transition)}\n.dsh-wt-settingItem>.dsh-wt-settingInput{font-family:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);font-weight:500}\n.dsh-wt-settingInput:focus{border-color:var(--dsw-alias-state-business-primary)}\n/* 前缀提示词改为文本域：min-height 兜住三行，空态也不会被内联高度压扁 */\n.dsh-wt-settingTextarea{display:block;height:auto;min-height:calc(var(--wt-lh-row) + var(--wt-space-4) + 2px);padding:var(--wt-space-2);resize:none;overflow-y:auto;white-space:pre-wrap;overflow-wrap:anywhere}\n.dsh-wt-settingHint{margin:0;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-wt-settingHintNote{margin-top:var(--wt-space-1)}\n.dsh-wt-settingAbout{display:flex;align-items:baseline;gap:var(--wt-space-1);min-width:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}\n.dsh-wt-settingAbout>span{flex:none}\n.dsh-wt-settingProject{display:flex;align-items:baseline;gap:var(--wt-space-1);min-width:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}\n.dsh-wt-settingProject>span{flex:none}\n.dsh-wt-settingDot{flex:none;color:var(--dsw-alias-label-tertiary)}\n.dsh-wt-settingLink{flex:0 1 auto;min-width:0;overflow:hidden;color:var(--dsw-alias-link);font-weight:500;text-decoration:none;text-overflow:ellipsis;transition:var(--wt-transition)}\n.dsh-wt-settingLink:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n\n/* ── 11 面板脚注 · 存储状态就地提示，错误用状态色 ─────────────────── */\n.dsh-wt-popFoot{margin:0;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-wt-error{color:var(--dsw-alias-state-error-primary)}\n\n/* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */\n.dsh-wt-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--wt-transition)}\n.dsh-wt-headerBtn:active{background:var(--wt-active);color:var(--dsw-alias-label-primary)}\n.dsh-wt-headerBtn[data-active=\"true\"]{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}\n.dsh-wt-headerBtn[data-disabled=\"true\"]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-wt-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}\n.dsh-wt-headerCount{position:absolute;top:-2px;right:-2px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 var(--wt-space-1);border:0.5px solid var(--dsw-alias-bg-base);border-radius:var(--wt-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-secondary);font-size:var(--wt-fs-caption);line-height:14px;font-weight:500;font-variant-numeric:tabular-nums}\n\n/* ── 13 拖拽把手 · 8px 命中带，3px 视觉条 ─────────────────────────── */\n.dsh-wt-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--wt-space-2);cursor:ew-resize;touch-action:none;outline:0}\n.dsh-wt-resizeHandle::before{content:\"\";width:3px;height:var(--wt-space-6);border-radius:var(--wt-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--wt-dur-fast) var(--wt-ease),background-color var(--wt-dur-fast) var(--wt-ease)}\n.dsh-wt-resizeHandle:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-wt-resizeHandle:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n.dsh-wt-resizeHandleBottom{position:absolute;left:50%;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--wt-space-6);height:var(--wt-space-3);transform:translateX(-50%);cursor:ns-resize;touch-action:none;outline:0}\n.dsh-wt-resizeHandleBottom::before{content:\"\";width:var(--wt-space-5);height:3px;border-radius:var(--wt-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--wt-dur-fast) var(--wt-ease),background-color var(--wt-dur-fast) var(--wt-ease)}\n.dsh-wt-resizeHandleBottom:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-wt-resizeHandleBottom:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n\n/* ── 14 加载 · 控件内 12px 环，文字隐藏，不报\"进行中\" ──────────────── */\n[data-loading=\"true\"]{position:relative;color:transparent!important;pointer-events:none;cursor:progress}\n[data-loading=\"true\"]>*{visibility:hidden}\n[data-loading=\"true\"]::after{content:\"\";position:absolute;left:50%;top:50%;box-sizing:border-box;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid var(--dsw-alias-label-secondary);border-top-color:transparent;border-radius:var(--wt-radius-pill);corner-shape:round;animation:dsh-wt-spin var(--wt-dur-spin) linear infinite}\n\n/* ── 15 悬停 · 只在支持 hover 的设备上启用（触摸端常显操作） ────────── */\n@media (hover:hover){\n.dsh-wt-row:hover{background:var(--wt-hover)}\n.dsh-wt-actions{opacity:0;pointer-events:none}\n.dsh-wt-row:hover .dsh-wt-actions,.dsh-wt-row:focus-within .dsh-wt-actions{opacity:1;pointer-events:auto}\n.dsh-wt-iconBtn:hover{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}\n.dsh-wt-iconBtnDanger:hover{background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-wt-popClose:hover,.dsh-wt-settingsBtn:hover{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}\n.dsh-wt-addBtn:hover:not([disabled]){background:var(--dsw-alias-button-primary-hover)}\n.dsh-wt-mini:hover:not([disabled]){background:var(--wt-hover)}\n.dsh-wt-miniPrimary:hover:not([disabled]){background:var(--dsw-alias-button-primary-hover);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-wt-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-wt-clear:hover{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}\n.dsh-wt-doneToggle:hover{background:var(--wt-hover)}\n.dsh-wt-check:hover .dsh-wt-checkCircle{border-color:var(--dsw-alias-label-primary)}\n.dsh-wt-settingChoice:hover input{border-color:var(--dsw-alias-label-primary)}\n.dsh-wt-settingLink:hover{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-wt-headerBtn:hover{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}\n.dsh-wt-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}\n.dsh-wt-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}\n}\n\n/* ── 16 动效 · 只动 opacity/transform，错峰出场封顶 ─────────────────── */\n@media (prefers-reduced-motion:no-preference){\n.dsh-wt-rows>.dsh-wt-row{animation:dsh-wt-row-in var(--wt-dur-base) var(--wt-ease) both}\n.dsh-wt-rows>.dsh-wt-row:nth-child(2){animation-delay:var(--wt-space-1)}\n.dsh-wt-rows>.dsh-wt-row:nth-child(3){animation-delay:var(--wt-space-2)}\n.dsh-wt-rows>.dsh-wt-row:nth-child(4){animation-delay:calc(var(--wt-space-2) + var(--wt-space-1))}\n.dsh-wt-rows>.dsh-wt-row:nth-child(n+5){animation-delay:var(--wt-space-3)}\n}\n@keyframes dsh-wt-pop-in{from{opacity:0}to{opacity:1}}\n@keyframes dsh-wt-row-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}\n@keyframes dsh-wt-spin{to{transform:rotate(360deg)}}\n@media (prefers-reduced-motion:reduce){\n.dsh-wt-popover,.dsh-wt-rows>.dsh-wt-row,.dsh-wt-chevron,[data-loading=\"true\"]::after{animation:none}\n.dsh-wt-popover,.dsh-wt-row,.dsh-wt-actions,.dsh-wt-iconBtn{transition-duration:1ms}\n}\n\n/* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */\n@media (max-width:480px){\n.dsh-wt-popover{padding:var(--wt-space-3);--dsh-wt-listGutter:var(--wt-space-3)}\n.dsh-wt-popoverRight{padding-left:var(--wt-space-4)}\n.dsh-wt-popHead{gap:var(--wt-space-2)}\n.dsh-wt-add{padding:var(--wt-space-2) var(--wt-space-3)}\n.dsh-wt-sectionHead,.dsh-wt-doneHead{min-height:24px}\n}\n\n";
+// \0dsh-css:src/client/styles/panel.css.mjs
+var panel_css_default = "/*\n * Panel, composer dock, header entry and toast styles.\n *\n * Only DSH semantic aliases and the shared scale are used here — no palette of\n * its own. The entry point injects this sheet once for the whole frame, because\n * the dock mounts outside the panel tree.\n */\n/* ── 1 令牌 · 只映射 DSH 语义别名与共享尺度，不新建调色板 ─────────── */\nbody{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-space-5:24px;--an-space-6:32px;--an-radius-pill:999px;--an-fs-caption:12px;--an-lh-caption:20px;--an-fs-row:13px;--an-lh-row:20px;--an-fs-title:14px;--an-lh-title:20px;--an-hover:var(--dsw-alias-interactive-bg-hover);--an-active:var(--dsw-alias-interactive-bg-active);--an-field:var(--dsw-alias-bg-layer-1);--an-field-line:var(--dsw-alias-border-l4);--an-divider:var(--dsw-alias-border-l2);--an-dur-fast:var(--ds-transition-duration-fast);--an-dur-base:var(--ds-transition-duration);--an-dur-spin:700ms;--an-ease:var(--ds-ease-in-out);--an-transition:background-color var(--an-dur-fast) var(--an-ease),border-color var(--an-dur-fast) var(--an-ease),color var(--an-dur-fast) var(--an-ease),opacity var(--an-dur-fast) var(--an-ease),transform var(--an-dur-fast) var(--an-ease),box-shadow var(--an-dur-fast) var(--an-ease)}\n\n/* ── 2 浮层 · 菜单材质 + 三层阴影，边框为 0（发丝线在阴影第一层） ── */\n.dsh-an-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--an-space-3);min-height:0;padding:var(--an-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--an-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--an-divider)));--dsh-an-panelSurface:var(--dsw-alias-bg-layer-2);--dsh-an-listGutter:var(--an-space-4);--dsh-an-scrollRail:9px;--dsh-an-scrollInset:2px;overflow:hidden;animation:dsh-an-pop-in var(--an-dur-base) var(--an-ease) both}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n\n/* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */\n.dsh-an-popHead{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-width:0}\n.dsh-an-popTitleLine{display:flex;align-items:center;gap:var(--an-space-3);flex:1 1 auto;min-width:0}\n.dsh-an-popTitle{min-width:0;overflow:hidden;font-size:var(--an-fs-title);line-height:var(--an-lh-title);font-weight:500;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popMeta{min-width:0;margin:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:16px;color:var(--dsw-alias-label-secondary);font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popActions{display:flex;align-items:center;flex:none;gap:var(--an-space-2)}\n.dsh-an-popClose,.dsh-an-settingsBtn{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-popClose:active,.dsh-an-settingsBtn:active{background:var(--an-active)}\n.dsh-an-settingsBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n\n/* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */\n.dsh-an-add{display:flex;flex-direction:column;gap:var(--an-space-2);padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--an-transition)}\n.dsh-an-add:focus-within{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-an-input{display:block;flex:0 0 auto;width:100%;min-width:0;box-sizing:border-box;min-height:var(--an-lh-row);max-height:120px;padding:0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);resize:none;overflow-y:auto;overflow-x:hidden}\n.dsh-an-input::placeholder{color:var(--dsw-alias-label-secondary)}\n.dsh-an-addFoot{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);width:100%;min-width:0}\n.dsh-an-addShortcut{min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-addBtn{display:inline-flex;align-items:center;justify-content:center;flex:none;height:28px;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-addBtn:active{background:var(--dsw-alias-button-primary-dimmed);transform:scale(.97)}\n.dsh-an-addBtn[disabled]{background:transparent;color:var(--dsw-alias-label-secondary);box-shadow:inset 0 0 0 0.5px var(--an-field-line);cursor:not-allowed}\n\n/* ── 5 分区与列表 · 9px 轨道内嵌 2px，底部羽化只盖内容不盖滚动条 ──── */\n/* The viewport grows into the popover padding so the 9px rail does not steal from the cards; the list pays the padding back minus the rail, so cards and the add field keep one content width at every panel size. */\n.dsh-an-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--dsh-an-listGutter) * -1)}\n/* Bottom edge treatment: a viewport-fixed alpha mask over the scroller itself, exactly like the DSH scroll areas. The first gradient fades the last 48px to transparent; the second keeps the 9px scrollbar rail opaque so the thumb stays crisp. There is no backdrop-filter layer, so there is no hard compositing edge to see. */\n.dsh-an-listViewport[data-bottom=\"true\"] .dsh-an-listArea{--dsh-an-fadeHeight:calc(var(--an-space-6) + var(--an-space-4));-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n/* Geometry only: the shared DSH skin paints the thumb, so the plugin declares no scrollbar pseudo-elements. The popover already binds the l2 thumb pair for the menu material. */\n.dsh-an-listArea{--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}\n.dsh-an-listSection{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-listSection+.dsh-an-listSection{margin-top:var(--an-space-2)}\n.dsh-an-sectionHead,.dsh-an-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-height:28px;margin:0;padding:var(--an-space-1) 0;background:transparent;transition:background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-sectionHead[data-stuck],.dsh-an-doneHead[data-stuck]{background:var(--dsh-an-panelSurface,var(--dsw-alias-bg-layer-2))}\n.dsh-an-doneToggle{display:flex;align-items:center;gap:var(--an-space-2);flex:none;min-width:0;margin:0;padding:var(--an-space-1) var(--an-space-2) var(--an-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-doneToggle:active{background:var(--an-active)}\n.dsh-an-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-chevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-chevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-sectionCount{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500;font-variant-numeric:tabular-nums}\n.dsh-an-clear{display:inline-flex;align-items:center;flex:none;height:24px;margin-left:auto;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-clear:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-clearConfirm{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);min-width:0;margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-clearConfirmText{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-primary);overflow-wrap:anywhere}\n.dsh-an-clearConfirmActions{display:flex;align-items:center;flex:none;gap:var(--an-space-1)}\n.dsh-an-doneRows{margin-top:var(--an-space-2)}\n.dsh-an-rows{list-style:none;margin:0;padding:0;border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);overflow:hidden}\n.dsh-an-row{display:flex;align-items:flex-start;gap:var(--an-space-2);padding:var(--an-space-2);border-top:0.5px solid var(--an-divider);transition:var(--an-transition)}\n.dsh-an-row:first-child{border-top:0}\n\n/* ── 6 一行便笺 · 勾选圈 14px，命中区 24px ─────────────────────────── */\n.dsh-an-check{display:flex;align-items:center;justify-content:center;flex:none;width:24px;height:24px;margin:-2px 0 0;padding:0;border:0;border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;color:transparent;font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-checkCircle{display:flex;align-items:center;justify-content:center;width:14px;height:14px;box-sizing:border-box;border:0.5px solid var(--dsw-alias-label-tertiary);border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;color:transparent;transition:border-color var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease),color var(--an-dur-fast) var(--an-ease),transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-check:active .dsh-an-checkCircle{transform:scale(.9)}\n.dsh-an-check[aria-checked=\"true\"] .dsh-an-checkCircle{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-itemBody{display:flex;flex:1;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-text{display:block;width:100%;margin:0;padding:0;border:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;cursor:text;user-select:text;-webkit-user-select:text}\n.dsh-an-rowDone .dsh-an-text{color:var(--dsw-alias-label-secondary);text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:var(--dsw-alias-label-tertiary)}\n.dsh-an-rowFoot{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);min-height:24px}\n.dsh-an-meta{flex:0 1 auto;min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}\n\n/* ── 7 行操作 · 图标按钮 H24/R8，触摸端常显 ────────────────────────── */\n.dsh-an-actions{display:flex;flex:none;gap:var(--an-space-1)}\n.dsh-an-iconBtn{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-iconBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary);transform:scale(.94)}\n.dsh-an-iconBtn:disabled,.dsh-an-iconBtn[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-forwardMark{position:absolute;right:0;bottom:0;display:flex;align-items:center;justify-content:center;width:10px;height:10px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-label-secondary);color:var(--dsw-alias-label-primary-foreground);pointer-events:none}\n\n/* ── 8 就地编辑 · 保存/取消为紧凑描边按钮 ──────────────────────────── */\n.dsh-an-edit{display:flex;flex-direction:column;gap:var(--an-space-1);width:100%}\n.dsh-an-editInput{display:block;width:100%;box-sizing:border-box;min-height:var(--an-lh-row);max-height:160px;padding:var(--an-space-1) var(--an-space-2);border:0.5px solid var(--an-field-line);border-radius:var(--dsw-radius-sm);background:var(--an-field);color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);outline:0;resize:none;overflow-y:auto;overflow-x:hidden;transition:var(--an-transition)}\n.dsh-an-editInput:focus{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-an-editActions{display:flex;align-items:center;gap:var(--an-space-1)}\n.dsh-an-editHint{flex:1 1 auto;min-width:0;margin-left:auto;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);text-align:right;color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-mini{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-mini:active{background:var(--an-active)}\n.dsh-an-mini[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-miniPrimary{border-color:transparent;background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniPrimary:active{background:var(--dsw-alias-button-primary-dimmed)}\n.dsh-an-miniDanger{border-color:transparent;background:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniDanger:active{background:var(--dsw-alias-state-error-primary)}\n\n/* ── 9 空态 · 虚线 1px，说明 12/次级墨色 ──────────────────────────── */\n.dsh-an-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--an-space-2);padding:var(--an-space-5) var(--an-space-4);border:1px dashed var(--an-divider);border-radius:var(--dsw-radius-lg);text-align:center}\n.dsh-an-emptyIcon{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0 0 var(--an-space-1);border-radius:var(--dsw-radius-md);background:var(--an-hover);color:var(--dsw-alias-label-secondary)}\n.dsh-an-emptyTitle{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-emptyBody{max-width:36ch;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n\n/* ── 10 设置 · 分组 R16，项间 0.5px 分隔线，链接走 --dsw-alias-link ── */\n.dsh-an-settings{--dsh-an-settingIndent:var(--an-space-3);display:flex;flex-direction:column;gap:var(--an-space-2);margin:0;padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-settingsHead{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-settingGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-settingGroup+.dsh-an-settingGroup{margin-top:var(--an-space-2);padding-top:var(--an-space-2);border-top:0.5px solid var(--an-divider)}\n.dsh-an-settingLabel{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-an-settingBody{display:flex;flex-direction:column;gap:var(--an-space-1);padding-left:var(--dsh-an-settingIndent)}\n.dsh-an-settingItem{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-settingItem+.dsh-an-settingItem{margin-top:var(--an-space-2);padding-top:var(--an-space-2);border-top:0.5px solid var(--an-divider)}\n.dsh-an-settingChoices{display:flex;flex-direction:column;gap:var(--an-space-1)}\n.dsh-an-settingChoice{display:flex;align-items:flex-start;gap:var(--an-space-2);font-size:var(--an-fs-row);line-height:var(--an-lh-row);color:var(--dsw-alias-label-primary);cursor:pointer}\n.dsh-an-settingChoice input{appearance:none;flex:none;width:14px;height:14px;margin:calc((var(--an-lh-row) - 14px) / 2) 0 0;box-sizing:border-box;border:0.5px solid var(--dsw-alias-label-tertiary);border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-settingChoice input:checked{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-brand-primary);box-shadow:inset 0 0 0 3px var(--an-field)}\n.dsh-an-settingInput{box-sizing:border-box;width:100%;height:28px;padding:0 var(--an-space-2);border:0.5px solid var(--an-field-line);border-radius:var(--dsw-radius-sm);background:var(--an-field);color:var(--dsw-alias-label-primary);font-family:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;outline:0;transition:var(--an-transition)}\n.dsh-an-settingItem>.dsh-an-settingInput{font-family:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500}\n.dsh-an-settingInput:focus{border-color:var(--dsw-alias-state-business-primary)}\n/* 前缀提示词改为文本域：min-height 兜住三行，空态也不会被内联高度压扁 */\n.dsh-an-settingTextarea{display:block;height:auto;min-height:calc(var(--an-lh-row) + var(--an-space-4) + 2px);padding:var(--an-space-2);resize:none;overflow-y:auto;white-space:pre-wrap;overflow-wrap:anywhere}\n.dsh-an-settingHint{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-settingHintNote{margin-top:var(--an-space-1)}\n.dsh-an-settingAbout{display:flex;align-items:baseline;gap:var(--an-space-1);min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}\n.dsh-an-settingAbout>span{flex:none}\n.dsh-an-settingProject{display:flex;align-items:baseline;gap:var(--an-space-1);min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}\n.dsh-an-settingProject>span{flex:none}\n.dsh-an-settingDot{flex:none;color:var(--dsw-alias-label-tertiary)}\n.dsh-an-settingLink{flex:0 1 auto;min-width:0;overflow:hidden;color:var(--dsw-alias-link);font-weight:500;text-decoration:none;text-overflow:ellipsis;transition:var(--an-transition)}\n.dsh-an-settingLink:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n\n/* ── 11 面板脚注 · 存储状态就地提示，错误用状态色 ─────────────────── */\n.dsh-an-popFoot{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-error{color:var(--dsw-alias-state-error-primary)}\n\n/* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */\n.dsh-an-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-headerBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-disabled=\"true\"]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}\n.dsh-an-headerCount{position:absolute;top:-2px;right:-2px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-bg-base);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:14px;font-weight:500;font-variant-numeric:tabular-nums}\n\n/* ── 13 拖拽把手 · 8px 命中带，3px 视觉条 ─────────────────────────── */\n.dsh-an-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-2);cursor:ew-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandle::before{content:\"\";width:3px;height:var(--an-space-6);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandle:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandle:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n.dsh-an-resizeHandleBottom{position:absolute;left:50%;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-6);height:var(--an-space-3);transform:translateX(-50%);cursor:ns-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandleBottom::before{content:\"\";width:var(--an-space-5);height:3px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandleBottom:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n\n/* ── 14 加载 · 控件内 12px 环，文字隐藏，不报\"进行中\" ──────────────── */\n[data-loading=\"true\"]{position:relative;color:transparent!important;pointer-events:none;cursor:progress}\n[data-loading=\"true\"]>*{visibility:hidden}\n[data-loading=\"true\"]::after{content:\"\";position:absolute;left:50%;top:50%;box-sizing:border-box;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid var(--dsw-alias-label-secondary);border-top-color:transparent;border-radius:var(--an-radius-pill);corner-shape:round;animation:dsh-an-spin var(--an-dur-spin) linear infinite}\n\n/* ── 15 悬停 · 只在支持 hover 的设备上启用（触摸端常显操作） ────────── */\n@media (hover:hover){\n.dsh-an-row:hover{background:var(--an-hover)}\n.dsh-an-actions{opacity:0;pointer-events:none}\n.dsh-an-row:hover .dsh-an-actions,.dsh-an-row:focus-within .dsh-an-actions{opacity:1;pointer-events:auto}\n.dsh-an-iconBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-iconBtnDanger:hover{background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-an-popClose:hover,.dsh-an-settingsBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-addBtn:hover:not([disabled]){background:var(--dsw-alias-button-primary-hover)}\n.dsh-an-mini:hover:not([disabled]){background:var(--an-hover)}\n.dsh-an-miniPrimary:hover:not([disabled]){background:var(--dsw-alias-button-primary-hover);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-an-clear:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-doneToggle:hover{background:var(--an-hover)}\n.dsh-an-check:hover .dsh-an-checkCircle{border-color:var(--dsw-alias-label-primary)}\n.dsh-an-settingChoice:hover input{border-color:var(--dsw-alias-label-primary)}\n.dsh-an-settingLink:hover{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-headerBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}\n}\n\n/* ── 16 动效 · 只动 opacity/transform，错峰出场封顶 ─────────────────── */\n@media (prefers-reduced-motion:no-preference){\n.dsh-an-rows>.dsh-an-row{animation:dsh-an-row-in var(--an-dur-base) var(--an-ease) both}\n.dsh-an-rows>.dsh-an-row:nth-child(2){animation-delay:var(--an-space-1)}\n.dsh-an-rows>.dsh-an-row:nth-child(3){animation-delay:var(--an-space-2)}\n.dsh-an-rows>.dsh-an-row:nth-child(4){animation-delay:calc(var(--an-space-2) + var(--an-space-1))}\n.dsh-an-rows>.dsh-an-row:nth-child(n+5){animation-delay:var(--an-space-3)}\n}\n@keyframes dsh-an-pop-in{from{opacity:0}to{opacity:1}}\n@keyframes dsh-an-row-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}\n@keyframes dsh-an-spin{to{transform:rotate(360deg)}}\n@media (prefers-reduced-motion:reduce){\n.dsh-an-popover,.dsh-an-rows>.dsh-an-row,.dsh-an-chevron,[data-loading=\"true\"]::after{animation:none}\n.dsh-an-popover,.dsh-an-row,.dsh-an-actions,.dsh-an-iconBtn{transition-duration:1ms}\n}\n\n/* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */\n@media (max-width:480px){\n.dsh-an-popover{padding:var(--an-space-3);--dsh-an-listGutter:var(--an-space-3)}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n.dsh-an-popHead{gap:var(--an-space-2)}\n.dsh-an-add{padding:var(--an-space-2) var(--an-space-3)}\n.dsh-an-sectionHead,.dsh-an-doneHead{min-height:24px}\n}\n\n";
 
 // src/client/constants.ts
 /**
@@ -47,24 +47,24 @@ var panel_css_default = "/*\n * Panel, composer dock, header entry and toast sty
 * storage modules and the panel import it instead of repeating literals.
 */
 /** Locale namespace of this plugin's copy (also binds the renderer's `t` prop). */
-const NS = "workspace-todos";
+const NS = "dsh-asidenote";
 /** Sidebar launcher id and the main panel key it addresses. */
-const PANEL_ID = "workspace-todos";
+const PANEL_ID = "dsh-asidenote";
 /** Session-scoped memo store used by the popover and the session-header entry. */
-const SESSION_STORAGE_KEY = "dsh.session-memos.v1";
+const SESSION_STORAGE_KEY = "dsh.aside-notes.v2";
 /** Unsaved add/edit drafts, restored when the panel is reopened. */
-const DRAFT_STORAGE_KEY = "dsh.memo.drafts.v1";
+const DRAFT_STORAGE_KEY = "dsh.aside-notes.drafts.v2";
 /** Notes already forwarded to the composer, per session; marks the forward button. */
-const FORWARDED_STORAGE_KEY = "dsh.memo.forwarded.v1";
+const FORWARDED_STORAGE_KEY = "dsh.aside-notes.forwarded.v2";
 /** Shown in the in-panel settings; keep in sync with package.json. */
-const PLUGIN_VERSION = "1.9.7";
+const PLUGIN_VERSION = "2.0.0";
 const PLUGIN_AUTHOR = "阿三石";
-const PLUGIN_REPO_URL = "https://github.com/Rayle8/dsh-workspace-todos";
-const PLUGIN_REPO_LABEL = "github.com/Rayle8/dsh-workspace-todos";
+const PLUGIN_REPO_URL = "https://github.com/Rayle8/dsh-dsh-asidenote";
+const PLUGIN_REPO_LABEL = "github.com/Rayle8/dsh-dsh-asidenote";
 /** Send preference; persisted across panel openings. Enter sends by default. */
-const SEND_SHORTCUT_KEY = "dsh.memo.send-shortcut.v1";
+const SEND_SHORTCUT_KEY = "dsh.aside-notes.send-shortcut.v2";
 /** Lead-in written before a forwarded note; empty means no prefix. */
-const FORWARD_PREFIX_STORAGE_KEY = "dsh.memo.forward-prefix.v1";
+const FORWARD_PREFIX_STORAGE_KEY = "dsh.aside-notes.forward-prefix.v2";
 const SEND_SHORTCUT_DEFAULT = "enter";
 /** macOS names the command modifier with a symbol; other platforms say Ctrl. */
 const IS_MAC = (() => {
@@ -81,7 +81,7 @@ function isSendModifier(event) {
 	return IS_MAC ? event.metaKey === true : event.ctrlKey === true;
 }
 /** Remembered expand/collapse state of the open/completed sections. */
-const SECTION_STATE_KEY = "dsh.memo.sections.v1";
+const SECTION_STATE_KEY = "dsh.aside-notes.sections.v2";
 const SECTION_STATE_DEFAULT = {
 	open: true,
 	done: false
@@ -89,9 +89,9 @@ const SECTION_STATE_DEFAULT = {
 /** How long the inline clear-completed confirmation waits before it dismisses itself. */
 const CLEAR_CONFIRM_MS = 5e3;
 /** Persisted width of the experimental right-side panel. */
-const PANEL_WIDTH_KEY = "dsh.memo.panel-width.v1";
+const PANEL_WIDTH_KEY = "dsh.aside-notes.panel-width.v2";
 /** Persisted height of the experimental right-side panel; 0 means content-sized. */
-const PANEL_HEIGHT_KEY = "dsh.memo.panel-height.v1";
+const PANEL_HEIGHT_KEY = "dsh.aside-notes.panel-height.v2";
 
 // src/client/i18n/en.ts
 /** English copy; a missing key fails the typecheck rather than falling back at runtime. */
@@ -473,7 +473,7 @@ function notifyTodoChange() {
 	for (const listener of TODO_LISTENERS) try {
 		listener();
 	} catch (error) {
-		console.error("workspace-todos: listener failed", error);
+		console.error("dsh-asidenote: listener failed", error);
 	}
 }
 
@@ -538,6 +538,46 @@ function writeSessionRecord(sessionId, record) {
 	}
 }
 
+// src/client/storage/migrate.ts
+/** One-time marker; its presence means the copy below already ran successfully. */
+const MIGRATED_KEY = "dsh.aside-notes.migrated.v2";
+/**
+* The 1.x keys, read once and copied verbatim.
+*
+* They are never deleted: a user who rolls back to 1.9.x still finds their
+* notes, and a half-finished copy is retried on the next load because the
+* marker is only written after the whole loop succeeds.
+*/
+const LEGACY_KEYS = [
+	[SESSION_STORAGE_KEY, "dsh.session-memos.v1"],
+	[DRAFT_STORAGE_KEY, "dsh.memo.drafts.v1"],
+	[FORWARDED_STORAGE_KEY, "dsh.memo.forwarded.v1"],
+	[SECTION_STATE_KEY, "dsh.memo.sections.v1"],
+	[PANEL_WIDTH_KEY, "dsh.memo.panel-width.v1"],
+	[PANEL_HEIGHT_KEY, "dsh.memo.panel-height.v1"],
+	[SEND_SHORTCUT_KEY, "dsh.memo.send-shortcut.v1"],
+	[FORWARD_PREFIX_STORAGE_KEY, "dsh.memo.forward-prefix.v1"]
+];
+/**
+* Copy 1.x storage into the AsideNote keys.
+*
+* Runs before anything reads the store. A newer value already present wins, so
+* the migration never overwrites what the user did after upgrading.
+*/
+function migrateLegacyStorage() {
+	const ls = storage();
+	if (!ls) return;
+	try {
+		if (ls.getItem(MIGRATED_KEY) !== null) return;
+		for (const [next, legacy] of LEGACY_KEYS) {
+			if (ls.getItem(next) !== null) continue;
+			const raw = ls.getItem(legacy);
+			if (raw !== null) ls.setItem(next, raw);
+		}
+		ls.setItem(MIGRATED_KEY, (/* @__PURE__ */ new Date()).toISOString());
+	} catch {}
+}
+
 // src/client/storage/prefs.ts
 /** Panel geometry, send shortcut, forward prefix and section state. */
 /** Read the persisted right-panel width, clamped for the current viewport. */
@@ -545,7 +585,7 @@ function readPanelWidth() {
 	const ls = storage();
 	const max = Math.min(720, Math.max(280, window.innerWidth - 32));
 	try {
-		const saved = ls && Number(ls.getItem("dsh.memo.panel-width.v1"));
+		const saved = ls && Number(ls.getItem("dsh.aside-notes.panel-width.v2"));
 		if (Number.isFinite(saved) && saved > 0) return Math.max(280, Math.min(max, saved));
 	} catch {}
 	return Math.max(280, Math.min(max, 360));
@@ -562,7 +602,7 @@ function writePanelWidth(width) {
 function readPanelHeight() {
 	const ls = storage();
 	try {
-		const saved = ls && Number(ls.getItem("dsh.memo.panel-height.v1"));
+		const saved = ls && Number(ls.getItem("dsh.aside-notes.panel-height.v2"));
 		if (Number.isFinite(saved) && saved > 0) return saved;
 	} catch {}
 	return 0;
@@ -579,7 +619,7 @@ function writePanelHeight(height) {
 /** Read the Enter-to-send preference. */
 function readSendShortcut() {
 	try {
-		const saved = storage() && storage().getItem("dsh.memo.send-shortcut.v1");
+		const saved = storage() && storage().getItem("dsh.aside-notes.send-shortcut.v2");
 		return saved === "enter" || saved === "ctrl-enter" ? saved : SEND_SHORTCUT_DEFAULT;
 	} catch {
 		return SEND_SHORTCUT_DEFAULT;
@@ -594,7 +634,7 @@ function writeSendShortcut(value) {
 /** Read the user's forward lead-in; an empty string means no prefix. */
 function readForwardPrefix() {
 	try {
-		const raw = storage() && storage().getItem("dsh.memo.forward-prefix.v1");
+		const raw = storage() && storage().getItem("dsh.aside-notes.forward-prefix.v2");
 		return typeof raw === "string" ? raw.slice(0, 80) : "";
 	} catch {
 		return "";
@@ -836,7 +876,7 @@ function useSessionMemoStore(sessionId) {
 	}, [sessionKey]);
 	react.default.useEffect(() => {
 		const onStorage = (event) => {
-			if (event.key !== "dsh.session-memos.v1") return;
+			if (event.key !== "dsh.aside-notes.v2") return;
 			setRecord(readSessionRecord(sessionRef.current));
 		};
 		const onLocal = () => setRecord(readSessionRecord(sessionRef.current));
@@ -890,7 +930,7 @@ const icon = (name) => typeof PRIMITIVES[name] === "function" ? PRIMITIVES[name]
 */
 function syncStickyHeads(node) {
 	const areaTop = node.getBoundingClientRect().top;
-	for (const head of node.querySelectorAll(".dsh-wt-sectionHead, .dsh-wt-doneHead")) {
+	for (const head of node.querySelectorAll(".dsh-an-sectionHead, .dsh-an-doneHead")) {
 		const section = head.parentElement;
 		if (!section) continue;
 		const rect = section.getBoundingClientRect();
@@ -1019,9 +1059,9 @@ function TodoRow(props) {
 			resizeEditor(node);
 		});
 	};
-	const body = editing ? h("div", { className: "dsh-wt-edit" }, h("textarea", {
+	const body = editing ? h("div", { className: "dsh-an-edit" }, h("textarea", {
 		ref: setEditorRef,
-		className: "dsh-wt-editInput",
+		className: "dsh-an-editInput",
 		value: editDraft,
 		rows: 1,
 		maxLength: 280,
@@ -1062,65 +1102,65 @@ function TodoRow(props) {
 			}
 		},
 		onBlur: () => onFinishEdit(item)
-	}), h("div", { className: "dsh-wt-editActions" }, h("button", {
+	}), h("div", { className: "dsh-an-editActions" }, h("button", {
 		type: "button",
-		className: "dsh-wt-mini dsh-wt-miniPrimary",
+		className: "dsh-an-mini dsh-an-miniPrimary",
 		onMouseDown: (event) => event.preventDefault(),
 		onClick: () => onFinishEdit(item)
 	}, say("edit.save")), h("button", {
 		type: "button",
-		className: "dsh-wt-mini",
+		className: "dsh-an-mini",
 		onMouseDown: (event) => event.preventDefault(),
 		onClick: onCancelEdit
 	}, say("edit.cancel")), h("span", {
-		className: "dsh-wt-editHint",
+		className: "dsh-an-editHint",
 		title: say(editHintKey, { mod: MOD_LABEL })
 	}, say(editHintKey, { mod: MOD_LABEL })))) : h("div", {
-		className: "dsh-wt-text",
+		className: "dsh-an-text",
 		title: say("item.editHint"),
 		onDoubleClick: () => onStartEdit(item)
 	}, item.text);
 	const checked = done === true;
-	return h("li", { className: done ? "dsh-wt-row dsh-wt-rowDone" : "dsh-wt-row" }, h("button", {
+	return h("li", { className: done ? "dsh-an-row dsh-an-rowDone" : "dsh-an-row" }, h("button", {
 		type: "button",
-		className: "dsh-wt-check",
+		className: "dsh-an-check",
 		role: "checkbox",
 		"aria-checked": checked ? "true" : "false",
 		"aria-label": say(done ? "item.markOpen" : "item.markDone"),
 		onClick: toggleCheck
-	}, h("span", { className: "dsh-wt-checkCircle" }, checked ? h(IconCheck, { size: 9 }) : null)), h("div", { className: "dsh-wt-itemBody" }, body, editing ? null : h("div", { className: "dsh-wt-rowFoot" }, h("span", {
-		className: "dsh-wt-meta",
+	}, h("span", { className: "dsh-an-checkCircle" }, checked ? h(IconCheck, { size: 9 }) : null)), h("div", { className: "dsh-an-itemBody" }, body, editing ? null : h("div", { className: "dsh-an-rowFoot" }, h("span", {
+		className: "dsh-an-meta",
 		title: metaLabel(item, say, props.localeId)
-	}, metaLabel(item, say, props.localeId)), h("div", { className: "dsh-wt-actions" }, withTooltip(say("item.copy"), h("button", {
+	}, metaLabel(item, say, props.localeId)), h("div", { className: "dsh-an-actions" }, withTooltip(say("item.copy"), h("button", {
 		type: "button",
-		className: "dsh-wt-iconBtn",
+		className: "dsh-an-iconBtn",
 		"aria-label": say("item.copy"),
 		"aria-busy": pending === "copy" ? "true" : "false",
 		"data-loading": pending === "copy" ? "true" : void 0,
 		onClick: copy
 	}, h(IconCopy, null))), done ? null : withTooltip(say(forwarded ? "item.forwarded" : "item.forward"), h("button", {
 		type: "button",
-		className: "dsh-wt-iconBtn",
+		className: "dsh-an-iconBtn",
 		"aria-label": say(forwarded ? "item.forwarded" : "item.forward"),
 		"data-forwarded": forwarded ? "true" : void 0,
 		onClick: forward
 	}, h(IconForward, null), forwarded ? h("span", {
-		className: "dsh-wt-forwardMark",
+		className: "dsh-an-forwardMark",
 		"aria-hidden": true
 	}, h(IconCheck, { size: 8 })) : null)), withTooltip(say("item.edit"), h("button", {
 		type: "button",
-		className: "dsh-wt-iconBtn",
+		className: "dsh-an-iconBtn",
 		"aria-label": say("item.edit"),
 		onClick: () => onStartEdit(item)
 	}, h(IconPencil, null))), withTooltip(say("item.delete"), h("button", {
 		type: "button",
-		className: "dsh-wt-iconBtn dsh-wt-iconBtnDanger",
+		className: "dsh-an-iconBtn dsh-an-iconBtnDanger",
 		"aria-label": say("item.delete"),
 		onClick: () => onDelete(item)
 	}, h(IconTrash, null)))))));
 }
 function EmptyState(props) {
-	return h("div", { className: "dsh-wt-empty" }, h("div", { className: "dsh-wt-emptyIcon" }, h(IconEmpty, null)), h("div", { className: "dsh-wt-emptyTitle" }, props.title), h("div", { className: "dsh-wt-emptyBody" }, props.body));
+	return h("div", { className: "dsh-an-empty" }, h("div", { className: "dsh-an-emptyIcon" }, h(IconEmpty, null)), h("div", { className: "dsh-an-emptyTitle" }, props.title), h("div", { className: "dsh-an-emptyBody" }, props.body));
 }
 /**
 * Frame-owned top safety margin for floating surfaces. Read from the layout
@@ -1659,12 +1699,12 @@ function MemoPopover(props) {
 	});
 	const content = h("div", {
 		ref: panelRef,
-		className: props.placement === "right" ? "dsh-wt-popover dsh-wt-popoverRight" : "dsh-wt-popover",
+		className: props.placement === "right" ? "dsh-an-popover dsh-an-popoverRight" : "dsh-an-popover",
 		style,
 		role: "dialog",
 		"aria-label": say("popover.title")
 	}, props.placement === "right" ? h("div", {
-		className: "dsh-wt-resizeHandle",
+		className: "dsh-an-resizeHandle",
 		role: "separator",
 		"aria-orientation": "vertical",
 		"aria-label": say("resize.width"),
@@ -1674,7 +1714,7 @@ function MemoPopover(props) {
 		onDoubleClick: () => commitPanelWidth(360),
 		onKeyDown: onPanelResizeKeyDown
 	}) : null, props.placement === "right" ? h("div", {
-		className: "dsh-wt-resizeHandleBottom",
+		className: "dsh-an-resizeHandleBottom",
 		role: "separator",
 		"aria-orientation": "horizontal",
 		"aria-label": say("resize.height"),
@@ -1683,62 +1723,62 @@ function MemoPopover(props) {
 		onPointerDown: startPanelHeightResize,
 		onDoubleClick: () => commitPanelHeight(0),
 		onKeyDown: onPanelHeightKeyDown
-	}) : null, h("div", { className: "dsh-wt-popHead" }, h("div", { className: "dsh-wt-popTitleLine" }, h("div", { className: "dsh-wt-popTitle" }, say("popover.title")), h("p", { className: "dsh-wt-popMeta" }, say("popover.count", {
+	}) : null, h("div", { className: "dsh-an-popHead" }, h("div", { className: "dsh-an-popTitleLine" }, h("div", { className: "dsh-an-popTitle" }, say("popover.title")), h("p", { className: "dsh-an-popMeta" }, say("popover.count", {
 		open: openCount,
 		total
-	}))), h("div", { className: "dsh-wt-popActions" }, withTooltip(say("settings.open"), h("button", {
+	}))), h("div", { className: "dsh-an-popActions" }, withTooltip(say("settings.open"), h("button", {
 		type: "button",
-		className: "dsh-wt-settingsBtn",
+		className: "dsh-an-settingsBtn",
 		"data-active": showSettings ? "true" : void 0,
 		"aria-label": say("settings.open"),
 		"aria-expanded": showSettings,
 		onClick: () => setShowSettings((value) => !value)
 	}, h(IconGear, null))), withTooltip(say("popover.close"), h("button", {
 		type: "button",
-		className: "dsh-wt-popClose",
+		className: "dsh-an-popClose",
 		"aria-label": say("popover.close"),
 		onClick: props.onClose
-	}, h(IconClose, null))))), showSettings ? h("div", { className: "dsh-wt-settings" }, h("div", { className: "dsh-wt-settingsHead" }, say("settings.title")), h("div", { className: "dsh-wt-settingGroup" }, h("div", { className: "dsh-wt-settingLabel" }, say("settings.shortcut")), h("div", { className: "dsh-wt-settingBody" }, h("div", { className: "dsh-wt-settingChoices" }, h("label", { className: "dsh-wt-settingChoice" }, h("input", {
+	}, h(IconClose, null))))), showSettings ? h("div", { className: "dsh-an-settings" }, h("div", { className: "dsh-an-settingsHead" }, say("settings.title")), h("div", { className: "dsh-an-settingGroup" }, h("div", { className: "dsh-an-settingLabel" }, say("settings.shortcut")), h("div", { className: "dsh-an-settingBody" }, h("div", { className: "dsh-an-settingChoices" }, h("label", { className: "dsh-an-settingChoice" }, h("input", {
 		type: "radio",
-		name: "dsh-wt-send-shortcut",
+		name: "dsh-an-send-shortcut",
 		checked: sendShortcut === "enter",
 		onChange: () => chooseShortcut("enter")
-	}), h("span", null, say("settings.shortcutEnter", { mod: MOD_LABEL }))), h("label", { className: "dsh-wt-settingChoice" }, h("input", {
+	}), h("span", null, say("settings.shortcutEnter", { mod: MOD_LABEL }))), h("label", { className: "dsh-an-settingChoice" }, h("input", {
 		type: "radio",
-		name: "dsh-wt-send-shortcut",
+		name: "dsh-an-send-shortcut",
 		checked: sendShortcut === "ctrl-enter",
 		onChange: () => chooseShortcut("ctrl-enter")
-	}), h("span", null, say("settings.shortcutCtrlEnter", { mod: MOD_LABEL })))))), h("div", { className: "dsh-wt-settingGroup" }, h("div", { className: "dsh-wt-settingLabel" }, say("settings.forward")), h("div", { className: "dsh-wt-settingBody" }, h("div", { className: "dsh-wt-settingItem" }, h("textarea", {
-		id: "dsh-wt-forward-prefix",
+	}), h("span", null, say("settings.shortcutCtrlEnter", { mod: MOD_LABEL })))))), h("div", { className: "dsh-an-settingGroup" }, h("div", { className: "dsh-an-settingLabel" }, say("settings.forward")), h("div", { className: "dsh-an-settingBody" }, h("div", { className: "dsh-an-settingItem" }, h("textarea", {
+		id: "dsh-an-forward-prefix",
 		ref: prefixRef,
-		className: "dsh-wt-settingInput dsh-wt-settingTextarea",
+		className: "dsh-an-settingInput dsh-an-settingTextarea",
 		value: forwardPrefix,
 		rows: 1,
 		maxLength: 80,
 		placeholder: say("forward.prefix"),
 		"aria-label": say("settings.forwardPrefixItem"),
-		"aria-describedby": "dsh-wt-forward-prefix-hint",
+		"aria-describedby": "dsh-an-forward-prefix-hint",
 		style: {
 			fontFamily: "inherit",
-			fontSize: "var(--wt-fs-row)",
-			lineHeight: "var(--wt-lh-row)",
+			fontSize: "var(--an-fs-row)",
+			lineHeight: "var(--an-lh-row)",
 			fontWeight: 500
 		},
 		onChange: (event) => changeForwardPrefix(event.target.value)
 	}), h("p", {
-		id: "dsh-wt-forward-prefix-hint",
-		className: "dsh-wt-settingHint"
-	}, say("settings.forwardPrefixHint"))))), h("div", { className: "dsh-wt-settingGroup" }, h("div", { className: "dsh-wt-settingLabel" }, say("settings.about")), h("div", { className: "dsh-wt-settingBody" }, h("div", { className: "dsh-wt-settingAbout" }, h("span", null, `${say("settings.version")} ${PLUGIN_VERSION}`), h("span", {
-		className: "dsh-wt-settingDot",
+		id: "dsh-an-forward-prefix-hint",
+		className: "dsh-an-settingHint"
+	}, say("settings.forwardPrefixHint"))))), h("div", { className: "dsh-an-settingGroup" }, h("div", { className: "dsh-an-settingLabel" }, say("settings.about")), h("div", { className: "dsh-an-settingBody" }, h("div", { className: "dsh-an-settingAbout" }, h("span", null, `${say("settings.version")} ${PLUGIN_VERSION}`), h("span", {
+		className: "dsh-an-settingDot",
 		"aria-hidden": true
-	}, "·"), h("span", null, `${say("settings.author")} ${PLUGIN_AUTHOR}`)), h("div", { className: "dsh-wt-settingProject" }, h("span", null, say("settings.project")), h("a", {
-		className: "dsh-wt-settingLink",
+	}, "·"), h("span", null, `${say("settings.author")} ${PLUGIN_AUTHOR}`)), h("div", { className: "dsh-an-settingProject" }, h("span", null, say("settings.project")), h("a", {
+		className: "dsh-an-settingLink",
 		href: PLUGIN_REPO_URL,
 		target: "_blank",
 		rel: "noreferrer",
 		title: PLUGIN_REPO_URL
 	}, PLUGIN_REPO_LABEL))))) : null, h("form", {
-		className: "dsh-wt-add",
+		className: "dsh-an-add",
 		onSubmit: (event) => {
 			event.preventDefault();
 			if (composingRef.current) return;
@@ -1746,7 +1786,7 @@ function MemoPopover(props) {
 		}
 	}, h("textarea", {
 		ref: addRef,
-		className: "dsh-wt-input",
+		className: "dsh-an-input",
 		value: draft,
 		rows: 1,
 		maxLength: 280,
@@ -1787,72 +1827,73 @@ function MemoPopover(props) {
 				insertDraftNewline(event.currentTarget);
 			}
 		}
-	}), h("div", { className: "dsh-wt-addFoot" }, h("span", { className: "dsh-wt-addShortcut" }, say(sendShortcut === "enter" ? "add.shortcutEnter" : "add.shortcut", { mod: MOD_LABEL })), h("button", {
+	}), h("div", { className: "dsh-an-addFoot" }, h("span", { className: "dsh-an-addShortcut" }, say(sendShortcut === "enter" ? "add.shortcutEnter" : "add.shortcut", { mod: MOD_LABEL })), h("button", {
 		type: "submit",
-		className: "dsh-wt-addBtn",
+		className: "dsh-an-addBtn",
 		disabled: !draft.trim()
 	}, say("add.action")))), h("div", {
-		className: "dsh-wt-listViewport",
+		className: "dsh-an-listViewport",
 		"data-bottom": listHasMore ? "true" : void 0
 	}, h("div", {
-		className: "dsh-wt-listArea",
+		className: "dsh-an-listArea",
 		ref: listRef,
 		onScroll: syncListEdge
-	}, h("div", { className: "dsh-wt-listSection" }, h("div", { className: "dsh-wt-sectionHead" }, h("button", {
+	}, h("div", { className: "dsh-an-listSection" }, h("div", { className: "dsh-an-sectionHead" }, h("button", {
 		type: "button",
-		className: "dsh-wt-doneToggle",
+		className: "dsh-an-doneToggle",
 		"aria-expanded": showOpen ? "true" : "false",
 		onClick: toggleOpen
 	}, h("span", {
-		className: "dsh-wt-chevron",
+		className: "dsh-an-chevron",
 		"data-open": showOpen ? "true" : "false"
-	}, h(IconChevron, null)), say("list.open"), openCount ? h("span", { className: "dsh-wt-sectionCount" }, String(openCount)) : null)), showOpen ? openItems.length ? h("ul", { className: "dsh-wt-rows" }, openItems.map(row)) : h(EmptyState, {
+	}, h(IconChevron, null)), say("list.open"), openCount ? h("span", { className: "dsh-an-sectionCount" }, String(openCount)) : null)), showOpen ? openItems.length ? h("ul", { className: "dsh-an-rows" }, openItems.map(row)) : h(EmptyState, {
 		title: say(total ? "list.allDone.title" : "popover.empty.title"),
 		body: say(total ? "list.allDone.body" : "popover.empty.body")
-	}) : null), doneItems.length ? h("div", { className: "dsh-wt-listSection" }, h("div", { className: "dsh-wt-doneHead" }, h("button", {
+	}) : null), doneItems.length ? h("div", { className: "dsh-an-listSection" }, h("div", { className: "dsh-an-doneHead" }, h("button", {
 		type: "button",
-		className: "dsh-wt-doneToggle",
+		className: "dsh-an-doneToggle",
 		"aria-expanded": showDone ? "true" : "false",
 		onClick: toggleDone
 	}, h("span", {
-		className: "dsh-wt-chevron",
+		className: "dsh-an-chevron",
 		"data-open": showDone ? "true" : "false"
-	}, h(IconChevron, null)), say("popover.completed"), h("span", { className: "dsh-wt-sectionCount" }, String(doneItems.length))), showDone ? h("button", {
+	}, h(IconChevron, null)), say("popover.completed"), h("span", { className: "dsh-an-sectionCount" }, String(doneItems.length))), showDone ? h("button", {
 		type: "button",
-		className: "dsh-wt-clear",
+		className: "dsh-an-clear",
 		"aria-expanded": confirmClear ? "true" : "false",
 		onClick: askClearConfirm
 	}, say("popover.clearDone")) : null), showDone && confirmClear ? h("div", {
-		className: "dsh-wt-clearConfirm",
+		className: "dsh-an-clearConfirm",
 		role: "group",
 		"aria-live": "polite",
 		"aria-label": say("popover.clearConfirm", { n: doneItems.length })
-	}, h("p", { className: "dsh-wt-clearConfirmText" }, say("popover.clearConfirm", { n: doneItems.length })), h("div", { className: "dsh-wt-clearConfirmActions" }, h("button", {
+	}, h("p", { className: "dsh-an-clearConfirmText" }, say("popover.clearConfirm", { n: doneItems.length })), h("div", { className: "dsh-an-clearConfirmActions" }, h("button", {
 		type: "button",
-		className: "dsh-wt-mini",
+		className: "dsh-an-mini",
 		onClick: dismissClearConfirm
 	}, say("popover.clearCancel")), h("button", {
 		type: "button",
-		className: "dsh-wt-mini dsh-wt-miniDanger",
+		className: "dsh-an-mini dsh-an-miniDanger",
 		onClick: confirmClearDone
-	}, say("popover.clearConfirmAction")))) : null, showDone ? h("ul", { className: "dsh-wt-rows dsh-wt-doneRows" }, doneItems.map(row)) : null) : null)), h("div", {
-		className: "dsh-wt-popFoot",
+	}, say("popover.clearConfirmAction")))) : null, showDone ? h("ul", { className: "dsh-an-rows dsh-an-doneRows" }, doneItems.map(row)) : null) : null)), h("div", {
+		className: "dsh-an-popFoot",
 		role: "status"
-	}, h("span", { className: syncError ? "dsh-wt-error" : void 0 }, say(syncError ? "storage.failed" : "popover.storage"))));
+	}, h("span", { className: syncError ? "dsh-an-error" : void 0 }, say(syncError ? "storage.failed" : "popover.storage"))));
 	return react_dom.default.createPortal(content, document.body);
 }
 function apply(ctx) {
+	migrateLegacyStorage();
 	const locale = ctx.get("locale");
 	ctx.effect(() => {
 		const style = document.createElement("style");
-		style.dataset.dshPlugin = "workspace-todos";
+		style.dataset.dshPlugin = "dsh-asidenote";
 		style.textContent = panel_css_default;
 		document.head.appendChild(style);
 		return () => {
 			style.remove();
 		};
-	}, "workspace-todos: styles");
-	if (locale && typeof locale.register === "function") ctx.effect(() => locale.register(NS, DICT), "workspace-todos: dictionaries");
+	}, "dsh-asidenote: styles");
+	if (locale && typeof locale.register === "function") ctx.effect(() => locale.register(NS, DICT), "dsh-asidenote: dictionaries");
 	const localeId = () => {
 		try {
 			const current = locale && typeof locale.getLocale === "function" ? locale.getLocale() : null;
@@ -1980,7 +2021,7 @@ function apply(ctx) {
 	const HEADER_ICON = "<svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.3\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.25 2.75h6.5l3 3v7.5c0 .55-.45 1-1 1H3.25c-.55 0-1-.45-1-1V3.75c0-.55.45-1 1-1Z\"/><path d=\"M9.75 2.75v3h3\"/><path d=\"M4.9 7.6h5.4M4.9 9.9h3.6\" stroke-linecap=\"round\"/></svg>";
 	const refreshHeaderEntry = () => {
 		const host = document.querySelector("[class*=\"_headerUtilities\"]");
-		let button = host ? host.querySelector(":scope > .dsh-wt-headerBtn") : null;
+		let button = host ? host.querySelector(":scope > .dsh-an-headerBtn") : null;
 		if (!host || !activeSessionId) {
 			if (button) button.remove();
 			return;
@@ -1990,7 +2031,7 @@ function apply(ctx) {
 		if (!button) {
 			button = document.createElement("button");
 			button.type = "button";
-			button.className = "dsh-wt-headerBtn";
+			button.className = "dsh-an-headerBtn";
 			button.addEventListener("pointerdown", (event) => event.stopPropagation());
 			button.addEventListener("click", (event) => {
 				event.preventDefault();
@@ -2003,12 +2044,12 @@ function apply(ctx) {
 		const signature = `${localeId()}:${activeSessionId}:${open}`;
 		if (button.dataset.signature !== signature) {
 			const icon = document.createElement("span");
-			icon.className = "dsh-wt-headerIcon";
+			icon.className = "dsh-an-headerIcon";
 			icon.innerHTML = HEADER_ICON;
 			button.replaceChildren(icon);
 			if (open > 0) {
 				const count = document.createElement("span");
-				count.className = "dsh-wt-headerCount";
+				count.className = "dsh-an-headerCount";
 				count.textContent = open > 99 ? "99+" : String(open);
 				button.appendChild(count);
 			}
@@ -2029,7 +2070,7 @@ function apply(ctx) {
 			});
 		};
 		const onStorage = (event) => {
-			if (event.key === "dsh.session-memos.v1") schedule();
+			if (event.key === "dsh.aside-notes.v2") schedule();
 		};
 		TODO_LISTENERS.add(schedule);
 		window.addEventListener("storage", onStorage);
@@ -2044,9 +2085,9 @@ function apply(ctx) {
 			window.removeEventListener("storage", onStorage);
 			observer.disconnect();
 			closeMemoPopover();
-			for (const button of document.querySelectorAll(".dsh-wt-headerBtn")) button.remove();
+			for (const button of document.querySelectorAll(".dsh-an-headerBtn")) button.remove();
 		};
-	}, "workspace-todos: right-side entry");
+	}, "dsh-asidenote: right-side entry");
 	function BoundSessionCapture(props) {
 		const sessionId = props.sessionId || "";
 		react.default.useEffect(() => {

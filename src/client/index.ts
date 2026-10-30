@@ -36,6 +36,7 @@ import { copyText } from './domain/clipboard'
 import { appendToConversation } from './domain/forward'
 import { normalizeItems, compareDoneItems, metaLabel } from './domain/items'
 import { readSessionStore } from './storage/session'
+import { migrateLegacyStorage } from './storage/migrate'
 import {
   readPanelWidth,
   writePanelWidth,
@@ -111,7 +112,7 @@ const icon = name => (typeof PRIMITIVES[name] === 'function' ? PRIMITIVES[name] 
  */
 function syncStickyHeads(node) {
   const areaTop = node.getBoundingClientRect().top
-  for (const head of node.querySelectorAll('.dsh-wt-sectionHead, .dsh-wt-doneHead')) {
+  for (const head of node.querySelectorAll('.dsh-an-sectionHead, .dsh-an-doneHead')) {
     // The head is sticky only while its section straddles the scroller's
     // top edge. Reading the section avoids the sticky element's own
     // offsetTop, which moves with the pinned position in some engines.
@@ -234,10 +235,10 @@ function TodoRow(props) {
   const body = editing
     ? h(
         'div',
-        { className: 'dsh-wt-edit' },
+        { className: 'dsh-an-edit' },
         h('textarea', {
           ref: setEditorRef,
-          className: 'dsh-wt-editInput',
+          className: 'dsh-an-editInput',
           value: editDraft,
           rows: 1,
           maxLength: MAX_TEXT,
@@ -284,12 +285,12 @@ function TodoRow(props) {
         }),
         h(
           'div',
-          { className: 'dsh-wt-editActions' },
+          { className: 'dsh-an-editActions' },
           h(
             'button',
             {
               type: 'button',
-              className: 'dsh-wt-mini dsh-wt-miniPrimary',
+              className: 'dsh-an-mini dsh-an-miniPrimary',
               onMouseDown: event => event.preventDefault(),
               onClick: () => onFinishEdit(item),
             },
@@ -299,19 +300,19 @@ function TodoRow(props) {
             'button',
             {
               type: 'button',
-              className: 'dsh-wt-mini',
+              className: 'dsh-an-mini',
               onMouseDown: event => event.preventDefault(),
               onClick: onCancelEdit,
             },
             say('edit.cancel'),
           ),
-          h('span', { className: 'dsh-wt-editHint', title: say(editHintKey, { mod: MOD_LABEL }) }, say(editHintKey, { mod: MOD_LABEL })),
+          h('span', { className: 'dsh-an-editHint', title: say(editHintKey, { mod: MOD_LABEL }) }, say(editHintKey, { mod: MOD_LABEL })),
         ),
       )
     : h(
         'div',
         {
-          className: 'dsh-wt-text',
+          className: 'dsh-an-text',
           title: say('item.editHint'),
           onDoubleClick: () => onStartEdit(item),
         },
@@ -322,12 +323,12 @@ function TodoRow(props) {
 
   return h(
     'li',
-    { className: done ? 'dsh-wt-row dsh-wt-rowDone' : 'dsh-wt-row' },
+    { className: done ? 'dsh-an-row dsh-an-rowDone' : 'dsh-an-row' },
     h(
       'button',
       {
         type: 'button',
-        className: 'dsh-wt-check',
+        className: 'dsh-an-check',
         role: 'checkbox',
         'aria-checked': checked ? 'true' : 'false',
         'aria-label': say(done ? 'item.markOpen' : 'item.markDone'),
@@ -335,28 +336,28 @@ function TodoRow(props) {
       },
       h(
         'span',
-        { className: 'dsh-wt-checkCircle' },
+        { className: 'dsh-an-checkCircle' },
         checked ? h(IconCheck, { size: 9 }) : null,
       ),
     ),
     h(
       'div',
-      { className: 'dsh-wt-itemBody' },
+      { className: 'dsh-an-itemBody' },
       body,
       editing
         ? null
         : h(
             'div',
-            { className: 'dsh-wt-rowFoot' },
-            h('span', { className: 'dsh-wt-meta', title: metaLabel(item, say, props.localeId) }, metaLabel(item, say, props.localeId)),
+            { className: 'dsh-an-rowFoot' },
+            h('span', { className: 'dsh-an-meta', title: metaLabel(item, say, props.localeId) }, metaLabel(item, say, props.localeId)),
             h(
               'div',
-              { className: 'dsh-wt-actions' },
+              { className: 'dsh-an-actions' },
               withTooltip(say('item.copy'), h(
                 'button',
                 {
                   type: 'button',
-                  className: 'dsh-wt-iconBtn',
+                  className: 'dsh-an-iconBtn',
                   'aria-label': say('item.copy'),
                   'aria-busy': pending === 'copy' ? 'true' : 'false',
                   'data-loading': pending === 'copy' ? 'true' : undefined,
@@ -370,21 +371,21 @@ function TodoRow(props) {
                 'button',
                 {
                   type: 'button',
-                  className: 'dsh-wt-iconBtn',
+                  className: 'dsh-an-iconBtn',
                   'aria-label': say(forwarded ? 'item.forwarded' : 'item.forward'),
                   'data-forwarded': forwarded ? 'true' : undefined,
                   onClick: forward,
                 },
                 h(IconForward, null),
                 forwarded
-                  ? h('span', { className: 'dsh-wt-forwardMark', 'aria-hidden': true }, h(IconCheck, { size: 8 }))
+                  ? h('span', { className: 'dsh-an-forwardMark', 'aria-hidden': true }, h(IconCheck, { size: 8 }))
                   : null,
               )),
               withTooltip(say('item.edit'), h(
                 'button',
                 {
                   type: 'button',
-                  className: 'dsh-wt-iconBtn',
+                  className: 'dsh-an-iconBtn',
                   'aria-label': say('item.edit'),
                   onClick: () => onStartEdit(item),
                 },
@@ -394,7 +395,7 @@ function TodoRow(props) {
                 'button',
                 {
                   type: 'button',
-                  className: 'dsh-wt-iconBtn dsh-wt-iconBtnDanger',
+                  className: 'dsh-an-iconBtn dsh-an-iconBtnDanger',
                   'aria-label': say('item.delete'),
                   onClick: () => onDelete(item),
                 },
@@ -409,10 +410,10 @@ function TodoRow(props) {
 function EmptyState(props) {
   return h(
     'div',
-    { className: 'dsh-wt-empty' },
-    h('div', { className: 'dsh-wt-emptyIcon' }, h(IconEmpty, null)),
-    h('div', { className: 'dsh-wt-emptyTitle' }, props.title),
-    h('div', { className: 'dsh-wt-emptyBody' }, props.body),
+    { className: 'dsh-an-empty' },
+    h('div', { className: 'dsh-an-emptyIcon' }, h(IconEmpty, null)),
+    h('div', { className: 'dsh-an-emptyTitle' }, props.title),
+    h('div', { className: 'dsh-an-emptyBody' }, props.body),
   )
 }
 
@@ -986,14 +987,14 @@ function MemoPopover(props) {
     'div',
     {
       ref: panelRef,
-      className: props.placement === 'right' ? 'dsh-wt-popover dsh-wt-popoverRight' : 'dsh-wt-popover',
+      className: props.placement === 'right' ? 'dsh-an-popover dsh-an-popoverRight' : 'dsh-an-popover',
       style,
       role: 'dialog',
       'aria-label': say('popover.title'),
     },
     props.placement === 'right'
       ? h('div', {
-          className: 'dsh-wt-resizeHandle',
+          className: 'dsh-an-resizeHandle',
           role: 'separator',
           'aria-orientation': 'vertical',
           'aria-label': say('resize.width'),
@@ -1006,7 +1007,7 @@ function MemoPopover(props) {
       : null,
     props.placement === 'right'
       ? h('div', {
-          className: 'dsh-wt-resizeHandleBottom',
+          className: 'dsh-an-resizeHandleBottom',
           role: 'separator',
           'aria-orientation': 'horizontal',
           'aria-label': say('resize.height'),
@@ -1019,21 +1020,21 @@ function MemoPopover(props) {
       : null,
     h(
       'div',
-      { className: 'dsh-wt-popHead' },
+      { className: 'dsh-an-popHead' },
       h(
         'div',
-        { className: 'dsh-wt-popTitleLine' },
-        h('div', { className: 'dsh-wt-popTitle' }, say('popover.title')),
-        h('p', { className: 'dsh-wt-popMeta' }, say('popover.count', { open: openCount, total })),
+        { className: 'dsh-an-popTitleLine' },
+        h('div', { className: 'dsh-an-popTitle' }, say('popover.title')),
+        h('p', { className: 'dsh-an-popMeta' }, say('popover.count', { open: openCount, total })),
       ),
       h(
         'div',
-        { className: 'dsh-wt-popActions' },
+        { className: 'dsh-an-popActions' },
         withTooltip(say('settings.open'), h(
           'button',
           {
             type: 'button',
-            className: 'dsh-wt-settingsBtn',
+            className: 'dsh-an-settingsBtn',
             'data-active': showSettings ? 'true' : undefined,
             'aria-label': say('settings.open'),
             'aria-expanded': showSettings,
@@ -1043,7 +1044,7 @@ function MemoPopover(props) {
         )),
         withTooltip(say('popover.close'), h(
           'button',
-          { type: 'button', className: 'dsh-wt-popClose', 'aria-label': say('popover.close'), onClick: props.onClose },
+          { type: 'button', className: 'dsh-an-popClose', 'aria-label': say('popover.close'), onClick: props.onClose },
           h(IconClose, null),
         )),
       ),
@@ -1051,24 +1052,24 @@ function MemoPopover(props) {
     showSettings
       ? h(
           'div',
-          { className: 'dsh-wt-settings' },
-          h('div', { className: 'dsh-wt-settingsHead' }, say('settings.title')),
+          { className: 'dsh-an-settings' },
+          h('div', { className: 'dsh-an-settingsHead' }, say('settings.title')),
           h(
             'div',
-            { className: 'dsh-wt-settingGroup' },
-            h('div', { className: 'dsh-wt-settingLabel' }, say('settings.shortcut')),
+            { className: 'dsh-an-settingGroup' },
+            h('div', { className: 'dsh-an-settingLabel' }, say('settings.shortcut')),
             h(
               'div',
-              { className: 'dsh-wt-settingBody' },
+              { className: 'dsh-an-settingBody' },
               h(
                 'div',
-                { className: 'dsh-wt-settingChoices' },
+                { className: 'dsh-an-settingChoices' },
                 h(
                   'label',
-                  { className: 'dsh-wt-settingChoice' },
+                  { className: 'dsh-an-settingChoice' },
                   h('input', {
                     type: 'radio',
-                    name: 'dsh-wt-send-shortcut',
+                    name: 'dsh-an-send-shortcut',
                     checked: sendShortcut === 'enter',
                     onChange: () => chooseShortcut('enter'),
                   }),
@@ -1076,10 +1077,10 @@ function MemoPopover(props) {
                 ),
                 h(
                   'label',
-                  { className: 'dsh-wt-settingChoice' },
+                  { className: 'dsh-an-settingChoice' },
                   h('input', {
                     type: 'radio',
-                    name: 'dsh-wt-send-shortcut',
+                    name: 'dsh-an-send-shortcut',
                     checked: sendShortcut === 'ctrl-enter',
                     onChange: () => chooseShortcut('ctrl-enter'),
                   }),
@@ -1090,58 +1091,58 @@ function MemoPopover(props) {
           ),
           h(
             'div',
-            { className: 'dsh-wt-settingGroup' },
-            h('div', { className: 'dsh-wt-settingLabel' }, say('settings.forward')),
+            { className: 'dsh-an-settingGroup' },
+            h('div', { className: 'dsh-an-settingLabel' }, say('settings.forward')),
             h(
               'div',
-              { className: 'dsh-wt-settingBody' },
+              { className: 'dsh-an-settingBody' },
               h(
                 'div',
-                { className: 'dsh-wt-settingItem' },
+                { className: 'dsh-an-settingItem' },
                 h('textarea', {
-                  id: 'dsh-wt-forward-prefix',
+                  id: 'dsh-an-forward-prefix',
                   ref: prefixRef,
-                  className: 'dsh-wt-settingInput dsh-wt-settingTextarea',
+                  className: 'dsh-an-settingInput dsh-an-settingTextarea',
                   value: forwardPrefix,
                   rows: 1,
                   maxLength: 80,
                   placeholder: say('forward.prefix'),
                   'aria-label': say('settings.forwardPrefixItem'),
-                  'aria-describedby': 'dsh-wt-forward-prefix-hint',
+                  'aria-describedby': 'dsh-an-forward-prefix-hint',
                   style: {
                     fontFamily: 'inherit',
-                    fontSize: 'var(--wt-fs-row)',
-                    lineHeight: 'var(--wt-lh-row)',
+                    fontSize: 'var(--an-fs-row)',
+                    lineHeight: 'var(--an-lh-row)',
                     fontWeight: 500,
                   },
                   onChange: event => changeForwardPrefix(event.target.value),
                 }),
-                h('p', { id: 'dsh-wt-forward-prefix-hint', className: 'dsh-wt-settingHint' }, say('settings.forwardPrefixHint')),
+                h('p', { id: 'dsh-an-forward-prefix-hint', className: 'dsh-an-settingHint' }, say('settings.forwardPrefixHint')),
               ),
             ),
           ),
           h(
             'div',
-            { className: 'dsh-wt-settingGroup' },
-            h('div', { className: 'dsh-wt-settingLabel' }, say('settings.about')),
+            { className: 'dsh-an-settingGroup' },
+            h('div', { className: 'dsh-an-settingLabel' }, say('settings.about')),
             h(
               'div',
-              { className: 'dsh-wt-settingBody' },
+              { className: 'dsh-an-settingBody' },
               h(
                 'div',
-                { className: 'dsh-wt-settingAbout' },
+                { className: 'dsh-an-settingAbout' },
                 h('span', null, `${say('settings.version')} ${PLUGIN_VERSION}`),
-                h('span', { className: 'dsh-wt-settingDot', 'aria-hidden': true }, '·'),
+                h('span', { className: 'dsh-an-settingDot', 'aria-hidden': true }, '·'),
                 h('span', null, `${say('settings.author')} ${PLUGIN_AUTHOR}`),
               ),
               h(
                 'div',
-                { className: 'dsh-wt-settingProject' },
+                { className: 'dsh-an-settingProject' },
                 h('span', null, say('settings.project')),
                 h(
                   'a',
                   {
-                    className: 'dsh-wt-settingLink',
+                    className: 'dsh-an-settingLink',
                     href: PLUGIN_REPO_URL,
                     target: '_blank',
                     rel: 'noreferrer',
@@ -1157,7 +1158,7 @@ function MemoPopover(props) {
     h(
       'form',
       {
-        className: 'dsh-wt-add',
+        className: 'dsh-an-add',
         onSubmit: event => {
           event.preventDefault()
           if (composingRef.current) return
@@ -1166,7 +1167,7 @@ function MemoPopover(props) {
       },
       h('textarea', {
         ref: addRef,
-        className: 'dsh-wt-input',
+        className: 'dsh-an-input',
         value: draft,
         rows: 1,
         maxLength: MAX_TEXT,
@@ -1209,42 +1210,42 @@ function MemoPopover(props) {
       }),
       h(
         'div',
-        { className: 'dsh-wt-addFoot' },
-        h('span', { className: 'dsh-wt-addShortcut' }, say(sendShortcut === 'enter' ? 'add.shortcutEnter' : 'add.shortcut', { mod: MOD_LABEL })),
-        h('button', { type: 'submit', className: 'dsh-wt-addBtn', disabled: !draft.trim() }, say('add.action')),
+        { className: 'dsh-an-addFoot' },
+        h('span', { className: 'dsh-an-addShortcut' }, say(sendShortcut === 'enter' ? 'add.shortcutEnter' : 'add.shortcut', { mod: MOD_LABEL })),
+        h('button', { type: 'submit', className: 'dsh-an-addBtn', disabled: !draft.trim() }, say('add.action')),
       ),
     ),
     h(
       'div',
       {
-        className: 'dsh-wt-listViewport',
+        className: 'dsh-an-listViewport',
         'data-bottom': listHasMore ? 'true' : undefined,
       },
       h(
         'div',
-        { className: 'dsh-wt-listArea', ref: listRef, onScroll: syncListEdge },
+        { className: 'dsh-an-listArea', ref: listRef, onScroll: syncListEdge },
         h(
           'div',
-          { className: 'dsh-wt-listSection' },
+          { className: 'dsh-an-listSection' },
           h(
             'div',
-            { className: 'dsh-wt-sectionHead' },
+            { className: 'dsh-an-sectionHead' },
             h(
               'button',
               {
                 type: 'button',
-                className: 'dsh-wt-doneToggle',
+                className: 'dsh-an-doneToggle',
                 'aria-expanded': showOpen ? 'true' : 'false',
                 onClick: toggleOpen,
               },
-              h('span', { className: 'dsh-wt-chevron', 'data-open': showOpen ? 'true' : 'false' }, h(IconChevron, null)),
+              h('span', { className: 'dsh-an-chevron', 'data-open': showOpen ? 'true' : 'false' }, h(IconChevron, null)),
               say('list.open'),
-              openCount ? h('span', { className: 'dsh-wt-sectionCount' }, String(openCount)) : null,
+              openCount ? h('span', { className: 'dsh-an-sectionCount' }, String(openCount)) : null,
             ),
           ),
           showOpen
             ? openItems.length
-              ? h('ul', { className: 'dsh-wt-rows' }, openItems.map(row))
+              ? h('ul', { className: 'dsh-an-rows' }, openItems.map(row))
               : h(EmptyState, {
                   title: say(total ? 'list.allDone.title' : 'popover.empty.title'),
                   body: say(total ? 'list.allDone.body' : 'popover.empty.body'),
@@ -1254,26 +1255,26 @@ function MemoPopover(props) {
         doneItems.length
           ? h(
               'div',
-              { className: 'dsh-wt-listSection' },
+              { className: 'dsh-an-listSection' },
               h(
                 'div',
-                { className: 'dsh-wt-doneHead' },
+                { className: 'dsh-an-doneHead' },
                 h(
                   'button',
                   {
                     type: 'button',
-                    className: 'dsh-wt-doneToggle',
+                    className: 'dsh-an-doneToggle',
                     'aria-expanded': showDone ? 'true' : 'false',
                     onClick: toggleDone,
                   },
-                  h('span', { className: 'dsh-wt-chevron', 'data-open': showDone ? 'true' : 'false' }, h(IconChevron, null)),
+                  h('span', { className: 'dsh-an-chevron', 'data-open': showDone ? 'true' : 'false' }, h(IconChevron, null)),
                   say('popover.completed'),
-                  h('span', { className: 'dsh-wt-sectionCount' }, String(doneItems.length)),
+                  h('span', { className: 'dsh-an-sectionCount' }, String(doneItems.length)),
                 ),
                 showDone
                   ? h('button', {
                       type: 'button',
-                      className: 'dsh-wt-clear',
+                      className: 'dsh-an-clear',
                       'aria-expanded': confirmClear ? 'true' : 'false',
                       onClick: askClearConfirm,
                     }, say('popover.clearDone'))
@@ -1283,29 +1284,29 @@ function MemoPopover(props) {
                 ? h(
                     'div',
                     {
-                      className: 'dsh-wt-clearConfirm',
+                      className: 'dsh-an-clearConfirm',
                       role: 'group',
                       'aria-live': 'polite',
                       'aria-label': say('popover.clearConfirm', { n: doneItems.length }),
                     },
-                    h('p', { className: 'dsh-wt-clearConfirmText' }, say('popover.clearConfirm', { n: doneItems.length })),
+                    h('p', { className: 'dsh-an-clearConfirmText' }, say('popover.clearConfirm', { n: doneItems.length })),
                     h(
                       'div',
-                      { className: 'dsh-wt-clearConfirmActions' },
-                      h('button', { type: 'button', className: 'dsh-wt-mini', onClick: dismissClearConfirm }, say('popover.clearCancel')),
-                      h('button', { type: 'button', className: 'dsh-wt-mini dsh-wt-miniDanger', onClick: confirmClearDone }, say('popover.clearConfirmAction')),
+                      { className: 'dsh-an-clearConfirmActions' },
+                      h('button', { type: 'button', className: 'dsh-an-mini', onClick: dismissClearConfirm }, say('popover.clearCancel')),
+                      h('button', { type: 'button', className: 'dsh-an-mini dsh-an-miniDanger', onClick: confirmClearDone }, say('popover.clearConfirmAction')),
                     ),
                   )
                 : null,
-              showDone ? h('ul', { className: 'dsh-wt-rows dsh-wt-doneRows' }, doneItems.map(row)) : null,
+              showDone ? h('ul', { className: 'dsh-an-rows dsh-an-doneRows' }, doneItems.map(row)) : null,
             )
           : null,
       ),
     ),
     h(
       'div',
-      { className: 'dsh-wt-popFoot', role: 'status' },
-      h('span', { className: syncError ? 'dsh-wt-error' : undefined }, say(syncError ? 'storage.failed' : 'popover.storage')),
+      { className: 'dsh-an-popFoot', role: 'status' },
+      h('span', { className: syncError ? 'dsh-an-error' : undefined }, say(syncError ? 'storage.failed' : 'popover.storage')),
     ),
   )
 
@@ -1313,6 +1314,9 @@ function MemoPopover(props) {
 }
 
 function apply(ctx: DshClientCtx) {
+  // 1.x notes live under the old keys; copy them once, before any reader runs.
+  migrateLegacyStorage()
+
   const locale = ctx.get('locale')
 
   // One document-level sheet covers both the panel and the composer dock;
@@ -1320,14 +1324,14 @@ function apply(ctx: DshClientCtx) {
   // leave it unstyled until the panel had been opened once.
   ctx.effect(() => {
     const style = document.createElement('style')
-    style.dataset.dshPlugin = 'workspace-todos'
+    style.dataset.dshPlugin = 'dsh-asidenote'
     style.textContent = CSS
     document.head.appendChild(style)
     return () => { style.remove() }
-  }, 'workspace-todos: styles')
+  }, 'dsh-asidenote: styles')
 
   if (locale && typeof locale.register === 'function') {
-    ctx.effect(() => locale.register(NS, DICT), 'workspace-todos: dictionaries')
+    ctx.effect(() => locale.register(NS, DICT), 'dsh-asidenote: dictionaries')
   }
 
   const localeId = () => {
@@ -1458,7 +1462,7 @@ function apply(ctx: DshClientCtx) {
 
   const refreshHeaderEntry = () => {
     const host = document.querySelector('[class*="_headerUtilities"]')
-    let button = (host ? host.querySelector(':scope > .dsh-wt-headerBtn') : null) as HTMLButtonElement | null
+    let button = (host ? host.querySelector(':scope > .dsh-an-headerBtn') : null) as HTMLButtonElement | null
     if (!host || !activeSessionId) {
       if (button) button.remove()
       return
@@ -1469,7 +1473,7 @@ function apply(ctx: DshClientCtx) {
     if (!button) {
       button = document.createElement('button')
       button.type = 'button'
-      button.className = 'dsh-wt-headerBtn'
+      button.className = 'dsh-an-headerBtn'
       button.addEventListener('pointerdown', event => event.stopPropagation())
       button.addEventListener('click', event => {
         event.preventDefault()
@@ -1482,12 +1486,12 @@ function apply(ctx: DshClientCtx) {
     const signature = `${localeId()}:${activeSessionId}:${open}`
     if (button.dataset.signature !== signature) {
       const icon = document.createElement('span')
-      icon.className = 'dsh-wt-headerIcon'
+      icon.className = 'dsh-an-headerIcon'
       icon.innerHTML = HEADER_ICON
       button.replaceChildren(icon)
       if (open > 0) {
         const count = document.createElement('span')
-        count.className = 'dsh-wt-headerCount'
+        count.className = 'dsh-an-headerCount'
         count.textContent = open > 99 ? '99+' : String(open)
         button.appendChild(count)
       }
@@ -1526,9 +1530,9 @@ function apply(ctx: DshClientCtx) {
       window.removeEventListener('storage', onStorage)
       observer.disconnect()
       closeMemoPopover()
-      for (const button of document.querySelectorAll('.dsh-wt-headerBtn')) button.remove()
+      for (const button of document.querySelectorAll('.dsh-an-headerBtn')) button.remove()
     }
-  }, 'workspace-todos: right-side entry')
+  }, 'dsh-asidenote: right-side entry')
 
   function BoundSessionCapture(props) {
     const sessionId = props.sessionId || ''
