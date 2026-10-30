@@ -334,6 +334,8 @@ window.__ModuleLoader__.load({
       '.dsh-wt-settingInput{box-sizing:border-box;width:100%;height:28px;padding:0 var(--wt-space-2);border:0.5px solid var(--wt-field-line);border-radius:var(--dsw-radius-sm);background:var(--wt-field);color:var(--dsw-alias-label-primary);font-family:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);font-weight:500;outline:0;transition:var(--wt-transition)}',
       '.dsh-wt-settingItem>.dsh-wt-settingInput{font-family:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);font-weight:500}',
       '.dsh-wt-settingInput:focus{border-color:var(--dsw-alias-state-business-primary)}',
+      '/* 前缀提示词改为文本域：min-height 兜住三行，空态也不会被内联高度压扁 */',
+      '.dsh-wt-settingTextarea{display:block;height:auto;min-height:calc(var(--wt-lh-row) * 3 + var(--wt-space-4));padding:var(--wt-space-2);resize:none;overflow-y:auto;white-space:pre-wrap;overflow-wrap:anywhere}',
       '.dsh-wt-settingHint{margin:0;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary)}',
       '.dsh-wt-settingHintNote{margin-top:var(--wt-space-1)}',
       '.dsh-wt-settingAbout{display:flex;align-items:baseline;gap:var(--wt-space-1);min-width:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}',

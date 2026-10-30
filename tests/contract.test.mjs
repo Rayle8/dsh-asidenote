@@ -471,6 +471,23 @@ test('the prefix input shares the child title text box', () => {
   assert.match(read('client.js'), /fontWeight: 500/, 'the inline guard must keep the title weight')
 })
 
+test('the prefix prompt uses a three-line textarea field', () => {
+  const css = readCss()
+  const textarea = css.match(/\.dsh-wt-settingTextarea\{([^}]*)\}/)
+  assert.ok(textarea, 'missing settingTextarea rule')
+  // The shared field keeps its border, radius, fill, type and focus skin; the
+  // textarea only changes the box so three 20px lines fit with 8px padding.
+  assert.ok(css.indexOf('.dsh-wt-settingTextarea{') > css.indexOf('.dsh-wt-settingInput{'), 'the textarea must override the shared input height')
+  assert.match(textarea[1], /display:block/)
+  assert.match(textarea[1], /height:auto/)
+  assert.match(textarea[1], /min-height:calc\(var\(--wt-lh-row\) \* 3 \+ var\(--wt-space-4\)\)/, 'min-height must floor the field at three lines plus padding')
+  assert.match(textarea[1], /padding:var\(--wt-space-2\)/)
+  assert.match(textarea[1], /resize:none/)
+  assert.match(textarea[1], /overflow-y:auto/)
+  assert.match(textarea[1], /white-space:pre-wrap/)
+  assert.match(textarea[1], /overflow-wrap:anywhere/)
+})
+
 test('section toggles stay inside the scrolling list', () => {
   const css = readCss()
   // .dsh-wt-listArea clips on the x axis, so any horizontal pull on a section
