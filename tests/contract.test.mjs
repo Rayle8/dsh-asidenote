@@ -162,6 +162,23 @@ test('documentation and preview assets are present', () => {
   }
 })
 
+test('feature screenshots ship in both themes', () => {
+  const features = ['panel', 'settings', 'actions', 'clear', 'empty']
+  for (const name of features) {
+    for (const file of [`docs/features/${name}.png`, `docs/features/${name}-dark.png`]) {
+      assert.ok(exists(file), `missing ${file}`)
+      assert.ok(fs.statSync(path.join(root, file)).size > 1000, `${file} looks empty`)
+    }
+  }
+  for (const readme of ['README.md', 'README.en.md']) {
+    const text = read(readme)
+    for (const name of features) {
+      assert.match(text, new RegExp(`docs/features/${name}\\.png`), `${readme} does not show ${name}`)
+      assert.match(text, new RegExp(`docs/features/${name}-dark\\.png`), `${readme} does not show ${name} in dark`)
+    }
+  }
+})
+
 /** The stylesheet is a string array; flatten it back into CSS for inspection. */
 function readCss() {
   const client = read('client.js')
@@ -736,10 +753,22 @@ test('sticky heads are filled only while pinned, not at rest', () => {
 
 test('the pinned header keeps its plain title style over a solid fill', () => {
   const css = readCss()
+  const client = read('client.js')
   const rule = css.match(/\.dsh-wt-sectionHead\[data-stuck\],\.dsh-wt-doneHead\[data-stuck\]\{([^}]*)\}/)
   assert.ok(rule, 'stuck header rule missing')
   assert.match(rule[1], /background:linear-gradient\(var\(--dsw-alias-menu-group-header-fill\),var\(--dsw-alias-menu-group-header-fill\)\),var\(--dsw-alias-menu-group-header-fill\)/)
   assert.doesNotMatch(rule[1], /border-radius|border-top-left-radius|border-top-right-radius/, 'the title keeps its plain shape')
   assert.doesNotMatch(rule[1], /backdrop-filter|opacity/, 'the header does not go translucent')
   assert.doesNotMatch(css, /\[data-stuck\][^{]*::before/, 'no extra corner underlay')
+
+  // Five stacked strips fade a backdrop blur from the header edge downward;
+  // Chromium drops backdrop-filter under a mask, so this uses discrete bands.
+  assert.match(css, /\.dsh-wt-headBlur\{[^}]*display:none[^}]*top:100%[^}]*height:20px/)
+  assert.match(css, /\[data-stuck\] \.dsh-wt-headBlur[^{]*\{display:block\}/)
+  for (const [index, radius] of [[1, 20], [2, 14], [3, 9], [4, 5], [5, 2]]) {
+    assert.match(css, new RegExp(`\\.dsh-wt-headBlurBand:nth-child\\(${index}\\)\\{[^}]*backdrop-filter:blur\\(${radius}px\\)`))
+  }
+  assert.equal((client.match(/h\(HeadBlur, null\)/g) || []).length, 2, 'both section heads need the blur band')
+  assert.match(client, /const HeadBlur = \(\) => h\('span', \{ className: 'dsh-wt-headBlur', 'aria-hidden': true \}/)
+  assert.doesNotMatch(css, /dsh-wt-headBlur[^{]*mask-image/, 'masking the band would drop the blur')
 })

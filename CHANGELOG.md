@@ -3,7 +3,7 @@
 ## Unreleased
 
 - Re-shoot the README and store previews in a clean, isolated DSH session: `preview-right.png` (panel open), `preview-badge.png` (top-right entry with the open count), and `preview.png` (panel close-up), plus the dark-theme twins `preview-right-dark.png`, `preview-badge-dark.png`, and `preview-dark.png`. Both themes come from one session and one set of notes, so the pair differs only in colour, and neither carries names from other projects. Drop `preview-history.png`, which showed the retired composer status-strip entry.
-- Keep the sticky section headers transparent in flow and fill them only while pinned; the title keeps its normal typography and two stacked layers of the menu-group token make the fill effectively opaque, with no rounded corners, corner underlay, translucency, or backdrop blur.
+- Keep the sticky section headers transparent in flow and fill them only while pinned; the title keeps its normal typography and two stacked layers of the menu-group token make the fill effectively opaque, with no rounded corners or corner underlay. Five stacked 4px strips fade a 20px-to-2px backdrop blur into the rows so the solid fill edge blends away; the strips are separate elements because Chromium drops backdrop-filter under a mask.
 
 ## 1.9.7
 

@@ -46,7 +46,7 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - The send-shortcut hint sits in the empty space left of the Add button and updates with the setting, keeping the input placeholder short.
 - Unsaved add/edit drafts are saved per session and restored after closing and reopening the panel, with the add caret at the end of the draft; they clear after add, save, cancel, or delete.
 - Expanding **Completed** does not compress the **Open** list; only the open/completed list region scrolls, while the header, settings, composer, and footer stay fixed.
-- The **Open** and **Completed** headers stick inside the list: transparent until pinned, then filled with two stacked layers of `--dsw-alias-menu-group-header-fill` so the fill is effectively opaque. The title typography stays unchanged, with no rounded corners, underlay, translucency, or blur, and rows cannot show through.
+- The **Open** and **Completed** headers stick inside the list: transparent until pinned, then filled with two stacked layers of `--dsw-alias-menu-group-header-fill` so the fill is effectively opaque. The title typography stays unchanged, with no rounded corners or underlay and no translucency in the fill. Five stacked 4px strips fade a 20px-to-2px backdrop blur into the rows so the solid edge blends away.
 - Completed notes show both the creation and the completion age and sort by newest completion; open notes show the creation age only.
 - The open/completed expand state is remembered and restored when the panel is reopened.
 - Note-card copy/edit/delete actions appear on hover or keyboard focus while keeping their layout space; touch devices keep them visible.
@@ -55,6 +55,43 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - Syncs across tabs in the same browser.
 - Chinese and English copy, following the DSH locale.
 - Every style reuses DSH design tokens: semantic colour aliases, shared radii and elevation, the menu material, and the shared scrollbar skin. Type collapses to three sizes (12 / 13 / 14), weight caps at 500, neutral strokes are 0.5px hairlines, hover styling only runs on hover-capable devices, and settled outcomes report through the frame-wide toast. See the [UI / interaction review](./docs/ui-design-check.md).
+
+## Feature screenshots
+
+Five states shot from the same session and the same set of notes, in both themes:
+
+<table>
+  <tr>
+    <th width="130">Feature</th>
+    <th>Light</th>
+    <th>Dark</th>
+  </tr>
+  <tr>
+    <td>Panel overview<br>open / completed sections</td>
+    <td><img src="./docs/features/panel.png" width="300" alt="Panel overview"></td>
+    <td><img src="./docs/features/panel-dark.png" width="300" alt="Panel overview, dark"></td>
+  </tr>
+  <tr>
+    <td>Settings<br>send shortcut, forward prefix, about</td>
+    <td><img src="./docs/features/settings.png" width="300" alt="Settings"></td>
+    <td><img src="./docs/features/settings-dark.png" width="300" alt="Settings, dark"></td>
+  </tr>
+  <tr>
+    <td>Row actions<br>copy / forward / edit / delete on hover</td>
+    <td><img src="./docs/features/actions.png" width="300" alt="Row actions"></td>
+    <td><img src="./docs/features/actions-dark.png" width="300" alt="Row actions, dark"></td>
+  </tr>
+  <tr>
+    <td>Clear completed<br>a second confirmation guards the delete</td>
+    <td><img src="./docs/features/clear.png" width="300" alt="Clear completed confirmation"></td>
+    <td><img src="./docs/features/clear-dark.png" width="300" alt="Clear completed confirmation, dark"></td>
+  </tr>
+  <tr>
+    <td>Empty state<br>guidance when a session has no notes</td>
+    <td><img src="./docs/features/empty.png" width="300" alt="Empty state"></td>
+    <td><img src="./docs/features/empty-dark.png" width="300" alt="Empty state, dark"></td>
+  </tr>
+</table>
 
 ## Design tokens
 

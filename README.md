@@ -46,7 +46,7 @@
 - 发送快捷键提示放在添加按钮左侧的空白处；切换设置后提示同步更新，输入框占位提示保持简洁。
 - 新增和编辑中的草稿按会话自动保存；临时关闭面板后重新打开会恢复，光标停在草稿末尾，添加、保存、取消或删除后自动清除。
 - 展开「已完成」不会压缩上方「未完成」列表；只有未完成与已完成区域内部滚动，标题、设置、录入框和底部保持固定。
-- 「未完成」「已完成」标题在列表内吸顶：未吸顶时保持透明；吸顶时用两层 `--dsw-alias-menu-group-header-fill` 叠成不透明纯色填充，标题字号、字重和间距保持原样，不做圆角、不加底层、不使用半透明或模糊，正文不会透出。
+- 「未完成」「已完成」标题在列表内吸顶：未吸顶时保持透明；吸顶时用两层 `--dsw-alias-menu-group-header-fill` 叠成不透明纯色填充，标题字号、字重和间距保持原样，不做圆角、不加底层、不使用半透明。标题下方用 5 段 4px 的阶梯模糊（20px 到 2px）渐变过渡到正文，让实色边缘柔和消失。
 - 已完成的便笺同时显示创建时间与完成时间，并按完成时间倒序排列；未完成的只显示创建时间。
 - 「未完成」「已完成」的展开/折叠状态会记住，重新打开面板时恢复上次状态。
 - 便笺卡片的复制/编辑/删除按钮默认隐藏，悬浮或键盘聚焦时显示；触屏设备保持常显。
@@ -55,6 +55,43 @@
 - 同一浏览器的多个标签页会同步更新。
 - 中英文界面，跟随 DSH 语言设置。
 - 界面样式全部复用 DSH 设计令牌：语义色别名、共享圆角与阴影、菜单材质、共享滚动条；字号收敛到 12 / 13 / 14 三档、字重上限 500、中性描边统一 0.5px；悬停只在支持 hover 的设备启用，瞬时结果走全局 Toast。详见 [UI / 交互规范复查报告](./docs/ui-design-check.md)。
+
+## 功能截图
+
+五个主要状态的实拍，明暗同源（同一会话、同一批便笺，只切换主题）：
+
+<table>
+  <tr>
+    <th width="130">功能</th>
+    <th>明色</th>
+    <th>暗色</th>
+  </tr>
+  <tr>
+    <td>面板总览<br>未完成 / 已完成分区</td>
+    <td><img src="./docs/features/panel.png" width="300" alt="面板总览"></td>
+    <td><img src="./docs/features/panel-dark.png" width="300" alt="面板总览（暗色）"></td>
+  </tr>
+  <tr>
+    <td>设置<br>发送快捷键、一键转发前缀、关于</td>
+    <td><img src="./docs/features/settings.png" width="300" alt="设置"></td>
+    <td><img src="./docs/features/settings-dark.png" width="300" alt="设置（暗色）"></td>
+  </tr>
+  <tr>
+    <td>行操作<br>悬浮显示复制 / 转发 / 编辑 / 删除</td>
+    <td><img src="./docs/features/actions.png" width="300" alt="行操作"></td>
+    <td><img src="./docs/features/actions-dark.png" width="300" alt="行操作（暗色）"></td>
+  </tr>
+  <tr>
+    <td>清除已完成<br>二次确认，避免误删</td>
+    <td><img src="./docs/features/clear.png" width="300" alt="清除已完成确认"></td>
+    <td><img src="./docs/features/clear-dark.png" width="300" alt="清除已完成确认（暗色）"></td>
+  </tr>
+  <tr>
+    <td>空状态<br>没有便笺时的引导</td>
+    <td><img src="./docs/features/empty.png" width="300" alt="空状态"></td>
+    <td><img src="./docs/features/empty-dark.png" width="300" alt="空状态（暗色）"></td>
+  </tr>
+</table>
 
 ## 设计规范
 

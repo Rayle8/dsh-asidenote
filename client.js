@@ -264,6 +264,14 @@ window.__ModuleLoader__.load({
       '.dsh-wt-listSection+.dsh-wt-listSection{margin-top:var(--wt-space-2)}',
       '.dsh-wt-sectionHead,.dsh-wt-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-3);min-height:28px;margin:0;padding:var(--wt-space-1) 0;background:transparent;transition:background-color var(--wt-dur-fast) var(--wt-ease)}',
       '.dsh-wt-sectionHead[data-stuck],.dsh-wt-doneHead[data-stuck]{background:linear-gradient(var(--dsw-alias-menu-group-header-fill),var(--dsw-alias-menu-group-header-fill)),var(--dsw-alias-menu-group-header-fill)}',
+      '.dsh-wt-headBlur{display:none;position:absolute;top:100%;left:0;right:0;height:20px;pointer-events:none}',
+      '.dsh-wt-sectionHead[data-stuck] .dsh-wt-headBlur,.dsh-wt-doneHead[data-stuck] .dsh-wt-headBlur{display:block}',
+      '.dsh-wt-headBlurBand{position:absolute;left:0;right:0;height:4px;pointer-events:none}',
+      '.dsh-wt-headBlurBand:nth-child(1){top:0;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}',
+      '.dsh-wt-headBlurBand:nth-child(2){top:4px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}',
+      '.dsh-wt-headBlurBand:nth-child(3){top:8px;-webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px)}',
+      '.dsh-wt-headBlurBand:nth-child(4){top:12px;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}',
+      '.dsh-wt-headBlurBand:nth-child(5){top:16px;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}',
       '.dsh-wt-doneToggle{display:flex;align-items:center;gap:var(--wt-space-2);flex:none;min-width:0;margin:0;padding:var(--wt-space-1) var(--wt-space-2) var(--wt-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--wt-transition)}',
       '.dsh-wt-doneToggle:active{background:var(--wt-active)}',
       '.dsh-wt-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}',
@@ -1054,6 +1062,11 @@ window.__ModuleLoader__.load({
     const IconGear = () => h(Glyph, { name: 'IconSettingsOutlineRegular', size: 14 })
     const IconPencil = () => h(Glyph, { name: 'IconEditOutlineRegular', size: 14 })
     const IconTrash = () => h(Glyph, { name: 'IconTrashOutlineRegular', size: 14 })
+
+    /** Five stacked blur strips under a pinned header; the strongest sits at the header edge and fades downward. */
+    const HeadBlur = () => h('span', { className: 'dsh-wt-headBlur', 'aria-hidden': true },
+      ...[0, 1, 2, 3, 4].map(index => h('span', { key: index, className: 'dsh-wt-headBlurBand' })),
+    )
     const IconChevron = () => h(Glyph, { name: 'IconChevronRightOutlineRegular', size: 12 })
     const IconEmpty = () => h(Glyph, { name: 'IconChecklistOutlineRegular', size: 18 })
     const IconClose = () => h(Glyph, { name: 'IconCloseOutlineRegular', size: 14 })
@@ -2154,6 +2167,7 @@ window.__ModuleLoader__.load({
                   say('list.open'),
                   openCount ? h('span', { className: 'dsh-wt-sectionCount' }, String(openCount)) : null,
                 ),
+                h(HeadBlur, null),
               ),
               showOpen
                 ? openItems.length
@@ -2191,6 +2205,7 @@ window.__ModuleLoader__.load({
                           onClick: askClearConfirm,
                         }, say('popover.clearDone'))
                       : null,
+                    h(HeadBlur, null),
                   ),
                   showDone && confirmClear
                     ? h(
