@@ -65,9 +65,11 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /readEditDraft/)
   assert.match(client, /dsh-wt-listArea/)
   assert.match(client, /dsh-wt-listSection/)
-  // Section heads stay in flow: a sticky band cannot be painted on the
-  // translucent menu material without a visible seam over the panel fill.
-  assert.doesNotMatch(client, /position:sticky/)
+  // Section heads are pinned on an opaque surface token: a transparent band
+  // would let rows read through the header, while re-painting the translucent
+  // menu material would double-fill and leave a visible seam.
+  assert.match(client, /\.dsh-wt-sectionHead,\.dsh-wt-doneHead\{[^}]*position:sticky[^}]*top:0/)
+  assert.match(client, /\.dsh-wt-sectionHead,\.dsh-wt-doneHead\{[^}]*background:var\(--dsw-alias-bg-layer-1\)/)
   assert.match(client, /dsh-wt-checkHalf/)
   assert.match(client, /HALF_DONE_DELAY/)
   assert.match(client, /FORWARDED_STORAGE_KEY/)

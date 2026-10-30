@@ -32,7 +32,7 @@ window.__ModuleLoader__.load({
     /** Notes already forwarded to the composer, per session; keeps the half check. */
     const FORWARDED_STORAGE_KEY = 'dsh.memo.forwarded.v1'
     /** Shown in the in-panel settings; keep in sync with package.json. */
-    const PLUGIN_VERSION = '1.9.4'
+    const PLUGIN_VERSION = '1.9.5'
     const PLUGIN_AUTHOR = '阿三石'
     const PLUGIN_REPO_URL = 'https://github.com/Rayle8/dsh-workspace-todos'
     const PLUGIN_REPO_LABEL = 'github.com/Rayle8/dsh-workspace-todos'
@@ -249,7 +249,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-listArea{--dsh-scrollbar-width:var(--dsh-wt-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-wt-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-wt-listGutter) - var(--dsh-wt-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}',
       '.dsh-wt-listSection{display:flex;flex-direction:column;gap:var(--wt-space-2);min-width:0}',
       '.dsh-wt-listSection+.dsh-wt-listSection{margin-top:var(--wt-space-2)}',
-      '.dsh-wt-sectionHead,.dsh-wt-doneHead{display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-3);min-height:28px;margin:0;padding:var(--wt-space-1) 0}',
+      '.dsh-wt-sectionHead,.dsh-wt-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-3);min-height:28px;margin:0;padding:var(--wt-space-1) 0;background:var(--dsw-alias-bg-layer-1)}',
       '.dsh-wt-doneToggle{display:flex;align-items:center;gap:var(--wt-space-2);flex:none;min-width:0;margin:0;padding:var(--wt-space-1) var(--wt-space-2) var(--wt-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--wt-transition)}',
       '.dsh-wt-doneToggle:active{background:var(--wt-active)}',
       '.dsh-wt-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}',
