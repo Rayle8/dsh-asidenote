@@ -32,7 +32,7 @@ window.__ModuleLoader__.load({
     /** Notes already forwarded to the composer, per session; keeps the half check. */
     const FORWARDED_STORAGE_KEY = 'dsh.memo.forwarded.v1'
     /** Shown in the in-panel settings; keep in sync with package.json. */
-    const PLUGIN_VERSION = '1.9.3'
+    const PLUGIN_VERSION = '1.9.4'
     const PLUGIN_AUTHOR = '阿三石'
     const PLUGIN_REPO_URL = 'https://github.com/Rayle8/dsh-workspace-todos'
     const PLUGIN_REPO_LABEL = 'github.com/Rayle8/dsh-workspace-todos'
@@ -336,7 +336,7 @@ window.__ModuleLoader__.load({
       '',
       '/* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */',
       '.dsh-wt-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--wt-transition)}',
-      '.dsh-wt-headerBtn:active{background:var(--wt-active);color:var(--dsw-alias-label-primary);transform:scale(.94)}',
+      '.dsh-wt-headerBtn:active{background:var(--wt-active);color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-headerBtn[data-active="true"]{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-headerBtn[data-disabled="true"]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}',
       '.dsh-wt-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}',

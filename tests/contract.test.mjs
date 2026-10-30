@@ -421,6 +421,10 @@ test('the panel opens in place with an opacity fade', () => {
   const css = readCss()
   assert.match(css, /@keyframes dsh-wt-pop-in\{from\{opacity:0\}to\{opacity:1\}\}/, 'the panel keyframes must be opacity only')
   assert.doesNotMatch(css, /@keyframes dsh-wt-pop-in\{[^@]*?(?:transform|translate|scale)/, 'the panel must not move or scale on open')
+  // The entry is also the positioning anchor. A pressed transform makes the
+  // anchor rect smaller, so the first panel position is computed from the
+  // scaled rect and snaps right/down once the press transition ends.
+  assert.doesNotMatch(css, /\.dsh-wt-headerBtn:active\{[^}]*transform/, 'the panel anchor must not scale while pressed')
 })
 
 test('the prefix input shares the child title text box', () => {
