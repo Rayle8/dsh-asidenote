@@ -2,8 +2,15 @@
 
 ## Unreleased
 
+- Hide the forward action on completed notes, so a done row only offers copy, edit, and delete.
+- Require a second confirmation for clearing completed notes: the header button opens an inline confirmation band with the live count, Cancel, and a destructive Confirm, which auto-dismisses after five seconds.
+- Add a per-session Trash in settings: note deletions and clear-completed snapshots are archived (newest first, up to 50), and can be restored, permanently deleted, or emptied; restoring keeps the original open/completed state.
+- Give the forwarded mark the forward icon's neutral palette instead of success green, and let a second click on the forward button remove the mark (with its own toast) rather than appending the note twice.
+- Drop the success tint from the completed count badge so it matches the open count exactly; the number stays quiet instead of competing for attention.
+- Stop forwarding from touching the checkbox: it keeps only open and done, the forward button gains a small check, and the half-check, three-second completion countdown, and gray forwarded-done check are gone.
+- Default the send shortcut to Enter, with the platform command modifier plus Enter for a new line; macOS labels the key ⌘ and other platforms label it Ctrl.
+- Pull the shortcut copy out of hardcoded `Ctrl` strings: every send/newline hint and setting interpolates `{mod}`, so both locales follow the current platform.
 - Pull the panel's visual hierarchy apart: the title and count share one line, the count drops to a 12/400 caption, section labels drop from 13/500 primary to 12/500 secondary, and settings/close move into one right-side action group.
-- Give completed counts the only accent: the badge uses the success tint with a success hairline, while an empty open section no longer renders a zero badge.
 - Keep the open count readable when it exists: a solid neutral fill and primary numeral replace the old low-contrast outline.
 - Put the add field and note cards on the shared settings-card fill and stroke, and bind the panel's elevation hairline to `border-l2` so the surface edge stays visible on white.
 - Add a contract test for the section-label, zero-badge, completed-badge, and card-surface decisions, with before/after screenshots in `docs/ui-design-check.md` §1.1.
