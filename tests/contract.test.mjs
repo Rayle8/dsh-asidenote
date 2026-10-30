@@ -471,16 +471,16 @@ test('the prefix input shares the child title text box', () => {
   assert.match(read('client.js'), /fontWeight: 500/, 'the inline guard must keep the title weight')
 })
 
-test('the prefix prompt uses a three-line textarea field', () => {
+test('the prefix prompt uses a one-line-to-multiline textarea', () => {
   const css = readCss()
   const textarea = css.match(/\.dsh-wt-settingTextarea\{([^}]*)\}/)
   assert.ok(textarea, 'missing settingTextarea rule')
   // The shared field keeps its border, radius, fill, type and focus skin; the
-  // textarea only changes the box so three 20px lines fit with 8px padding.
+  // textarea only changes the box, starting at one 20px line plus padding.
   assert.ok(css.indexOf('.dsh-wt-settingTextarea{') > css.indexOf('.dsh-wt-settingInput{'), 'the textarea must override the shared input height')
   assert.match(textarea[1], /display:block/)
   assert.match(textarea[1], /height:auto/)
-  assert.match(textarea[1], /min-height:calc\(var\(--wt-lh-row\) \* 3 \+ var\(--wt-space-4\)\)/, 'min-height must floor the field at three lines plus padding')
+  assert.match(textarea[1], /min-height:calc\(var\(--wt-lh-row\) \+ var\(--wt-space-4\) \+ 2px\)/, 'min-height must floor the field at one line plus padding and border')
   assert.match(textarea[1], /padding:var\(--wt-space-2\)/)
   assert.match(textarea[1], /resize:none/)
   assert.match(textarea[1], /overflow-y:auto/)
@@ -697,7 +697,7 @@ test('the prefix prompt is a multiline field that grows with its content', () =>
   assert.ok(fieldEnd > idAt, 'the prefix hint must follow the field')
   const field = client.slice(fieldStart, fieldEnd)
   assert.match(field, /ref: prefixRef/, 'the field exposes a ref for auto-grow')
-  assert.match(field, /rows: 3/, 'the field opens three lines tall')
+  assert.match(field, /rows: 1/, 'the field opens one line tall')
   assert.match(field, /className: 'dsh-wt-settingInput dsh-wt-settingTextarea'/, 'the textarea keeps the shared field skin')
   assert.match(field, /maxLength: 80/, 'the whole value stays capped at 80 characters')
   assert.match(field, /onChange: event => changeForwardPrefix\(event\.target\.value\)/, 'the field stays a controlled draft')
@@ -707,7 +707,7 @@ test('the prefix prompt is a multiline field that grows with its content', () =>
   const effect = client.match(/React\.useLayoutEffect\(\(\) => \{\s*const node = prefixRef\.current[\s\S]*?\}, \[forwardPrefix, showSettings\]\)/)
   assert.ok(effect, 'the field re-measures when the value changes or settings reopen')
   assert.match(effect[0], /node\.style\.height = 'auto'/, 'auto-grow resets the height before measuring')
-  assert.match(effect[0], /Math\.min\(120, node\.scrollHeight\)/, 'auto-grow caps at six lines and then scrolls')
+  assert.match(effect[0], /Math\.min\(138, node\.scrollHeight \+ 2\)/, 'auto-grow caps at six lines and then scrolls')
 })
 
 
