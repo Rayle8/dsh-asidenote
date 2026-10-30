@@ -305,7 +305,7 @@ test('the rail grows into the popover padding without shrinking the cards', () =
   const viewport = /\.dsh-wt-listViewport\{([^}]*)\}/.exec(css)
   assert.ok(viewport, 'missing list viewport')
   assert.match(viewport[1], /margin-right:calc\(var\(--dsh-wt-listGutter\) \* -1\)/)
-  const list = /\.dsh-wt-listArea\{([^}]*)\}/.exec(css)
+  const list = [...css.matchAll(/\.dsh-wt-listArea\{([^}]*)\}/g)].find(match => match[1].includes('display:flex'))
   assert.ok(list, 'missing list scroll container')
   // Cards and the add field keep one content width: the padding pays back what
   // the rail consumes, and the stable gutter keeps that width when idle.
@@ -316,27 +316,18 @@ test('the rail grows into the popover padding without shrinking the cards', () =
 test('the bottom edge fades only while notes sit below the fold', () => {
   const css = readCss()
   const client = read('client.js')
-  // Two stacked bottom-only layers: a tall 1px halo under a 28px 2px fade.
-  const base = /\.dsh-wt-listViewport::before,\.dsh-wt-listViewport::after\{([^}]*)\}/.exec(css)
-  assert.ok(base, 'missing bottom edge layers')
-  assert.match(base[1], /bottom:0/, 'both layers must sit at the bottom edge')
-  assert.match(base[1], /right:var\(--dsh-wt-scrollRail\)/, 'the layers must stop before the scrollbar')
-  assert.match(base[1], /opacity:0/, 'the layers start hidden')
-  assert.match(base[1], /pointer-events:none/, 'the layers must not intercept input')
-  const halo = [...css.matchAll(/\.dsh-wt-listViewport::before\{([^}]*)\}/g)].find(match => match[1].includes('backdrop-filter'))
-  assert.ok(halo, 'missing the soft outer halo')
-  assert.match(halo[1], /height:calc\(var\(--wt-space-6\) \+ var\(--wt-space-4\)\)/, 'the halo must cover 48px')
-  assert.match(halo[1], /backdrop-filter:blur\(1px\)/, 'the halo must be a low-strength blur')
-  assert.match(halo[1], /mask-image:linear-gradient\(to top,color-mix\(in srgb,currentColor 42%,transparent\)/, 'the halo needs a long alpha ramp')
-  const fade = [...css.matchAll(/\.dsh-wt-listViewport::after\{([^}]*)\}/g)].find(match => match[1].includes('height:calc'))
-  assert.ok(fade, 'missing bottom fade overlay')
-  assert.match(fade[1], /height:calc\(var\(--wt-space-5\) \+ var\(--wt-space-1\)\)/, 'the inner fade stays 28px')
-  assert.match(fade[1], /background:linear-gradient\(to top,var\(--dsw-specific-menu\) 0%/, 'the inner layer needs a five-stop surface gradient')
-  assert.match(fade[1], /48%,transparent\) 58%/, 'the gradient must fade through intermediate alpha stops')
-  assert.match(fade[1], /backdrop-filter:blur\(2px\)/, 'the inner layer keeps the gentle 2px blur')
-  assert.match(fade[1], /mask-image:linear-gradient\(to top,currentColor,color-mix\(in srgb,currentColor 65%,transparent\) 32%/, 'the inner mask needs a long ramp')
-  assert.match(css, /\.dsh-wt-listViewport\[data-bottom="true"\]::before,\.dsh-wt-listViewport\[data-bottom="true"\]::after\{opacity:1\}/)
-  // It lives outside the scroller and follows scroll + ResizeObserver state.
+  // The fade is an alpha mask on the scroller, not a blurred overlay: a mask
+  // has no compositing edge to show as a crisp-to-blurred line.
+  assert.doesNotMatch(css, /\.dsh-wt-listViewport::(?:before|after)/, 'the bottom fade must not use an overlay pseudo-element')
+  const mask = /\.dsh-wt-listViewport\[data-bottom="true"\] \.dsh-wt-listArea\{([^}]*)\}/.exec(css)
+  assert.ok(mask, 'missing the bottom fade mask')
+  assert.match(mask[1], /--dsh-wt-fadeHeight:calc\(var\(--wt-space-6\) \+ var\(--wt-space-4\)\)/, 'the fade must cover 48px')
+  assert.match(mask[1], /mask-image:linear-gradient\(to bottom,currentColor 0,currentColor calc\(100% - var\(--dsh-wt-fadeHeight\)\),transparent 100%\)/, 'the content must fade over 48px')
+  assert.match(mask[1], /mask-image:[^;]*linear-gradient\(to right,transparent calc\(100% - var\(--dsh-wt-scrollRail\)\),currentColor calc\(100% - var\(--dsh-wt-scrollRail\)\)\)/, 'the scrollbar rail must stay opaque')
+  assert.match(mask[1], /mask-composite:add/, 'the two mask layers union so the rail stays crisp')
+  assert.doesNotMatch(mask[1], /backdrop-filter/, 'a backdrop-filter overlay would reintroduce the hard edge')
+  assert.match(css, /\.dsh-wt-listViewport\[data-bottom="true"\] \.dsh-wt-listArea/, 'the mask must follow the scroll state')
+  // It follows scroll + ResizeObserver state.
   assert.match(client, /className: 'dsh-wt-listViewport'[\s\S]{0,240}className: 'dsh-wt-listArea', ref: listRef/)
   assert.match(client, /'data-bottom': listHasMore \? 'true' : undefined/)
   assert.match(client, /onScroll: syncListEdge/)
