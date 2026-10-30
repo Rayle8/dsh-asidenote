@@ -36,6 +36,99 @@ window.__ModuleLoader__.load({
     const PLUGIN_AUTHOR = '阿三石'
     const PLUGIN_REPO_URL = 'https://github.com/Rayle8/dsh-workspace-todos'
     const PLUGIN_REPO_LABEL = 'github.com/Rayle8/dsh-workspace-todos'
+    /** Release notes for the newer version the check advertises. */
+    const PLUGIN_RELEASES_URL = `${PLUGIN_REPO_URL}/releases/latest`
+
+    /** npm metadata endpoints in fallback order; the mirror covers networks where npmjs is slow. */
+    const UPDATE_REGISTRY_HOSTS = ['https://registry.npmjs.org', 'https://registry.npmmirror.com']
+    /** Second source: a GitHub Release, for checkouts that are not published to npm. */
+    const UPDATE_GITHUB_RELEASE_URL = 'https://api.github.com/repos/Rayle8/dsh-workspace-todos/releases/latest'
+    /** A resolved version is reused for an hour, including a miss, to keep opens quiet. */
+    const UPDATE_TTL_MS = 60 * 60 * 1000
+
+    /**
+     * Version probe for the published package.
+     *
+     * Deliberately self-contained (fetch and clock injected, no widget state), so
+     * the contract test can evaluate this block in Node and cover the source
+     * fallback, the TTL cache, and the result handling without a browser.
+     */
+    function createUpdateProbe({ fetchImpl, now, ttlMs }) {
+      let cached = null
+      function readJson(url) {
+        return fetchImpl(url)
+          .then(response => (response.ok ? response.json() : null))
+          .catch(() => null)
+      }
+      function readNpmVersion(host) {
+        return readJson(`${host}/dsh-workspace-todos/latest`)
+          .then(body => (body !== null && typeof body.version === 'string' ? body.version : null))
+      }
+      function readGitHubVersion() {
+        return readJson(UPDATE_GITHUB_RELEASE_URL)
+          .then(body => {
+            const tag = body !== null && typeof body.tag_name === 'string' ? body.tag_name : ''
+            // Release tags usually carry a `v`; the UI adds its own prefix.
+            return tag === '' ? null : tag.replace(/^v/, '')
+          })
+      }
+      function latest() {
+        if (cached === null || now() - cached.at >= ttlMs) {
+          cached = {
+            at: now(),
+            promise: (async () => {
+              for (const host of UPDATE_REGISTRY_HOSTS) {
+                const version = await readNpmVersion(host)
+                if (version !== null) return version
+              }
+              return readGitHubVersion()
+            })(),
+          }
+        }
+        return cached.promise
+      }
+      return { latest }
+    }
+
+    /**
+     * Numeric segment comparison, tolerant of a `v` prefix and short forms. A
+     * pre-release tag on the same core is not newer ("2.0.0-rc.1" vs "2.0.0").
+     */
+    function isNewerVersion(latest, current) {
+      const parse = version => version.replace(/^v/, '').split('-', 1)[0].split('.').map(part => parseInt(part, 10) || 0)
+      const next = parse(latest)
+      const have = parse(current)
+      for (let index = 0; index < Math.max(next.length, have.length); index += 1) {
+        const a = next[index] || 0
+        const b = have[index] || 0
+        if (a !== b) return a > b
+      }
+      return false
+    }
+
+    const updateProbe = createUpdateProbe({
+      fetchImpl: url => fetch(url),
+      now: () => Date.now(),
+      ttlMs: UPDATE_TTL_MS,
+    })
+
+    /**
+     * The published version when it is newer than this build, otherwise null.
+     * Versions carrying a tag (a local `-dev` build) never check.
+     */
+    function useNewerVersion() {
+      const [latestVersion, setLatestVersion] = React.useState(null)
+      React.useEffect(() => {
+        if (PLUGIN_VERSION.includes('-')) return undefined
+        let active = true
+        updateProbe.latest().then(version => {
+          if (active && version !== null) setLatestVersion(version)
+        })
+        return () => { active = false }
+      }, [])
+      return latestVersion !== null && isNewerVersion(latestVersion, PLUGIN_VERSION) ? latestVersion : null
+    }
+
     /** Send preference; persisted across panel openings. Enter sends by default. */
     const SEND_SHORTCUT_KEY = 'dsh.memo.send-shortcut.v1'
     const SEND_SHORTCUT_DEFAULT = 'enter'
@@ -153,6 +246,8 @@ window.__ModuleLoader__.load({
         'toast.deleted': '已删除',
         'toast.cleared': '已清除已完成',
         'toast.saveFailed': '保存失败，内容没有改动',
+        'update.label': '有新版本',
+        'update.tip': '新版本 {version} 已发布，点击查看更新说明',
       },
       en: {
         'nav.label': 'Notes',
@@ -221,6 +316,8 @@ window.__ModuleLoader__.load({
         'toast.deleted': 'Deleted',
         'toast.cleared': 'Cleared completed',
         'toast.saveFailed': 'Save failed — nothing changed',
+        'update.label': 'Update available',
+        'update.tip': 'Version {version} is now available — open the release notes',
       },
     }
 
@@ -241,6 +338,8 @@ window.__ModuleLoader__.load({
       '.dsh-wt-popClose,.dsh-wt-settingsBtn{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--wt-transition)}',
       '.dsh-wt-popClose:active,.dsh-wt-settingsBtn:active{background:var(--wt-active)}',
       '.dsh-wt-settingsBtn[data-active="true"]{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}',
+      '.dsh-wt-settingsBtn{position:relative}',
+      '.dsh-wt-updateDot{position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:var(--wt-radius-pill);corner-shape:round;background:var(--dsw-alias-brand-primary);box-shadow:0 0 0 2px var(--dsh-wt-panelSurface)}',
       '',
       '/* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */',
       '.dsh-wt-add{display:flex;flex-direction:column;gap:var(--wt-space-2);padding:var(--wt-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--wt-transition)}',
@@ -345,6 +444,9 @@ window.__ModuleLoader__.load({
       '.dsh-wt-settingDot{flex:none;color:var(--dsw-alias-label-tertiary)}',
       '.dsh-wt-settingLink{flex:0 1 auto;min-width:0;overflow:hidden;color:var(--dsw-alias-link);font-weight:500;text-decoration:none;text-overflow:ellipsis;transition:var(--wt-transition)}',
       '.dsh-wt-settingLink:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}',
+      '.dsh-wt-settingUpdate{display:inline-flex;align-items:baseline;align-self:flex-start;gap:var(--wt-space-1);padding:2px var(--wt-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--wt-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-link);font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;text-decoration:none;transition:var(--wt-transition)}',
+      '.dsh-wt-settingUpdate:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}',
+      '.dsh-wt-settingUpdateVersion{font-variant-numeric:tabular-nums}',
       '',
       '/* ── 11 面板脚注 · 存储状态就地提示，错误用状态色 ─────────────────── */',
       '.dsh-wt-popFoot{margin:0;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary)}',
@@ -390,6 +492,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-check:hover .dsh-wt-checkCircle{border-color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-settingChoice:hover input{border-color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-settingLink:hover{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}',
+      '.dsh-wt-settingUpdate:hover{background:var(--wt-hover)}',
       '.dsh-wt-headerBtn:hover{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}',
       '.dsh-wt-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}',
@@ -1406,6 +1509,8 @@ window.__ModuleLoader__.load({
       const [confirmClear, setConfirmClear] = React.useState(false)
       const sectionsRef = React.useRef(initialSections)
       const [showSettings, setShowSettings] = React.useState(false)
+      // One registry read per hour, shared by every panel open; null when current.
+      const newerVersion = useNewerVersion()
       const [sendShortcut, setSendShortcut] = React.useState(readSendShortcut)
       const [forwardPrefix, setForwardPrefix] = React.useState(readForwardPrefix)
       // Forwarded item ids of this session, read once per mount so reopen restores the forward mark.
@@ -1949,11 +2054,14 @@ window.__ModuleLoader__.load({
                 type: 'button',
                 className: 'dsh-wt-settingsBtn',
                 'data-active': showSettings ? 'true' : undefined,
-                'aria-label': say('settings.open'),
+                'aria-label': newerVersion
+                  ? `${say('settings.open')} · ${say('update.tip', { version: `v${newerVersion}` })}`
+                  : say('settings.open'),
                 'aria-expanded': showSettings,
                 onClick: () => setShowSettings(value => !value),
               },
               h(IconGear, null),
+              newerVersion ? h('span', { className: 'dsh-wt-updateDot', 'aria-hidden': true }) : null,
             )),
             withTooltip(say('popover.close'), h(
               'button',
@@ -2048,6 +2156,20 @@ window.__ModuleLoader__.load({
                     h('span', { className: 'dsh-wt-settingDot', 'aria-hidden': true }, '·'),
                     h('span', null, `${say('settings.author')} ${PLUGIN_AUTHOR}`),
                   ),
+                  newerVersion
+                    ? h(
+                        'a',
+                        {
+                          className: 'dsh-wt-settingUpdate',
+                          href: PLUGIN_RELEASES_URL,
+                          target: '_blank',
+                          rel: 'noreferrer',
+                          title: say('update.tip', { version: `v${newerVersion}` }),
+                        },
+                        h('span', null, say('update.label')),
+                        h('span', { className: 'dsh-wt-settingUpdateVersion' }, `↑ v${newerVersion}`),
+                      )
+                    : null,
                   h(
                     'div',
                     { className: 'dsh-wt-settingProject' },

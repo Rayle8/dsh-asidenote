@@ -64,5 +64,7 @@
   "toast.forwardFailed": "没有找到输入框，转发失败",
   "toast.forwarded": "已转发到会话",
   "toast.saveFailed": "保存失败，内容没有改动",
-  "toast.unforwarded": "已取消转发标识"
+  "toast.unforwarded": "已取消转发标识",
+  "update.label": "有新版本",
+  "update.tip": "新版本 {version} 已发布，点击查看更新说明"
 }

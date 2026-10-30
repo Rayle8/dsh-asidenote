@@ -64,5 +64,7 @@
   "toast.forwardFailed": "No composer found — nothing was forwarded",
   "toast.forwarded": "Forwarded to chat",
   "toast.saveFailed": "Save failed — nothing changed",
-  "toast.unforwarded": "Forward mark removed"
+  "toast.unforwarded": "Forward mark removed",
+  "update.label": "Update available",
+  "update.tip": "Version {version} is now available — open the release notes"
 }

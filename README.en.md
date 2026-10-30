@@ -65,7 +65,7 @@ Clicking the entry opens a fixed panel on the right.
 - Data is keyed by **session ID**; different sessions in one workspace stay independent.
 - A 28px square top-right icon button shows the open count as a low-contrast gray corner badge; its tooltip reads “Session notes N”.
 - Clicking it opens a fixed right-side panel; switching sessions closes the old panel and updates the entry.
-- The settings button beside the notes title expands a settings card for the send shortcut (Enter sends, or ⌘/Ctrl+Enter sends, labelled for the current platform); **One-click forward** provides a prefix prompt field that starts one line tall and grows with wrapped text up to six lines, with an explanation underneath, and the bottom shows the version, the author 阿三石, and a clickable GitHub project link; settings persist automatically.
+- The settings button beside the notes title expands a settings card for the send shortcut (Enter sends, or ⌘/Ctrl+Enter sends, labelled for the current platform); **One-click forward** provides a prefix prompt field that starts one line tall and grows with wrapped text up to six lines, with an explanation underneath, and the bottom shows the version, the author 阿三石, and a clickable GitHub project link; when a newer release exists, the settings button gains a dot and Settings › About offers the update link; settings persist automatically.
 - The panel's top-right corner aligns with the header entry and shifts left of the DSH right sidebar when that sidebar is open.
 - Clicking the entry opens the right-side panel for add, complete, copy, edit (double-click or pencil), delete, clear completed (with a confirmation), and expand completed.
 - Drag the handle on the panel's left edge to resize its width; double-click the handle to reset it, and the width persists in the browser.
@@ -201,6 +201,12 @@ Link the checkout into a DSH profile (replace `<path-to-repo>`):
 
 Then run `pnpm install` in the profile directory. On startup DSH reads `dsh.bundle.patch` and `dsh.client`. After adding the bundle row, toggle it off/on in the sidebar **Plugins** page to recompose a running Host without a restart; restart once if the row is not listed yet. Later `client.js` edits are replaced by the dev client HMR.
 
+## Update notice
+
+When the panel opens, the plugin reads the latest `dsh-workspace-todos` version from the npm registry (falling back to npmmirror when npmjs is unreachable), then from the latest GitHub Release tag. The answer, including a miss, is cached for an hour so repeated panel opens make no extra request. If a newer version exists, the settings button gains a dot and Settings › About shows an “Update available ↑ vX.Y.Z” link that opens the GitHub release notes.
+
+The check reads only the public version number: it sends no telemetry and never installs anything or touches your notes. Upgrading stays an explicit step in your profile (`pnpm install` plus a DSH restart).
+
 ## Development
 
 `client.js` is the browser half, in DSH's Module Loader format:
@@ -232,6 +238,7 @@ Loaded in an isolated DSH profile and driven through headless Chrome:
 - clicking it opens the panel on the right, aligned with the entry;
 - adding updates both the badge and the panel count;
 - complete, edit, copy, forward, delete, and clear-completed work in the panel;
-- records survive a refresh and stay session-scoped.
+- records survive a refresh and stay session-scoped;
+- the npmjs → npmmirror → GitHub Release fallback, the one-hour cache, and the version comparison are covered by the contract tests without a browser; the live notice needs a published npm package or a GitHub Release.
 
 `node --check client.js` and the contract tests pass.

@@ -37,6 +37,95 @@ test('client version matches the package version', () => {
   assert.match(read('client.js'), new RegExp(`PLUGIN_VERSION = '${manifest.version.replace(/\./g, '\\.')}'`))
 })
 
+test('the client checks for a newer release and links to the release notes', () => {
+  const client = read('client.js')
+  assert.match(client, /https:\/\/registry\.npmjs\.org/)
+  assert.match(client, /https:\/\/registry\.npmmirror\.com/)
+  assert.match(client, /https:\/\/api\.github\.com\/repos\/Rayle8\/dsh-workspace-todos\/releases\/latest/)
+  assert.match(client, /\/dsh-workspace-todos\/latest/)
+  assert.match(client, /tag_name/)
+  assert.match(client, /const PLUGIN_RELEASES_URL = `\$\{PLUGIN_REPO_URL\}\/releases\/latest`/)
+  assert.match(client, /function createUpdateProbe/)
+  assert.match(client, /function isNewerVersion/)
+  assert.match(client, /function useNewerVersion/)
+  assert.match(client, /const newerVersion = useNewerVersion\(\)/)
+  assert.match(client, /PLUGIN_VERSION.includes\('-'\)/)
+  assert.match(client, /href: PLUGIN_RELEASES_URL/)
+  assert.match(client, /'update\.tip'/)
+  assert.match(client, /dsh-wt-updateDot/)
+  assert.match(client, /dsh-wt-settingUpdate/)
+  // The check only reads the published version: it installs and executes nothing.
+  assert.doesNotMatch(client, /npm install|dsh plugin update|child_process|exec\(/)
+})
+
+test('the update probe falls back from npm to the mirror and GitHub, and caches both hits and misses for an hour', async () => {
+  const { createUpdateProbe, isNewerVersion } = readUpdateHelpers()
+  const hour = 60 * 60 * 1000
+  const calls = []
+  let now = 1000
+  const probe = createUpdateProbe({
+    fetchImpl: async url => {
+      calls.push(url)
+      if (url.startsWith('https://registry.npmjs.org/')) throw new Error('offline')
+      return { ok: true, json: async () => ({ version: '1.10.0' }) }
+    },
+    now: () => now,
+    ttlMs: hour,
+  })
+  assert.equal(await probe.latest(), '1.10.0')
+  assert.deepEqual(calls, [
+    'https://registry.npmjs.org/dsh-workspace-todos/latest',
+    'https://registry.npmmirror.com/dsh-workspace-todos/latest',
+  ], 'npm is consulted first and the mirror is the fallback')
+  calls.length = 0
+  now += hour - 1
+  assert.equal(await probe.latest(), '1.10.0')
+  assert.equal(calls.length, 0, 'a version inside the TTL is reused')
+  now += 1
+  await probe.latest()
+  assert.equal(calls.length, 2, 'the TTL expiry reads the registry again')
+
+  const releaseCalls = []
+  const releaseOnly = createUpdateProbe({
+    fetchImpl: async url => {
+      releaseCalls.push(url)
+      if (url.startsWith('https://api.github.com/')) {
+        return { ok: true, json: async () => ({ tag_name: 'v1.10.2' }) }
+      }
+      return { ok: false, json: async () => ({}) }
+    },
+    now: () => 0,
+    ttlMs: hour,
+  })
+  assert.equal(await releaseOnly.latest(), '1.10.2', 'a GitHub Release backs a checkout that is not on npm, with its v prefix stripped')
+  assert.deepEqual(releaseCalls, [
+    'https://registry.npmjs.org/dsh-workspace-todos/latest',
+    'https://registry.npmmirror.com/dsh-workspace-todos/latest',
+    'https://api.github.com/repos/Rayle8/dsh-workspace-todos/releases/latest',
+  ], 'GitHub is consulted only after both npm hosts miss')
+
+  let offline = true
+  const flaky = createUpdateProbe({
+    fetchImpl: async () => {
+      if (offline) throw new Error('offline')
+      return { ok: true, json: async () => ({ version: '1.10.1' }) }
+    },
+    now: () => 0,
+    ttlMs: hour,
+  })
+  assert.equal(await flaky.latest(), null, 'an unreachable registry resolves null')
+  offline = false
+  assert.equal(await flaky.latest(), null, 'the miss is cached too, so repeated opens make no request')
+
+  assert.equal(isNewerVersion('1.10.0', '1.9.7'), true)
+  assert.equal(isNewerVersion('v2.0.0', '1.9.7'), true)
+  assert.equal(isNewerVersion('1.9.7', '1.9.7'), false)
+  assert.equal(isNewerVersion('1.9.6', '1.9.7'), false)
+  assert.equal(isNewerVersion('1.10', '1.9.9'), true)
+  assert.equal(isNewerVersion('1.10.0-rc.1', '1.10.0'), false)
+  assert.equal(isNewerVersion('x.y', '0.0.0'), false)
+})
+
 test('patch inserts exactly the package host row', () => {
   const patch = read('cordis.patch.yml')
   assert.match(patch, /- insert:/)
@@ -224,6 +313,15 @@ function readDict() {
   assert.ok(start > 0 && end > start, 'DICT not found')
   const literal = client.slice(start + '    const DICT = '.length, end).trim().replace(/,$/, '')
   return new Function(`return (${literal})`)()
+}
+
+/** The self-contained update probe and comparator, evaluated from the client source. */
+function readUpdateHelpers() {
+  const client = read('client.js')
+  const start = client.indexOf('    const UPDATE_REGISTRY_HOSTS = ')
+  const end = client.indexOf('    const updateProbe = createUpdateProbe({', start)
+  assert.ok(start > 0 && end > start, 'update helpers not found')
+  return new Function(`${client.slice(start, end)}\nreturn { createUpdateProbe, isNewerVersion }`)()
 }
 
 test('colours come from theme aliases, never from a second palette', () => {
