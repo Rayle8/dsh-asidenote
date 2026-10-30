@@ -27,7 +27,7 @@ test('package declares the DSH bundle and web client halves', () => {
   ]) {
     assert.ok(manifest.dsh.client.inject.includes(dependency), `missing inject ${dependency}`)
   }
-  for (const file of ['client.js', 'index.js', 'cordis.patch.yml', 'icon.svg', 'preview.png', 'preview-badge.png', 'preview-history.png', 'preview-right.png', 'README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md']) {
+  for (const file of ['client.js', 'index.js', 'cordis.patch.yml', 'icon.svg', 'preview.png', 'preview-badge.png', 'preview-right.png', 'preview-dark.png', 'preview-badge-dark.png', 'preview-right-dark.png', 'README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md']) {
     assert.ok(manifest.files.includes(file), `missing files entry ${file}`)
   }
 })
@@ -153,10 +153,13 @@ test('locale files carry the whole dictionary', () => {
 })
 
 test('documentation and preview assets are present', () => {
-  for (const file of ['README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md', 'preview.png', 'preview-badge.png', 'preview-history.png', 'preview-right.png', 'icon.svg']) {
+  const previews = ['preview.png', 'preview-badge.png', 'preview-right.png', 'preview-dark.png', 'preview-badge-dark.png', 'preview-right-dark.png']
+  for (const file of ['README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md', ...previews, 'icon.svg']) {
     assert.ok(exists(file), `missing ${file}`)
   }
-  assert.ok(fs.statSync(path.join(root, 'preview.png')).size > 1000)
+  for (const file of previews) {
+    assert.ok(fs.statSync(path.join(root, file)).size > 1000, `${file} looks empty`)
+  }
 })
 
 /** The stylesheet is a string array; flatten it back into CSS for inspection. */

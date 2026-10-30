@@ -8,11 +8,19 @@ A lightweight note for the DeepSeek Harness Web GUI, scoped to one **session** a
 
 ![Notes right-side panel](./preview-right.png)
 
+The same panel in the dark theme; every colour comes from DSH theme tokens:
+
+![Notes right-side panel, dark](./preview-right-dark.png)
+
 ## Entry
 
 A **Notes** button at the top right of the conversation, with the open count:
 
-![Notes button at the top right](./preview-right.png)
+![Notes button at the top right](./preview-badge.png)
+
+The same button in the dark theme:
+
+![Notes button at the top right, dark](./preview-badge-dark.png)
 
 Clicking it opens a fixed panel on the right. The sidebar title badge and composer status-strip entry are not used on this branch.
 
