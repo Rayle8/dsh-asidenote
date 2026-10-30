@@ -70,15 +70,12 @@ test('host and browser entries use the package identity', () => {
   // menu material would double-fill and leave a visible seam.
   assert.match(client, /\.dsh-wt-sectionHead,\.dsh-wt-doneHead\{[^}]*position:sticky[^}]*top:0/)
   assert.match(client, /\.dsh-wt-sectionHead,\.dsh-wt-doneHead\{[^}]*background:var\(--dsw-alias-bg-layer-1\)/)
-  assert.match(client, /dsh-wt-checkHalf/)
-  assert.match(client, /HALF_DONE_DELAY/)
   assert.match(client, /FORWARDED_STORAGE_KEY/)
-  assert.match(client, /dsh-wt-checkForwarded/)
-  assert.match(client, /item\.pendingCountdown/)
-  assert.match(client, /HALF_DONE_COUNTDOWN/)
+  assert.match(client, /dsh-wt-forwardMark/)
+  assert.match(client, /item\.forwarded/)
+  assert.doesNotMatch(client, /dsh-wt-checkHalf|dsh-wt-checkForwarded|HALF_DONE_|item\.pendingCountdown|settings\.halfCheck/)
   assert.match(client, /edit\.hintEnter/)
-  assert.match(client, /settings\.halfCheck/)
-  assert.match(client, /settings\.forwardCheck/)
+  assert.doesNotMatch(client, /settings\.forward(?:Check|Mark)/, 'the stale forward-mark description is gone')
   assert.match(client, /settings\.forwardPrefixItem/)
   assert.match(client, /SECTION_STATE_KEY/)
   assert.match(client, /readSectionState/)
@@ -142,6 +139,18 @@ test('locale files carry the whole dictionary', () => {
   const client = read('client.js')
   assert.match(client, /'title': '便笺'/)
   assert.match(client, /'dock\.open': '打开便笺'/)
+  // The clear-completed confirmation is localised in both bundles and both files.
+  assert.equal(zh['popover.clearConfirm'], '清除 {n} 项已完成便笺？')
+  assert.equal(en['popover.clearConfirm'], 'Clear {n} completed notes?')
+  assert.equal(zh['popover.clearCancel'], '取消')
+  assert.equal(en['popover.clearCancel'], 'Cancel')
+  assert.equal(zh['popover.clearConfirmAction'], '确认清除')
+  assert.equal(en['popover.clearConfirmAction'], 'Clear')
+  // The forwarded tooltip names the toggle-off gesture, in both bundles.
+  assert.match(zh['item.forwarded'], /移除标识/)
+  assert.match(en['item.forwarded'], /remove the mark/)
+  assert.ok(zh['toast.unforwarded'], 'zh.json is missing toast.unforwarded')
+  assert.ok(en['toast.unforwarded'], 'en.json is missing toast.unforwarded')
 })
 
 test('documentation and preview assets are present', () => {
@@ -382,7 +391,7 @@ test('transient outcomes go to the frame-wide toast seat', () => {
   assert.match(client, /ctx\.slots\.inject\('shell\.overlay'/)
   assert.match(client, /name: 'shell\.overlay'/)
   assert.match(client, /h\(Toast, \{/)
-  for (const kind of ['copied', 'forwarded', 'deleted', 'cleared', 'copyFailed', 'forwardFailed', 'saveFailed']) {
+  for (const kind of ['copied', 'forwarded', 'unforwarded', 'deleted', 'cleared', 'copyFailed', 'forwardFailed', 'saveFailed']) {
     assert.match(client, new RegExp(`toast\\.${kind}`), `missing toast copy for ${kind}`)
   }
   assert.doesNotMatch(client, /dsh-wt-copied|dsh-wt-forwarded/, 'inline success marks duplicate the toast')
@@ -399,10 +408,32 @@ test('icon-only controls use the shared tooltip', () => {
   const client = read('client.js')
   assert.match(client, /function withTooltip\(/)
   assert.match(client, /h\(Tooltip, \{ label, side: 'top'/)
-  const iconButtons = [...client.matchAll(/className: 'dsh-wt-iconBtn[^']*',\n\s+'aria-label': say\('([^']+)'\)/g)].map(match => match[1])
+  const iconButtons = [...client.matchAll(/className: 'dsh-wt-iconBtn[^']*',\n\s+'aria-label': say\(([^)]+)\)/g)]
   assert.equal(iconButtons.length, 4, 'all four row actions must be present')
   const buttonTitles = [...client.matchAll(/'aria-label': say\('[^']+'\),\n\s+title:/g)]
   assert.deepEqual(buttonTitles, [], 'aria-labelled buttons must not carry a second native title')
+})
+
+test('completed notes hide the forward action and keep the other three', () => {
+  const client = read('client.js')
+  const start = client.indexOf("className: 'dsh-wt-actions'")
+  assert.ok(start > 0, 'row actions missing')
+  const actions = client.slice(start, client.indexOf('function EmptyState', start))
+  // Forwarding is the only action a completed note drops, and it disappears
+  // entirely: a done row never renders a disabled forward button.
+  assert.match(actions, /done \? null : withTooltip\(say\(forwarded \? 'item\.forwarded' : 'item\.forward'\)/)
+  assert.equal([...actions.matchAll(/\? null : withTooltip/g)].length, 1, 'forward is the only conditional action')
+  // Copy, edit and delete stay unconditional direct children of the action row.
+  for (const key of ['item.copy', 'item.edit', 'item.delete']) {
+    const escaped = key.replace(/\./g, '\\.')
+    assert.match(actions, new RegExp(`,\\n\\s+withTooltip\\(say\\('${escaped}'\\)`), `${key} must stay unconditional`)
+    assert.doesNotMatch(actions, new RegExp(`\\? null : withTooltip\\(say\\('${escaped}'\\)`), `${key} must not be conditional`)
+  }
+  // The surviving actions keep their reading order around the optional one.
+  const order = ["withTooltip(say('item.copy')", "withTooltip(say(forwarded ? 'item.forwarded'", "withTooltip(say('item.edit')", "withTooltip(say('item.delete')"]
+    .map(snippet => actions.indexOf(snippet))
+  assert.ok(order.every(index => index > 0), 'row action order drifted')
+  assert.deepEqual([...order].sort((a, b) => a - b), order, 'row action order drifted')
 })
 
 test('animations and transitions stay tokenised', () => {
@@ -469,14 +500,17 @@ test('the section counts carry the status hierarchy', () => {
   const client = read('client.js')
   assert.match(client, /className: 'dsh-wt-popActions'/)
   assert.match(client, /className: 'dsh-wt-popTitleLine' \},\n\s+h\('div', \{ className: 'dsh-wt-popTitle' \}[^]*?h\('p', \{ className: 'dsh-wt-popMeta' \}/)
-  // Completed work gets the only success tint; an empty open section shows no
-  // zero badge, which is noise rather than information.
+  // Both counts share the one neutral badge style: the completed number is not
+  // important, so it must not draw attention with a success tint. An empty open
+  // section still shows no zero badge, which is noise rather than information.
+  assert.doesNotMatch(css, /\.dsh-wt-sectionCount\[data-tone/, 'no done-specific count badge rule')
+  assert.doesNotMatch(client, /data-tone/, 'no done-specific count badge attribute')
   assert.match(
     css,
-    /\.dsh-wt-sectionCount\[data-tone="done"\]\{[^}]*border-color:var\(--dsw-alias-state-success-primary\)[^}]*background:var\(--dsw-alias-state-success-tertiary\)[^}]*color:var\(--dsw-alias-label-primary\)/,
+    /\.dsh-wt-sectionCount\{[^}]*border:0\.5px solid var\(--dsw-alias-border-l3\)[^}]*background:var\(--dsw-alias-interactive-bg-hover-solid\)[^}]*color:var\(--dsw-alias-label-primary\)/,
   )
   assert.match(client, /openCount \? h\('span', \{ className: 'dsh-wt-sectionCount' \}, String\(openCount\)\) : null/)
-  assert.match(client, /h\('span', \{ className: 'dsh-wt-sectionCount', 'data-tone': 'done' \}/)
+  assert.match(client, /h\('span', \{ className: 'dsh-wt-sectionCount' \}, String\(doneItems\.length\)\)/)
   // Cards and the add field share one card surface so the panel material stays
   // the quietest layer, while the 0.5px card edge stays the strongest line.
   assert.match(css, /\.dsh-wt-add\{[^}]*border:0\.5px solid var\(--dsw-alias-settings-card-stroke\)[^}]*background:var\(--dsw-alias-settings-card-fill\)/)
@@ -508,3 +542,132 @@ test('completed notes sort by newest completion', () => {
   assert.equal(factory.completedStamp({ updatedAt: 42, createdAt: 1 }), 42)
   assert.equal(factory.completedStamp({}), 0)
 })
+
+test('send shortcuts default to Enter and name the platform modifier', () => {
+  const client = read('client.js')
+  assert.match(client, /const SEND_SHORTCUT_DEFAULT = 'enter'/)
+  assert.match(client, /const IS_MAC = \(/)
+  assert.match(client, /const MOD_LABEL = IS_MAC \? '⌘' : 'Ctrl'/)
+  assert.match(client, /function isSendModifier\(event\)/)
+  assert.match(client, /IS_MAC \? event\.metaKey === true : event\.ctrlKey === true/)
+  const dict = readDict()
+  for (const key of ['settings.shortcutCtrlEnter', 'settings.shortcutEnter', 'add.shortcut', 'add.shortcutEnter', 'edit.hintCtrlEnter', 'edit.hintEnter']) {
+    assert.match(dict.zh[key], /\{mod\}\+Enter/, `zh ${key} names the platform modifier`)
+    assert.match(dict.en[key], /\{mod\}\+Enter/, `en ${key} names the platform modifier`)
+  }
+})
+
+test('forwarding marks the forward button, never the checkbox', () => {
+  const client = read('client.js')
+  // The checkbox renders only the note's own open/done state.
+  assert.match(client, /'aria-checked': checked \? 'true' : 'false'/)
+  assert.doesNotMatch(client, /aria-checked': checked \? 'true' : half/)
+  // The forwarded state lives on the forward action as a small check badge.
+  assert.match(client, /'data-forwarded': forwarded \? 'true' : undefined/)
+  assert.match(client, /className: 'dsh-wt-forwardMark'/)
+  assert.match(client, /item\.forwarded/)
+  // Forwarding no longer stages a delayed completion.
+  assert.doesNotMatch(client, /setPendingDone|startPending|clearPendingTimers/)
+  assert.match(client, /const toggleCheck = \(\) => onToggle\(item\)/)
+})
+
+test('the forwarded mark borrows the forward icon palette, not a state colour', () => {
+  const client = read('client.js')
+  const rule = readCss().match(/\.dsh-wt-forwardMark\{([^}]*)\}/)
+  assert.ok(rule, 'forward mark rule missing')
+  const body = rule[1]
+  // The badge is neutral: it uses the same secondary/foreground pair as the
+  // icon buttons, never a success or brand fill.
+  assert.match(body, /background:var\(--dsw-alias-label-secondary\)/)
+  assert.match(body, /color:var\(--dsw-alias-label-primary-foreground\)/)
+  assert.doesNotMatch(body, /--dsw-alias-state-|--dsw-alias-brand/)
+  assert.doesNotMatch(body, /#[0-9a-f]{3,8}\b|\brgba?\(/i)
+  // Geometry stays: a 10px dot bottom-right with an 8px check inside.
+  assert.match(body, /width:10px/)
+  assert.match(body, /height:10px/)
+  assert.match(body, /right:0;bottom:0/)
+  assert.match(client, /className: 'dsh-wt-forwardMark', 'aria-hidden': true \}, h\(IconCheck, \{ size: 8 \}\)/)
+})
+
+test('clicking a forwarded note removes the mark instead of forwarding again', () => {
+  const client = read('client.js')
+  const start = client.indexOf('const forward = () => {')
+  assert.ok(start > 0, 'forward handler missing')
+  const end = client.indexOf('\n      }', start)
+  assert.ok(end > start, 'forward handler is unterminated')
+  const handler = client.slice(start, end)
+  // The forwarded flag short-circuits before the composer write.
+  const toggle = handler.match(/if \(forwarded\) \{([\s\S]*?)\}/)
+  assert.ok(toggle, 'forwarded notes need their own branch')
+  assert.match(toggle[1], /if \(onUnforwarded\) onUnforwarded\(item\)/)
+  assert.match(toggle[1], /if \(onToast\) onToast\('unforwarded'\)/)
+  assert.doesNotMatch(toggle[1], /appendToConversation/, 'a forwarded note must not append again')
+  // Un-forwarded notes keep the existing append-and-remember behaviour.
+  assert.match(handler, /appendToConversation\(item\.text, forwardPrefix\)/)
+  assert.match(handler, /if \(onForwarded\) onForwarded\(item\)/)
+  assert.match(handler, /if \(onToast\) onToast\('forwarded'\)/)
+  // The parent callback clears the stored flag and the in-memory id set.
+  assert.match(client, /const unrememberForwarded = item => \{/)
+  assert.match(client, /unrememberForwarded = item => \{\n\s+const id = [^\n]+\n\s+if \(!id\) return\n\s+forgetForwardedItems\(id\)/)
+  assert.match(client, /onUnforwarded: unrememberForwarded/)
+  assert.match(client, /forgetForwardedItems = itemIds => \{[\s\S]*?forgetForwarded\(sessionId, ids\)[\s\S]*?setForwardedIds\(/)
+  // Removing the mark never touches the checkbox: the row still toggles open/done only.
+  assert.match(client, /const toggleCheck = \(\) => onToggle\(item\)/)
+})
+
+test('clearing completed notes asks for a second confirmation', () => {
+  const client = read('client.js')
+  assert.match(client, /const \[confirmClear, setConfirmClear\] = React\.useState\(false\)/)
+  assert.match(client, /const clearConfirmTimerRef = React\.useRef\(0\)/)
+  // The section button opens the band; it never clears on the first click.
+  assert.match(client, /className: 'dsh-wt-clear',\n\s+'aria-expanded': confirmClear \? 'true' : 'false',\n\s+onClick: askClearConfirm/)
+  assert.doesNotMatch(client, /className: 'dsh-wt-clear', onClick: clearDone/)
+  assert.match(client, /const askClearConfirm = \(\) => \{\n\s+stopClearConfirmTimer\(\)\n\s+setConfirmClear\(true\)/)
+  // Cancel and confirm both close the band; only confirm reaches clearDone.
+  assert.match(client, /const dismissClearConfirm = \(\) => \{\n\s+stopClearConfirmTimer\(\)\n\s+setConfirmClear\(false\)\n\s+\}/)
+  assert.match(client, /const confirmClearDone = \(\) => \{\n\s+dismissClearConfirm\(\)\n\s+clearDone\(\)\n\s+\}/)
+  assert.match(client, /onClick: dismissClearConfirm \}, say\('popover\.clearCancel'\)/)
+  assert.match(client, /onClick: confirmClearDone \}, say\('popover\.clearConfirmAction'\)/)
+  // The band names the completed count and is announced politely.
+  assert.match(client, /className: 'dsh-wt-clearConfirm',\n\s+role: 'group',\n\s+'aria-live': 'polite',/)
+  assert.match(client, /say\('popover\.clearConfirm', \{ n: doneItems\.length \}\)/)
+  // Five-second auto-dismiss, with every teardown path dropping the timer.
+  assert.match(client, /const CLEAR_CONFIRM_MS = 5000/)
+  assert.match(client, /clearConfirmTimerRef\.current = window\.setTimeout\(\(\) => \{\n\s+clearConfirmTimerRef\.current = 0\n\s+setConfirmClear\(false\)\n\s+\}, CLEAR_CONFIRM_MS\)/)
+  assert.match(client, /React\.useEffect\(\(\) => \(\) => stopClearConfirmTimer\(\), \[\]\)/)
+  assert.match(client, /if \(confirmClear && \(!showDone \|\| doneItems\.length === 0\)\) dismissClearConfirm\(\)/)
+  assert.match(client, /React\.useEffect\(\(\) => \{\n\s+dismissClearConfirm\(\)\n\s+\}, \[sessionId\]\)/)
+})
+
+test('the clear confirmation band reuses card tokens and a danger confirm', () => {
+  const css = readCss()
+  assert.match(
+    css,
+    /\.dsh-wt-clearConfirm\{[^}]*border:0\.5px solid var\(--dsw-alias-settings-card-stroke\)[^}]*background:var\(--dsw-alias-settings-card-fill\)/,
+  )
+  assert.match(css, /\.dsh-wt-clearConfirmText\{[^}]*font-size:var\(--wt-fs-caption\)[^}]*color:var\(--dsw-alias-label-primary\)/)
+  const rules = cssRules()
+  const confirm = rules.find(rule => rule.selector === '.dsh-wt-miniDanger')
+  assert.ok(confirm, 'danger confirm rule missing')
+  assert.match(confirm.body, /background:var\(--dsw-alias-state-error-primary\)/)
+  assert.match(confirm.body, /color:var\(--dsw-alias-label-primary-foreground\)/)
+  assert.doesNotMatch(confirm.body, /#[0-9a-f]{3,8}\b|\brgba?\(/i)
+  const hover = rules.find(rule => rule.selector === '.dsh-wt-miniDanger:hover:not([disabled])')
+  assert.ok(hover, 'danger hover rule must stay inside the hover media block')
+  assert.match(hover.media, /hover:hover/)
+})
+
+test('the prefix prompt is explained under the field, without a visible title', () => {
+  const client = read('client.js')
+  assert.doesNotMatch(client, /htmlFor: 'dsh-wt-forward-prefix'/, 'the prefix field no longer has a visible title')
+  assert.match(client, /'aria-label': say\('settings\.forwardPrefixItem'\)/, 'the field keeps an accessible name')
+  assert.match(client, /'aria-describedby': 'dsh-wt-forward-prefix-hint'/, 'the field points at the hint')
+  assert.match(client, /id: 'dsh-wt-forward-prefix-hint', className: 'dsh-wt-settingHint' \}, say\('settings\.forwardPrefixHint'\)/)
+  assert.doesNotMatch(readCss(), /dsh-wt-settingItemLabel/, 'the unused title style is gone')
+  const dict = readDict()
+  assert.match(dict.zh['settings.forwardPrefixHint'], /若输入框为空/)
+  assert.match(dict.zh['settings.forwardPrefixHint'], /留空则只转发便笺正文$/)
+  assert.match(dict.en['settings.forwardPrefixHint'], /empty composer/)
+  assert.match(dict.en['settings.forwardPrefixHint'], /leave it empty/)
+})
+

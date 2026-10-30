@@ -3,6 +3,15 @@
 ## 1.9.5
 
 - Restore sticky **Open** and **Completed** headers while the note list scrolls. They sit on the opaque `bg-layer-1` surface rather than the translucent menu fill, so rows cannot read through them and the header does not double-paint a seam over the panel.
+- Hide the forward action on completed notes, so a done row only offers copy, edit, and delete.
+- Require a second confirmation for clearing completed notes: the header button opens an inline confirmation band with the live count, Cancel, and a destructive Confirm, which auto-dismisses after five seconds.
+- Remove the stale forwarded-marker description from settings; the mark on the forward button is self-explanatory.
+- Replace the prefix-prompt title with a hint under the field that explains both the lead-in and the empty-prefix behaviour.
+- Give the forwarded mark the forward icon's neutral palette instead of success green, and let a second click on the forward button remove the mark (with its own toast) rather than appending the note twice.
+- Drop the success tint from the completed count badge so it matches the open count exactly; the number stays quiet instead of competing for attention.
+- Stop forwarding from touching the checkbox: it keeps only open and done, the forward button gains a small check, and the half-check, three-second completion countdown, and gray forwarded-done check are gone.
+- Default the send shortcut to Enter, with the platform command modifier plus Enter for a new line; macOS labels the key ⌘ and other platforms label it Ctrl.
+- Pull the shortcut copy out of hardcoded `Ctrl` strings: every send/newline hint and setting interpolates `{mod}`, so both locales follow the current platform.
 
 ## 1.9.4
 
@@ -23,7 +32,6 @@
 - Restore the bottom edge fade as a soft 28px gradient/blur that only appears while notes remain below the fold, with no top fade.
 - Move the list to the DSH workspace scrollbar rail: 9px track, 2px transparent inset, and a visible 5px pill thumb that no longer sits flush against the panel edge.
 - Pull the panel's visual hierarchy apart: the title and count share one line, the count drops to a 12/400 caption, section labels drop from 13/500 primary to 12/500 secondary, and settings/close move into one right-side action group.
-- Give completed counts the only accent: the badge uses the success tint with a success hairline, while an empty open section no longer renders a zero badge.
 - Keep the open count readable when it exists: a solid neutral fill and primary numeral replace the old low-contrast outline.
 - Put the add field and note cards on the shared settings-card fill and stroke, and bind the panel's elevation hairline to `border-l2` so the surface edge stays visible on white.
 - Add a contract test for the section-label, zero-badge, completed-badge, and card-surface decisions, with before/after screenshots in `docs/ui-design-check.md` §1.1.
