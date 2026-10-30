@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.4
+
+- Remove the pressed `scale(.94)` from the top-right notes anchor. The panel's first position was measured while that transform was still easing back, so it was computed from a shrunken rect and snapped right/down a few milliseconds later.
+
 ## 1.9.3
 
 - Replace the bottom blur overlay with a viewport-fixed alpha mask on the list itself: the last 48px fade smoothly to transparent, the 9px scrollbar rail stays opaque, and there is no compositing edge left to show as a horizontal line.
