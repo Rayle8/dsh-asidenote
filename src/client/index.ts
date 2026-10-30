@@ -15,11 +15,6 @@ import {
   NS,
   PANEL_ID,
   SESSION_STORAGE_KEY,
-  PLUGIN_VERSION,
-  PLUGIN_AUTHOR,
-  PLUGIN_REPO_URL,
-  PLUGIN_REPO_LABEL,
-  MOD_LABEL,
   isSendModifier,
   CLEAR_CONFIRM_MS,
   PANEL_DEFAULT_WIDTH,
@@ -29,10 +24,13 @@ import {
   MAX_TEXT,
 } from './constants'
 import { DICT, fill, makeSay } from './i18n'
-import { Toast, icon, withTooltip, IconChevron, IconClose, IconGear } from './ui/primitives'
+import { Toast, icon } from './ui/primitives'
 import { TodoRow } from './ui/TodoRow'
-import { EmptyState } from './ui/EmptyState'
 import { memoPopoverStyle, syncStickyHeads } from './ui/position'
+import { PanelHead } from './ui/PanelHead'
+import { SettingsPanel } from './ui/SettingsPanel'
+import { ComposerForm } from './ui/ComposerForm'
+import { NoteList } from './ui/NoteList'
 import { uid } from './domain/id'
 
 import { readSessionStore } from './storage/session'
@@ -616,6 +614,40 @@ function MemoPopover(props) {
     onUnforwarded: unrememberForwarded,
   })
 
+  const onDraftChange = event => {
+    const value = event.target.value
+    setDraft(value)
+    saveAddDraft(sessionId, value)
+    resizeAdd(event.target)
+  }
+
+  const onDraftKeyDown = event => {
+    const composing = event.isComposing || (event.nativeEvent && event.nativeEvent.isComposing)
+    if (event.key === 'Escape') {
+      event.currentTarget.blur()
+      return
+    }
+    if (event.key !== 'Enter') return
+    if (composing) {
+      event.preventDefault()
+      return
+    }
+    const chord = event.ctrlKey || event.metaKey
+    const platformModifier = isSendModifier(event)
+    const shouldSend = sendShortcut === 'enter'
+      ? !chord && !event.shiftKey
+      : platformModifier
+    if (shouldSend) {
+      event.preventDefault()
+      add()
+      return
+    }
+    if (sendShortcut === 'enter' && (chord || event.shiftKey)) {
+      event.preventDefault()
+      insertDraftNewline(event.currentTarget)
+    }
+  }
+
   const content = h(
     'div',
     {
@@ -651,291 +683,58 @@ function MemoPopover(props) {
           onKeyDown: onPanelHeightKeyDown,
         })
       : null,
-    h(
-      'div',
-      { className: 'dsh-an-popHead' },
-      h(
-        'div',
-        { className: 'dsh-an-popTitleLine' },
-        h('div', { className: 'dsh-an-popTitle' }, say('popover.title')),
-        h('p', { className: 'dsh-an-popMeta' }, say('popover.count', { open: openCount, total })),
-      ),
-      h(
-        'div',
-        { className: 'dsh-an-popActions' },
-        withTooltip(say('settings.open'), h(
-          'button',
-          {
-            type: 'button',
-            className: 'dsh-an-settingsBtn',
-            'data-active': showSettings ? 'true' : undefined,
-            'aria-label': say('settings.open'),
-            'aria-expanded': showSettings,
-            onClick: () => setShowSettings(value => !value),
-          },
-          h(IconGear, null),
-        )),
-        withTooltip(say('popover.close'), h(
-          'button',
-          { type: 'button', className: 'dsh-an-popClose', 'aria-label': say('popover.close'), onClick: props.onClose },
-          h(IconClose, null),
-        )),
-      ),
-    ),
+    h(PanelHead, {
+      say,
+      openCount,
+      total,
+      showSettings,
+      onToggleSettings: () => setShowSettings(value => !value),
+      onClose: props.onClose,
+    }),
     showSettings
-      ? h(
-          'div',
-          { className: 'dsh-an-settings' },
-          h('div', { className: 'dsh-an-settingsHead' }, say('settings.title')),
-          h(
-            'div',
-            { className: 'dsh-an-settingGroup' },
-            h('div', { className: 'dsh-an-settingLabel' }, say('settings.shortcut')),
-            h(
-              'div',
-              { className: 'dsh-an-settingBody' },
-              h(
-                'div',
-                { className: 'dsh-an-settingChoices' },
-                h(
-                  'label',
-                  { className: 'dsh-an-settingChoice' },
-                  h('input', {
-                    type: 'radio',
-                    name: 'dsh-an-send-shortcut',
-                    checked: sendShortcut === 'enter',
-                    onChange: () => chooseShortcut('enter'),
-                  }),
-                  h('span', null, say('settings.shortcutEnter', { mod: MOD_LABEL })),
-                ),
-                h(
-                  'label',
-                  { className: 'dsh-an-settingChoice' },
-                  h('input', {
-                    type: 'radio',
-                    name: 'dsh-an-send-shortcut',
-                    checked: sendShortcut === 'ctrl-enter',
-                    onChange: () => chooseShortcut('ctrl-enter'),
-                  }),
-                  h('span', null, say('settings.shortcutCtrlEnter', { mod: MOD_LABEL })),
-                ),
-              ),
-            ),
-          ),
-          h(
-            'div',
-            { className: 'dsh-an-settingGroup' },
-            h('div', { className: 'dsh-an-settingLabel' }, say('settings.forward')),
-            h(
-              'div',
-              { className: 'dsh-an-settingBody' },
-              h(
-                'div',
-                { className: 'dsh-an-settingItem' },
-                h('textarea', {
-                  id: 'dsh-an-forward-prefix',
-                  ref: prefixRef,
-                  className: 'dsh-an-settingInput dsh-an-settingTextarea',
-                  value: forwardPrefix,
-                  rows: 1,
-                  maxLength: 80,
-                  placeholder: say('forward.prefix'),
-                  'aria-label': say('settings.forwardPrefixItem'),
-                  'aria-describedby': 'dsh-an-forward-prefix-hint',
-                  style: {
-                    fontFamily: 'inherit',
-                    fontSize: 'var(--an-fs-row)',
-                    lineHeight: 'var(--an-lh-row)',
-                    fontWeight: 500,
-                  },
-                  onChange: event => changeForwardPrefix(event.target.value),
-                }),
-                h('p', { id: 'dsh-an-forward-prefix-hint', className: 'dsh-an-settingHint' }, say('settings.forwardPrefixHint')),
-              ),
-            ),
-          ),
-          h(
-            'div',
-            { className: 'dsh-an-settingGroup' },
-            h('div', { className: 'dsh-an-settingLabel' }, say('settings.about')),
-            h(
-              'div',
-              { className: 'dsh-an-settingBody' },
-              h(
-                'div',
-                { className: 'dsh-an-settingAbout' },
-                h('span', null, `${say('settings.version')} ${PLUGIN_VERSION}`),
-                h('span', { className: 'dsh-an-settingDot', 'aria-hidden': true }, '·'),
-                h('span', null, `${say('settings.author')} ${PLUGIN_AUTHOR}`),
-              ),
-              h(
-                'div',
-                { className: 'dsh-an-settingProject' },
-                h('span', null, say('settings.project')),
-                h(
-                  'a',
-                  {
-                    className: 'dsh-an-settingLink',
-                    href: PLUGIN_REPO_URL,
-                    target: '_blank',
-                    rel: 'noreferrer',
-                    title: PLUGIN_REPO_URL,
-                  },
-                  PLUGIN_REPO_LABEL,
-                ),
-              ),
-            ),
-          ),
-        )
+      ? h(SettingsPanel, {
+          say,
+          sendShortcut,
+          chooseShortcut,
+          forwardPrefix,
+          changeForwardPrefix,
+          prefixRef,
+        })
       : null,
-    h(
-      'form',
-      {
-        className: 'dsh-an-add',
-        onSubmit: event => {
-          event.preventDefault()
-          if (composingRef.current) return
-          add()
-        },
+    h(ComposerForm, {
+      say,
+      draft,
+      inputRef: addRef,
+      sendShortcut,
+      onDraftChange,
+      onCompositionStart: () => { composingRef.current = true },
+      onCompositionEnd: () => { composingRef.current = false },
+      onKeyDown: onDraftKeyDown,
+      onSubmit: event => {
+        event.preventDefault()
+        if (composingRef.current) return
+        add()
       },
-      h('textarea', {
-        ref: addRef,
-        className: 'dsh-an-input',
-        value: draft,
-        rows: 1,
-        maxLength: MAX_TEXT,
-        placeholder: say('add.placeholder'),
-        'aria-label': say('add.placeholder'),
-        onChange: event => {
-          const value = event.target.value
-          setDraft(value)
-          saveAddDraft(sessionId, value)
-          resizeAdd(event.target)
-        },
-        onCompositionStart: () => { composingRef.current = true },
-        onCompositionEnd: () => { composingRef.current = false },
-        onKeyDown: event => {
-          const composing = event.isComposing || (event.nativeEvent && event.nativeEvent.isComposing)
-          if (event.key === 'Escape') {
-            event.currentTarget.blur()
-            return
-          }
-          if (event.key !== 'Enter') return
-          if (composing) {
-            event.preventDefault()
-            return
-          }
-          const chord = event.ctrlKey || event.metaKey
-          const platformModifier = isSendModifier(event)
-          const shouldSend = sendShortcut === 'enter'
-            ? !chord && !event.shiftKey
-            : platformModifier
-          if (shouldSend) {
-            event.preventDefault()
-            add()
-            return
-          }
-          if (sendShortcut === 'enter' && (chord || event.shiftKey)) {
-            event.preventDefault()
-            insertDraftNewline(event.currentTarget)
-          }
-        },
-      }),
-      h(
-        'div',
-        { className: 'dsh-an-addFoot' },
-        h('span', { className: 'dsh-an-addShortcut' }, say(sendShortcut === 'enter' ? 'add.shortcutEnter' : 'add.shortcut', { mod: MOD_LABEL })),
-        h('button', { type: 'submit', className: 'dsh-an-addBtn', disabled: !draft.trim() }, say('add.action')),
-      ),
-    ),
-    h(
-      'div',
-      {
-        className: 'dsh-an-listViewport',
-        'data-bottom': listHasMore ? 'true' : undefined,
-      },
-      h(
-        'div',
-        { className: 'dsh-an-listArea', ref: listRef, onScroll: syncListEdge },
-        h(
-          'div',
-          { className: 'dsh-an-listSection' },
-          h(
-            'div',
-            { className: 'dsh-an-sectionHead' },
-            h(
-              'button',
-              {
-                type: 'button',
-                className: 'dsh-an-doneToggle',
-                'aria-expanded': showOpen ? 'true' : 'false',
-                onClick: toggleOpen,
-              },
-              h('span', { className: 'dsh-an-chevron', 'data-open': showOpen ? 'true' : 'false' }, h(IconChevron, null)),
-              say('list.open'),
-              openCount ? h('span', { className: 'dsh-an-sectionCount' }, String(openCount)) : null,
-            ),
-          ),
-          showOpen
-            ? openItems.length
-              ? h('ul', { className: 'dsh-an-rows' }, openItems.map(row))
-              : h(EmptyState, {
-                  title: say(total ? 'list.allDone.title' : 'popover.empty.title'),
-                  body: say(total ? 'list.allDone.body' : 'popover.empty.body'),
-                })
-            : null,
-        ),
-        doneItems.length
-          ? h(
-              'div',
-              { className: 'dsh-an-listSection' },
-              h(
-                'div',
-                { className: 'dsh-an-doneHead' },
-                h(
-                  'button',
-                  {
-                    type: 'button',
-                    className: 'dsh-an-doneToggle',
-                    'aria-expanded': showDone ? 'true' : 'false',
-                    onClick: toggleDone,
-                  },
-                  h('span', { className: 'dsh-an-chevron', 'data-open': showDone ? 'true' : 'false' }, h(IconChevron, null)),
-                  say('popover.completed'),
-                  h('span', { className: 'dsh-an-sectionCount' }, String(doneItems.length)),
-                ),
-                showDone
-                  ? h('button', {
-                      type: 'button',
-                      className: 'dsh-an-clear',
-                      'aria-expanded': confirmClear ? 'true' : 'false',
-                      onClick: askClearConfirm,
-                    }, say('popover.clearDone'))
-                  : null,
-              ),
-              showDone && confirmClear
-                ? h(
-                    'div',
-                    {
-                      className: 'dsh-an-clearConfirm',
-                      role: 'group',
-                      'aria-live': 'polite',
-                      'aria-label': say('popover.clearConfirm', { n: doneItems.length }),
-                    },
-                    h('p', { className: 'dsh-an-clearConfirmText' }, say('popover.clearConfirm', { n: doneItems.length })),
-                    h(
-                      'div',
-                      { className: 'dsh-an-clearConfirmActions' },
-                      h('button', { type: 'button', className: 'dsh-an-mini', onClick: dismissClearConfirm }, say('popover.clearCancel')),
-                      h('button', { type: 'button', className: 'dsh-an-mini dsh-an-miniDanger', onClick: confirmClearDone }, say('popover.clearConfirmAction')),
-                    ),
-                  )
-                : null,
-              showDone ? h('ul', { className: 'dsh-an-rows dsh-an-doneRows' }, doneItems.map(row)) : null,
-            )
-          : null,
-      ),
-    ),
+    }),
+    h(NoteList, {
+      say,
+      listRef,
+      listHasMore,
+      syncListEdge,
+      showOpen,
+      toggleOpen,
+      openItems,
+      openCount,
+      total,
+      row,
+      showDone,
+      toggleDone,
+      doneItems,
+      confirmClear,
+      askClearConfirm,
+      dismissClearConfirm,
+      confirmClearDone,
+    }),
     h(
       'div',
       { className: 'dsh-an-popFoot', role: 'status' },

@@ -274,7 +274,7 @@ function makeSay(ctx, getLocaleId) {
 * stroke weight, optical size and currentColor stay consistent with the shell.
 * Tooltip and Toast are the seeded primitives — the bundle keeps them external.
 */
-const h$3 = react.default.createElement;
+const h$8 = react.default.createElement;
 const PRIMITIVES = _deepseek_ai_dsh_client_ui_primitives;
 const Tooltip = typeof PRIMITIVES.Tooltip === "function" ? PRIMITIVES.Tooltip : null;
 const Toast = typeof PRIMITIVES.Toast === "function" ? PRIMITIVES.Toast : null;
@@ -287,48 +287,48 @@ const icon = (name) => typeof PRIMITIVES[name] === "function" ? PRIMITIVES[name]
 function Glyph(props) {
 	const Component = icon(props.name);
 	if (!Component) return null;
-	return h$3(Component, { size: props.size });
+	return h$8(Component, { size: props.size });
 }
-const IconCheck = (props) => h$3(Glyph, {
+const IconCheck = (props) => h$8(Glyph, {
 	name: "IconCheckOutlineMedium",
 	size: props && props.size ? props.size : 12
 });
-const IconCopy = () => h$3(Glyph, {
+const IconCopy = () => h$8(Glyph, {
 	name: "IconCopyOutlineRegular",
 	size: 14
 });
-const IconForward = () => h$3(Glyph, {
+const IconForward = () => h$8(Glyph, {
 	name: "IconShareOutlineRegular",
 	size: 14
 });
-const IconGear = () => h$3(Glyph, {
+const IconGear = () => h$8(Glyph, {
 	name: "IconSettingsOutlineRegular",
 	size: 14
 });
-const IconPencil = () => h$3(Glyph, {
+const IconPencil = () => h$8(Glyph, {
 	name: "IconEditOutlineRegular",
 	size: 14
 });
-const IconTrash = () => h$3(Glyph, {
+const IconTrash = () => h$8(Glyph, {
 	name: "IconTrashOutlineRegular",
 	size: 14
 });
-const IconChevron = () => h$3(Glyph, {
+const IconChevron = () => h$8(Glyph, {
 	name: "IconChevronRightOutlineRegular",
 	size: 12
 });
-const IconEmpty = () => h$3(Glyph, {
+const IconEmpty = () => h$8(Glyph, {
 	name: "IconChecklistOutlineRegular",
 	size: 18
 });
-const IconClose = () => h$3(Glyph, {
+const IconClose = () => h$8(Glyph, {
 	name: "IconCloseOutlineRegular",
 	size: 14
 });
 /** Wrap one icon-only control in the shared tooltip; a bare button when absent. */
 function withTooltip(label, node) {
 	if (!Tooltip) return node;
-	return h$3(Tooltip, {
+	return h$8(Tooltip, {
 		label,
 		side: "top",
 		portal: true,
@@ -520,7 +520,7 @@ function metaLabel(item, say, localeId) {
 
 // src/client/ui/TodoRow.ts
 /** One note: checkbox, actions, inline edit and the forwarded mark. */
-const h$2 = react.default.createElement;
+const h$7 = react.default.createElement;
 function TodoRow(props) {
 	const { item, done, say, onToast, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onEditDraftChange, onFinishEdit, onCancelEdit, editRef, forwardPrefix, sendShortcut = SEND_SHORTCUT_DEFAULT, forwarded = false, onForwarded, onUnforwarded } = props;
 	const editHintKey = sendShortcut === "enter" ? "edit.hintEnter" : "edit.hintCtrlEnter";
@@ -587,7 +587,7 @@ function TodoRow(props) {
 			resizeEditor(node);
 		});
 	};
-	const body = editing ? h$2("div", { className: "dsh-an-edit" }, h$2("textarea", {
+	const body = editing ? h$7("div", { className: "dsh-an-edit" }, h$7("textarea", {
 		ref: setEditorRef,
 		className: "dsh-an-editInput",
 		value: editDraft,
@@ -630,68 +630,62 @@ function TodoRow(props) {
 			}
 		},
 		onBlur: () => onFinishEdit(item)
-	}), h$2("div", { className: "dsh-an-editActions" }, h$2("button", {
+	}), h$7("div", { className: "dsh-an-editActions" }, h$7("button", {
 		type: "button",
 		className: "dsh-an-mini dsh-an-miniPrimary",
 		onMouseDown: (event) => event.preventDefault(),
 		onClick: () => onFinishEdit(item)
-	}, say("edit.save")), h$2("button", {
+	}, say("edit.save")), h$7("button", {
 		type: "button",
 		className: "dsh-an-mini",
 		onMouseDown: (event) => event.preventDefault(),
 		onClick: onCancelEdit
-	}, say("edit.cancel")), h$2("span", {
+	}, say("edit.cancel")), h$7("span", {
 		className: "dsh-an-editHint",
 		title: say(editHintKey, { mod: MOD_LABEL })
-	}, say(editHintKey, { mod: MOD_LABEL })))) : h$2("div", {
+	}, say(editHintKey, { mod: MOD_LABEL })))) : h$7("div", {
 		className: "dsh-an-text",
 		title: say("item.editHint"),
 		onDoubleClick: () => onStartEdit(item)
 	}, item.text);
 	const checked = done === true;
-	return h$2("li", { className: done ? "dsh-an-row dsh-an-rowDone" : "dsh-an-row" }, h$2("button", {
+	return h$7("li", { className: done ? "dsh-an-row dsh-an-rowDone" : "dsh-an-row" }, h$7("button", {
 		type: "button",
 		className: "dsh-an-check",
 		role: "checkbox",
 		"aria-checked": checked ? "true" : "false",
 		"aria-label": say(done ? "item.markOpen" : "item.markDone"),
 		onClick: toggleCheck
-	}, h$2("span", { className: "dsh-an-checkCircle" }, checked ? h$2(IconCheck, { size: 9 }) : null)), h$2("div", { className: "dsh-an-itemBody" }, body, editing ? null : h$2("div", { className: "dsh-an-rowFoot" }, h$2("span", {
+	}, h$7("span", { className: "dsh-an-checkCircle" }, checked ? h$7(IconCheck, { size: 9 }) : null)), h$7("div", { className: "dsh-an-itemBody" }, body, editing ? null : h$7("div", { className: "dsh-an-rowFoot" }, h$7("span", {
 		className: "dsh-an-meta",
 		title: metaLabel(item, say, props.localeId)
-	}, metaLabel(item, say, props.localeId)), h$2("div", { className: "dsh-an-actions" }, withTooltip(say("item.copy"), h$2("button", {
+	}, metaLabel(item, say, props.localeId)), h$7("div", { className: "dsh-an-actions" }, withTooltip(say("item.copy"), h$7("button", {
 		type: "button",
 		className: "dsh-an-iconBtn",
 		"aria-label": say("item.copy"),
 		"aria-busy": pending === "copy" ? "true" : "false",
 		"data-loading": pending === "copy" ? "true" : void 0,
 		onClick: copy
-	}, h$2(IconCopy, null))), done ? null : withTooltip(say(forwarded ? "item.forwarded" : "item.forward"), h$2("button", {
+	}, h$7(IconCopy, null))), done ? null : withTooltip(say(forwarded ? "item.forwarded" : "item.forward"), h$7("button", {
 		type: "button",
 		className: "dsh-an-iconBtn",
 		"aria-label": say(forwarded ? "item.forwarded" : "item.forward"),
 		"data-forwarded": forwarded ? "true" : void 0,
 		onClick: forward
-	}, h$2(IconForward, null), forwarded ? h$2("span", {
+	}, h$7(IconForward, null), forwarded ? h$7("span", {
 		className: "dsh-an-forwardMark",
 		"aria-hidden": true
-	}, h$2(IconCheck, { size: 8 })) : null)), withTooltip(say("item.edit"), h$2("button", {
+	}, h$7(IconCheck, { size: 8 })) : null)), withTooltip(say("item.edit"), h$7("button", {
 		type: "button",
 		className: "dsh-an-iconBtn",
 		"aria-label": say("item.edit"),
 		onClick: () => onStartEdit(item)
-	}, h$2(IconPencil, null))), withTooltip(say("item.delete"), h$2("button", {
+	}, h$7(IconPencil, null))), withTooltip(say("item.delete"), h$7("button", {
 		type: "button",
 		className: "dsh-an-iconBtn dsh-an-iconBtnDanger",
 		"aria-label": say("item.delete"),
 		onClick: () => onDelete(item)
-	}, h$2(IconTrash, null)))))));
-}
-
-// src/client/ui/EmptyState.ts
-const h$1 = react.default.createElement;
-function EmptyState(props) {
-	return h$1("div", { className: "dsh-an-empty" }, h$1("div", { className: "dsh-an-emptyIcon" }, h$1(IconEmpty, null)), h$1("div", { className: "dsh-an-emptyTitle" }, props.title), h$1("div", { className: "dsh-an-emptyBody" }, props.body));
+	}, h$7(IconTrash, null)))))));
 }
 
 // src/client/ui/position.ts
@@ -771,6 +765,174 @@ function memoPopoverStyle(anchor, placement, requestedWidth, requestedHeight) {
 		width: `${width}px`,
 		maxHeight: `${maxHeight}px`
 	};
+}
+
+// src/client/ui/PanelHead.ts
+/** Panel title, counts and the settings/close actions. */
+const h$6 = react.default.createElement;
+function PanelHead(props) {
+	const { say, openCount, total, showSettings, onToggleSettings, onClose } = props;
+	return h$6("div", { className: "dsh-an-popHead" }, h$6("div", { className: "dsh-an-popTitleLine" }, h$6("div", { className: "dsh-an-popTitle" }, say("popover.title")), h$6("p", { className: "dsh-an-popMeta" }, say("popover.count", {
+		open: openCount,
+		total
+	}))), h$6("div", { className: "dsh-an-popActions" }, withTooltip(say("settings.open"), h$6("button", {
+		type: "button",
+		className: "dsh-an-settingsBtn",
+		"data-active": showSettings ? "true" : void 0,
+		"aria-label": say("settings.open"),
+		"aria-expanded": showSettings,
+		onClick: onToggleSettings
+	}, h$6(IconGear, null))), withTooltip(say("popover.close"), h$6("button", {
+		type: "button",
+		className: "dsh-an-popClose",
+		"aria-label": say("popover.close"),
+		onClick: onClose
+	}, h$6(IconClose, null)))));
+}
+
+// src/client/ui/SettingsPanel.ts
+/** Settings card: send shortcut, forward prefix and about. */
+const h$5 = react.default.createElement;
+function SettingsPanel(props) {
+	const { say, sendShortcut, chooseShortcut, forwardPrefix, changeForwardPrefix, prefixRef } = props;
+	return h$5("div", { className: "dsh-an-settings" }, h$5("div", { className: "dsh-an-settingsHead" }, say("settings.title")), h$5("div", { className: "dsh-an-settingGroup" }, h$5("div", { className: "dsh-an-settingLabel" }, say("settings.shortcut")), h$5("div", { className: "dsh-an-settingBody" }, h$5("div", { className: "dsh-an-settingChoices" }, h$5("label", { className: "dsh-an-settingChoice" }, h$5("input", {
+		type: "radio",
+		name: "dsh-an-send-shortcut",
+		checked: sendShortcut === "enter",
+		onChange: () => chooseShortcut("enter")
+	}), h$5("span", null, say("settings.shortcutEnter", { mod: MOD_LABEL }))), h$5("label", { className: "dsh-an-settingChoice" }, h$5("input", {
+		type: "radio",
+		name: "dsh-an-send-shortcut",
+		checked: sendShortcut === "ctrl-enter",
+		onChange: () => chooseShortcut("ctrl-enter")
+	}), h$5("span", null, say("settings.shortcutCtrlEnter", { mod: MOD_LABEL })))))), h$5("div", { className: "dsh-an-settingGroup" }, h$5("div", { className: "dsh-an-settingLabel" }, say("settings.forward")), h$5("div", { className: "dsh-an-settingBody" }, h$5("div", { className: "dsh-an-settingItem" }, h$5("textarea", {
+		id: "dsh-an-forward-prefix",
+		ref: prefixRef,
+		className: "dsh-an-settingInput dsh-an-settingTextarea",
+		value: forwardPrefix,
+		rows: 1,
+		maxLength: 80,
+		placeholder: say("forward.prefix"),
+		"aria-label": say("settings.forwardPrefixItem"),
+		"aria-describedby": "dsh-an-forward-prefix-hint",
+		style: {
+			fontFamily: "inherit",
+			fontSize: "var(--an-fs-row)",
+			lineHeight: "var(--an-lh-row)",
+			fontWeight: 500
+		},
+		onChange: (event) => changeForwardPrefix(event.target.value)
+	}), h$5("p", {
+		id: "dsh-an-forward-prefix-hint",
+		className: "dsh-an-settingHint"
+	}, say("settings.forwardPrefixHint"))))), h$5("div", { className: "dsh-an-settingGroup" }, h$5("div", { className: "dsh-an-settingLabel" }, say("settings.about")), h$5("div", { className: "dsh-an-settingBody" }, h$5("div", { className: "dsh-an-settingAbout" }, h$5("span", null, `${say("settings.version")} ${PLUGIN_VERSION}`), h$5("span", {
+		className: "dsh-an-settingDot",
+		"aria-hidden": true
+	}, "·"), h$5("span", null, `${say("settings.author")} ${PLUGIN_AUTHOR}`)), h$5("div", { className: "dsh-an-settingProject" }, h$5("span", null, say("settings.project")), h$5("a", {
+		className: "dsh-an-settingLink",
+		href: PLUGIN_REPO_URL,
+		target: "_blank",
+		rel: "noreferrer",
+		title: PLUGIN_REPO_URL
+	}, PLUGIN_REPO_LABEL)))));
+}
+
+// src/client/ui/ComposerForm.ts
+/** The add form: one growing textarea, the shortcut hint and the submit button. */
+const h$4 = react.default.createElement;
+function ComposerForm(props) {
+	const { say, draft, inputRef, sendShortcut, onDraftChange, onCompositionStart, onCompositionEnd, onKeyDown, onSubmit } = props;
+	return h$4("form", {
+		className: "dsh-an-add",
+		onSubmit
+	}, h$4("textarea", {
+		ref: inputRef,
+		className: "dsh-an-input",
+		value: draft,
+		rows: 1,
+		maxLength: 280,
+		placeholder: say("add.placeholder"),
+		"aria-label": say("add.placeholder"),
+		onChange: onDraftChange,
+		onCompositionStart,
+		onCompositionEnd,
+		onKeyDown
+	}), h$4("div", { className: "dsh-an-addFoot" }, h$4("span", { className: "dsh-an-addShortcut" }, say(sendShortcut === "enter" ? "add.shortcutEnter" : "add.shortcut", { mod: MOD_LABEL })), h$4("button", {
+		type: "submit",
+		className: "dsh-an-addBtn",
+		disabled: !draft.trim()
+	}, say("add.action"))));
+}
+
+// src/client/ui/ClearConfirm.ts
+/** Inline second confirmation for clearing the completed notes. */
+const h$3 = react.default.createElement;
+function ClearConfirm(props) {
+	const { say, count, onCancel, onConfirm } = props;
+	return h$3("div", {
+		className: "dsh-an-clearConfirm",
+		role: "group",
+		"aria-live": "polite",
+		"aria-label": say("popover.clearConfirm", { n: count })
+	}, h$3("p", { className: "dsh-an-clearConfirmText" }, say("popover.clearConfirm", { n: count })), h$3("div", { className: "dsh-an-clearConfirmActions" }, h$3("button", {
+		type: "button",
+		className: "dsh-an-mini",
+		onClick: onCancel
+	}, say("popover.clearCancel")), h$3("button", {
+		type: "button",
+		className: "dsh-an-mini dsh-an-miniDanger",
+		onClick: onConfirm
+	}, say("popover.clearConfirmAction"))));
+}
+
+// src/client/ui/EmptyState.ts
+const h$2 = react.default.createElement;
+function EmptyState(props) {
+	return h$2("div", { className: "dsh-an-empty" }, h$2("div", { className: "dsh-an-emptyIcon" }, h$2(IconEmpty, null)), h$2("div", { className: "dsh-an-emptyTitle" }, props.title), h$2("div", { className: "dsh-an-emptyBody" }, props.body));
+}
+
+// src/client/ui/NoteList.ts
+/** Open/completed sections, their sticky heads, rows and the clear confirmation. */
+const h$1 = react.default.createElement;
+function NoteList(props) {
+	const { say, listRef, listHasMore, syncListEdge, showOpen, toggleOpen, openItems, openCount, total, row, showDone, toggleDone, doneItems, confirmClear, askClearConfirm, dismissClearConfirm, confirmClearDone } = props;
+	return h$1("div", {
+		className: "dsh-an-listViewport",
+		"data-bottom": listHasMore ? "true" : void 0
+	}, h$1("div", {
+		className: "dsh-an-listArea",
+		ref: listRef,
+		onScroll: syncListEdge
+	}, h$1("div", { className: "dsh-an-listSection" }, h$1("div", { className: "dsh-an-sectionHead" }, h$1("button", {
+		type: "button",
+		className: "dsh-an-doneToggle",
+		"aria-expanded": showOpen ? "true" : "false",
+		onClick: toggleOpen
+	}, h$1("span", {
+		className: "dsh-an-chevron",
+		"data-open": showOpen ? "true" : "false"
+	}, h$1(IconChevron, null)), say("list.open"), openCount ? h$1("span", { className: "dsh-an-sectionCount" }, String(openCount)) : null)), showOpen ? openItems.length ? h$1("ul", { className: "dsh-an-rows" }, openItems.map(row)) : h$1(EmptyState, {
+		title: say(total ? "list.allDone.title" : "popover.empty.title"),
+		body: say(total ? "list.allDone.body" : "popover.empty.body")
+	}) : null), doneItems.length ? h$1("div", { className: "dsh-an-listSection" }, h$1("div", { className: "dsh-an-doneHead" }, h$1("button", {
+		type: "button",
+		className: "dsh-an-doneToggle",
+		"aria-expanded": showDone ? "true" : "false",
+		onClick: toggleDone
+	}, h$1("span", {
+		className: "dsh-an-chevron",
+		"data-open": showDone ? "true" : "false"
+	}, h$1(IconChevron, null)), say("popover.completed"), h$1("span", { className: "dsh-an-sectionCount" }, String(doneItems.length))), showDone ? h$1("button", {
+		type: "button",
+		className: "dsh-an-clear",
+		"aria-expanded": confirmClear ? "true" : "false",
+		onClick: askClearConfirm
+	}, say("popover.clearDone")) : null), showDone && confirmClear ? h$1(ClearConfirm, {
+		say,
+		count: doneItems.length,
+		onCancel: dismissClearConfirm,
+		onConfirm: confirmClearDone
+	}) : null, showDone ? h$1("ul", { className: "dsh-an-rows dsh-an-doneRows" }, doneItems.map(row)) : null) : null));
 }
 
 // src/client/storage/codec.ts
@@ -1716,6 +1878,35 @@ function MemoPopover(props) {
 		onForwarded: rememberForwarded,
 		onUnforwarded: unrememberForwarded
 	});
+	const onDraftChange = (event) => {
+		const value = event.target.value;
+		setDraft(value);
+		saveAddDraft(sessionId, value);
+		resizeAdd(event.target);
+	};
+	const onDraftKeyDown = (event) => {
+		const composing = event.isComposing || event.nativeEvent && event.nativeEvent.isComposing;
+		if (event.key === "Escape") {
+			event.currentTarget.blur();
+			return;
+		}
+		if (event.key !== "Enter") return;
+		if (composing) {
+			event.preventDefault();
+			return;
+		}
+		const chord = event.ctrlKey || event.metaKey;
+		const platformModifier = isSendModifier(event);
+		if (sendShortcut === "enter" ? !chord && !event.shiftKey : platformModifier) {
+			event.preventDefault();
+			add();
+			return;
+		}
+		if (sendShortcut === "enter" && (chord || event.shiftKey)) {
+			event.preventDefault();
+			insertDraftNewline(event.currentTarget);
+		}
+	};
 	const content = h("div", {
 		ref: panelRef,
 		className: props.placement === "right" ? "dsh-an-popover dsh-an-popoverRight" : "dsh-an-popover",
@@ -1742,159 +1933,57 @@ function MemoPopover(props) {
 		onPointerDown: startPanelHeightResize,
 		onDoubleClick: () => commitPanelHeight(0),
 		onKeyDown: onPanelHeightKeyDown
-	}) : null, h("div", { className: "dsh-an-popHead" }, h("div", { className: "dsh-an-popTitleLine" }, h("div", { className: "dsh-an-popTitle" }, say("popover.title")), h("p", { className: "dsh-an-popMeta" }, say("popover.count", {
-		open: openCount,
-		total
-	}))), h("div", { className: "dsh-an-popActions" }, withTooltip(say("settings.open"), h("button", {
-		type: "button",
-		className: "dsh-an-settingsBtn",
-		"data-active": showSettings ? "true" : void 0,
-		"aria-label": say("settings.open"),
-		"aria-expanded": showSettings,
-		onClick: () => setShowSettings((value) => !value)
-	}, h(IconGear, null))), withTooltip(say("popover.close"), h("button", {
-		type: "button",
-		className: "dsh-an-popClose",
-		"aria-label": say("popover.close"),
-		onClick: props.onClose
-	}, h(IconClose, null))))), showSettings ? h("div", { className: "dsh-an-settings" }, h("div", { className: "dsh-an-settingsHead" }, say("settings.title")), h("div", { className: "dsh-an-settingGroup" }, h("div", { className: "dsh-an-settingLabel" }, say("settings.shortcut")), h("div", { className: "dsh-an-settingBody" }, h("div", { className: "dsh-an-settingChoices" }, h("label", { className: "dsh-an-settingChoice" }, h("input", {
-		type: "radio",
-		name: "dsh-an-send-shortcut",
-		checked: sendShortcut === "enter",
-		onChange: () => chooseShortcut("enter")
-	}), h("span", null, say("settings.shortcutEnter", { mod: MOD_LABEL }))), h("label", { className: "dsh-an-settingChoice" }, h("input", {
-		type: "radio",
-		name: "dsh-an-send-shortcut",
-		checked: sendShortcut === "ctrl-enter",
-		onChange: () => chooseShortcut("ctrl-enter")
-	}), h("span", null, say("settings.shortcutCtrlEnter", { mod: MOD_LABEL })))))), h("div", { className: "dsh-an-settingGroup" }, h("div", { className: "dsh-an-settingLabel" }, say("settings.forward")), h("div", { className: "dsh-an-settingBody" }, h("div", { className: "dsh-an-settingItem" }, h("textarea", {
-		id: "dsh-an-forward-prefix",
-		ref: prefixRef,
-		className: "dsh-an-settingInput dsh-an-settingTextarea",
-		value: forwardPrefix,
-		rows: 1,
-		maxLength: 80,
-		placeholder: say("forward.prefix"),
-		"aria-label": say("settings.forwardPrefixItem"),
-		"aria-describedby": "dsh-an-forward-prefix-hint",
-		style: {
-			fontFamily: "inherit",
-			fontSize: "var(--an-fs-row)",
-			lineHeight: "var(--an-lh-row)",
-			fontWeight: 500
-		},
-		onChange: (event) => changeForwardPrefix(event.target.value)
-	}), h("p", {
-		id: "dsh-an-forward-prefix-hint",
-		className: "dsh-an-settingHint"
-	}, say("settings.forwardPrefixHint"))))), h("div", { className: "dsh-an-settingGroup" }, h("div", { className: "dsh-an-settingLabel" }, say("settings.about")), h("div", { className: "dsh-an-settingBody" }, h("div", { className: "dsh-an-settingAbout" }, h("span", null, `${say("settings.version")} ${PLUGIN_VERSION}`), h("span", {
-		className: "dsh-an-settingDot",
-		"aria-hidden": true
-	}, "·"), h("span", null, `${say("settings.author")} ${PLUGIN_AUTHOR}`)), h("div", { className: "dsh-an-settingProject" }, h("span", null, say("settings.project")), h("a", {
-		className: "dsh-an-settingLink",
-		href: PLUGIN_REPO_URL,
-		target: "_blank",
-		rel: "noreferrer",
-		title: PLUGIN_REPO_URL
-	}, PLUGIN_REPO_LABEL))))) : null, h("form", {
-		className: "dsh-an-add",
-		onSubmit: (event) => {
-			event.preventDefault();
-			if (composingRef.current) return;
-			add();
-		}
-	}, h("textarea", {
-		ref: addRef,
-		className: "dsh-an-input",
-		value: draft,
-		rows: 1,
-		maxLength: 280,
-		placeholder: say("add.placeholder"),
-		"aria-label": say("add.placeholder"),
-		onChange: (event) => {
-			const value = event.target.value;
-			setDraft(value);
-			saveAddDraft(sessionId, value);
-			resizeAdd(event.target);
-		},
+	}) : null, h(PanelHead, {
+		say,
+		openCount,
+		total,
+		showSettings,
+		onToggleSettings: () => setShowSettings((value) => !value),
+		onClose: props.onClose
+	}), showSettings ? h(SettingsPanel, {
+		say,
+		sendShortcut,
+		chooseShortcut,
+		forwardPrefix,
+		changeForwardPrefix,
+		prefixRef
+	}) : null, h(ComposerForm, {
+		say,
+		draft,
+		inputRef: addRef,
+		sendShortcut,
+		onDraftChange,
 		onCompositionStart: () => {
 			composingRef.current = true;
 		},
 		onCompositionEnd: () => {
 			composingRef.current = false;
 		},
-		onKeyDown: (event) => {
-			const composing = event.isComposing || event.nativeEvent && event.nativeEvent.isComposing;
-			if (event.key === "Escape") {
-				event.currentTarget.blur();
-				return;
-			}
-			if (event.key !== "Enter") return;
-			if (composing) {
-				event.preventDefault();
-				return;
-			}
-			const chord = event.ctrlKey || event.metaKey;
-			const platformModifier = isSendModifier(event);
-			if (sendShortcut === "enter" ? !chord && !event.shiftKey : platformModifier) {
-				event.preventDefault();
-				add();
-				return;
-			}
-			if (sendShortcut === "enter" && (chord || event.shiftKey)) {
-				event.preventDefault();
-				insertDraftNewline(event.currentTarget);
-			}
+		onKeyDown: onDraftKeyDown,
+		onSubmit: (event) => {
+			event.preventDefault();
+			if (composingRef.current) return;
+			add();
 		}
-	}), h("div", { className: "dsh-an-addFoot" }, h("span", { className: "dsh-an-addShortcut" }, say(sendShortcut === "enter" ? "add.shortcutEnter" : "add.shortcut", { mod: MOD_LABEL })), h("button", {
-		type: "submit",
-		className: "dsh-an-addBtn",
-		disabled: !draft.trim()
-	}, say("add.action")))), h("div", {
-		className: "dsh-an-listViewport",
-		"data-bottom": listHasMore ? "true" : void 0
-	}, h("div", {
-		className: "dsh-an-listArea",
-		ref: listRef,
-		onScroll: syncListEdge
-	}, h("div", { className: "dsh-an-listSection" }, h("div", { className: "dsh-an-sectionHead" }, h("button", {
-		type: "button",
-		className: "dsh-an-doneToggle",
-		"aria-expanded": showOpen ? "true" : "false",
-		onClick: toggleOpen
-	}, h("span", {
-		className: "dsh-an-chevron",
-		"data-open": showOpen ? "true" : "false"
-	}, h(IconChevron, null)), say("list.open"), openCount ? h("span", { className: "dsh-an-sectionCount" }, String(openCount)) : null)), showOpen ? openItems.length ? h("ul", { className: "dsh-an-rows" }, openItems.map(row)) : h(EmptyState, {
-		title: say(total ? "list.allDone.title" : "popover.empty.title"),
-		body: say(total ? "list.allDone.body" : "popover.empty.body")
-	}) : null), doneItems.length ? h("div", { className: "dsh-an-listSection" }, h("div", { className: "dsh-an-doneHead" }, h("button", {
-		type: "button",
-		className: "dsh-an-doneToggle",
-		"aria-expanded": showDone ? "true" : "false",
-		onClick: toggleDone
-	}, h("span", {
-		className: "dsh-an-chevron",
-		"data-open": showDone ? "true" : "false"
-	}, h(IconChevron, null)), say("popover.completed"), h("span", { className: "dsh-an-sectionCount" }, String(doneItems.length))), showDone ? h("button", {
-		type: "button",
-		className: "dsh-an-clear",
-		"aria-expanded": confirmClear ? "true" : "false",
-		onClick: askClearConfirm
-	}, say("popover.clearDone")) : null), showDone && confirmClear ? h("div", {
-		className: "dsh-an-clearConfirm",
-		role: "group",
-		"aria-live": "polite",
-		"aria-label": say("popover.clearConfirm", { n: doneItems.length })
-	}, h("p", { className: "dsh-an-clearConfirmText" }, say("popover.clearConfirm", { n: doneItems.length })), h("div", { className: "dsh-an-clearConfirmActions" }, h("button", {
-		type: "button",
-		className: "dsh-an-mini",
-		onClick: dismissClearConfirm
-	}, say("popover.clearCancel")), h("button", {
-		type: "button",
-		className: "dsh-an-mini dsh-an-miniDanger",
-		onClick: confirmClearDone
-	}, say("popover.clearConfirmAction")))) : null, showDone ? h("ul", { className: "dsh-an-rows dsh-an-doneRows" }, doneItems.map(row)) : null) : null)), h("div", {
+	}), h(NoteList, {
+		say,
+		listRef,
+		listHasMore,
+		syncListEdge,
+		showOpen,
+		toggleOpen,
+		openItems,
+		openCount,
+		total,
+		row,
+		showDone,
+		toggleDone,
+		doneItems,
+		confirmClear,
+		askClearConfirm,
+		dismissClearConfirm,
+		confirmClearDone
+	}), h("div", {
 		className: "dsh-an-popFoot",
 		role: "status"
 	}, h("span", { className: syncError ? "dsh-an-error" : void 0 }, say(syncError ? "storage.failed" : "popover.storage"))));

@@ -362,7 +362,7 @@ test('the rail grows into the popover padding without shrinking the cards', () =
 
 test('the bottom edge fades only while notes sit below the fold', () => {
   const css = readCss()
-  const client = read('src/client/index.ts')
+  const client = read('src/client/index.ts') + read('src/client/ui/NoteList.ts')
   // The fade is an alpha mask on the scroller, not a blurred overlay: a mask
   // has no compositing edge to show as a crisp-to-blurred line.
   assert.doesNotMatch(css, /\.dsh-an-listViewport::(?:before|after)/, 'the bottom fade must not use an overlay pseudo-element')
@@ -505,7 +505,7 @@ test('the prefix input shares the child title text box', () => {
   assert.match(input[1], /line-height:var\(--an-lh-row\)/, 'input must use the child title line box')
   assert.match(input[1], /font-weight:500/, 'input text must match the 500-weight title')
   assert.match(css, /\.dsh-an-settingItem>\.dsh-an-settingInput\{[^}]*font-size:var\(--an-fs-row\)/, 'host input CSS must not win')
-  assert.match(read('src/client/index.ts'), /fontWeight: 500/, 'the inline guard must keep the title weight')
+  assert.match(read('src/client/ui/SettingsPanel.ts'), /fontWeight: 500/, 'the inline guard must keep the title weight')
 })
 
 test('the prefix prompt uses a one-line-to-multiline textarea', () => {
@@ -550,7 +550,7 @@ test('the section counts carry the status hierarchy', () => {
   // at the right, so the meta reads as a status instead of a second title.
   assert.match(css, /\.dsh-an-popTitleLine\{[^}]*flex:1 1 auto/)
   assert.match(css, /\.dsh-an-popActions\{[^}]*display:flex/)
-  const client = read('src/client/index.ts')
+  const client = read('src/client/index.ts') + read('src/client/ui/PanelHead.ts') + read('src/client/ui/NoteList.ts')
   assert.match(client, /className: 'dsh-an-popActions'/)
   assert.match(client, /className: 'dsh-an-popTitleLine' \},\n\s+h\('div', \{ className: 'dsh-an-popTitle' \}[^]*?h\('p', \{ className: 'dsh-an-popMeta' \}/)
   // Both counts share the one neutral badge style: the completed number is not
@@ -669,7 +669,7 @@ test('clicking a forwarded note removes the mark instead of forwarding again', (
 })
 
 test('clearing completed notes asks for a second confirmation', () => {
-  const client = read('src/client/index.ts')
+  const client = read('src/client/index.ts') + read('src/client/ui/ClearConfirm.ts') + read('src/client/ui/NoteList.ts')
   assert.match(client, /const \[confirmClear, setConfirmClear\] = React\.useState\(false\)/)
   assert.match(client, /const clearConfirmTimerRef = React\.useRef\(0\)/)
   // The section button opens the band; it never clears on the first click.
@@ -679,11 +679,14 @@ test('clearing completed notes asks for a second confirmation', () => {
   // Cancel and confirm both close the band; only confirm reaches clearDone.
   assert.match(client, /const dismissClearConfirm = \(\) => \{\n\s+stopClearConfirmTimer\(\)\n\s+setConfirmClear\(false\)\n\s+\}/)
   assert.match(client, /const confirmClearDone = \(\) => \{\n\s+dismissClearConfirm\(\)\n\s+clearDone\(\)\n\s+\}/)
-  assert.match(client, /onClick: dismissClearConfirm \}, say\('popover\.clearCancel'\)/)
-  assert.match(client, /onClick: confirmClearDone \}, say\('popover\.clearConfirmAction'\)/)
+  assert.match(client, /onClick: onCancel \}, say\('popover\.clearCancel'\)/)
+  assert.match(client, /onClick: onConfirm \}, say\('popover\.clearConfirmAction'\)/)
   // The band names the completed count and is announced politely.
   assert.match(client, /className: 'dsh-an-clearConfirm',\n\s+role: 'group',\n\s+'aria-live': 'polite',/)
-  assert.match(client, /say\('popover\.clearConfirm', \{ n: doneItems\.length \}\)/)
+  assert.match(client, /count: doneItems\.length/)
+  assert.match(client, /onCancel: dismissClearConfirm/)
+  assert.match(client, /onConfirm: confirmClearDone/)
+  assert.match(client, /say\('popover\.clearConfirm', \{ n: count \}\)/)
   // Five-second auto-dismiss, with every teardown path dropping the timer.
   assert.match(read('src/client/constants.ts'), /const CLEAR_CONFIRM_MS = 5000/)
   assert.match(client, /clearConfirmTimerRef\.current = window\.setTimeout\(\(\) => \{\n\s+clearConfirmTimerRef\.current = 0\n\s+setConfirmClear\(false\)\n\s+\}, CLEAR_CONFIRM_MS\)/)
@@ -711,7 +714,7 @@ test('the clear confirmation band reuses card tokens and a danger confirm', () =
 })
 
 test('the prefix prompt is explained under the field, without a visible title', () => {
-  const client = read('src/client/index.ts')
+  const client = read('src/client/ui/SettingsPanel.ts')
   assert.doesNotMatch(client, /htmlFor: 'dsh-an-forward-prefix'/, 'the prefix field no longer has a visible title')
   assert.match(client, /'aria-label': say\('settings\.forwardPrefixItem'\)/, 'the field keeps an accessible name')
   assert.match(client, /'aria-describedby': 'dsh-an-forward-prefix-hint'/, 'the field points at the hint')
@@ -725,7 +728,7 @@ test('the prefix prompt is explained under the field, without a visible title', 
 })
 
 test('the prefix prompt is a multiline field that grows with its content', () => {
-  const client = read('src/client/index.ts')
+  const client = read('src/client/index.ts') + read('src/client/ui/SettingsPanel.ts')
   const idAt = client.indexOf("id: 'dsh-an-forward-prefix'")
   assert.ok(idAt >= 0, 'the prefix field must keep its id')
   const fieldStart = client.lastIndexOf("h('textarea', {", idAt)
