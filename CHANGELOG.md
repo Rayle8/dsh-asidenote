@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.7
+
+- Start the prefix-prompt textarea at one line (38px including padding and border) and let it grow with wrapped text up to six lines before scrolling, instead of reserving three empty rows.
+
 ## 1.9.6
 
 - Change the settings prefix prompt into a three-line textarea that grows up to six lines as you type, then scrolls; Enter inserts a newline and the 80-character limit still applies to the whole value.
