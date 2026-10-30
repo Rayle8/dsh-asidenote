@@ -38,7 +38,7 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - The send-shortcut hint sits in the empty space left of the Add button and updates with the setting, keeping the input placeholder short.
 - Unsaved add/edit drafts are saved per session and restored after closing and reopening the panel, with the add caret at the end of the draft; they clear after add, save, cancel, or delete.
 - Expanding **Completed** does not compress the **Open** list; only the open/completed list region scrolls, while the header, settings, composer, and footer stay fixed.
-- The **Open** and **Completed** headers stick inside the list: they stay transparent until pinned, then take DSH's menu group-header fill with the menu backdrop blur behind them, so row text no longer reads through and no opaque block covers the list.
+- The **Open** and **Completed** headers stick inside the list: transparent until pinned, then filled with the panel's raised `bg-layer-2` surface so the colour matches the panel instead of a differently coloured block; the backdrop blur is deferred until the colour match is reviewed.
 - Completed notes show both the creation and the completion age and sort by newest completion; open notes show the creation age only.
 - The open/completed expand state is remembered and restored when the panel is reopened.
 - Note-card copy/edit/delete actions appear on hover or keyboard focus while keeping their layout space; touch devices keep them visible.

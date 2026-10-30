@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Keep the sticky section headers transparent in flow and, only while they are actually pinned, paint the menu group-header fill with the DSH menu backdrop blur behind it; the full-width `bg-layer-1` block no longer sits over the list and rows no longer read through the header.
+- Keep the sticky section headers transparent in flow and, once pinned, fill them with the panel's raised `bg-layer-2` surface so the fill matches the panel instead of showing a differently coloured menu bar; the backdrop blur is deferred until the colour match is reviewed.
 
 ## 1.9.5
 
