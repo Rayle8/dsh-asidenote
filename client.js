@@ -380,7 +380,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-rows>.dsh-wt-row:nth-child(4){animation-delay:calc(var(--wt-space-2) + var(--wt-space-1))}',
       '.dsh-wt-rows>.dsh-wt-row:nth-child(n+5){animation-delay:var(--wt-space-3)}',
       '}',
-      '@keyframes dsh-wt-pop-in{from{opacity:0;transform:translateY(-4px) scale(.985)}to{opacity:1;transform:none}}',
+      '@keyframes dsh-wt-pop-in{from{opacity:0}to{opacity:1}}',
       '@keyframes dsh-wt-row-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}',
       '@keyframes dsh-wt-spin{to{transform:rotate(360deg)}}',
       '@media (prefers-reduced-motion:reduce){',
