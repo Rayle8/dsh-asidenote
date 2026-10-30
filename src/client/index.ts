@@ -16,30 +16,42 @@ import {
   NS,
   PANEL_ID,
   SESSION_STORAGE_KEY,
-  DRAFT_STORAGE_KEY,
-  FORWARDED_STORAGE_KEY,
   PLUGIN_VERSION,
   PLUGIN_AUTHOR,
   PLUGIN_REPO_URL,
   PLUGIN_REPO_LABEL,
-  SEND_SHORTCUT_KEY,
   SEND_SHORTCUT_DEFAULT,
   MOD_LABEL,
   isSendModifier,
-  SECTION_STATE_KEY,
-  SECTION_STATE_DEFAULT,
   CLEAR_CONFIRM_MS,
-  PANEL_WIDTH_KEY,
   PANEL_DEFAULT_WIDTH,
   PANEL_MIN_WIDTH,
   PANEL_MAX_WIDTH,
-  PANEL_HEIGHT_KEY,
   PANEL_MIN_HEIGHT,
   MAX_TEXT,
-  MAX_ITEMS,
 } from './constants'
 import { DICT, fill, makeSay } from './i18n'
-import { TODO_LISTENERS, notifyTodoChange } from './storage/events'
+import { uid } from './domain/id'
+import { copyText } from './domain/clipboard'
+import { appendToConversation } from './domain/forward'
+import { normalizeItems, compareDoneItems, metaLabel } from './domain/items'
+import { readSessionStore } from './storage/session'
+import {
+  readPanelWidth,
+  writePanelWidth,
+  readPanelHeight,
+  writePanelHeight,
+  readSendShortcut,
+  writeSendShortcut,
+  readForwardPrefix,
+  writeForwardPrefix,
+  readSectionState,
+  writeSectionState,
+} from './storage/prefs'
+import { readSessionDrafts, saveAddDraft, clearAddDraft, readEditDraft, saveEditDraft, clearEditDraft } from './storage/drafts'
+import { readForwardedIds, markForwarded, forgetForwarded } from './storage/forwarded'
+import { useSessionMemoStore } from './ui/useSessionMemoStore'
+import { TODO_LISTENERS } from './storage/events'
 
 const h = React.createElement
 
@@ -51,594 +63,46 @@ const Tooltip = typeof PRIMITIVES.Tooltip === 'function' ? PRIMITIVES.Tooltip : 
 const Toast = typeof PRIMITIVES.Toast === 'function' ? PRIMITIVES.Toast : null
 const icon = name => (typeof PRIMITIVES[name] === 'function' ? PRIMITIVES[name] : null)
 
-function uid() {
-  try {
-    if (globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function') {
-      return globalThis.crypto.randomUUID()
-    }
-  } catch {
-    /* fall through */
-  }
-  return `todo-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`
-}
 
 
-/** Copy plain text, with a synchronous fallback for restricted clipboards. */
-async function copyText(text) {
-  try {
-    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-      await navigator.clipboard.writeText(text)
-      return true
-    }
-  } catch {
-    /* fall through to execCommand */
-  }
-  try {
-    const area = document.createElement('textarea')
-    area.value = text
-    area.setAttribute('readonly', '')
-    area.style.position = 'fixed'
-    area.style.opacity = '0'
-    document.body.appendChild(area)
-    area.select()
-    const ok = document.execCommand('copy')
-    area.remove()
-    return ok
-  } catch {
-    return false
-  }
-}
 
-/** Append one note to the conversation composer (Lexical contenteditable or textarea). */
-function appendToConversation(text, prefix = '') {
-  const note = String(text || '').replace(/^\s+|\s+$/g, '')
-  if (!note) return false
-  const bullet = `- ${note}`
-  const lead = prefix ? String(prefix).trim() : ''
-  const emptyBlock = lead ? `${lead}\n${bullet}` : bullet
-  const visible = node => {
-    const rect = node.getBoundingClientRect()
-    return rect.width > 0 && rect.height > 0
-  }
-  const specific = [...document.querySelectorAll('[data-composer-input]')].filter(visible)
-  const editor = (specific.length
-    ? specific
-    : [...document.querySelectorAll('[contenteditable="true"][role="textbox"], textarea[role="textbox"]')].filter(visible))[0] as
-    | HTMLTextAreaElement
-    | HTMLInputElement
-    | HTMLElement
-    | undefined
-  if (!editor) return false
-  /** Payload for a composer whose current plain text is `current`. */
-  const payloadFor = current => {
-    const value = typeof current === 'string' ? current : ''
-    if (!value.trim()) return emptyBlock
-    return value.endsWith('\n') ? bullet : `\n${bullet}`
-  }
 
-  if (editor.tagName === 'TEXTAREA') {
-    const textarea = editor as HTMLTextAreaElement
-    const current = textarea.value
-    const payload = payloadFor(current)
-    const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!
-    setter.call(textarea, `${current}${payload}`)
-    textarea.dispatchEvent(new Event('input', { bubbles: true }))
-    textarea.focus()
-    const end = textarea.value.length
-    textarea.setSelectionRange(end, end)
-    return true
-  }
 
-  const current = typeof editor.innerText === 'string' ? editor.innerText : ''
-  const payload = payloadFor(current)
-  editor.focus()
-  try {
-    const range = document.createRange()
-    range.selectNodeContents(editor)
-    range.collapse(false)
-    const selection = window.getSelection()
-    selection.removeAllRanges()
-    selection.addRange(range)
-  } catch {
-    /* selection is best effort */
-  }
-  try {
-    const data = new DataTransfer()
-    data.setData('text/plain', payload)
-    const event = new ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData: data })
-    const notHandled = editor.dispatchEvent(event)
-    if (!notHandled) return true
-  } catch {
-    /* fall through to execCommand */
-  }
-  try {
-    return document.execCommand('insertText', false, payload)
-  } catch {
-    return false
-  }
-}
 
-/** The browser store, or null when storage is blocked. */
-function storage() {
-  try {
-    return window.localStorage
-  } catch {
-    return null
-  }
-}
 
-/**
- * Sanitize one session's notes. The store is user-editable, so treat
- * every field defensively and preserve the authored order.
- */
-function normalizeItems(items) {
-  if (!Array.isArray(items)) return []
-  const seen = new Set()
-  const normalized = []
-  for (const raw of items) {
-    if (!raw || typeof raw !== 'object') continue
-    const text = String(raw.text || '').trim().slice(0, MAX_TEXT)
-    if (!text) continue
-    let id = typeof raw.id === 'string' && raw.id ? raw.id : uid()
-    if (seen.has(id)) id = uid()
-    seen.add(id)
-    const done = raw.done === true
-    const createdAt = Number.isFinite(raw.createdAt) ? raw.createdAt : Date.now()
-    const updatedAt = Number.isFinite(raw.updatedAt) ? raw.updatedAt : createdAt
-    normalized.push({
-      id,
-      text,
-      done,
-      createdAt,
-      updatedAt,
-      ...(done && Number.isFinite(raw.completedAt) ? { completedAt: raw.completedAt } : {}),
-    })
-    if (normalized.length >= MAX_ITEMS) break
-  }
-  return normalized
-}
 
-/** Empty session-scoped store. */
-function emptySessionStore() {
-  return { version: 1, sessions: {} }
-}
 
-/** Read the whole session memo store; corrupt or unavailable reads as empty. */
-function readSessionStore() {
-  const ls = storage()
-  if (!ls) return emptySessionStore()
-  try {
-    const raw = ls.getItem(SESSION_STORAGE_KEY)
-    if (!raw) return emptySessionStore()
-    const parsed = JSON.parse(raw)
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return emptySessionStore()
-    const sessions = parsed.sessions
-    if (!sessions || typeof sessions !== 'object' || Array.isArray(sessions)) return emptySessionStore()
-    return { version: 1, sessions }
-  } catch {
-    return emptySessionStore()
-  }
-}
 
-/** Read the persisted right-panel width, clamped for the current viewport. */
-function readPanelWidth() {
-  const ls = storage()
-  const max = Math.min(PANEL_MAX_WIDTH, Math.max(PANEL_MIN_WIDTH, window.innerWidth - 32))
-  try {
-    const saved = ls && Number(ls.getItem(PANEL_WIDTH_KEY))
-    if (Number.isFinite(saved) && saved > 0) return Math.max(PANEL_MIN_WIDTH, Math.min(max, saved))
-  } catch {
-    /* fall through */
-  }
-  return Math.max(PANEL_MIN_WIDTH, Math.min(max, PANEL_DEFAULT_WIDTH))
-}
 
-/** Persist the right-panel width so it survives reopening the popover. */
-function writePanelWidth(width) {
-  const ls = storage()
-  if (!ls) return
-  try {
-    ls.setItem(PANEL_WIDTH_KEY, String(Math.round(width)))
-  } catch {
-    /* storage is best effort */
-  }
-}
 
-/** Read the persisted right-panel height; 0 means content-sized. */
-function readPanelHeight() {
-  const ls = storage()
-  try {
-    const saved = ls && Number(ls.getItem(PANEL_HEIGHT_KEY))
-    if (Number.isFinite(saved) && saved > 0) return saved
-  } catch {
-    /* fall through */
-  }
-  return 0
-}
 
-/** Persist the right-panel height; 0 restores content sizing. */
-function writePanelHeight(height) {
-  const ls = storage()
-  if (!ls) return
-  try {
-    if (height > 0) ls.setItem(PANEL_HEIGHT_KEY, String(Math.round(height)))
-    else ls.removeItem(PANEL_HEIGHT_KEY)
-  } catch {
-    /* storage is best effort */
-  }
-}
 
-/** Read the Enter-to-send preference. */
-function readSendShortcut() {
-  try {
-    const saved = storage() && storage().getItem(SEND_SHORTCUT_KEY)
-    return saved === 'enter' || saved === 'ctrl-enter' ? saved : SEND_SHORTCUT_DEFAULT
-  } catch {
-    return SEND_SHORTCUT_DEFAULT
-  }
-}
 
-function writeSendShortcut(value) {
-  try {
-    const ls = storage()
-    if (ls) ls.setItem(SEND_SHORTCUT_KEY, value === 'enter' ? 'enter' : 'ctrl-enter')
-  } catch {
-    /* storage is best effort */
-  }
-}
 
-/** Read the user's forward lead-in; an empty string means no prefix. */
-function readForwardPrefix() {
-  try {
-    const raw = storage() && storage().getItem('dsh.memo.forward-prefix.v1')
-    return typeof raw === 'string' ? raw.slice(0, 80) : ''
-  } catch {
-    return ''
-  }
-}
 
-function writeForwardPrefix(value) {
-  try {
-    const ls = storage()
-    if (ls) ls.setItem('dsh.memo.forward-prefix.v1', String(value || '').slice(0, 80))
-  } catch {
-    /* storage is best effort */
-  }
-}
 
-/** Remembered section state; corrupt or missing storage falls back to defaults. */
-function readSectionState() {
-  const fallback = { open: SECTION_STATE_DEFAULT.open, done: SECTION_STATE_DEFAULT.done }
-  const ls = storage()
-  if (!ls) return fallback
-  try {
-    const raw = ls.getItem(SECTION_STATE_KEY)
-    if (!raw) return fallback
-    const saved = JSON.parse(raw)
-    if (!saved || typeof saved !== 'object') return fallback
-    return {
-      open: typeof saved.open === 'boolean' ? saved.open : fallback.open,
-      done: typeof saved.done === 'boolean' ? saved.done : fallback.done,
-    }
-  } catch {
-    return fallback
-  }
-}
 
-/** Persist the section state immediately; storage failures are ignored. */
-function writeSectionState(state) {
-  const ls = storage()
-  if (!ls) return
-  try {
-    ls.setItem(SECTION_STATE_KEY, JSON.stringify({ open: state.open === true, done: state.done === true }))
-  } catch {
-    /* storage is best effort */
-  }
-}
 
-/** Empty unsaved-draft store. */
-function emptyDraftStore() {
-  return { version: 1, sessions: {} }
-}
 
-/** Read the unsaved add/edit drafts; corrupt or unavailable reads as empty. */
-function readDraftStore() {
-  const ls = storage()
-  if (!ls) return emptyDraftStore()
-  try {
-    const raw = ls.getItem(DRAFT_STORAGE_KEY)
-    if (!raw) return emptyDraftStore()
-    const parsed = JSON.parse(raw)
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return emptyDraftStore()
-    const sessions = parsed.sessions
-    if (!sessions || typeof sessions !== 'object' || Array.isArray(sessions)) return emptyDraftStore()
-    return { version: 1, sessions }
-  } catch {
-    return emptyDraftStore()
-  }
-}
 
-function writeDraftStore(store) {
-  const ls = storage()
-  if (!ls) return
-  try {
-    ls.setItem(DRAFT_STORAGE_KEY, JSON.stringify(store))
-  } catch {
-    /* storage is best effort */
-  }
-}
 
-function readSessionDrafts(sessionId) {
-  const key = sessionId ? String(sessionId) : ''
-  const record = key ? readDraftStore().sessions[key] : null
-  if (!record || typeof record !== 'object' || Array.isArray(record)) {
-    return { add: '', edits: {} }
-  }
-  return {
-    add: typeof record.add === 'string' ? record.add : '',
-    edits: record.edits && typeof record.edits === 'object' && !Array.isArray(record.edits)
-      ? record.edits
-      : {},
-  }
-}
 
-function pruneDraftSession(store, sessionId) {
-  const record = store.sessions[sessionId]
-  if (!record) return
-  const hasAdd = typeof record.add === 'string' && record.add.length > 0
-  const hasEdits = record.edits && typeof record.edits === 'object' && Object.keys(record.edits).length > 0
-  if (!hasAdd && !hasEdits) delete store.sessions[sessionId]
-}
 
-function saveAddDraft(sessionId, text) {
-  const key = sessionId ? String(sessionId) : ''
-  if (!key) return
-  const store = readDraftStore()
-  const record = store.sessions[key] || {}
-  const value = String(text || '').slice(0, MAX_TEXT)
-  if (value) record.add = value
-  else delete record.add
-  record.edits = record.edits && typeof record.edits === 'object' ? record.edits : {}
-  store.sessions[key] = record
-  pruneDraftSession(store, key)
-  writeDraftStore(store)
-}
 
-function clearAddDraft(sessionId) {
-  saveAddDraft(sessionId, '')
-}
 
-function readEditDraft(sessionId, itemId) {
-  const key = sessionId ? String(sessionId) : ''
-  if (!key || !itemId) return null
-  const edits = readSessionDrafts(key).edits
-  return typeof edits[itemId] === 'string' ? edits[itemId] : null
-}
 
-function saveEditDraft(sessionId, itemId, text) {
-  const key = sessionId ? String(sessionId) : ''
-  if (!key || !itemId) return
-  const store = readDraftStore()
-  const record = store.sessions[key] || {}
-  record.edits = record.edits && typeof record.edits === 'object' ? record.edits : {}
-  record.edits[itemId] = String(text || '').slice(0, MAX_TEXT)
-  store.sessions[key] = record
-  writeDraftStore(store)
-}
 
-function clearEditDraft(sessionId, itemId) {
-  const key = sessionId ? String(sessionId) : ''
-  if (!key || !itemId) return
-  const store = readDraftStore()
-  const record = store.sessions[key]
-  if (!record || !record.edits || typeof record.edits !== 'object') return
-  delete record.edits[itemId]
-  pruneDraftSession(store, key)
-  writeDraftStore(store)
-}
 
-/** Empty forwarded-flag store; shape is { version, sessions: { [sessionId]: { [itemId]: true } } }. */
-function emptyForwardedStore() {
-  return { version: 1, sessions: {} }
-}
 
-/** Read the forwarded-flag store; corrupt or unavailable reads as empty. */
-function readForwardedStore() {
-  const ls = storage()
-  if (!ls) return emptyForwardedStore()
-  try {
-    const raw = ls.getItem(FORWARDED_STORAGE_KEY)
-    if (!raw) return emptyForwardedStore()
-    const parsed = JSON.parse(raw)
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return emptyForwardedStore()
-    const sessions = parsed.sessions
-    if (!sessions || typeof sessions !== 'object' || Array.isArray(sessions)) return emptyForwardedStore()
-    return { version: 1, sessions }
-  } catch {
-    return emptyForwardedStore()
-  }
-}
 
-function writeForwardedStore(store) {
-  const ls = storage()
-  if (!ls) return false
-  try {
-    ls.setItem(FORWARDED_STORAGE_KEY, JSON.stringify(store))
-    return true
-  } catch {
-    return false
-  }
-}
 
-/** Keep only `true` flags on non-empty ids; anything else in the stored record is dropped. */
-function normalizeForwardedRecord(record) {
-  if (!record || typeof record !== 'object' || Array.isArray(record)) return {}
-  const next = {}
-  for (const [itemId, flag] of Object.entries(record)) {
-    if (itemId && flag === true) next[itemId] = true
-  }
-  return next
-}
 
-/** Forwarded item ids of one session, as an id -> true map. */
-function readForwardedIds(sessionId) {
-  const key = sessionId ? String(sessionId) : ''
-  if (!key) return {}
-  return normalizeForwardedRecord(readForwardedStore().sessions[key])
-}
 
-/** Remember that one note was forwarded; best effort, never blocks the send. */
-function markForwarded(sessionId, itemId) {
-  const key = sessionId ? String(sessionId) : ''
-  const id = itemId ? String(itemId) : ''
-  if (!key || !id) return false
-  const store = readForwardedStore()
-  store.sessions[key] = { ...normalizeForwardedRecord(store.sessions[key]), [id]: true }
-  return writeForwardedStore(store)
-}
 
-/** Drop forwarded flags that can no longer be rendered (deleted or cleared notes). */
-function forgetForwarded(sessionId, itemIds) {
-  const key = sessionId ? String(sessionId) : ''
-  if (!key) return false
-  const ids = Array.isArray(itemIds) ? itemIds : [itemIds]
-  const store = readForwardedStore()
-  const record = normalizeForwardedRecord(store.sessions[key])
-  let changed = false
-  for (const rawId of ids) {
-    const id = rawId ? String(rawId) : ''
-    if (!id || !record[id]) continue
-    delete record[id]
-    changed = true
-  }
-  if (!changed) return false
-  if (Object.keys(record).length) store.sessions[key] = record
-  else delete store.sessions[key]
-  return writeForwardedStore(store)
-}
 
-/** Read one session's memo record. */
-function readSessionRecord(sessionId) {
-  const key = sessionId ? String(sessionId) : ''
-  if (!key) return { items: [], updatedAt: 0 }
-  const record = readSessionStore().sessions[key]
-  return {
-    items: normalizeItems(record && record.items),
-    updatedAt: record && Number.isFinite(record.updatedAt) ? record.updatedAt : 0,
-  }
-}
 
-/** Persist one session's memo record. */
-function writeSessionRecord(sessionId, record) {
-  const ls = storage()
-  const key = sessionId ? String(sessionId) : ''
-  if (!ls || !key) return false
-  const store = readSessionStore()
-  store.sessions[key] = {
-    sessionId: key,
-    updatedAt: record.updatedAt || Date.now(),
-    items: normalizeItems(record.items),
-  }
-  try {
-    ls.setItem(SESSION_STORAGE_KEY, JSON.stringify(store))
-    notifyTodoChange()
-    return true
-  } catch {
-    return false
-  }
-}
 
-/** Per-session memos plus a synchronous writer that never invents state. */
-function useSessionMemoStore(sessionId) {
-  const sessionKey = sessionId ? String(sessionId) : ''
-  const sessionRef = React.useRef(sessionKey)
-  sessionRef.current = sessionKey
 
-  const [record, setRecord] = React.useState(() => readSessionRecord(sessionKey))
-  const [syncError, setSyncError] = React.useState(false)
-  const recordRef = React.useRef(record)
-  recordRef.current = record
-
-  React.useEffect(() => {
-    setRecord(readSessionRecord(sessionRef.current))
-    setSyncError(false)
-  }, [sessionKey])
-
-  React.useEffect(() => {
-    const onStorage = event => {
-      if (event.key !== SESSION_STORAGE_KEY) return
-      setRecord(readSessionRecord(sessionRef.current))
-    }
-    const onLocal = () => setRecord(readSessionRecord(sessionRef.current))
-    TODO_LISTENERS.add(onLocal)
-    window.addEventListener('storage', onStorage)
-    return () => {
-      TODO_LISTENERS.delete(onLocal)
-      window.removeEventListener('storage', onStorage)
-    }
-  }, [])
-
-  // A failed write leaves the rendered record alone: the row the user just
-  // deleted stays on screen next to the failure toast, instead of the panel
-  // reporting success for something the browser never stored.
-  const commit = React.useCallback(updater => {
-    const current = recordRef.current || { items: [], updatedAt: 0 }
-    const nextItems = normalizeItems(updater(current.items || []))
-    const next = { items: nextItems, updatedAt: Date.now() }
-    const ok = writeSessionRecord(sessionRef.current, next)
-    setSyncError(!ok)
-    if (!ok) return false
-    recordRef.current = next
-    setRecord(next)
-    return true
-  }, [])
-
-  return { record, syncError, commit }
-}
-
-/** Relative age copy for a note's creation stamp. */
-function ageLabel(time, say, localeId) {
-  const stamp = Number.isFinite(time) ? time : Date.now()
-  const elapsed = Math.max(0, Date.now() - stamp)
-  if (elapsed < 60 * 1000) return say('time.now')
-  const minutes = Math.floor(elapsed / (60 * 1000))
-  if (minutes < 60) return say('time.minutes', { n: minutes })
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return say('time.hours', { n: hours })
-  const days = Math.floor(hours / 24)
-  if (days < 7) return say('time.days', { n: days })
-  try {
-    return new Intl.DateTimeFormat(localeId, { month: 'short', day: 'numeric' }).format(stamp)
-  } catch {
-    return ''
-  }
-}
-
-/**
- * Best-known completion stamp for a done note. Newer records carry
- * `completedAt`; older ones only have `updatedAt`, so fall back in order
- * until a finite time is found. Returns 0 when the item has no usable stamp.
- */
-function completedStamp(item) {
-  if (!item) return 0
-  const candidates = [item.completedAt, item.updatedAt, item.createdAt]
-  for (const time of candidates) {
-    if (Number.isFinite(time)) return time
-  }
-  return 0
-}
-
-/** Newest completion first; updatedAt then createdAt keep equal stamps stable. */
-function compareDoneItems(a, b) {
-  const byCompletion = completedStamp(b) - completedStamp(a)
-  if (byCompletion) return byCompletion
-  const aUpdated = Number.isFinite(a && a.updatedAt) ? a.updatedAt : 0
-  const bUpdated = Number.isFinite(b && b.updatedAt) ? b.updatedAt : 0
-  if (aUpdated !== bUpdated) return bUpdated - aUpdated
-  const aCreated = Number.isFinite(a && a.createdAt) ? a.createdAt : 0
-  const bCreated = Number.isFinite(b && b.createdAt) ? b.createdAt : 0
-  return bCreated - aCreated
-}
 
 /**
  * Mark the section head that is actually pinned to the scroller's top edge.
@@ -658,13 +122,6 @@ function syncStickyHeads(node) {
   }
 }
 
-/** Done notes show creation and completion age; open ones show creation age only. */
-function metaLabel(item, say, localeId) {
-  const created = ageLabel(item && item.createdAt, say, localeId)
-  if (!item || item.done !== true) return created
-  const completed = completedStamp(item) || (item ? item.createdAt : 0)
-  return say('time.createdDone', { created, completed: ageLabel(completed, say, localeId) })
-}
 
 /**
  * Glyphs come from the shared product icon set; this plugin draws none of

@@ -63,6 +63,8 @@ const PLUGIN_REPO_URL = "https://github.com/Rayle8/dsh-workspace-todos";
 const PLUGIN_REPO_LABEL = "github.com/Rayle8/dsh-workspace-todos";
 /** Send preference; persisted across panel openings. Enter sends by default. */
 const SEND_SHORTCUT_KEY = "dsh.memo.send-shortcut.v1";
+/** Lead-in written before a forwarded note; empty means no prefix. */
+const FORWARD_PREFIX_STORAGE_KEY = "dsh.memo.forward-prefix.v1";
 const SEND_SHORTCUT_DEFAULT = "enter";
 /** macOS names the command modifier with a symbol; other platforms say Ctrl. */
 const IS_MAC = (() => {
@@ -264,44 +266,17 @@ function makeSay(ctx, getLocaleId) {
 	};
 }
 
-// src/client/storage/events.ts
-/**
-* Same-tab change bus.
-*
-* The `storage` event only crosses tabs, so a write here wakes the readers in
-* this tab — the header count and an open panel.
-*/
-/** Same-tab subscribers, so the composer dock's count follows panel edits. */
-const TODO_LISTENERS = /* @__PURE__ */ new Set();
-/** Notify same-tab readers after a successful write (storage events only cross tabs). */
-function notifyTodoChange() {
-	for (const listener of TODO_LISTENERS) try {
-		listener();
-	} catch (error) {
-		console.error("workspace-todos: listener failed", error);
-	}
-}
-
-// src/client/index.ts
-/**
-* AsideNote browser half.
-*
-* The plugin entry: injects the stylesheet, binds the locale namespace and
-* seats the two slots (session capture + frame-wide toast host) plus the
-* host-owned header entry. Copy, storage, domain rules and the panel UI live
-* in their own modules; P2 splits the remaining UI out of this file.
-*/
-const h = react.default.createElement;
-const PRIMITIVES = _deepseek_ai_dsh_client_ui_primitives;
-const Tooltip = typeof PRIMITIVES.Tooltip === "function" ? PRIMITIVES.Tooltip : null;
-const Toast = typeof PRIMITIVES.Toast === "function" ? PRIMITIVES.Toast : null;
-const icon = (name) => typeof PRIMITIVES[name] === "function" ? PRIMITIVES[name] : null;
+// src/client/domain/id.ts
+/** Stable ids for notes and drafts. */
 function uid() {
 	try {
 		if (globalThis.crypto && typeof globalThis.crypto.randomUUID === "function") return globalThis.crypto.randomUUID();
 	} catch {}
 	return `todo-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
 }
+
+// src/client/domain/clipboard.ts
+/** Clipboard write with a synchronous fallback. */
 /** Copy plain text, with a synchronous fallback for restricted clipboards. */
 async function copyText(text) {
 	try {
@@ -325,6 +300,9 @@ async function copyText(text) {
 		return false;
 	}
 }
+
+// src/client/domain/forward.ts
+/** Append a note to the conversation composer (Lexical contenteditable or textarea). */
 /** Append one note to the conversation composer (Lexical contenteditable or textarea). */
 function appendToConversation(text, prefix = "") {
 	const note = String(text || "").replace(/^\s+|\s+$/g, "");
@@ -382,14 +360,9 @@ function appendToConversation(text, prefix = "") {
 		return false;
 	}
 }
-/** The browser store, or null when storage is blocked. */
-function storage() {
-	try {
-		return window.localStorage;
-	} catch {
-		return null;
-	}
-}
+
+// src/client/domain/items.ts
+/** Note shape, ordering and relative time copy. */
 /**
 * Sanitize one session's notes. The store is user-editable, so treat
 * every field defensively and preserve the authored order.
@@ -420,6 +393,92 @@ function normalizeItems(items) {
 	}
 	return normalized;
 }
+/** Relative age copy for a note's creation stamp. */
+function ageLabel(time, say, localeId) {
+	const stamp = Number.isFinite(time) ? time : Date.now();
+	const elapsed = Math.max(0, Date.now() - stamp);
+	if (elapsed < 6e4) return say("time.now");
+	const minutes = Math.floor(elapsed / 6e4);
+	if (minutes < 60) return say("time.minutes", { n: minutes });
+	const hours = Math.floor(minutes / 60);
+	if (hours < 24) return say("time.hours", { n: hours });
+	const days = Math.floor(hours / 24);
+	if (days < 7) return say("time.days", { n: days });
+	try {
+		return new Intl.DateTimeFormat(localeId, {
+			month: "short",
+			day: "numeric"
+		}).format(stamp);
+	} catch {
+		return "";
+	}
+}
+/**
+* Best-known completion stamp for a done note. Newer records carry
+* `completedAt`; older ones only have `updatedAt`, so fall back in order
+* until a finite time is found. Returns 0 when the item has no usable stamp.
+*/
+function completedStamp(item) {
+	if (!item) return 0;
+	const candidates = [
+		item.completedAt,
+		item.updatedAt,
+		item.createdAt
+	];
+	for (const time of candidates) if (Number.isFinite(time)) return time;
+	return 0;
+}
+/** Newest completion first; updatedAt then createdAt keep equal stamps stable. */
+function compareDoneItems(a, b) {
+	const byCompletion = completedStamp(b) - completedStamp(a);
+	if (byCompletion) return byCompletion;
+	const aUpdated = Number.isFinite(a && a.updatedAt) ? a.updatedAt : 0;
+	const bUpdated = Number.isFinite(b && b.updatedAt) ? b.updatedAt : 0;
+	if (aUpdated !== bUpdated) return bUpdated - aUpdated;
+	const aCreated = Number.isFinite(a && a.createdAt) ? a.createdAt : 0;
+	return (Number.isFinite(b && b.createdAt) ? b.createdAt : 0) - aCreated;
+}
+/** Done notes show creation and completion age; open ones show creation age only. */
+function metaLabel(item, say, localeId) {
+	const created = ageLabel(item && item.createdAt, say, localeId);
+	if (!item || item.done !== true) return created;
+	return say("time.createdDone", {
+		created,
+		completed: ageLabel(completedStamp(item) || (item ? item.createdAt : 0), say, localeId)
+	});
+}
+
+// src/client/storage/codec.ts
+/** The browser store, or null when storage is blocked. */
+/** The browser store, or null when storage is blocked. */
+function storage() {
+	try {
+		return window.localStorage;
+	} catch {
+		return null;
+	}
+}
+
+// src/client/storage/events.ts
+/**
+* Same-tab change bus.
+*
+* The `storage` event only crosses tabs, so a write here wakes the readers in
+* this tab — the header count and an open panel.
+*/
+/** Same-tab subscribers, so the composer dock's count follows panel edits. */
+const TODO_LISTENERS = /* @__PURE__ */ new Set();
+/** Notify same-tab readers after a successful write (storage events only cross tabs). */
+function notifyTodoChange() {
+	for (const listener of TODO_LISTENERS) try {
+		listener();
+	} catch (error) {
+		console.error("workspace-todos: listener failed", error);
+	}
+}
+
+// src/client/storage/session.ts
+/** Session-scoped notes: the only store the panel renders. */
 /** Empty session-scoped store. */
 function emptySessionStore() {
 	return {
@@ -446,6 +505,41 @@ function readSessionStore() {
 		return emptySessionStore();
 	}
 }
+/** Read one session's memo record. */
+function readSessionRecord(sessionId) {
+	const key = sessionId ? String(sessionId) : "";
+	if (!key) return {
+		items: [],
+		updatedAt: 0
+	};
+	const record = readSessionStore().sessions[key];
+	return {
+		items: normalizeItems(record && record.items),
+		updatedAt: record && Number.isFinite(record.updatedAt) ? record.updatedAt : 0
+	};
+}
+/** Persist one session's memo record. */
+function writeSessionRecord(sessionId, record) {
+	const ls = storage();
+	const key = sessionId ? String(sessionId) : "";
+	if (!ls || !key) return false;
+	const store = readSessionStore();
+	store.sessions[key] = {
+		sessionId: key,
+		updatedAt: record.updatedAt || Date.now(),
+		items: normalizeItems(record.items)
+	};
+	try {
+		ls.setItem(SESSION_STORAGE_KEY, JSON.stringify(store));
+		notifyTodoChange();
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+// src/client/storage/prefs.ts
+/** Panel geometry, send shortcut, forward prefix and section state. */
 /** Read the persisted right-panel width, clamped for the current viewport. */
 function readPanelWidth() {
 	const ls = storage();
@@ -509,7 +603,7 @@ function readForwardPrefix() {
 function writeForwardPrefix(value) {
 	try {
 		const ls = storage();
-		if (ls) ls.setItem("dsh.memo.forward-prefix.v1", String(value || "").slice(0, 80));
+		if (ls) ls.setItem(FORWARD_PREFIX_STORAGE_KEY, String(value || "").slice(0, 80));
 	} catch {}
 }
 /** Remembered section state; corrupt or missing storage falls back to defaults. */
@@ -544,6 +638,9 @@ function writeSectionState(state) {
 		}));
 	} catch {}
 }
+
+// src/client/storage/drafts.ts
+/** Unsaved add/edit drafts, so closing the panel never loses text. */
 /** Empty unsaved-draft store. */
 function emptyDraftStore() {
 	return {
@@ -638,6 +735,9 @@ function clearEditDraft(sessionId, itemId) {
 	pruneDraftSession(store, key);
 	writeDraftStore(store);
 }
+
+// src/client/storage/forwarded.ts
+/** Per-session forwarded marks behind the forward button. */
 /** Empty forwarded-flag store; shape is { version, sessions: { [sessionId]: { [itemId]: true } } }. */
 function emptyForwardedStore() {
 	return {
@@ -718,38 +818,9 @@ function forgetForwarded(sessionId, itemIds) {
 	else delete store.sessions[key];
 	return writeForwardedStore(store);
 }
-/** Read one session's memo record. */
-function readSessionRecord(sessionId) {
-	const key = sessionId ? String(sessionId) : "";
-	if (!key) return {
-		items: [],
-		updatedAt: 0
-	};
-	const record = readSessionStore().sessions[key];
-	return {
-		items: normalizeItems(record && record.items),
-		updatedAt: record && Number.isFinite(record.updatedAt) ? record.updatedAt : 0
-	};
-}
-/** Persist one session's memo record. */
-function writeSessionRecord(sessionId, record) {
-	const ls = storage();
-	const key = sessionId ? String(sessionId) : "";
-	if (!ls || !key) return false;
-	const store = readSessionStore();
-	store.sessions[key] = {
-		sessionId: key,
-		updatedAt: record.updatedAt || Date.now(),
-		items: normalizeItems(record.items)
-	};
-	try {
-		ls.setItem(SESSION_STORAGE_KEY, JSON.stringify(store));
-		notifyTodoChange();
-		return true;
-	} catch {
-		return false;
-	}
-}
+
+// src/client/ui/useSessionMemoStore.ts
+/** Per-session notes plus a synchronous writer that never invents state. */
 /** Per-session memos plus a synchronous writer that never invents state. */
 function useSessionMemoStore(sessionId) {
 	const sessionKey = sessionId ? String(sessionId) : "";
@@ -780,11 +851,12 @@ function useSessionMemoStore(sessionId) {
 		record,
 		syncError,
 		commit: react.default.useCallback((updater) => {
+			const current = recordRef.current || {
+				items: [],
+				updatedAt: 0
+			};
 			const next = {
-				items: normalizeItems(updater((recordRef.current || {
-					items: [],
-					updatedAt: 0
-				}).items || [])),
+				items: normalizeItems(updater(current.items || [])),
 				updatedAt: Date.now()
 			};
 			const ok = writeSessionRecord(sessionRef.current, next);
@@ -796,51 +868,21 @@ function useSessionMemoStore(sessionId) {
 		}, [])
 	};
 }
-/** Relative age copy for a note's creation stamp. */
-function ageLabel(time, say, localeId) {
-	const stamp = Number.isFinite(time) ? time : Date.now();
-	const elapsed = Math.max(0, Date.now() - stamp);
-	if (elapsed < 6e4) return say("time.now");
-	const minutes = Math.floor(elapsed / 6e4);
-	if (minutes < 60) return say("time.minutes", { n: minutes });
-	const hours = Math.floor(minutes / 60);
-	if (hours < 24) return say("time.hours", { n: hours });
-	const days = Math.floor(hours / 24);
-	if (days < 7) return say("time.days", { n: days });
-	try {
-		return new Intl.DateTimeFormat(localeId, {
-			month: "short",
-			day: "numeric"
-		}).format(stamp);
-	} catch {
-		return "";
-	}
-}
+
+// src/client/index.ts
 /**
-* Best-known completion stamp for a done note. Newer records carry
-* `completedAt`; older ones only have `updatedAt`, so fall back in order
-* until a finite time is found. Returns 0 when the item has no usable stamp.
+* AsideNote browser half.
+*
+* The plugin entry: injects the stylesheet, binds the locale namespace and
+* seats the two slots (session capture + frame-wide toast host) plus the
+* host-owned header entry. Copy, storage, domain rules and the panel UI live
+* in their own modules; P2 splits the remaining UI out of this file.
 */
-function completedStamp(item) {
-	if (!item) return 0;
-	const candidates = [
-		item.completedAt,
-		item.updatedAt,
-		item.createdAt
-	];
-	for (const time of candidates) if (Number.isFinite(time)) return time;
-	return 0;
-}
-/** Newest completion first; updatedAt then createdAt keep equal stamps stable. */
-function compareDoneItems(a, b) {
-	const byCompletion = completedStamp(b) - completedStamp(a);
-	if (byCompletion) return byCompletion;
-	const aUpdated = Number.isFinite(a && a.updatedAt) ? a.updatedAt : 0;
-	const bUpdated = Number.isFinite(b && b.updatedAt) ? b.updatedAt : 0;
-	if (aUpdated !== bUpdated) return bUpdated - aUpdated;
-	const aCreated = Number.isFinite(a && a.createdAt) ? a.createdAt : 0;
-	return (Number.isFinite(b && b.createdAt) ? b.createdAt : 0) - aCreated;
-}
+const h = react.default.createElement;
+const PRIMITIVES = _deepseek_ai_dsh_client_ui_primitives;
+const Tooltip = typeof PRIMITIVES.Tooltip === "function" ? PRIMITIVES.Tooltip : null;
+const Toast = typeof PRIMITIVES.Toast === "function" ? PRIMITIVES.Toast : null;
+const icon = (name) => typeof PRIMITIVES[name] === "function" ? PRIMITIVES[name] : null;
 /**
 * Mark the section head that is actually pinned to the scroller's top edge.
 * Sticky heads stay transparent in flow; only the pinned one takes the menu
@@ -854,15 +896,6 @@ function syncStickyHeads(node) {
 		const rect = section.getBoundingClientRect();
 		head.toggleAttribute("data-stuck", rect.top < areaTop && rect.bottom > areaTop);
 	}
-}
-/** Done notes show creation and completion age; open ones show creation age only. */
-function metaLabel(item, say, localeId) {
-	const created = ageLabel(item && item.createdAt, say, localeId);
-	if (!item || item.done !== true) return created;
-	return say("time.createdDone", {
-		created,
-		completed: ageLabel(completedStamp(item) || (item ? item.createdAt : 0), say, localeId)
-	});
 }
 /**
 * Glyphs come from the shared product icon set; this plugin draws none of

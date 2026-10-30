@@ -47,7 +47,8 @@ test('patch inserts exactly the package host row', () => {
 
 test('host and browser entries use the package identity', () => {
   assert.match(read('index.js'), /export function apply\(\)/)
-  const client = read('src/client/index.ts')
+  // The client half is several modules now; identity checks span the tree.
+  const client = readClientTree()
   // The loader shell is now emitted by tsdown, not hand-written in the source.
   const bundle = read('client/client.js')
   assert.match(bundle, /^window\.__ModuleLoader__\.load\(/)
@@ -181,6 +182,20 @@ test('feature screenshots ship in both themes', () => {
     }
   }
 })
+
+/** Every file under src/client, joined — for assertions about the tree as a whole. */
+function readClientTree() {
+  const files = []
+  const walk = dir => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name)
+      if (entry.isDirectory()) walk(full)
+      else if (/\.(ts|tsx|css)$/.test(entry.name)) files.push(fs.readFileSync(full, 'utf8'))
+    }
+  }
+  walk(path.join(root, 'src', 'client'))
+  return files.join('\n')
+}
 
 /** The panel stylesheet is a plain .css file now. */
 function readCss() {
@@ -422,7 +437,7 @@ test('transient outcomes go to the frame-wide toast seat', () => {
 })
 
 test('a failed write keeps the row and says so', () => {
-  const client = read('src/client/index.ts')
+  const client = read('src/client/index.ts') + read('src/client/ui/useSessionMemoStore.ts')
   assert.match(client, /if \(!ok\) return false/)
   assert.match(client, /if \(!ok\) \{\n\s+report\('saveFailed'\)/)
   assert.match(client, /A failed delete keeps the row/)
@@ -564,7 +579,7 @@ test('the panel never raises the soft keyboard on touch devices', () => {
 })
 
 test('completed notes sort by newest completion', () => {
-  const client = read('src/client/index.ts')
+  const client = read('src/client/domain/items.ts')
   const extract = name => {
     const start = client.indexOf(`function ${name}(`)
     assert.ok(start > 0, `missing ${name}`)

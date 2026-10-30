@@ -21,6 +21,8 @@ export const PLUGIN_REPO_URL = 'https://github.com/Rayle8/dsh-workspace-todos'
 export const PLUGIN_REPO_LABEL = 'github.com/Rayle8/dsh-workspace-todos'
 /** Send preference; persisted across panel openings. Enter sends by default. */
 export const SEND_SHORTCUT_KEY = 'dsh.memo.send-shortcut.v1'
+/** Lead-in written before a forwarded note; empty means no prefix. */
+export const FORWARD_PREFIX_STORAGE_KEY = 'dsh.memo.forward-prefix.v1'
 export const SEND_SHORTCUT_DEFAULT = 'enter'
 /** macOS names the command modifier with a symbol; other platforms say Ctrl. */
 export const IS_MAC = (() => {
