@@ -1,7 +1,7 @@
-# 便笺 UI / 交互规范复查
+# SessionNote UI / 交互规范复查
 
 复查基准：[`dsh-ui-ux-design-standard.md`](../../deepseek-harness/dsh-ui-ux-design-standard.md)（下称"规范"）。
-复查对象：`client.js` 里当前真正挂载的界面——会话顶部的便笺入口按钮、右侧便笺浮窗，以及浮窗内的录入、勾选、就地编辑、设置、空态与拖拽把手。
+复查对象：`client.js` 里当前真正挂载的界面——会话顶部的 SessionNote 入口按钮、右侧面板，以及面板内的录入、勾选、就地编辑、设置、空态与拖拽把手。
 
 ## 0. 方法
 
