@@ -68,7 +68,7 @@ test('host and browser entries use the package identity', () => {
   // Sticky heads stay transparent in flow and only take the panel's raised
   // surface while pinned, so no differently coloured block sits at rest.
   assert.match(client, /\.dsh-wt-sectionHead,\.dsh-wt-doneHead\{[^}]*position:sticky[^}]*top:0[^}]*background:transparent/)
-  assert.match(client, /\[data-stuck\][^{]*\{[^}]*background:var\(--dsw-alias-menu-group-header-fill\)/)
+  assert.match(client, /\[data-stuck\][^{]*\{[^}]*background:linear-gradient\(var\(--dsw-alias-menu-group-header-fill\),var\(--dsw-alias-menu-group-header-fill\)\),var\(--dsw-alias-menu-group-header-fill\)/)
   assert.match(client, /FORWARDED_STORAGE_KEY/)
   assert.match(client, /dsh-wt-forwardMark/)
   assert.match(client, /item\.forwarded/)
@@ -727,7 +727,7 @@ test('sticky heads are filled only while pinned, not at rest', () => {
   const rules = cssRules()
   const stuck = rules.find(rule => rule.selector === '.dsh-wt-sectionHead[data-stuck],.dsh-wt-doneHead[data-stuck]')
   assert.ok(stuck, 'stuck header rule missing')
-  assert.match(stuck.body, /background:var\(--dsw-alias-menu-group-header-fill\)/)
+  assert.match(stuck.body, /background:linear-gradient\(var\(--dsw-alias-menu-group-header-fill\),var\(--dsw-alias-menu-group-header-fill\)\),var\(--dsw-alias-menu-group-header-fill\)/)
   assert.doesNotMatch(stuck.body, /backdrop-filter/, 'the stuck fill stays opaque until the blur is approved')
   const base = rules.find(rule => rule.selector === '.dsh-wt-sectionHead,.dsh-wt-doneHead')
   assert.ok(base, 'base header rule missing')
@@ -738,7 +738,7 @@ test('the pinned header keeps its plain title style over a solid fill', () => {
   const css = readCss()
   const rule = css.match(/\.dsh-wt-sectionHead\[data-stuck\],\.dsh-wt-doneHead\[data-stuck\]\{([^}]*)\}/)
   assert.ok(rule, 'stuck header rule missing')
-  assert.match(rule[1], /background:var\(--dsw-alias-menu-group-header-fill\)/)
+  assert.match(rule[1], /background:linear-gradient\(var\(--dsw-alias-menu-group-header-fill\),var\(--dsw-alias-menu-group-header-fill\)\),var\(--dsw-alias-menu-group-header-fill\)/)
   assert.doesNotMatch(rule[1], /border-radius|border-top-left-radius|border-top-right-radius/, 'the title keeps its plain shape')
   assert.doesNotMatch(rule[1], /backdrop-filter|opacity/, 'the header does not go translucent')
   assert.doesNotMatch(css, /\[data-stuck\][^{]*::before/, 'no extra corner underlay')
