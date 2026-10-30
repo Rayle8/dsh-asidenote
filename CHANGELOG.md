@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.5
+
+- Restore sticky **Open** and **Completed** headers while the note list scrolls. They sit on the opaque `bg-layer-1` surface rather than the translucent menu fill, so rows cannot read through them and the header does not double-paint a seam over the panel.
+
 ## 1.9.4
 
 - Remove the pressed `scale(.94)` from the top-right notes anchor. The panel's first position was measured while that transform was still easing back, so it was computed from a shrunken rect and snapped right/down a few milliseconds later.
