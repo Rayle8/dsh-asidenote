@@ -1,6 +1,19 @@
 # AsideNote 重构方案
 
-> 状态：方案待评审　|　目标版本：v2.0.0　|　参考实现：[dsh-context](https://github.com/bowenliang123/dsh-context)、[dsh-market](https://github.com/dsh-market/dsh-market)
+> 状态：执行中　|　目标版本：v2.0.0　|　参考实现：[dsh-context](https://github.com/bowenliang123/dsh-context)、[dsh-market](https://github.com/dsh-market/dsh-market)
+
+## 进度（2026-10-31）
+
+| 阶段 | 状态 | 提交 |
+|---|---|---|
+| P0 冻结与兜底 | 完成 | tag `pre-refactor-1.9.7`；合并分支清理；`docs/archive/notes-trash-ux-checklist.md` |
+| P1 工具链骨架 | 完成 | `f9e399b`（tsdown + tsc + oxlint + 产物一致性门 + 真机前 jsdom 冒烟） |
+| P2 拆模块 | 进行中 | `96e4414` 常量/i18n/CSS；`0a1821b` storage/domain/hook；`8e0bc4c` 行/空态/定位/图标。入口 2,507 → 1,209 行 |
+| P3 改名 + 迁移 | 完成 | `198d673`（AsideNote，`dsh.aside-notes.*.v2`，旧键只读保留） |
+| P4 资产与文档 | 待办 | 截图正被并行重拍，等 README 定稿后一次性移动 |
+| P5 发布 | 待办 | CI 已更新；打 tag / 发布前需重启 DSH 做真机冒烟 |
+
+剩余：`MemoPopover`（837 行）拆成 Panel / Composer / Settings / ClearConfirm；把契约测试迁到 Vitest + jsdom；真机冒烟（重启 DSH）。
 
 ## 0. 结论
 
