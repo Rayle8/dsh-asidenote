@@ -762,14 +762,7 @@ test('the pinned header keeps its plain title style over a solid fill', () => {
   assert.doesNotMatch(rule[1], /backdrop-filter|opacity/, 'the header does not go translucent')
   assert.doesNotMatch(css, /\[data-stuck\][^{]*::before/, 'no extra corner underlay')
 
-  // Five stacked strips fade a backdrop blur from the header edge downward;
-  // Chromium drops backdrop-filter under a mask, so this uses discrete bands.
-  assert.match(css, /\.dsh-wt-headBlur\{[^}]*display:none[^}]*top:100%[^}]*height:20px/)
-  assert.match(css, /\[data-stuck\] \.dsh-wt-headBlur[^{]*\{display:block\}/)
-  for (const [index, radius] of [[1, 20], [2, 14], [3, 9], [4, 5], [5, 2]]) {
-    assert.match(css, new RegExp(`\\.dsh-wt-headBlurBand:nth-child\\(${index}\\)\\{[^}]*backdrop-filter:blur\\(${radius}px\\)`))
-  }
-  assert.equal((client.match(/h\(HeadBlur, null\)/g) || []).length, 2, 'both section heads need the blur band')
-  assert.match(client, /const HeadBlur = \(\) => h\('span', \{ className: 'dsh-wt-headBlur', 'aria-hidden': true \}/)
-  assert.doesNotMatch(css, /dsh-wt-headBlur[^{]*mask-image/, 'masking the band would drop the blur')
+  // The opaque panel makes a top blur band unnecessary.
+  assert.doesNotMatch(css, /dsh-wt-headBlur/)
+  assert.doesNotMatch(client, /HeadBlur/)
 })
