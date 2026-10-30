@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.3
+
+- Replace the bottom blur overlay with a viewport-fixed alpha mask on the list itself: the last 48px fade smoothly to transparent, the 9px scrollbar rail stays opaque, and there is no compositing edge left to show as a horizontal line.
+
 ## 1.9.2
 
 - Soften the bottom fade's crisp-to-blurred boundary with a 48px low-blur halo and long multi-stop gradient/mask ramps, so no horizontal line is visible.
