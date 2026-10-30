@@ -1,0 +1,54 @@
+/**
+ * Browser client bundle for the notes plugin.
+ *
+ * The shell loads a `dsh.client` package's `./client` export as a classic
+ * script: `window.__ModuleLoader__.load({ id, factory })`, where the factory
+ * receives a `require` bound to the frozen module table. The output below is
+ * exactly that closure — nothing else. React and the shared primitives stay
+ * external; everything else is inlined.
+ *
+ * Mirrors the client preset of the two reference plugins:
+ * https://github.com/bowenliang123/dsh-context and https://github.com/dsh-market/dsh-market
+ */
+import { readFileSync } from 'node:fs'
+import { defineConfig } from 'tsdown'
+
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
+
+/** Modules the loader seeds into the factory's `require`; never bundled. */
+const CLIENT_EXTERNALS = [
+  'react',
+  'react/jsx-runtime',
+  'react-dom',
+  'react-dom/client',
+  '@deepseek-ai/dsh-client-ui-primitives',
+]
+
+export default defineConfig({
+  entry: { client: 'src/client/index.ts' },
+  // package.json exports "./client" → "./client/client.js".
+  outDir: 'client',
+  format: 'cjs',
+  target: 'es2022',
+  dts: false,
+  sourcemap: false,
+  // The bundle is committed and reviewed like source; minification would turn
+  // every change into a whole-file diff.
+  minify: false,
+  clean: false,
+  // CJS normally targets Node; this one is a browser classic script, so say so
+  // explicitly instead of relying on the format's default platform.
+  inputOptions: { platform: 'browser' },
+  deps: {
+    neverBundle: CLIENT_EXTERNALS,
+    // Anything not in the loader's module table must inline: a require() the
+    // table cannot answer throws at boot.
+    alwaysBundle: source => (CLIENT_EXTERNALS.includes(source) ? undefined : true),
+  },
+  outputOptions: {
+    entryFileNames: 'client.js',
+    banner: `window.__ModuleLoader__.load({ id: ${JSON.stringify(pkg.name)}, factory: (require) => {`,
+    intro: 'var module = { exports: {} }; var exports = module.exports;',
+    footer: 'return module.exports; } });',
+  },
+})

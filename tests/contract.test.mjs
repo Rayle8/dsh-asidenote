@@ -13,7 +13,7 @@ test('package declares the DSH bundle and web client halves', () => {
   assert.equal(manifest.name, 'dsh-workspace-todos')
   assert.equal(manifest.type, 'module')
   assert.equal(manifest.exports['.'], './index.js')
-  assert.equal(manifest.exports['./client'], './client.js')
+  assert.equal(manifest.exports['./client'], './client/client.js')
   assert.equal(manifest.dsh.bundle.patch, './cordis.patch.yml')
   assert.equal(manifest.dsh.client.platform, 'web')
   assert.equal(manifest.dsh.client.immediately, true)
@@ -27,14 +27,14 @@ test('package declares the DSH bundle and web client halves', () => {
   ]) {
     assert.ok(manifest.dsh.client.inject.includes(dependency), `missing inject ${dependency}`)
   }
-  for (const file of ['client.js', 'index.js', 'cordis.patch.yml', 'icon.svg', 'preview.png', 'preview-badge.png', 'preview-right.png', 'preview-dark.png', 'preview-badge-dark.png', 'preview-right-dark.png', 'README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md']) {
+  for (const file of ['client/client.js', 'index.js', 'cordis.patch.yml', 'icon.svg', 'preview.png', 'preview-badge.png', 'preview-right.png', 'preview-dark.png', 'preview-badge-dark.png', 'preview-right-dark.png', 'README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md']) {
     assert.ok(manifest.files.includes(file), `missing files entry ${file}`)
   }
 })
 
 test('client version matches the package version', () => {
   const manifest = JSON.parse(read('package.json'))
-  assert.match(read('client.js'), new RegExp(`PLUGIN_VERSION = '${manifest.version.replace(/\./g, '\\.')}'`))
+  assert.match(read('src/client/index.ts'), new RegExp(`PLUGIN_VERSION = '${manifest.version.replace(/\./g, '\\.')}'`))
 })
 
 test('patch inserts exactly the package host row', () => {
@@ -47,9 +47,13 @@ test('patch inserts exactly the package host row', () => {
 
 test('host and browser entries use the package identity', () => {
   assert.match(read('index.js'), /export function apply\(\)/)
-  const client = read('client.js')
-  assert.match(client, /window\.__ModuleLoader__\.load\(/)
-  assert.match(client, /id: 'dsh-workspace-todos'/)
+  const client = read('src/client/index.ts')
+  // The loader shell is now emitted by tsdown, not hand-written in the source.
+  const bundle = read('client/client.js')
+  assert.match(bundle, /^window\.__ModuleLoader__\.load\(/)
+  assert.match(bundle, /id: "dsh-workspace-todos"/)
+  assert.match(bundle, /return module\.exports; \} \}\);/)
+  assert.doesNotMatch(client, /__ModuleLoader__/, 'the source must not carry a hand-written shell')
   assert.doesNotMatch(client, /ctx\.slots\.inject\('conversation\.hero\.options'/)
   assert.match(client, /ctx\.slots\.inject\('conversation\.composer\.dock'/)
   assert.doesNotMatch(client, /conversation\.chat\.assistant-actions/)
@@ -111,12 +115,12 @@ test('host and browser entries use the package identity', () => {
   assert.doesNotMatch(client, /selectPanel/)
   assert.match(client, /document\.head\.appendChild\(style\)/)
   assert.doesNotMatch(client, /h\('style'/)
-  assert.match(client, /return \{ inject: \['slots'\], apply \}/)
+  assert.match(client, /(?:module\.exports = |return )\{ inject: \['slots'\], apply \}/)
   assert.doesNotMatch(client, /@local\//)
 })
 
 test('the retired page entry is gone, not kept as a second implementation', () => {
-  const client = read('client.js')
+  const client = read('src/client/index.ts')
   for (const dead of ['function PanelBody', 'function PageShell', 'function MemoEntry', 'useTodoStore', 'dsh.workspace-todos.v1']) {
     assert.ok(!client.includes(dead), `dead surface still present: ${dead}`)
   }
@@ -135,7 +139,7 @@ test('locale files carry the whole dictionary', () => {
     assert.equal(zh[key], dict.zh[key], `zh.json value drifted for ${key}`)
     assert.equal(en[key], dict.en[key], `en.json value drifted for ${key}`)
   }
-  const client = read('client.js')
+  const client = read('src/client/index.ts')
   assert.match(client, /'title': '便笺'/)
   assert.match(client, /'dock\.open': '打开便笺'/)
   // The clear-completed confirmation is localised in both bundles and both files.
@@ -181,7 +185,7 @@ test('feature screenshots ship in both themes', () => {
 
 /** The stylesheet is a string array; flatten it back into CSS for inspection. */
 function readCss() {
-  const client = read('client.js')
+  const client = read('src/client/index.ts')
   const start = client.indexOf('const CSS = [')
   const end = client.indexOf("].join('')", start)
   assert.ok(start > 0 && end > start, 'CSS array not found')
@@ -218,11 +222,11 @@ function cssRules() {
 
 /** The bundled dictionary, evaluated straight from the module source. */
 function readDict() {
-  const client = read('client.js')
-  const start = client.indexOf('    const DICT = ')
-  const end = client.indexOf('\n\n    const CSS = [')
-  assert.ok(start > 0 && end > start, 'DICT not found')
-  const literal = client.slice(start + '    const DICT = '.length, end).trim().replace(/,$/, '')
+  const client = read('src/client/index.ts')
+  const start = client.indexOf('const DICT = ')
+  const end = client.indexOf('const CSS = [')
+  assert.ok(start >= 0 && end > start, 'DICT not found')
+  const literal = client.slice(start + 'const DICT = '.length, end).trim().replace(/,$/, '')
   return new Function(`return (${literal})`)()
 }
 
@@ -346,7 +350,7 @@ test('the rail grows into the popover padding without shrinking the cards', () =
 
 test('the bottom edge fades only while notes sit below the fold', () => {
   const css = readCss()
-  const client = read('client.js')
+  const client = read('src/client/index.ts')
   // The fade is an alpha mask on the scroller, not a blurred overlay: a mask
   // has no compositing edge to show as a crisp-to-blurred line.
   assert.doesNotMatch(css, /\.dsh-wt-listViewport::(?:before|after)/, 'the bottom fade must not use an overlay pseudo-element')
@@ -385,9 +389,9 @@ test('hover styling is gated on hover capability', () => {
 })
 
 test('no product copy is hardcoded outside the dictionary', () => {
-  const client = read('client.js')
-  const start = client.indexOf('    const DICT = ')
-  const end = client.indexOf('\n\n    const CSS = [')
+  const client = read('src/client/index.ts')
+  const start = client.indexOf('const DICT = ')
+  const end = client.indexOf('const CSS = [')
   const cssStart = client.indexOf('const CSS = [')
   const cssEnd = client.indexOf("].join('')", cssStart)
   const js = `${client.slice(0, start)}${client.slice(end, cssStart)}${client.slice(cssEnd)}`
@@ -406,7 +410,7 @@ test('chinese hints drop the trailing full stop', () => {
 })
 
 test('transient outcomes go to the frame-wide toast seat', () => {
-  const client = read('client.js')
+  const client = read('src/client/index.ts')
   assert.match(client, /@deepseek-ai\/dsh-client-ui-primitives/)
   assert.match(client, /ctx\.slots\.inject\('shell\.overlay'/)
   assert.match(client, /name: 'shell\.overlay'/)
@@ -418,14 +422,14 @@ test('transient outcomes go to the frame-wide toast seat', () => {
 })
 
 test('a failed write keeps the row and says so', () => {
-  const client = read('client.js')
+  const client = read('src/client/index.ts')
   assert.match(client, /if \(!ok\) return false/)
   assert.match(client, /if \(!ok\) \{\n\s+report\('saveFailed'\)/)
   assert.match(client, /A failed delete keeps the row/)
 })
 
 test('icon-only controls use the shared tooltip', () => {
-  const client = read('client.js')
+  const client = read('src/client/index.ts')
   assert.match(client, /function withTooltip\(/)
   assert.match(client, /h\(Tooltip, \{ label, side: 'top'/)
   const iconButtons = [...client.matchAll(/className: 'dsh-wt-iconBtn[^']*',\n\s+'aria-label': say\(([^)]+)\)/g)]
@@ -435,7 +439,7 @@ test('icon-only controls use the shared tooltip', () => {
 })
 
 test('completed notes hide the forward action and keep the other three', () => {
-  const client = read('client.js')
+  const client = read('src/client/index.ts')
   const start = client.indexOf("className: 'dsh-wt-actions'")
   assert.ok(start > 0, 'row actions missing')
   const actions = client.slice(start, client.indexOf('function EmptyState', start))
@@ -489,7 +493,7 @@ test('the prefix input shares the child title text box', () => {
   assert.match(input[1], /line-height:var\(--wt-lh-row\)/, 'input must use the child title line box')
   assert.match(input[1], /font-weight:500/, 'input text must match the 500-weight title')
   assert.match(css, /\.dsh-wt-settingItem>\.dsh-wt-settingInput\{[^}]*font-size:var\(--wt-fs-row\)/, 'host input CSS must not win')
-  assert.match(read('client.js'), /fontWeight: 500/, 'the inline guard must keep the title weight')
+  assert.match(read('src/client/index.ts'), /fontWeight: 500/, 'the inline guard must keep the title weight')
 })
 
 test('the prefix prompt uses a one-line-to-multiline textarea', () => {
@@ -534,7 +538,7 @@ test('the section counts carry the status hierarchy', () => {
   // at the right, so the meta reads as a status instead of a second title.
   assert.match(css, /\.dsh-wt-popTitleLine\{[^}]*flex:1 1 auto/)
   assert.match(css, /\.dsh-wt-popActions\{[^}]*display:flex/)
-  const client = read('client.js')
+  const client = read('src/client/index.ts')
   assert.match(client, /className: 'dsh-wt-popActions'/)
   assert.match(client, /className: 'dsh-wt-popTitleLine' \},\n\s+h\('div', \{ className: 'dsh-wt-popTitle' \}[^]*?h\('p', \{ className: 'dsh-wt-popMeta' \}/)
   // Both counts share the one neutral badge style: the completed number is not
@@ -555,16 +559,16 @@ test('the section counts carry the status hierarchy', () => {
 })
 
 test('the panel never raises the soft keyboard on touch devices', () => {
-  const client = read('client.js')
+  const client = read('src/client/index.ts')
   assert.match(client, /\(hover: hover\) and \(pointer: fine\)/)
 })
 
 test('completed notes sort by newest completion', () => {
-  const client = read('client.js')
+  const client = read('src/client/index.ts')
   const extract = name => {
     const start = client.indexOf(`function ${name}(`)
     assert.ok(start > 0, `missing ${name}`)
-    const end = client.indexOf('\n    }\n', start) + '\n    }\n'.length
+    const end = client.indexOf('\n}\n', start) + '\n}\n'.length
     assert.ok(end > start, `unterminated ${name}`)
     return client.slice(start, end)
   }
@@ -581,7 +585,7 @@ test('completed notes sort by newest completion', () => {
 })
 
 test('send shortcuts default to Enter and name the platform modifier', () => {
-  const client = read('client.js')
+  const client = read('src/client/index.ts')
   assert.match(client, /const SEND_SHORTCUT_DEFAULT = 'enter'/)
   assert.match(client, /const IS_MAC = \(/)
   assert.match(client, /const MOD_LABEL = IS_MAC \? '⌘' : 'Ctrl'/)
@@ -595,7 +599,7 @@ test('send shortcuts default to Enter and name the platform modifier', () => {
 })
 
 test('forwarding marks the forward button, never the checkbox', () => {
-  const client = read('client.js')
+  const client = read('src/client/index.ts')
   // The checkbox renders only the note's own open/done state.
   assert.match(client, /'aria-checked': checked \? 'true' : 'false'/)
   assert.doesNotMatch(client, /aria-checked': checked \? 'true' : half/)
@@ -609,7 +613,7 @@ test('forwarding marks the forward button, never the checkbox', () => {
 })
 
 test('the forwarded mark borrows the forward icon palette, not a state colour', () => {
-  const client = read('client.js')
+  const client = read('src/client/index.ts')
   const rule = readCss().match(/\.dsh-wt-forwardMark\{([^}]*)\}/)
   assert.ok(rule, 'forward mark rule missing')
   const body = rule[1]
@@ -627,7 +631,7 @@ test('the forwarded mark borrows the forward icon palette, not a state colour', 
 })
 
 test('clicking a forwarded note removes the mark instead of forwarding again', () => {
-  const client = read('client.js')
+  const client = read('src/client/index.ts')
   const start = client.indexOf('const forward = () => {')
   assert.ok(start > 0, 'forward handler missing')
   const end = client.indexOf('\n      }', start)
@@ -653,7 +657,7 @@ test('clicking a forwarded note removes the mark instead of forwarding again', (
 })
 
 test('clearing completed notes asks for a second confirmation', () => {
-  const client = read('client.js')
+  const client = read('src/client/index.ts')
   assert.match(client, /const \[confirmClear, setConfirmClear\] = React\.useState\(false\)/)
   assert.match(client, /const clearConfirmTimerRef = React\.useRef\(0\)/)
   // The section button opens the band; it never clears on the first click.
@@ -695,7 +699,7 @@ test('the clear confirmation band reuses card tokens and a danger confirm', () =
 })
 
 test('the prefix prompt is explained under the field, without a visible title', () => {
-  const client = read('client.js')
+  const client = read('src/client/index.ts')
   assert.doesNotMatch(client, /htmlFor: 'dsh-wt-forward-prefix'/, 'the prefix field no longer has a visible title')
   assert.match(client, /'aria-label': say\('settings\.forwardPrefixItem'\)/, 'the field keeps an accessible name')
   assert.match(client, /'aria-describedby': 'dsh-wt-forward-prefix-hint'/, 'the field points at the hint')
@@ -709,7 +713,7 @@ test('the prefix prompt is explained under the field, without a visible title', 
 })
 
 test('the prefix prompt is a multiline field that grows with its content', () => {
-  const client = read('client.js')
+  const client = read('src/client/index.ts')
   const idAt = client.indexOf("id: 'dsh-wt-forward-prefix'")
   assert.ok(idAt >= 0, 'the prefix field must keep its id')
   const fieldStart = client.lastIndexOf("h('textarea', {", idAt)
@@ -733,7 +737,7 @@ test('the prefix prompt is a multiline field that grows with its content', () =>
 
 
 test('sticky heads are filled only while pinned, not at rest', () => {
-  const client = read('client.js')
+  const client = read('src/client/index.ts')
   assert.match(client, /function syncStickyHeads\(node\)/)
   assert.match(client, /const section = head\.parentElement/)
   assert.match(client, /const rect = section\.getBoundingClientRect\(\)/)
@@ -754,7 +758,7 @@ test('sticky heads are filled only while pinned, not at rest', () => {
 
 test('the pinned header keeps its plain title style over a solid fill', () => {
   const css = readCss()
-  const client = read('client.js')
+  const client = read('src/client/index.ts')
   const rule = css.match(/\.dsh-wt-sectionHead\[data-stuck\],\.dsh-wt-doneHead\[data-stuck\]\{([^}]*)\}/)
   assert.ok(rule, 'stuck header rule missing')
   assert.match(rule[1], /background:var\(--dsh-wt-panelSurface,var\(--dsw-alias-bg-layer-2\)\)/)
