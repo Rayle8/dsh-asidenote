@@ -17,12 +17,13 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const bundlePath = path.join(root, 'client', 'client.js')
 const bundle = fs.readFileSync(bundlePath, 'utf8')
 
-test('the built bundle boots, applies, and seats its slots', async () => {
+test('the built bundle boots, applies, and seats its slots', async t => {
   const dom = new JSDOM(
     '<!doctype html><html><body><div class="_headerUtilities"></div></body></html>',
     { url: 'https://example.test/', pretendToBeVisual: true, runScripts: 'outside-only' },
   )
   const { window } = dom
+  t.after(() => window.close())
   globalThis.window = window
   globalThis.document = window.document
   globalThis.IS_REACT_ACT_ENVIRONMENT = true
@@ -118,6 +119,32 @@ test('the built bundle boots, applies, and seats its slots', async () => {
   assert.ok(button, 'the header entry must be injected into the host utilities row')
   assert.equal(button.dataset.sessionId, 'session-1')
   assert.match(button.getAttribute('aria-label'), /便笺/)
+  // The migrated note is open, so the entry already shows a count.
+  assert.equal(button.querySelector('.dsh-an-headerCount').textContent, '1')
+
+  // Open the panel from that entry and write a note through the real form.
+  await act(async () => { button.click() })
+  const popover = document.querySelector('.dsh-an-popover')
+  assert.ok(popover, 'clicking the header entry must open the panel')
+  const addField = popover.querySelector('.dsh-an-input')
+  assert.ok(addField, 'the panel must render the add field')
+  // Set the value through the prototype setter so React's value tracker sees a
+  // change, then dispatch the input event React listens for. fireEvent would
+  // resolve the prototype in the Node realm, not this jsdom one.
+  const valueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set
+  await act(async () => {
+    valueSetter.call(addField, '新的一条')
+    addField.dispatchEvent(new window.Event('input', { bubbles: true }))
+  })
+  const addButton = popover.querySelector('.dsh-an-addBtn')
+  assert.equal(addButton.disabled, false, 'the add button enables once the draft has text')
+  await act(async () => { addButton.click() })
+  const written = JSON.parse(window.localStorage.getItem('dsh.aside-notes.v2'))
+  assert.equal(written.sessions['session-1'].items[0].text, '新的一条')
+  assert.equal(written.sessions['session-1'].items.length, 2)
+  // The entry refreshes on a rAF after the store write; give jsdom one frame.
+  await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 40)) })
+  assert.equal(document.querySelector('.dsh-an-headerCount').textContent, '2')
 
   await act(async () => { reactRoot.unmount() })
   for (const dispose of disposers) dispose()
