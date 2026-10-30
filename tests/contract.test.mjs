@@ -291,11 +291,57 @@ test('the floating panel is borderless and elevated, with no second stroke', () 
   }
 })
 
-test('scrollbars keep the shared theme skin', () => {
+test('scrollbars keep the shared theme skin at the DSH rail geometry', () => {
   const css = readCss()
   assert.doesNotMatch(css, /::-webkit-scrollbar/, 'component scrollbar selectors replace the shared skin')
-  assert.doesNotMatch(css, /scrollbar-width|scrollbar-color/, 'the standard scrollbar properties silence the shared hover skin')
-  assert.match(css, /--dsh-scrollbar-thumb:var\(--dsw-alias-scrollbar-bg-l2\)/)
+  assert.doesNotMatch(css, /(?:^|[;{])scrollbar-(?:width|color):/, 'the standard scrollbar properties silence the shared hover skin')
+  // The popover is an elevated menu surface, so the l2 pair is the DSH binding;
+  // the fallback keeps a visible thumb on a theme that lacks the alias.
+  assert.match(css, /--dsh-scrollbar-thumb:var\(--dsw-alias-scrollbar-bg-l2,var\(--wt-divider\)\)/)
+  assert.match(css, /--dsh-scrollbar-thumb-hover:var\(--dsw-alias-scrollbar-hover-l2,var\(--dsw-alias-scrollbar-bg-l2,var\(--wt-divider\)\)\)/)
+  // A 9px rail whose 2px transparent border leaves a 5px inset pill. Only the
+  // geometry is rebound; the shared skin still owns every pseudo-element.
+  assert.match(css, /--dsh-wt-scrollRail:9px/)
+  assert.match(css, /--dsh-wt-scrollInset:2px/)
+  assert.match(css, /--dsh-scrollbar-width:var\(--dsh-wt-scrollRail\)/)
+  assert.match(css, /--dsh-scrollbar-thumb-border:var\(--dsh-wt-scrollInset\)/)
+})
+
+test('the rail grows into the popover padding without shrinking the cards', () => {
+  const css = readCss()
+  assert.match(css, /--dsh-wt-listGutter:var\(--wt-space-4\)/)
+  assert.match(css, /@media \(max-width:480px\)\{[^@]*--dsh-wt-listGutter:var\(--wt-space-3\)/)
+  const viewport = /\.dsh-wt-listViewport\{([^}]*)\}/.exec(css)
+  assert.ok(viewport, 'missing list viewport')
+  assert.match(viewport[1], /margin-right:calc\(var\(--dsh-wt-listGutter\) \* -1\)/)
+  const list = [...css.matchAll(/\.dsh-wt-listArea\{([^}]*)\}/g)].find(match => match[1].includes('display:flex'))
+  assert.ok(list, 'missing list scroll container')
+  // Cards and the add field keep one content width: the padding pays back what
+  // the rail consumes, and the stable gutter keeps that width when idle.
+  assert.match(list[1], /padding-right:calc\(var\(--dsh-wt-listGutter\) - var\(--dsh-wt-scrollRail\)\)/)
+  assert.match(list[1], /scrollbar-gutter:stable/)
+})
+
+test('the bottom edge fades only while notes sit below the fold', () => {
+  const css = readCss()
+  const client = read('client.js')
+  // The fade is an alpha mask on the scroller, not a blurred overlay: a mask
+  // has no compositing edge to show as a crisp-to-blurred line.
+  assert.doesNotMatch(css, /\.dsh-wt-listViewport::(?:before|after)/, 'the bottom fade must not use an overlay pseudo-element')
+  const mask = /\.dsh-wt-listViewport\[data-bottom="true"\] \.dsh-wt-listArea\{([^}]*)\}/.exec(css)
+  assert.ok(mask, 'missing the bottom fade mask')
+  assert.match(mask[1], /--dsh-wt-fadeHeight:calc\(var\(--wt-space-6\) \+ var\(--wt-space-4\)\)/, 'the fade must cover 48px')
+  assert.match(mask[1], /mask-image:linear-gradient\(to bottom,currentColor 0,currentColor calc\(100% - var\(--dsh-wt-fadeHeight\)\),transparent 100%\)/, 'the content must fade over 48px')
+  assert.match(mask[1], /mask-image:[^;]*linear-gradient\(to right,transparent calc\(100% - var\(--dsh-wt-scrollRail\)\),currentColor calc\(100% - var\(--dsh-wt-scrollRail\)\)\)/, 'the scrollbar rail must stay opaque')
+  assert.match(mask[1], /mask-composite:add/, 'the two mask layers union so the rail stays crisp')
+  assert.doesNotMatch(mask[1], /backdrop-filter/, 'a backdrop-filter overlay would reintroduce the hard edge')
+  assert.match(css, /\.dsh-wt-listViewport\[data-bottom="true"\] \.dsh-wt-listArea/, 'the mask must follow the scroll state')
+  // It follows scroll + ResizeObserver state.
+  assert.match(client, /className: 'dsh-wt-listViewport'[\s\S]{0,240}className: 'dsh-wt-listArea', ref: listRef/)
+  assert.match(client, /'data-bottom': listHasMore \? 'true' : undefined/)
+  assert.match(client, /onScroll: syncListEdge/)
+  assert.match(client, /new ResizeObserver\(syncListEdge\)/)
+  assert.match(client, /node.scrollTop \+ node.clientHeight < node.scrollHeight - 1/)
 })
 
 test('hover styling is gated on hover capability', () => {
@@ -400,6 +446,28 @@ test('animations and transitions stay tokenised', () => {
   }
   assert.match(css, /@media \(prefers-reduced-motion:reduce\)/)
   assert.match(css, /@media \(prefers-reduced-motion:no-preference\)/)
+})
+
+test('the panel opens in place with an opacity fade', () => {
+  const css = readCss()
+  assert.match(css, /@keyframes dsh-wt-pop-in\{from\{opacity:0\}to\{opacity:1\}\}/, 'the panel keyframes must be opacity only')
+  assert.doesNotMatch(css, /@keyframes dsh-wt-pop-in\{[^@]*?(?:transform|translate|scale)/, 'the panel must not move or scale on open')
+  // The entry is also the positioning anchor. A pressed transform makes the
+  // anchor rect smaller, so the first panel position is computed from the
+  // scaled rect and snaps right/down once the press transition ends.
+  assert.doesNotMatch(css, /\.dsh-wt-headerBtn:active\{[^}]*transform/, 'the panel anchor must not scale while pressed')
+})
+
+test('the prefix input shares the child title text box', () => {
+  const css = readCss()
+  const input = css.match(/\.dsh-wt-settingInput\{([^}]*)\}/)
+  assert.ok(input, 'missing settingInput rule')
+  assert.doesNotMatch(input[1], /font:inherit/, 'the shorthand must not reset the type')
+  assert.match(input[1], /font-size:var\(--wt-fs-row\)/, 'input must use the child title size')
+  assert.match(input[1], /line-height:var\(--wt-lh-row\)/, 'input must use the child title line box')
+  assert.match(input[1], /font-weight:500/, 'input text must match the 500-weight title')
+  assert.match(css, /\.dsh-wt-settingItem>\.dsh-wt-settingInput\{[^}]*font-size:var\(--wt-fs-row\)/, 'host input CSS must not win')
+  assert.match(read('client.js'), /fontWeight: 500/, 'the inline guard must keep the title weight')
 })
 
 test('section toggles stay inside the scrolling list', () => {

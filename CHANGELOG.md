@@ -11,6 +11,25 @@
 - Stop forwarding from touching the checkbox: it keeps only open and done, the forward button gains a small check, and the half-check, three-second completion countdown, and gray forwarded-done check are gone.
 - Default the send shortcut to Enter, with the platform command modifier plus Enter for a new line; macOS labels the key ⌘ and other platforms label it Ctrl.
 - Pull the shortcut copy out of hardcoded `Ctrl` strings: every send/newline hint and setting interpolates `{mod}`, so both locales follow the current platform.
+
+## 1.9.4
+
+- Remove the pressed `scale(.94)` from the top-right notes anchor. The panel's first position was measured while that transform was still easing back, so it was computed from a shrunken rect and snapped right/down a few milliseconds later.
+
+## 1.9.3
+
+- Replace the bottom blur overlay with a viewport-fixed alpha mask on the list itself: the last 48px fade smoothly to transparent, the 9px scrollbar rail stays opaque, and there is no compositing edge left to show as a horizontal line.
+
+## 1.9.2
+
+- Soften the bottom fade's crisp-to-blurred boundary with a 48px low-blur halo and long multi-stop gradient/mask ramps, so no horizontal line is visible.
+
+## 1.9.1
+
+- Remove the tiny down-right settle when the panel opens; it now fades in without moving.
+- Force the prefix-prompt input to the same 13px/20px, weight-500 text as its child title, even against host input styles.
+- Restore the bottom edge fade as a soft 28px gradient/blur that only appears while notes remain below the fold, with no top fade.
+- Move the list to the DSH workspace scrollbar rail: 9px track, 2px transparent inset, and a visible 5px pill thumb that no longer sits flush against the panel edge.
 - Pull the panel's visual hierarchy apart: the title and count share one line, the count drops to a 12/400 caption, section labels drop from 13/500 primary to 12/500 secondary, and settings/close move into one right-side action group.
 - Keep the open count readable when it exists: a solid neutral fill and primary numeral replace the old low-contrast outline.
 - Put the add field and note cards on the shared settings-card fill and stroke, and bind the panel's elevation hairline to `border-l2` so the surface edge stays visible on white.

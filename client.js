@@ -32,7 +32,7 @@ window.__ModuleLoader__.load({
     /** Notes already forwarded to the composer, per session; marks the forward button. */
     const FORWARDED_STORAGE_KEY = 'dsh.memo.forwarded.v1'
     /** Shown in the in-panel settings; keep in sync with package.json. */
-    const PLUGIN_VERSION = '1.9.0'
+    const PLUGIN_VERSION = '1.9.4'
     const PLUGIN_AUTHOR = '阿三石'
     const PLUGIN_REPO_URL = 'https://github.com/Rayle8/dsh-workspace-todos'
     const PLUGIN_REPO_LABEL = 'github.com/Rayle8/dsh-workspace-todos'
@@ -229,7 +229,7 @@ window.__ModuleLoader__.load({
       'body{--wt-space-1:4px;--wt-space-2:8px;--wt-space-3:12px;--wt-space-4:16px;--wt-space-5:24px;--wt-space-6:32px;--wt-radius-pill:999px;--wt-fs-caption:12px;--wt-lh-caption:20px;--wt-fs-row:13px;--wt-lh-row:20px;--wt-fs-title:14px;--wt-lh-title:20px;--wt-hover:var(--dsw-alias-interactive-bg-hover);--wt-active:var(--dsw-alias-interactive-bg-active);--wt-field:var(--dsw-alias-bg-layer-1);--wt-field-line:var(--dsw-alias-border-l4);--wt-divider:var(--dsw-alias-border-l2);--wt-dur-fast:var(--ds-transition-duration-fast);--wt-dur-base:var(--ds-transition-duration);--wt-dur-spin:700ms;--wt-ease:var(--ds-ease-in-out);--wt-transition:background-color var(--wt-dur-fast) var(--wt-ease),border-color var(--wt-dur-fast) var(--wt-ease),color var(--wt-dur-fast) var(--wt-ease),opacity var(--wt-dur-fast) var(--wt-ease),transform var(--wt-dur-fast) var(--wt-ease),box-shadow var(--wt-dur-fast) var(--wt-ease)}',
       '',
       '/* ── 2 浮层 · 菜单材质 + 三层阴影，边框为 0（发丝线在阴影第一层） ── */',
-      '.dsh-wt-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--wt-space-3);min-height:0;padding:var(--wt-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsw-specific-menu);-webkit-backdrop-filter:var(--dsw-menu-backdrop-filter);backdrop-filter:var(--dsw-menu-backdrop-filter);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2);--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2);overflow:hidden;animation:dsh-wt-pop-in var(--wt-dur-base) var(--wt-ease) both}',
+      '.dsh-wt-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--wt-space-3);min-height:0;padding:var(--wt-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsw-specific-menu);-webkit-backdrop-filter:var(--dsw-menu-backdrop-filter);backdrop-filter:var(--dsw-menu-backdrop-filter);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--wt-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--wt-divider)));--dsh-wt-listGutter:var(--wt-space-4);--dsh-wt-scrollRail:9px;--dsh-wt-scrollInset:2px;overflow:hidden;animation:dsh-wt-pop-in var(--wt-dur-base) var(--wt-ease) both}',
       '.dsh-wt-popoverRight{padding-left:var(--wt-space-4)}',
       '',
       '/* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */',
@@ -253,8 +253,13 @@ window.__ModuleLoader__.load({
       '.dsh-wt-addBtn:active{background:var(--dsw-alias-button-primary-dimmed);transform:scale(.97)}',
       '.dsh-wt-addBtn[disabled]{background:transparent;color:var(--dsw-alias-label-secondary);box-shadow:inset 0 0 0 0.5px var(--wt-field-line);cursor:not-allowed}',
       '',
-      '/* ── 5 分区与列表 · 标题随列表滚动，列表自己滚动 ───────────────────── */',
-      '.dsh-wt-listArea{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow-x:hidden;overflow-y:auto}',
+      '/* ── 5 分区与列表 · 9px 轨道内嵌 2px，底部羽化只盖内容不盖滚动条 ──── */',
+      '/* The viewport grows into the popover padding so the 9px rail does not steal from the cards; the list pays the padding back minus the rail, so cards and the add field keep one content width at every panel size. */',
+      '.dsh-wt-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--dsh-wt-listGutter) * -1)}',
+      '/* Bottom edge treatment: a viewport-fixed alpha mask over the scroller itself, exactly like the DSH scroll areas. The first gradient fades the last 48px to transparent; the second keeps the 9px scrollbar rail opaque so the thumb stays crisp. There is no backdrop-filter layer, so there is no hard compositing edge to see. */',
+      '.dsh-wt-listViewport[data-bottom="true"] .dsh-wt-listArea{--dsh-wt-fadeHeight:calc(var(--wt-space-6) + var(--wt-space-4));-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-wt-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-wt-scrollRail)),currentColor calc(100% - var(--dsh-wt-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-wt-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-wt-scrollRail)),currentColor calc(100% - var(--dsh-wt-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}',
+      '/* Geometry only: the shared DSH skin paints the thumb, so the plugin declares no scrollbar pseudo-elements. The popover already binds the l2 thumb pair for the menu material. */',
+      '.dsh-wt-listArea{--dsh-scrollbar-width:var(--dsh-wt-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-wt-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-wt-listGutter) - var(--dsh-wt-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}',
       '.dsh-wt-listSection{display:flex;flex-direction:column;gap:var(--wt-space-2);min-width:0}',
       '.dsh-wt-listSection+.dsh-wt-listSection{margin-top:var(--wt-space-2)}',
       '.dsh-wt-sectionHead,.dsh-wt-doneHead{display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-3);min-height:28px;margin:0;padding:var(--wt-space-1) 0}',
@@ -325,7 +330,8 @@ window.__ModuleLoader__.load({
       '.dsh-wt-settingChoice{display:flex;align-items:flex-start;gap:var(--wt-space-2);font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);color:var(--dsw-alias-label-primary);cursor:pointer}',
       '.dsh-wt-settingChoice input{appearance:none;flex:none;width:14px;height:14px;margin:calc((var(--wt-lh-row) - 14px) / 2) 0 0;box-sizing:border-box;border:0.5px solid var(--dsw-alias-label-tertiary);border-radius:var(--wt-radius-pill);corner-shape:round;background:transparent;cursor:pointer;transition:var(--wt-transition)}',
       '.dsh-wt-settingChoice input:checked{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-brand-primary);box-shadow:inset 0 0 0 3px var(--wt-field)}',
-      '.dsh-wt-settingInput{box-sizing:border-box;width:100%;height:28px;padding:0 var(--wt-space-2);border:0.5px solid var(--wt-field-line);border-radius:var(--dsw-radius-sm);background:var(--wt-field);color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);outline:0;transition:var(--wt-transition)}',
+      '.dsh-wt-settingInput{box-sizing:border-box;width:100%;height:28px;padding:0 var(--wt-space-2);border:0.5px solid var(--wt-field-line);border-radius:var(--dsw-radius-sm);background:var(--wt-field);color:var(--dsw-alias-label-primary);font-family:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);font-weight:500;outline:0;transition:var(--wt-transition)}',
+      '.dsh-wt-settingItem>.dsh-wt-settingInput{font-family:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);font-weight:500}',
       '.dsh-wt-settingInput:focus{border-color:var(--dsw-alias-state-business-primary)}',
       '.dsh-wt-settingHint{margin:0;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary)}',
       '.dsh-wt-settingHintNote{margin-top:var(--wt-space-1)}',
@@ -343,7 +349,7 @@ window.__ModuleLoader__.load({
       '',
       '/* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */',
       '.dsh-wt-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--wt-transition)}',
-      '.dsh-wt-headerBtn:active{background:var(--wt-active);color:var(--dsw-alias-label-primary);transform:scale(.94)}',
+      '.dsh-wt-headerBtn:active{background:var(--wt-active);color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-headerBtn[data-active="true"]{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-headerBtn[data-disabled="true"]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}',
       '.dsh-wt-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}',
@@ -394,7 +400,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-rows>.dsh-wt-row:nth-child(4){animation-delay:calc(var(--wt-space-2) + var(--wt-space-1))}',
       '.dsh-wt-rows>.dsh-wt-row:nth-child(n+5){animation-delay:var(--wt-space-3)}',
       '}',
-      '@keyframes dsh-wt-pop-in{from{opacity:0;transform:translateY(-4px) scale(.985)}to{opacity:1;transform:none}}',
+      '@keyframes dsh-wt-pop-in{from{opacity:0}to{opacity:1}}',
       '@keyframes dsh-wt-row-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}',
       '@keyframes dsh-wt-spin{to{transform:rotate(360deg)}}',
       '@media (prefers-reduced-motion:reduce){',
@@ -404,7 +410,7 @@ window.__ModuleLoader__.load({
       '',
       '/* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */',
       '@media (max-width:480px){',
-      '.dsh-wt-popover{padding:var(--wt-space-3)}',
+      '.dsh-wt-popover{padding:var(--wt-space-3);--dsh-wt-listGutter:var(--wt-space-3)}',
       '.dsh-wt-popoverRight{padding-left:var(--wt-space-4)}',
       '.dsh-wt-popHead{gap:var(--wt-space-2)}',
       '.dsh-wt-add{padding:var(--wt-space-2) var(--wt-space-3)}',
@@ -1386,7 +1392,9 @@ window.__ModuleLoader__.load({
       const [panelWidth, setPanelWidth] = React.useState(readPanelWidth)
       const [panelHeight, setPanelHeight] = React.useState(readPanelHeight)
       const [style, setStyle] = React.useState(() => memoPopoverStyle(props.anchorRef.current, props.placement, panelWidth, panelHeight))
+      const [listHasMore, setListHasMore] = React.useState(false)
       const panelRef = React.useRef(null)
+      const listRef = React.useRef(null)
       const panelWidthRef = React.useRef(panelWidth)
       const panelHeightRef = React.useRef(panelHeight)
       const lastStyleRef = React.useRef('')
@@ -1606,6 +1614,27 @@ window.__ModuleLoader__.load({
       React.useEffect(() => {
         dismissClearConfirm()
       }, [sessionId])
+
+      /** The bottom fade exists only while the list can still scroll down. */
+      const syncListEdge = React.useCallback(() => {
+        const node = listRef.current
+        if (!node) return
+        const more = node.scrollTop + node.clientHeight < node.scrollHeight - 1
+        setListHasMore(current => (current === more ? current : more))
+      }, [])
+
+      React.useEffect(() => {
+        const node = listRef.current
+        if (!node) return undefined
+        syncListEdge()
+        if (typeof ResizeObserver !== 'function') return undefined
+        const observer = new ResizeObserver(syncListEdge)
+        observer.observe(node)
+        // Section boxes report added, removed, and edited notes; the viewport box
+        // reports panel resizes. Neither needs to re-measure on every render.
+        for (const section of node.children) observer.observe(section)
+        return () => observer.disconnect()
+      }, [items, showOpen, showDone, syncListEdge])
 
       const chooseShortcut = value => {
         setSendShortcut(value)
@@ -1957,6 +1986,12 @@ window.__ModuleLoader__.load({
                       placeholder: say('forward.prefix'),
                       'aria-label': say('settings.forwardPrefixItem'),
                       'aria-describedby': 'dsh-wt-forward-prefix-hint',
+                      style: {
+                        fontFamily: 'inherit',
+                        fontSize: 'var(--wt-fs-row)',
+                        lineHeight: 'var(--wt-lh-row)',
+                        fontWeight: 500,
+                      },
                       onChange: event => changeForwardPrefix(event.target.value),
                     }),
                     h('p', { id: 'dsh-wt-forward-prefix-hint', className: 'dsh-wt-settingHint' }, say('settings.forwardPrefixHint')),
@@ -2059,84 +2094,91 @@ window.__ModuleLoader__.load({
         ),
         h(
           'div',
-          { className: 'dsh-wt-listArea' },
+          {
+            className: 'dsh-wt-listViewport',
+            'data-bottom': listHasMore ? 'true' : undefined,
+          },
           h(
             'div',
-            { className: 'dsh-wt-listSection' },
+            { className: 'dsh-wt-listArea', ref: listRef, onScroll: syncListEdge },
             h(
               'div',
-              { className: 'dsh-wt-sectionHead' },
+              { className: 'dsh-wt-listSection' },
               h(
-                'button',
-                {
-                  type: 'button',
-                  className: 'dsh-wt-doneToggle',
-                  'aria-expanded': showOpen ? 'true' : 'false',
-                  onClick: toggleOpen,
-                },
-                h('span', { className: 'dsh-wt-chevron', 'data-open': showOpen ? 'true' : 'false' }, h(IconChevron, null)),
-                say('list.open'),
-                openCount ? h('span', { className: 'dsh-wt-sectionCount' }, String(openCount)) : null,
+                'div',
+                { className: 'dsh-wt-sectionHead' },
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'dsh-wt-doneToggle',
+                    'aria-expanded': showOpen ? 'true' : 'false',
+                    onClick: toggleOpen,
+                  },
+                  h('span', { className: 'dsh-wt-chevron', 'data-open': showOpen ? 'true' : 'false' }, h(IconChevron, null)),
+                  say('list.open'),
+                  openCount ? h('span', { className: 'dsh-wt-sectionCount' }, String(openCount)) : null,
+                ),
               ),
+              showOpen
+                ? openItems.length
+                  ? h('ul', { className: 'dsh-wt-rows' }, openItems.map(row))
+                  : h(EmptyState, {
+                      title: say(total ? 'list.allDone.title' : 'popover.empty.title'),
+                      body: say(total ? 'list.allDone.body' : 'popover.empty.body'),
+                    })
+                : null,
             ),
-            showOpen
-              ? openItems.length
-                ? h('ul', { className: 'dsh-wt-rows' }, openItems.map(row))
-                : h(EmptyState, {
-                    title: say(total ? 'list.allDone.title' : 'popover.empty.title'),
-                    body: say(total ? 'list.allDone.body' : 'popover.empty.body'),
-                  })
+            doneItems.length
+              ? h(
+                  'div',
+                  { className: 'dsh-wt-listSection' },
+                  h(
+                    'div',
+                    { className: 'dsh-wt-doneHead' },
+                    h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'dsh-wt-doneToggle',
+                        'aria-expanded': showDone ? 'true' : 'false',
+                        onClick: toggleDone,
+                      },
+                      h('span', { className: 'dsh-wt-chevron', 'data-open': showDone ? 'true' : 'false' }, h(IconChevron, null)),
+                      say('popover.completed'),
+                      h('span', { className: 'dsh-wt-sectionCount' }, String(doneItems.length)),
+                    ),
+                    showDone
+                      ? h('button', {
+                          type: 'button',
+                          className: 'dsh-wt-clear',
+                          'aria-expanded': confirmClear ? 'true' : 'false',
+                          onClick: askClearConfirm,
+                        }, say('popover.clearDone'))
+                      : null,
+                  ),
+                  showDone && confirmClear
+                    ? h(
+                        'div',
+                        {
+                          className: 'dsh-wt-clearConfirm',
+                          role: 'group',
+                          'aria-live': 'polite',
+                          'aria-label': say('popover.clearConfirm', { n: doneItems.length }),
+                        },
+                        h('p', { className: 'dsh-wt-clearConfirmText' }, say('popover.clearConfirm', { n: doneItems.length })),
+                        h(
+                          'div',
+                          { className: 'dsh-wt-clearConfirmActions' },
+                          h('button', { type: 'button', className: 'dsh-wt-mini', onClick: dismissClearConfirm }, say('popover.clearCancel')),
+                          h('button', { type: 'button', className: 'dsh-wt-mini dsh-wt-miniDanger', onClick: confirmClearDone }, say('popover.clearConfirmAction')),
+                        ),
+                      )
+                    : null,
+                  showDone ? h('ul', { className: 'dsh-wt-rows dsh-wt-doneRows' }, doneItems.map(row)) : null,
+                )
               : null,
           ),
-          doneItems.length
-            ? h(
-                'div',
-                { className: 'dsh-wt-listSection' },
-                h(
-                  'div',
-                  { className: 'dsh-wt-doneHead' },
-                  h(
-                    'button',
-                    {
-                      type: 'button',
-                      className: 'dsh-wt-doneToggle',
-                      'aria-expanded': showDone ? 'true' : 'false',
-                      onClick: toggleDone,
-                    },
-                    h('span', { className: 'dsh-wt-chevron', 'data-open': showDone ? 'true' : 'false' }, h(IconChevron, null)),
-                    say('popover.completed'),
-                    h('span', { className: 'dsh-wt-sectionCount' }, String(doneItems.length)),
-                  ),
-                  showDone
-                    ? h('button', {
-                        type: 'button',
-                        className: 'dsh-wt-clear',
-                        'aria-expanded': confirmClear ? 'true' : 'false',
-                        onClick: askClearConfirm,
-                      }, say('popover.clearDone'))
-                    : null,
-                ),
-                showDone && confirmClear
-                  ? h(
-                      'div',
-                      {
-                        className: 'dsh-wt-clearConfirm',
-                        role: 'group',
-                        'aria-live': 'polite',
-                        'aria-label': say('popover.clearConfirm', { n: doneItems.length }),
-                      },
-                      h('p', { className: 'dsh-wt-clearConfirmText' }, say('popover.clearConfirm', { n: doneItems.length })),
-                      h(
-                        'div',
-                        { className: 'dsh-wt-clearConfirmActions' },
-                        h('button', { type: 'button', className: 'dsh-wt-mini', onClick: dismissClearConfirm }, say('popover.clearCancel')),
-                        h('button', { type: 'button', className: 'dsh-wt-mini dsh-wt-miniDanger', onClick: confirmClearDone }, say('popover.clearConfirmAction')),
-                      ),
-                    )
-                  : null,
-                showDone ? h('ul', { className: 'dsh-wt-rows dsh-wt-doneRows' }, doneItems.map(row)) : null,
-              )
-            : null,
         ),
         h(
           'div',
