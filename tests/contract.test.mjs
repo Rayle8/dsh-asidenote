@@ -68,7 +68,7 @@ test('host and browser entries use the package identity', () => {
   // Sticky heads stay transparent in flow and only take the menu group-header
   // fill while pinned, so no opaque block sits over the list at rest.
   assert.match(client, /\.dsh-wt-sectionHead,\.dsh-wt-doneHead\{[^}]*position:sticky[^}]*top:0[^}]*background:transparent/)
-  assert.match(client, /\[data-stuck\][^{]*\{[^}]*background:var\(--dsw-alias-menu-group-header-fill\)/)
+  assert.match(client, /\[data-stuck\][^{]*\{[^}]*background:var\(--dsw-alias-menu-group-header-fill,var\(--dsw-specific-menu\)\)/)
   assert.match(client, /FORWARDED_STORAGE_KEY/)
   assert.match(client, /dsh-wt-forwardMark/)
   assert.match(client, /item\.forwarded/)
@@ -718,4 +718,15 @@ test('sticky heads are filled only while pinned, not at rest', () => {
   assert.match(client, /const pinned = node\.scrollTop > naturalTop && top >= areaTop - 1 && top <= areaTop \+ 1/)
   assert.match(client, /head\.toggleAttribute\('data-stuck', pinned\)/)
   assert.match(client, /syncStickyHeads\(node\)/)
+
+  // The stuck state also blurs the rows behind it; the base header stays
+  // transparent with no backdrop layer, so nothing is blurred at rest.
+  const rules = cssRules()
+  const stuck = rules.find(rule => rule.selector === '.dsh-wt-sectionHead[data-stuck],.dsh-wt-doneHead[data-stuck]')
+  assert.ok(stuck, 'stuck header rule missing')
+  assert.match(stuck.body, /-webkit-backdrop-filter:var\(--dsw-menu-backdrop-filter/)
+  assert.match(stuck.body, /backdrop-filter:var\(--dsw-menu-backdrop-filter/)
+  const base = rules.find(rule => rule.selector === '.dsh-wt-sectionHead,.dsh-wt-doneHead')
+  assert.ok(base, 'base header rule missing')
+  assert.doesNotMatch(base.body, /backdrop-filter/, 'the header must not blur while it sits in flow')
 })
