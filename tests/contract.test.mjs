@@ -674,9 +674,9 @@ test('the prefix prompt is explained under the field, without a visible title', 
 test('sticky heads are filled only while pinned, not at rest', () => {
   const client = read('client.js')
   assert.match(client, /function syncStickyHeads\(node\)/)
-  assert.match(client, /const naturalTop = head\.offsetTop - node\.offsetTop/)
-  assert.match(client, /const pinned = node\.scrollTop > naturalTop && top >= areaTop - 1 && top <= areaTop \+ 1/)
-  assert.match(client, /head\.toggleAttribute\('data-stuck', pinned\)/)
+  assert.match(client, /const section = head\.parentElement/)
+  assert.match(client, /const rect = section\.getBoundingClientRect\(\)/)
+  assert.match(client, /head\.toggleAttribute\('data-stuck', rect\.top < areaTop && rect\.bottom > areaTop\)/)
   assert.match(client, /syncStickyHeads\(node\)/)
 
   // The stuck state also blurs the rows behind it; the base header stays
