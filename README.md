@@ -1,46 +1,16 @@
-# SessionNote · 会话便笺
+# AsideNote · 随记
+
+轻量会话便笺
 
 [English](README.en.md) | 中文
 
-> 产品名是 **SessionNote**（会话便笺），仓库名沿用 `dsh-workspace-todos`。
+> 产品名是 **AsideNote**（随记），包与插件 id 为 `dsh-asidenote`；仓库仍沿用旧名 `dsh-workspace-todos`，链接继续有效。
 
-**给每个 AI 会话，留一张待办清单。**
+**有事记一下，没事不打扰。**
 
-随手记录 · 会话独立 · 一键带回对话
+轻量记录 · 按需打开 · 用完收起
 
-SessionNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺插件：把需要回看的细节留在当前会话旁边，随手记录待办与想法，需要时一键带回对话。
-
-## 为什么做 SessionNote
-
-和 AI 一起做事时，总会冒出一些暂时顾不上的小事：这个细节等会儿改，那段结果还要核对，还有一个思路想留着继续讨论。
-
-先发进对话，容易打断当前任务；记到别处，回来又得重新找。SessionNote 就在会话旁边，让你先把事情记下，继续手头的工作。
-
-## 从随手记，到继续做
-
-### 想到就记，继续手头的事
-
-点击会话顶部右侧的「便笺」按钮，打开右侧面板，记录待办、补充想法或需要回看的细节。入口显示未完成数量，做完一条，勾掉一条。
-
-### 每个会话，都有自己的清单
-
-便笺按会话独立保存。同一个工作区里，不同会话的事项各归各处，切换讨论也能保留各自的线索。
-
-### 准备好了，一键带回对话
-
-点击便笺上的转发按钮，内容就会以列表项追加到当前对话输入框。你可以继续补充、调整，再决定发送。前缀提示词支持自定义，且仅在输入框为空时添加；转发不会自动发送，也不会把便笺标记为完成。
-
-### 日常使用的小细节，也准备好了
-
-- **草稿自动保存**：临时关闭面板，再打开接着写。
-- **完成后可回看**：未完成与已完成分区展示，保留创建与完成时间。
-- **面板大小可调整**：宽高按需拖动，记住你的习惯。
-- **融入 DSH 界面**：跟随明暗主题与中英文设置。
-- **当前浏览器持久保存**：刷新页面、重启 DSH 后仍可继续查看；同一浏览器的多个标签页同步更新。
-
-> 便笺保存在当前浏览器，不跨设备或浏览器同步；清理站点数据会清除记录。详见[数据保存在哪里](#数据保存在哪里)。
-
-[查看安装方法](#安装) · [反馈问题或建议](https://github.com/Rayle8/dsh-workspace-todos/issues)
+AsideNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺。临时的想法、稍后的待办，随手留在对话旁；需要时一键带回，用完收起，继续眼前的事。
 
 ## 界面与入口
 
@@ -59,6 +29,40 @@ SessionNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺插件：把
 ![顶部右侧便笺按钮（暗色）](./preview-badge-dark.png)
 
 点击入口后在右侧打开固定面板。
+
+## 为什么做 AsideNote
+
+和 AI 一起做事时，总会冒出一些暂时顾不上的小事：这个细节等会儿改，那段结果还要核对，还有一个思路想留着继续讨论。
+
+先发进对话，容易打断当前任务；记到别处，回来又得重新找。AsideNote 就在会话旁边，让你先把事情记下，继续手头的工作。
+
+不必为几件小事建立一套管理方法。想到就记，需要就看，做完就放下。它只在你需要时打开，用完收起，尽量少打扰当前的工作。
+
+## 从随手记，到继续做
+
+### 想到就记，继续手头的事
+
+点击会话顶部右侧的「便笺」按钮，打开右侧面板，记录待办、补充想法或需要回看的细节。入口显示未完成数量，做完一条，勾掉一条。
+
+### 留在当前会话，下次接着做
+
+便笺按会话独立保存。同一个工作区里，不同会话的事项各归各处，切换讨论也能保留各自的线索。
+
+### 准备好了，一键带回对话
+
+点击便笺上的转发按钮，内容就会以列表项追加到当前对话输入框。你可以继续补充、调整，再决定发送。前缀提示词支持自定义，且仅在输入框为空时添加；转发不会自动发送，也不会把便笺标记为完成。
+
+### 日常使用的小细节，也准备好了
+
+- **草稿自动保存**：临时关闭面板，再打开接着写。
+- **完成后可回看**：未完成与已完成分区展示，保留创建与完成时间。
+- **面板大小可调整**：宽高按需拖动，记住你的习惯。
+- **融入 DSH 界面**：跟随明暗主题与中英文设置。
+- **当前浏览器持久保存**：刷新页面、重启 DSH 后仍可继续查看；同一浏览器的多个标签页同步更新。
+
+> 便笺保存在当前浏览器，不跨设备或浏览器同步；清理站点数据会清除记录。详见[数据保存在哪里](#数据保存在哪里)。
+
+[查看安装方法](#安装) · [反馈问题或建议](https://github.com/Rayle8/dsh-workspace-todos/issues)
 
 ## 功能
 
@@ -82,7 +86,7 @@ SessionNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺插件：把
 - 发送快捷键提示放在添加按钮左侧的空白处；切换设置后提示同步更新，输入框占位提示保持简洁。
 - 新增和编辑中的草稿按会话自动保存；临时关闭面板后重新打开会恢复，光标停在草稿末尾，添加、保存、取消或删除后自动清除。
 - 展开「已完成」不会压缩上方「未完成」列表；只有未完成与已完成区域内部滚动，标题、设置、录入框和底部保持固定。
-- 「未完成」「已完成」标题在列表内吸顶：未吸顶时保持透明；吸顶时使用与面板共用的 `--dsh-wt-panelSurface` 实色填充，标题字号、字重和间距保持原样，不做圆角、不加底层、不使用半透明或顶部模糊。
+- 「未完成」「已完成」标题在列表内吸顶：未吸顶时保持透明；吸顶时使用与面板共用的 `--dsh-an-panelSurface` 实色填充，标题字号、字重和间距保持原样，不做圆角、不加底层、不使用半透明或顶部模糊。
 - 已完成的便笺同时显示创建时间与完成时间，并按完成时间倒序排列；未完成的只显示创建时间。
 - 「未完成」「已完成」的展开/折叠状态会记住，重新打开面板时恢复上次状态。
 - 便笺卡片的复制/编辑/删除按钮默认隐藏，悬浮或键盘聚焦时显示；触屏设备保持常显。
@@ -130,17 +134,17 @@ SessionNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺插件：把
 
 ## 设计规范
 
-面板与入口按钮的样式由 `client.js` 顶部的令牌块统一驱动，改一处即可全站生效：
+面板与入口按钮的样式由 `src/client/styles/panel.css` 的令牌块统一驱动，改一处即可全站生效：
 
 | 维度 | 令牌 | 取值 |
 | --- | --- | --- |
 | 颜色 | `--dsw-alias-*` | 直接复用 DSH 语义别名（墨色 / 悬停 / 描边 / 状态 / 设置卡），插件不再自建灰阶 |
-| 字号 | `--wt-fs-caption/row/title` | 12 / 13 / 14，行高统一 20 |
+| 字号 | `--an-fs-caption/row/title` | 12 / 13 / 14，行高统一 20 |
 | 字重 | 400 / 500 | 上限 500，强调靠字号与墨色 |
-| 间距 | `--wt-space-1 … -6` | 4 / 8 / 12 / 16 / 24 / 32 |
+| 间距 | `--an-space-1 … -6` | 4 / 8 / 12 / 16 / 24 / 32 |
 | 圆角 | `--dsw-radius-sm/md/lg/panel` + 999 | 8（紧凑控件）/ 16（分组与字段）/ 28（浮动面板）/ 胶囊配 `corner-shape:round` |
 | 阴影 | `--dsw-elevation-panel` | 浮层 `border:0`，0.5px 发丝描边画在阴影第一层 |
-| 材质 | `--dsh-wt-panelSurface`（`--dsw-alias-bg-layer-2`） | 实心面板表面，与吸顶块共用同一颜色 |
+| 材质 | `--dsh-an-panelSurface`（`--dsw-alias-bg-layer-2`） | 实心面板表面，与吸顶块共用同一颜色 |
 | 动效 | `--ds-transition-duration*`、`--ds-ease-in-out` | 100 / 200ms，只动 opacity 与 transform |
 | 滚动条 | 主题共享 skin | 面板内只重绑 `--dsh-scrollbar-*` 到 l2，并为列表设置 9px 轨道 / 2px 内缩 |
 
@@ -156,7 +160,7 @@ SessionNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺插件：把
 
 ## 数据保存在哪里
 
-便笺保存在**当前浏览器**的 `localStorage` 中，键为 `dsh.session-memos.v1`，结构为：
+便笺保存在**当前浏览器**的 `localStorage` 中，键为 `dsh.aside-notes.v2`，结构为：
 
 ```json
 {
@@ -176,7 +180,7 @@ SessionNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺插件：把
 - 刷新页面、重启 DSH、切换会话都不会丢。
 - 不会写入项目文件，也不会同步到其他机器或其他浏览器。
 - 清理浏览器站点数据会清除便笺。
-- 旧版本的 `dsh.workspace-todos.v1`（按工作区）不会再读取；升级后需要重新记录。
+- 1.x 的便笺、草稿、转发标记与面板设置会在首次加载时复制到 `dsh.aside-notes.*.v2`；旧键保留，回退到 1.9.x 仍可读。
 
 ## 安装
 
@@ -189,40 +193,44 @@ git clone git@github.com:Rayle8/dsh-workspace-todos.git
 ```json
 {
   "dependencies": {
-    "dsh-workspace-todos": "link:<path-to-repo>"
+    "dsh-asidenote": "link:<path-to-repo>"
   },
   "dsh": {
     "profile": {
-      "bundles": ["dsh-workspace-todos"]
+      "bundles": ["dsh-asidenote"]
     }
   }
 }
 ```
 
-然后在 profile 目录执行 `pnpm install`。DSH 启动时会读取 `dsh.bundle.patch` 和 `dsh.client`。新增插件行后，可以在侧边栏「插件」页对该组合包**关闭再开启**，让运行中的 Host 在线重新组合，无需重启；如果插件页里还看不到它，再重启一次 DSH。之后单独修改 `client.js` 时，开发模式的 HMR 会直接替换 bundle。
+然后在 profile 目录执行 `pnpm install`。DSH 启动时会读取 `dsh.bundle.patch` 和 `dsh.client`。新增插件行后，可以在侧边栏「插件」页对该组合包**关闭再开启**，让运行中的 Host 在线重新组合，无需重启；如果插件页里还看不到它，再重启一次 DSH。之后修改 `src/client/` 后执行 `npm run build` 生成 `client/client.js`；开发模式下 DSH 会热替换该 bundle，否则刷新页面。构建需要 Node 22+。
 
 ## 开发
 
-`client.js` 是浏览器半侧，采用 DSH 的 Module Loader 格式：
+浏览器半侧在 `src/client/`，由 tsdown 打包成单个 `client/client.js`：
 
-```js
-window.__ModuleLoader__.load({
-  id: 'dsh-workspace-todos',
-  factory(require) {
-    const React = require('react')
-    return { inject: ['slots'], apply }
-  },
-})
+```bash
+npm install
+npm run check     # lint + typecheck + 测试 + 构建
+npm run build     # 只重新生成 client/client.js
 ```
 
-`index.js` 是空的 Host 半侧；`cordis.patch.yml` 负责把包插入 profile 的组合。界面只依赖 `slots` 服务：
+入口是 `src/client/index.ts`，导出 `apply(ctx)`；tsdown 负责套上 DSH 的加载壳：
+
+```js
+window.__ModuleLoader__.load({ id: 'dsh-asidenote', factory: (require) => { … } })
+```
+
+产物单独提交：CI 会重建并对比 `client/`，不一致就失败，因此不要手改 `client/client.js`。
+
+`index.js` 是空的 Host 半侧；`cordis.patch.yml` 负责把包插入 profile 的组合。界面依赖 `slots` 与 `locale` 两个服务：
 
 - `conversation.composer.dock`：只用来捕获当前会话 ID，不渲染可见入口。
 - 顶部右侧入口由 MutationObserver 注入宿主 header，因为宿主重渲染会回收 React portal。
 
 面板用 `react-dom/client` 的独立 root 挂到 `document.body`，用 fixed 定位跟随入口；所有样式使用 DSH 的 `--dsw-alias-*` 主题变量，自动适配明暗主题。
 
-修改 `client.js` 后，在开发模式下 DSH 的 client HMR 会自动替换 bundle；否则刷新页面或重启 DSH。
+修改源码后先 `npm run build`；开发模式下 DSH 会热替换新 bundle，否则刷新页面或重启 DSH。
 
 ## 验证
 
@@ -232,6 +240,7 @@ window.__ModuleLoader__.load({
 - 点击按钮在右侧打开面板，面板右上角对齐入口；
 - 添加后按钮角标与面板计数同步；
 - 面板内可完成、编辑、复制、转发、删除、清除已完成；
-- 刷新页面后记录仍在，并按会话隔离。
+- 刷新页面后记录仍在，并按会话隔离；
+- 重启后 1.x 的旧便笺自动出现在新键下。
 
-`node --check client.js` 与合同测试也通过。
+`npm run check` 通过：lint、类型检查、构建与 43 个测试（含 jsdom 里驱动完整面板流程的集成测试）。
