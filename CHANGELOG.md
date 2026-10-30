@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.2
+
+- Soften the bottom fade's crisp-to-blurred boundary with a 48px low-blur halo and long multi-stop gradient/mask ramps, so no horizontal line is visible.
+
 ## 1.9.1
 
 - Remove the tiny down-right settle when the panel opens; it now fades in without moving.
