@@ -422,7 +422,7 @@ test('chinese hints drop the trailing full stop', () => {
 })
 
 test('transient outcomes go to the frame-wide toast seat', () => {
-  const client = read('src/client/index.ts')
+  const client = read('src/client/index.ts') + read('src/client/ui/primitives.ts')
   assert.match(client, /@deepseek-ai\/dsh-client-ui-primitives/)
   assert.match(client, /ctx\.slots\.inject\('shell\.overlay'/)
   assert.match(client, /name: 'shell\.overlay'/)
@@ -441,7 +441,7 @@ test('a failed write keeps the row and says so', () => {
 })
 
 test('icon-only controls use the shared tooltip', () => {
-  const client = read('src/client/index.ts')
+  const client = read('src/client/index.ts') + read('src/client/ui/primitives.ts') + read('src/client/ui/TodoRow.ts')
   assert.match(client, /function withTooltip\(/)
   assert.match(client, /h\(Tooltip, \{ label, side: 'top'/)
   const iconButtons = [...client.matchAll(/className: 'dsh-an-iconBtn[^']*',\n\s+'aria-label': say\(([^)]+)\)/g)]
@@ -451,7 +451,7 @@ test('icon-only controls use the shared tooltip', () => {
 })
 
 test('completed notes hide the forward action and keep the other three', () => {
-  const client = read('src/client/index.ts')
+  const client = read('src/client/index.ts') + read('src/client/ui/TodoRow.ts')
   const start = client.indexOf("className: 'dsh-an-actions'")
   assert.ok(start > 0, 'row actions missing')
   const actions = client.slice(start, client.indexOf('function EmptyState', start))
@@ -611,7 +611,7 @@ test('send shortcuts default to Enter and name the platform modifier', () => {
 })
 
 test('forwarding marks the forward button, never the checkbox', () => {
-  const client = read('src/client/index.ts')
+  const client = read('src/client/index.ts') + read('src/client/ui/TodoRow.ts')
   // The checkbox renders only the note's own open/done state.
   assert.match(client, /'aria-checked': checked \? 'true' : 'false'/)
   assert.doesNotMatch(client, /aria-checked': checked \? 'true' : half/)
@@ -625,7 +625,7 @@ test('forwarding marks the forward button, never the checkbox', () => {
 })
 
 test('the forwarded mark borrows the forward icon palette, not a state colour', () => {
-  const client = read('src/client/index.ts')
+  const client = read('src/client/index.ts') + read('src/client/ui/TodoRow.ts') + read('src/client/styles/panel.css')
   const rule = readCss().match(/\.dsh-an-forwardMark\{([^}]*)\}/)
   assert.ok(rule, 'forward mark rule missing')
   const body = rule[1]
@@ -643,7 +643,7 @@ test('the forwarded mark borrows the forward icon palette, not a state colour', 
 })
 
 test('clicking a forwarded note removes the mark instead of forwarding again', () => {
-  const client = read('src/client/index.ts')
+  const client = read('src/client/index.ts') + read('src/client/ui/TodoRow.ts')
   const start = client.indexOf('const forward = () => {')
   assert.ok(start > 0, 'forward handler missing')
   const end = client.indexOf('\n      }', start)
@@ -749,7 +749,7 @@ test('the prefix prompt is a multiline field that grows with its content', () =>
 
 
 test('sticky heads are filled only while pinned, not at rest', () => {
-  const client = read('src/client/index.ts')
+  const client = read('src/client/index.ts') + read('src/client/ui/position.ts')
   assert.match(client, /function syncStickyHeads\(node\)/)
   assert.match(client, /const section = head\.parentElement/)
   assert.match(client, /const rect = section\.getBoundingClientRect\(\)/)

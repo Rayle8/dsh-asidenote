@@ -266,39 +266,74 @@ function makeSay(ctx, getLocaleId) {
 	};
 }
 
-// src/client/domain/id.ts
-/** Stable ids for notes and drafts. */
-function uid() {
-	try {
-		if (globalThis.crypto && typeof globalThis.crypto.randomUUID === "function") return globalThis.crypto.randomUUID();
-	} catch {}
-	return `todo-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
+// src/client/ui/primitives.ts
+/**
+* Shared glyphs and the tooltip wrapper.
+*
+* Glyphs come from the product icon set; this plugin draws none of its own, so
+* stroke weight, optical size and currentColor stay consistent with the shell.
+* Tooltip and Toast are the seeded primitives — the bundle keeps them external.
+*/
+const h$3 = react.default.createElement;
+const PRIMITIVES = _deepseek_ai_dsh_client_ui_primitives;
+const Tooltip = typeof PRIMITIVES.Tooltip === "function" ? PRIMITIVES.Tooltip : null;
+const Toast = typeof PRIMITIVES.Toast === "function" ? PRIMITIVES.Toast : null;
+const icon = (name) => typeof PRIMITIVES[name] === "function" ? PRIMITIVES[name] : null;
+/**
+* Glyphs come from the shared product icon set; this plugin draws none of
+* its own, so stroke weight, optical size and currentColor stay consistent
+* with the surrounding shell.
+*/
+function Glyph(props) {
+	const Component = icon(props.name);
+	if (!Component) return null;
+	return h$3(Component, { size: props.size });
 }
-
-// src/client/domain/clipboard.ts
-/** Clipboard write with a synchronous fallback. */
-/** Copy plain text, with a synchronous fallback for restricted clipboards. */
-async function copyText(text) {
-	try {
-		if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
-			await navigator.clipboard.writeText(text);
-			return true;
-		}
-	} catch {}
-	try {
-		const area = document.createElement("textarea");
-		area.value = text;
-		area.setAttribute("readonly", "");
-		area.style.position = "fixed";
-		area.style.opacity = "0";
-		document.body.appendChild(area);
-		area.select();
-		const ok = document.execCommand("copy");
-		area.remove();
-		return ok;
-	} catch {
-		return false;
-	}
+const IconCheck = (props) => h$3(Glyph, {
+	name: "IconCheckOutlineMedium",
+	size: props && props.size ? props.size : 12
+});
+const IconCopy = () => h$3(Glyph, {
+	name: "IconCopyOutlineRegular",
+	size: 14
+});
+const IconForward = () => h$3(Glyph, {
+	name: "IconShareOutlineRegular",
+	size: 14
+});
+const IconGear = () => h$3(Glyph, {
+	name: "IconSettingsOutlineRegular",
+	size: 14
+});
+const IconPencil = () => h$3(Glyph, {
+	name: "IconEditOutlineRegular",
+	size: 14
+});
+const IconTrash = () => h$3(Glyph, {
+	name: "IconTrashOutlineRegular",
+	size: 14
+});
+const IconChevron = () => h$3(Glyph, {
+	name: "IconChevronRightOutlineRegular",
+	size: 12
+});
+const IconEmpty = () => h$3(Glyph, {
+	name: "IconChecklistOutlineRegular",
+	size: 18
+});
+const IconClose = () => h$3(Glyph, {
+	name: "IconCloseOutlineRegular",
+	size: 14
+});
+/** Wrap one icon-only control in the shared tooltip; a bare button when absent. */
+function withTooltip(label, node) {
+	if (!Tooltip) return node;
+	return h$3(Tooltip, {
+		label,
+		side: "top",
+		portal: true,
+		gap: 6
+	}, node);
 }
 
 // src/client/domain/forward.ts
@@ -359,6 +394,41 @@ function appendToConversation(text, prefix = "") {
 	} catch {
 		return false;
 	}
+}
+
+// src/client/domain/clipboard.ts
+/** Clipboard write with a synchronous fallback. */
+/** Copy plain text, with a synchronous fallback for restricted clipboards. */
+async function copyText(text) {
+	try {
+		if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+			await navigator.clipboard.writeText(text);
+			return true;
+		}
+	} catch {}
+	try {
+		const area = document.createElement("textarea");
+		area.value = text;
+		area.setAttribute("readonly", "");
+		area.style.position = "fixed";
+		area.style.opacity = "0";
+		document.body.appendChild(area);
+		area.select();
+		const ok = document.execCommand("copy");
+		area.remove();
+		return ok;
+	} catch {
+		return false;
+	}
+}
+
+// src/client/domain/id.ts
+/** Stable ids for notes and drafts. */
+function uid() {
+	try {
+		if (globalThis.crypto && typeof globalThis.crypto.randomUUID === "function") return globalThis.crypto.randomUUID();
+	} catch {}
+	return `todo-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
 // src/client/domain/items.ts
@@ -446,6 +516,261 @@ function metaLabel(item, say, localeId) {
 		created,
 		completed: ageLabel(completedStamp(item) || (item ? item.createdAt : 0), say, localeId)
 	});
+}
+
+// src/client/ui/TodoRow.ts
+/** One note: checkbox, actions, inline edit and the forwarded mark. */
+const h$2 = react.default.createElement;
+function TodoRow(props) {
+	const { item, done, say, onToast, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onEditDraftChange, onFinishEdit, onCancelEdit, editRef, forwardPrefix, sendShortcut = SEND_SHORTCUT_DEFAULT, forwarded = false, onForwarded, onUnforwarded } = props;
+	const editHintKey = sendShortcut === "enter" ? "edit.hintEnter" : "edit.hintCtrlEnter";
+	const [pending, setPending] = react.default.useState("");
+	const mountedRef = react.default.useRef(true);
+	react.default.useEffect(() => {
+		mountedRef.current = true;
+		return () => {
+			mountedRef.current = false;
+		};
+	}, []);
+	const copy = async () => {
+		if (pending) return;
+		setPending("copy");
+		let ok = false;
+		try {
+			ok = await copyText(item.text);
+		} finally {
+			if (mountedRef.current) setPending("");
+		}
+		if (!mountedRef.current) return;
+		if (onToast) onToast(ok ? "copied" : "copyFailed");
+	};
+	const forward = () => {
+		if (forwarded) {
+			if (onUnforwarded) onUnforwarded(item);
+			if (onToast) onToast("unforwarded");
+			return;
+		}
+		if (!appendToConversation(item.text, forwardPrefix)) {
+			if (onToast) onToast("forwardFailed");
+			return;
+		}
+		if (onForwarded) onForwarded(item);
+		if (onToast) onToast("forwarded");
+	};
+	const toggleCheck = () => onToggle(item);
+	const resizeEditor = (node) => {
+		if (!node) return;
+		node.style.height = "auto";
+		node.style.height = `${node.scrollHeight + 2}px`;
+	};
+	const setEditorRef = react.default.useCallback((node) => {
+		editRef.current = node;
+		if (node) {
+			node.style.height = "auto";
+			node.style.height = `${node.scrollHeight + 2}px`;
+		}
+	}, [editRef]);
+	/** Insert a line break at the caret of the controlled edit textarea and keep focus there. */
+	const insertEditNewline = (node) => {
+		if (!node) return;
+		const start = node.selectionStart === null ? node.value.length : node.selectionStart;
+		const end = node.selectionEnd === null ? start : node.selectionEnd;
+		const next = `${node.value.slice(0, start)}\n${node.value.slice(end)}`;
+		const caret = start + 1;
+		setEditDraft(next);
+		if (onEditDraftChange) onEditDraftChange(next);
+		window.requestAnimationFrame(() => {
+			node.focus();
+			try {
+				node.setSelectionRange(caret, caret);
+			} catch {}
+			resizeEditor(node);
+		});
+	};
+	const body = editing ? h$2("div", { className: "dsh-an-edit" }, h$2("textarea", {
+		ref: setEditorRef,
+		className: "dsh-an-editInput",
+		value: editDraft,
+		rows: 1,
+		maxLength: 280,
+		"aria-label": say("item.edit"),
+		onChange: (event) => {
+			const value = event.target.value;
+			setEditDraft(value);
+			if (onEditDraftChange) onEditDraftChange(value);
+			resizeEditor(event.target);
+		},
+		onKeyDown: (event) => {
+			if (event.isComposing || event.nativeEvent && event.nativeEvent.isComposing) return;
+			if (event.key === "Escape") {
+				event.preventDefault();
+				onCancelEdit();
+				return;
+			}
+			if (event.key !== "Enter") return;
+			const chord = event.ctrlKey || event.metaKey;
+			const platformModifier = isSendModifier(event);
+			if (sendShortcut === "enter") {
+				if (!chord && !event.shiftKey) {
+					event.preventDefault();
+					onFinishEdit(item);
+				} else {
+					event.preventDefault();
+					insertEditNewline(event.currentTarget);
+				}
+				return;
+			}
+			if (platformModifier) {
+				event.preventDefault();
+				if (event.shiftKey) insertEditNewline(event.currentTarget);
+				else onFinishEdit(item);
+			} else if (event.shiftKey) {
+				event.preventDefault();
+				insertEditNewline(event.currentTarget);
+			}
+		},
+		onBlur: () => onFinishEdit(item)
+	}), h$2("div", { className: "dsh-an-editActions" }, h$2("button", {
+		type: "button",
+		className: "dsh-an-mini dsh-an-miniPrimary",
+		onMouseDown: (event) => event.preventDefault(),
+		onClick: () => onFinishEdit(item)
+	}, say("edit.save")), h$2("button", {
+		type: "button",
+		className: "dsh-an-mini",
+		onMouseDown: (event) => event.preventDefault(),
+		onClick: onCancelEdit
+	}, say("edit.cancel")), h$2("span", {
+		className: "dsh-an-editHint",
+		title: say(editHintKey, { mod: MOD_LABEL })
+	}, say(editHintKey, { mod: MOD_LABEL })))) : h$2("div", {
+		className: "dsh-an-text",
+		title: say("item.editHint"),
+		onDoubleClick: () => onStartEdit(item)
+	}, item.text);
+	const checked = done === true;
+	return h$2("li", { className: done ? "dsh-an-row dsh-an-rowDone" : "dsh-an-row" }, h$2("button", {
+		type: "button",
+		className: "dsh-an-check",
+		role: "checkbox",
+		"aria-checked": checked ? "true" : "false",
+		"aria-label": say(done ? "item.markOpen" : "item.markDone"),
+		onClick: toggleCheck
+	}, h$2("span", { className: "dsh-an-checkCircle" }, checked ? h$2(IconCheck, { size: 9 }) : null)), h$2("div", { className: "dsh-an-itemBody" }, body, editing ? null : h$2("div", { className: "dsh-an-rowFoot" }, h$2("span", {
+		className: "dsh-an-meta",
+		title: metaLabel(item, say, props.localeId)
+	}, metaLabel(item, say, props.localeId)), h$2("div", { className: "dsh-an-actions" }, withTooltip(say("item.copy"), h$2("button", {
+		type: "button",
+		className: "dsh-an-iconBtn",
+		"aria-label": say("item.copy"),
+		"aria-busy": pending === "copy" ? "true" : "false",
+		"data-loading": pending === "copy" ? "true" : void 0,
+		onClick: copy
+	}, h$2(IconCopy, null))), done ? null : withTooltip(say(forwarded ? "item.forwarded" : "item.forward"), h$2("button", {
+		type: "button",
+		className: "dsh-an-iconBtn",
+		"aria-label": say(forwarded ? "item.forwarded" : "item.forward"),
+		"data-forwarded": forwarded ? "true" : void 0,
+		onClick: forward
+	}, h$2(IconForward, null), forwarded ? h$2("span", {
+		className: "dsh-an-forwardMark",
+		"aria-hidden": true
+	}, h$2(IconCheck, { size: 8 })) : null)), withTooltip(say("item.edit"), h$2("button", {
+		type: "button",
+		className: "dsh-an-iconBtn",
+		"aria-label": say("item.edit"),
+		onClick: () => onStartEdit(item)
+	}, h$2(IconPencil, null))), withTooltip(say("item.delete"), h$2("button", {
+		type: "button",
+		className: "dsh-an-iconBtn dsh-an-iconBtnDanger",
+		"aria-label": say("item.delete"),
+		onClick: () => onDelete(item)
+	}, h$2(IconTrash, null)))))));
+}
+
+// src/client/ui/EmptyState.ts
+const h$1 = react.default.createElement;
+function EmptyState(props) {
+	return h$1("div", { className: "dsh-an-empty" }, h$1("div", { className: "dsh-an-emptyIcon" }, h$1(IconEmpty, null)), h$1("div", { className: "dsh-an-emptyTitle" }, props.title), h$1("div", { className: "dsh-an-emptyBody" }, props.body));
+}
+
+// src/client/ui/position.ts
+/**
+* Mark the section head that is actually pinned to the scroller's top edge.
+* Sticky heads stay transparent in flow; only the pinned one takes the menu
+* group-header fill, so no full-width layer sits over the list at rest.
+*/
+function syncStickyHeads(node) {
+	const areaTop = node.getBoundingClientRect().top;
+	for (const head of node.querySelectorAll(".dsh-an-sectionHead, .dsh-an-doneHead")) {
+		const section = head.parentElement;
+		if (!section) continue;
+		const rect = section.getBoundingClientRect();
+		head.toggleAttribute("data-stuck", rect.top < areaTop && rect.bottom > areaTop);
+	}
+}
+/**
+* Frame-owned top safety margin for floating surfaces. Read from the layout
+* rather than baked in, so macOS window chrome and the Windows titlebar both
+* keep their clearance without this page touching the global variable.
+*/
+function overlayTopFloor(margin) {
+	try {
+		const raw = getComputedStyle(document.body).getPropertyValue("--dsh-frame-overlay-top").trim();
+		const value = Number.parseFloat(raw);
+		if (Number.isFinite(value) && value > 0) return Math.max(margin, value);
+	} catch {}
+	return margin;
+}
+/**
+* Fixed panel placement: a right-side panel for the experimental entry,
+* otherwise below the anchor. Both stay inside the viewport margin, and the
+* gap side is only abandoned when the opposite side genuinely fits.
+*/
+function memoPopoverStyle(anchor, placement, requestedWidth, requestedHeight) {
+	const margin = window.innerWidth <= 480 ? 12 : 16;
+	const topFloor = overlayTopFloor(margin);
+	const available = Math.max(280, window.innerWidth - margin * 2);
+	const width = Math.max(280, Math.min(720, available, requestedWidth || 360));
+	if (placement === "right") {
+		const rect = anchor && anchor.isConnected ? anchor.getBoundingClientRect() : null;
+		let desiredRight = rect && rect.width > 0 ? rect.right : window.innerWidth - margin;
+		const sidebar = [...document.querySelectorAll("[data-sidebar-right-panel][data-sidebar-right-open]")].find((node) => {
+			const box = node.getBoundingClientRect();
+			return box.width > 24 && box.left > 0 && box.left < window.innerWidth - 24;
+		});
+		if (sidebar) desiredRight = Math.min(desiredRight, sidebar.getBoundingClientRect().left - 8);
+		const rightInset = Math.max(margin, Math.min(window.innerWidth - margin, window.innerWidth - desiredRight));
+		const top = rect && rect.width > 0 ? Math.max(topFloor, Math.round(rect.bottom + 8)) : topFloor;
+		const maxHeight = Math.max(160, window.innerHeight - top - margin);
+		const height = requestedHeight ? Math.max(Math.min(240, maxHeight), Math.min(maxHeight, requestedHeight)) : 0;
+		const style = {
+			right: `${rightInset}px`,
+			left: "auto",
+			top: `${top}px`,
+			width: `${width}px`,
+			maxHeight: `${maxHeight}px`
+		};
+		if (height) style.height = `${height}px`;
+		return style;
+	}
+	const maxHeight = Math.max(160, Math.min(460, window.innerHeight - topFloor - margin));
+	if (!anchor) return {
+		left: `${margin}px`,
+		top: `${topFloor}px`,
+		width: `${width}px`,
+		maxHeight: `${maxHeight}px`
+	};
+	const rect = anchor.getBoundingClientRect();
+	const left = rect.left < 420 ? Math.max(margin, rect.left) : Math.max(margin, Math.min(rect.right - width, window.innerWidth - width - margin));
+	let top = rect.bottom + 8;
+	if (top + maxHeight > window.innerHeight - margin) top = Math.max(topFloor, rect.top - maxHeight - 8);
+	return {
+		left: `${left}px`,
+		top: `${top}px`,
+		width: `${width}px`,
+		maxHeight: `${maxHeight}px`
+	};
 }
 
 // src/client/storage/codec.ts
@@ -919,312 +1244,6 @@ function useSessionMemoStore(sessionId) {
 * in their own modules; P2 splits the remaining UI out of this file.
 */
 const h = react.default.createElement;
-const PRIMITIVES = _deepseek_ai_dsh_client_ui_primitives;
-const Tooltip = typeof PRIMITIVES.Tooltip === "function" ? PRIMITIVES.Tooltip : null;
-const Toast = typeof PRIMITIVES.Toast === "function" ? PRIMITIVES.Toast : null;
-const icon = (name) => typeof PRIMITIVES[name] === "function" ? PRIMITIVES[name] : null;
-/**
-* Mark the section head that is actually pinned to the scroller's top edge.
-* Sticky heads stay transparent in flow; only the pinned one takes the menu
-* group-header fill, so no full-width layer sits over the list at rest.
-*/
-function syncStickyHeads(node) {
-	const areaTop = node.getBoundingClientRect().top;
-	for (const head of node.querySelectorAll(".dsh-an-sectionHead, .dsh-an-doneHead")) {
-		const section = head.parentElement;
-		if (!section) continue;
-		const rect = section.getBoundingClientRect();
-		head.toggleAttribute("data-stuck", rect.top < areaTop && rect.bottom > areaTop);
-	}
-}
-/**
-* Glyphs come from the shared product icon set; this plugin draws none of
-* its own, so stroke weight, optical size and currentColor stay consistent
-* with the surrounding shell.
-*/
-function Glyph(props) {
-	const Component = icon(props.name);
-	if (!Component) return null;
-	return h(Component, { size: props.size });
-}
-const IconCheck = (props) => h(Glyph, {
-	name: "IconCheckOutlineMedium",
-	size: props && props.size ? props.size : 12
-});
-const IconCopy = () => h(Glyph, {
-	name: "IconCopyOutlineRegular",
-	size: 14
-});
-const IconForward = () => h(Glyph, {
-	name: "IconShareOutlineRegular",
-	size: 14
-});
-const IconGear = () => h(Glyph, {
-	name: "IconSettingsOutlineRegular",
-	size: 14
-});
-const IconPencil = () => h(Glyph, {
-	name: "IconEditOutlineRegular",
-	size: 14
-});
-const IconTrash = () => h(Glyph, {
-	name: "IconTrashOutlineRegular",
-	size: 14
-});
-const IconChevron = () => h(Glyph, {
-	name: "IconChevronRightOutlineRegular",
-	size: 12
-});
-const IconEmpty = () => h(Glyph, {
-	name: "IconChecklistOutlineRegular",
-	size: 18
-});
-const IconClose = () => h(Glyph, {
-	name: "IconCloseOutlineRegular",
-	size: 14
-});
-/** Wrap one icon-only control in the shared tooltip; a bare button when absent. */
-function withTooltip(label, node) {
-	if (!Tooltip) return node;
-	return h(Tooltip, {
-		label,
-		side: "top",
-		portal: true,
-		gap: 6
-	}, node);
-}
-function TodoRow(props) {
-	const { item, done, say, onToast, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onEditDraftChange, onFinishEdit, onCancelEdit, editRef, forwardPrefix, sendShortcut = SEND_SHORTCUT_DEFAULT, forwarded = false, onForwarded, onUnforwarded } = props;
-	const editHintKey = sendShortcut === "enter" ? "edit.hintEnter" : "edit.hintCtrlEnter";
-	const [pending, setPending] = react.default.useState("");
-	const mountedRef = react.default.useRef(true);
-	react.default.useEffect(() => {
-		mountedRef.current = true;
-		return () => {
-			mountedRef.current = false;
-		};
-	}, []);
-	const copy = async () => {
-		if (pending) return;
-		setPending("copy");
-		let ok = false;
-		try {
-			ok = await copyText(item.text);
-		} finally {
-			if (mountedRef.current) setPending("");
-		}
-		if (!mountedRef.current) return;
-		if (onToast) onToast(ok ? "copied" : "copyFailed");
-	};
-	const forward = () => {
-		if (forwarded) {
-			if (onUnforwarded) onUnforwarded(item);
-			if (onToast) onToast("unforwarded");
-			return;
-		}
-		if (!appendToConversation(item.text, forwardPrefix)) {
-			if (onToast) onToast("forwardFailed");
-			return;
-		}
-		if (onForwarded) onForwarded(item);
-		if (onToast) onToast("forwarded");
-	};
-	const toggleCheck = () => onToggle(item);
-	const resizeEditor = (node) => {
-		if (!node) return;
-		node.style.height = "auto";
-		node.style.height = `${node.scrollHeight + 2}px`;
-	};
-	const setEditorRef = react.default.useCallback((node) => {
-		editRef.current = node;
-		if (node) {
-			node.style.height = "auto";
-			node.style.height = `${node.scrollHeight + 2}px`;
-		}
-	}, [editRef]);
-	/** Insert a line break at the caret of the controlled edit textarea and keep focus there. */
-	const insertEditNewline = (node) => {
-		if (!node) return;
-		const start = node.selectionStart === null ? node.value.length : node.selectionStart;
-		const end = node.selectionEnd === null ? start : node.selectionEnd;
-		const next = `${node.value.slice(0, start)}\n${node.value.slice(end)}`;
-		const caret = start + 1;
-		setEditDraft(next);
-		if (onEditDraftChange) onEditDraftChange(next);
-		window.requestAnimationFrame(() => {
-			node.focus();
-			try {
-				node.setSelectionRange(caret, caret);
-			} catch {}
-			resizeEditor(node);
-		});
-	};
-	const body = editing ? h("div", { className: "dsh-an-edit" }, h("textarea", {
-		ref: setEditorRef,
-		className: "dsh-an-editInput",
-		value: editDraft,
-		rows: 1,
-		maxLength: 280,
-		"aria-label": say("item.edit"),
-		onChange: (event) => {
-			const value = event.target.value;
-			setEditDraft(value);
-			if (onEditDraftChange) onEditDraftChange(value);
-			resizeEditor(event.target);
-		},
-		onKeyDown: (event) => {
-			if (event.isComposing || event.nativeEvent && event.nativeEvent.isComposing) return;
-			if (event.key === "Escape") {
-				event.preventDefault();
-				onCancelEdit();
-				return;
-			}
-			if (event.key !== "Enter") return;
-			const chord = event.ctrlKey || event.metaKey;
-			const platformModifier = isSendModifier(event);
-			if (sendShortcut === "enter") {
-				if (!chord && !event.shiftKey) {
-					event.preventDefault();
-					onFinishEdit(item);
-				} else {
-					event.preventDefault();
-					insertEditNewline(event.currentTarget);
-				}
-				return;
-			}
-			if (platformModifier) {
-				event.preventDefault();
-				if (event.shiftKey) insertEditNewline(event.currentTarget);
-				else onFinishEdit(item);
-			} else if (event.shiftKey) {
-				event.preventDefault();
-				insertEditNewline(event.currentTarget);
-			}
-		},
-		onBlur: () => onFinishEdit(item)
-	}), h("div", { className: "dsh-an-editActions" }, h("button", {
-		type: "button",
-		className: "dsh-an-mini dsh-an-miniPrimary",
-		onMouseDown: (event) => event.preventDefault(),
-		onClick: () => onFinishEdit(item)
-	}, say("edit.save")), h("button", {
-		type: "button",
-		className: "dsh-an-mini",
-		onMouseDown: (event) => event.preventDefault(),
-		onClick: onCancelEdit
-	}, say("edit.cancel")), h("span", {
-		className: "dsh-an-editHint",
-		title: say(editHintKey, { mod: MOD_LABEL })
-	}, say(editHintKey, { mod: MOD_LABEL })))) : h("div", {
-		className: "dsh-an-text",
-		title: say("item.editHint"),
-		onDoubleClick: () => onStartEdit(item)
-	}, item.text);
-	const checked = done === true;
-	return h("li", { className: done ? "dsh-an-row dsh-an-rowDone" : "dsh-an-row" }, h("button", {
-		type: "button",
-		className: "dsh-an-check",
-		role: "checkbox",
-		"aria-checked": checked ? "true" : "false",
-		"aria-label": say(done ? "item.markOpen" : "item.markDone"),
-		onClick: toggleCheck
-	}, h("span", { className: "dsh-an-checkCircle" }, checked ? h(IconCheck, { size: 9 }) : null)), h("div", { className: "dsh-an-itemBody" }, body, editing ? null : h("div", { className: "dsh-an-rowFoot" }, h("span", {
-		className: "dsh-an-meta",
-		title: metaLabel(item, say, props.localeId)
-	}, metaLabel(item, say, props.localeId)), h("div", { className: "dsh-an-actions" }, withTooltip(say("item.copy"), h("button", {
-		type: "button",
-		className: "dsh-an-iconBtn",
-		"aria-label": say("item.copy"),
-		"aria-busy": pending === "copy" ? "true" : "false",
-		"data-loading": pending === "copy" ? "true" : void 0,
-		onClick: copy
-	}, h(IconCopy, null))), done ? null : withTooltip(say(forwarded ? "item.forwarded" : "item.forward"), h("button", {
-		type: "button",
-		className: "dsh-an-iconBtn",
-		"aria-label": say(forwarded ? "item.forwarded" : "item.forward"),
-		"data-forwarded": forwarded ? "true" : void 0,
-		onClick: forward
-	}, h(IconForward, null), forwarded ? h("span", {
-		className: "dsh-an-forwardMark",
-		"aria-hidden": true
-	}, h(IconCheck, { size: 8 })) : null)), withTooltip(say("item.edit"), h("button", {
-		type: "button",
-		className: "dsh-an-iconBtn",
-		"aria-label": say("item.edit"),
-		onClick: () => onStartEdit(item)
-	}, h(IconPencil, null))), withTooltip(say("item.delete"), h("button", {
-		type: "button",
-		className: "dsh-an-iconBtn dsh-an-iconBtnDanger",
-		"aria-label": say("item.delete"),
-		onClick: () => onDelete(item)
-	}, h(IconTrash, null)))))));
-}
-function EmptyState(props) {
-	return h("div", { className: "dsh-an-empty" }, h("div", { className: "dsh-an-emptyIcon" }, h(IconEmpty, null)), h("div", { className: "dsh-an-emptyTitle" }, props.title), h("div", { className: "dsh-an-emptyBody" }, props.body));
-}
-/**
-* Frame-owned top safety margin for floating surfaces. Read from the layout
-* rather than baked in, so macOS window chrome and the Windows titlebar both
-* keep their clearance without this page touching the global variable.
-*/
-function overlayTopFloor(margin) {
-	try {
-		const raw = getComputedStyle(document.body).getPropertyValue("--dsh-frame-overlay-top").trim();
-		const value = Number.parseFloat(raw);
-		if (Number.isFinite(value) && value > 0) return Math.max(margin, value);
-	} catch {}
-	return margin;
-}
-/**
-* Fixed panel placement: a right-side panel for the experimental entry,
-* otherwise below the anchor. Both stay inside the viewport margin, and the
-* gap side is only abandoned when the opposite side genuinely fits.
-*/
-function memoPopoverStyle(anchor, placement, requestedWidth, requestedHeight) {
-	const margin = window.innerWidth <= 480 ? 12 : 16;
-	const topFloor = overlayTopFloor(margin);
-	const available = Math.max(280, window.innerWidth - margin * 2);
-	const width = Math.max(280, Math.min(720, available, requestedWidth || 360));
-	if (placement === "right") {
-		const rect = anchor && anchor.isConnected ? anchor.getBoundingClientRect() : null;
-		let desiredRight = rect && rect.width > 0 ? rect.right : window.innerWidth - margin;
-		const sidebar = [...document.querySelectorAll("[data-sidebar-right-panel][data-sidebar-right-open]")].find((node) => {
-			const box = node.getBoundingClientRect();
-			return box.width > 24 && box.left > 0 && box.left < window.innerWidth - 24;
-		});
-		if (sidebar) desiredRight = Math.min(desiredRight, sidebar.getBoundingClientRect().left - 8);
-		const rightInset = Math.max(margin, Math.min(window.innerWidth - margin, window.innerWidth - desiredRight));
-		const top = rect && rect.width > 0 ? Math.max(topFloor, Math.round(rect.bottom + 8)) : topFloor;
-		const maxHeight = Math.max(160, window.innerHeight - top - margin);
-		const height = requestedHeight ? Math.max(Math.min(240, maxHeight), Math.min(maxHeight, requestedHeight)) : 0;
-		const style = {
-			right: `${rightInset}px`,
-			left: "auto",
-			top: `${top}px`,
-			width: `${width}px`,
-			maxHeight: `${maxHeight}px`
-		};
-		if (height) style.height = `${height}px`;
-		return style;
-	}
-	const maxHeight = Math.max(160, Math.min(460, window.innerHeight - topFloor - margin));
-	if (!anchor) return {
-		left: `${margin}px`,
-		top: `${topFloor}px`,
-		width: `${width}px`,
-		maxHeight: `${maxHeight}px`
-	};
-	const rect = anchor.getBoundingClientRect();
-	const left = rect.left < 420 ? Math.max(margin, rect.left) : Math.max(margin, Math.min(rect.right - width, window.innerWidth - width - margin));
-	let top = rect.bottom + 8;
-	if (top + maxHeight > window.innerHeight - margin) top = Math.max(topFloor, rect.top - maxHeight - 8);
-	return {
-		left: `${left}px`,
-		top: `${top}px`,
-		width: `${width}px`,
-		maxHeight: `${maxHeight}px`
-	};
-}
 /** Compact floating memo list, anchored to the entry that opened it. */
 function MemoPopover(props) {
 	const say = props.say;

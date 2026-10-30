@@ -9,7 +9,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import ReactDOMClient from 'react-dom/client'
-import * as PRIMITIVES_NS from '@deepseek-ai/dsh-client-ui-primitives'
 
 import CSS from './styles/panel.css?inline'
 import {
@@ -20,7 +19,6 @@ import {
   PLUGIN_AUTHOR,
   PLUGIN_REPO_URL,
   PLUGIN_REPO_LABEL,
-  SEND_SHORTCUT_DEFAULT,
   MOD_LABEL,
   isSendModifier,
   CLEAR_CONFIRM_MS,
@@ -31,12 +29,15 @@ import {
   MAX_TEXT,
 } from './constants'
 import { DICT, fill, makeSay } from './i18n'
+import { Toast, icon, withTooltip, IconChevron, IconClose, IconGear } from './ui/primitives'
+import { TodoRow } from './ui/TodoRow'
+import { EmptyState } from './ui/EmptyState'
+import { memoPopoverStyle, syncStickyHeads } from './ui/position'
 import { uid } from './domain/id'
-import { copyText } from './domain/clipboard'
-import { appendToConversation } from './domain/forward'
-import { normalizeItems, compareDoneItems, metaLabel } from './domain/items'
+
 import { readSessionStore } from './storage/session'
 import { migrateLegacyStorage } from './storage/migrate'
+import { normalizeItems, compareDoneItems } from './domain/items'
 import {
   readPanelWidth,
   writePanelWidth,
@@ -59,10 +60,6 @@ const h = React.createElement
 // Shared controls come from the seeded platform module, so the panel uses the
 // product's Tooltip and Toast instead of a second copy. The bundle declares it
 // external: a host that cannot resolve it fails the build, never ships a duplicate.
-const PRIMITIVES = PRIMITIVES_NS as unknown as Record<string, any>
-const Tooltip = typeof PRIMITIVES.Tooltip === 'function' ? PRIMITIVES.Tooltip : null
-const Toast = typeof PRIMITIVES.Toast === 'function' ? PRIMITIVES.Toast : null
-const icon = name => (typeof PRIMITIVES[name] === 'function' ? PRIMITIVES[name] : null)
 
 
 
@@ -105,375 +102,11 @@ const icon = name => (typeof PRIMITIVES[name] === 'function' ? PRIMITIVES[name] 
 
 
 
-/**
- * Mark the section head that is actually pinned to the scroller's top edge.
- * Sticky heads stay transparent in flow; only the pinned one takes the menu
- * group-header fill, so no full-width layer sits over the list at rest.
- */
-function syncStickyHeads(node) {
-  const areaTop = node.getBoundingClientRect().top
-  for (const head of node.querySelectorAll('.dsh-an-sectionHead, .dsh-an-doneHead')) {
-    // The head is sticky only while its section straddles the scroller's
-    // top edge. Reading the section avoids the sticky element's own
-    // offsetTop, which moves with the pinned position in some engines.
-    const section = head.parentElement
-    if (!section) continue
-    const rect = section.getBoundingClientRect()
-    head.toggleAttribute('data-stuck', rect.top < areaTop && rect.bottom > areaTop)
-  }
-}
 
 
-/**
- * Glyphs come from the shared product icon set; this plugin draws none of
- * its own, so stroke weight, optical size and currentColor stay consistent
- * with the surrounding shell.
- */
-function Glyph(props) {
-  const Component = icon(props.name)
-  if (!Component) return null
-  return h(Component, { size: props.size })
-}
 
-const IconCheck = props => h(Glyph, { name: 'IconCheckOutlineMedium', size: props && props.size ? props.size : 12 })
-const IconCopy = () => h(Glyph, { name: 'IconCopyOutlineRegular', size: 14 })
-const IconForward = () => h(Glyph, { name: 'IconShareOutlineRegular', size: 14 })
-const IconGear = () => h(Glyph, { name: 'IconSettingsOutlineRegular', size: 14 })
-const IconPencil = () => h(Glyph, { name: 'IconEditOutlineRegular', size: 14 })
-const IconTrash = () => h(Glyph, { name: 'IconTrashOutlineRegular', size: 14 })
 
-const IconChevron = () => h(Glyph, { name: 'IconChevronRightOutlineRegular', size: 12 })
-const IconEmpty = () => h(Glyph, { name: 'IconChecklistOutlineRegular', size: 18 })
-const IconClose = () => h(Glyph, { name: 'IconCloseOutlineRegular', size: 14 })
 
-/** Wrap one icon-only control in the shared tooltip; a bare button when absent. */
-function withTooltip(label, node) {
-  if (!Tooltip) return node
-  return h(Tooltip, { label, side: 'top', portal: true, gap: 6 }, node)
-}
-
-function TodoRow(props) {
-  const { item, done, say, onToast, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onEditDraftChange, onFinishEdit, onCancelEdit, editRef, forwardPrefix, sendShortcut = SEND_SHORTCUT_DEFAULT, forwarded = false, onForwarded, onUnforwarded } = props
-  const editHintKey = sendShortcut === 'enter' ? 'edit.hintEnter' : 'edit.hintCtrlEnter'
-  const [pending, setPending] = React.useState('')
-  const mountedRef = React.useRef(true)
-
-  React.useEffect(() => {
-    mountedRef.current = true
-    return () => {
-      mountedRef.current = false
-    }
-  }, [])
-
-  const copy = async () => {
-    if (pending) return
-    setPending('copy')
-    let ok = false
-    try {
-      ok = await copyText(item.text)
-    } finally {
-      if (mountedRef.current) setPending('')
-    }
-    if (!mountedRef.current) return
-    // Settled outcome goes to the frame-wide toast, which outlives the panel.
-    if (onToast) onToast(ok ? 'copied' : 'copyFailed')
-  }
-
-  const forward = () => {
-    // A forwarded note toggles its mark off instead of staging the text again.
-    if (forwarded) {
-      if (onUnforwarded) onUnforwarded(item)
-      if (onToast) onToast('unforwarded')
-      return
-    }
-    if (!appendToConversation(item.text, forwardPrefix)) {
-      if (onToast) onToast('forwardFailed')
-      return
-    }
-    // Remember the forward so the button keeps its check after a reopen.
-    if (onForwarded) onForwarded(item)
-    if (onToast) onToast('forwarded')
-  }
-
-  // The checkbox is only the note's state: open or done. Forwarding never moves it.
-  const toggleCheck = () => onToggle(item)
-
-  const resizeEditor = node => {
-    if (!node) return
-    node.style.height = 'auto'
-    node.style.height = `${node.scrollHeight + 2}px`
-  }
-
-  const setEditorRef = React.useCallback(node => {
-    editRef.current = node
-    if (node) {
-      node.style.height = 'auto'
-      node.style.height = `${node.scrollHeight + 2}px`
-    }
-  }, [editRef])
-
-  /** Insert a line break at the caret of the controlled edit textarea and keep focus there. */
-  const insertEditNewline = node => {
-    if (!node) return
-    const start = node.selectionStart === null ? node.value.length : node.selectionStart
-    const end = node.selectionEnd === null ? start : node.selectionEnd
-    const next = `${node.value.slice(0, start)}\n${node.value.slice(end)}`
-    const caret = start + 1
-    setEditDraft(next)
-    if (onEditDraftChange) onEditDraftChange(next)
-    window.requestAnimationFrame(() => {
-      node.focus()
-      try {
-        node.setSelectionRange(caret, caret)
-      } catch {
-        /* selection APIs are best effort */
-      }
-      resizeEditor(node)
-    })
-  }
-
-  const body = editing
-    ? h(
-        'div',
-        { className: 'dsh-an-edit' },
-        h('textarea', {
-          ref: setEditorRef,
-          className: 'dsh-an-editInput',
-          value: editDraft,
-          rows: 1,
-          maxLength: MAX_TEXT,
-          'aria-label': say('item.edit'),
-          onChange: event => {
-            const value = event.target.value
-            setEditDraft(value)
-            if (onEditDraftChange) onEditDraftChange(value)
-            resizeEditor(event.target)
-          },
-          onKeyDown: event => {
-            const composing = event.isComposing || (event.nativeEvent && event.nativeEvent.isComposing)
-            if (composing) return
-            if (event.key === 'Escape') {
-              event.preventDefault()
-              onCancelEdit()
-              return
-            }
-            if (event.key !== 'Enter') return
-            const chord = event.ctrlKey || event.metaKey
-            const platformModifier = isSendModifier(event)
-            if (sendShortcut === 'enter') {
-              if (!chord && !event.shiftKey) {
-                event.preventDefault()
-                onFinishEdit(item)
-              } else {
-                // The platform modifier (⌘/Ctrl)+Enter and Shift+Enter break the line instead of saving.
-                event.preventDefault()
-                insertEditNewline(event.currentTarget)
-              }
-              return
-            }
-            // 'ctrl-enter': the platform modifier saves; Enter and Shift+Enter break the line.
-            if (platformModifier) {
-              event.preventDefault()
-              if (event.shiftKey) insertEditNewline(event.currentTarget)
-              else onFinishEdit(item)
-            } else if (event.shiftKey) {
-              event.preventDefault()
-              insertEditNewline(event.currentTarget)
-            }
-          },
-          onBlur: () => onFinishEdit(item),
-        }),
-        h(
-          'div',
-          { className: 'dsh-an-editActions' },
-          h(
-            'button',
-            {
-              type: 'button',
-              className: 'dsh-an-mini dsh-an-miniPrimary',
-              onMouseDown: event => event.preventDefault(),
-              onClick: () => onFinishEdit(item),
-            },
-            say('edit.save'),
-          ),
-          h(
-            'button',
-            {
-              type: 'button',
-              className: 'dsh-an-mini',
-              onMouseDown: event => event.preventDefault(),
-              onClick: onCancelEdit,
-            },
-            say('edit.cancel'),
-          ),
-          h('span', { className: 'dsh-an-editHint', title: say(editHintKey, { mod: MOD_LABEL }) }, say(editHintKey, { mod: MOD_LABEL })),
-        ),
-      )
-    : h(
-        'div',
-        {
-          className: 'dsh-an-text',
-          title: say('item.editHint'),
-          onDoubleClick: () => onStartEdit(item),
-        },
-        item.text,
-      )
-
-  const checked = done === true
-
-  return h(
-    'li',
-    { className: done ? 'dsh-an-row dsh-an-rowDone' : 'dsh-an-row' },
-    h(
-      'button',
-      {
-        type: 'button',
-        className: 'dsh-an-check',
-        role: 'checkbox',
-        'aria-checked': checked ? 'true' : 'false',
-        'aria-label': say(done ? 'item.markOpen' : 'item.markDone'),
-        onClick: toggleCheck,
-      },
-      h(
-        'span',
-        { className: 'dsh-an-checkCircle' },
-        checked ? h(IconCheck, { size: 9 }) : null,
-      ),
-    ),
-    h(
-      'div',
-      { className: 'dsh-an-itemBody' },
-      body,
-      editing
-        ? null
-        : h(
-            'div',
-            { className: 'dsh-an-rowFoot' },
-            h('span', { className: 'dsh-an-meta', title: metaLabel(item, say, props.localeId) }, metaLabel(item, say, props.localeId)),
-            h(
-              'div',
-              { className: 'dsh-an-actions' },
-              withTooltip(say('item.copy'), h(
-                'button',
-                {
-                  type: 'button',
-                  className: 'dsh-an-iconBtn',
-                  'aria-label': say('item.copy'),
-                  'aria-busy': pending === 'copy' ? 'true' : 'false',
-                  'data-loading': pending === 'copy' ? 'true' : undefined,
-                  onClick: copy,
-                },
-                h(IconCopy, null),
-              )),
-              // A completed note has nothing left to hand to the composer,
-              // so the forward action is absent rather than disabled.
-              done ? null : withTooltip(say(forwarded ? 'item.forwarded' : 'item.forward'), h(
-                'button',
-                {
-                  type: 'button',
-                  className: 'dsh-an-iconBtn',
-                  'aria-label': say(forwarded ? 'item.forwarded' : 'item.forward'),
-                  'data-forwarded': forwarded ? 'true' : undefined,
-                  onClick: forward,
-                },
-                h(IconForward, null),
-                forwarded
-                  ? h('span', { className: 'dsh-an-forwardMark', 'aria-hidden': true }, h(IconCheck, { size: 8 }))
-                  : null,
-              )),
-              withTooltip(say('item.edit'), h(
-                'button',
-                {
-                  type: 'button',
-                  className: 'dsh-an-iconBtn',
-                  'aria-label': say('item.edit'),
-                  onClick: () => onStartEdit(item),
-                },
-                h(IconPencil, null),
-              )),
-              withTooltip(say('item.delete'), h(
-                'button',
-                {
-                  type: 'button',
-                  className: 'dsh-an-iconBtn dsh-an-iconBtnDanger',
-                  'aria-label': say('item.delete'),
-                  onClick: () => onDelete(item),
-                },
-                h(IconTrash, null),
-              )),
-            ),
-      ),
-    ),
-  )
-}
-
-function EmptyState(props) {
-  return h(
-    'div',
-    { className: 'dsh-an-empty' },
-    h('div', { className: 'dsh-an-emptyIcon' }, h(IconEmpty, null)),
-    h('div', { className: 'dsh-an-emptyTitle' }, props.title),
-    h('div', { className: 'dsh-an-emptyBody' }, props.body),
-  )
-}
-
-/**
- * Frame-owned top safety margin for floating surfaces. Read from the layout
- * rather than baked in, so macOS window chrome and the Windows titlebar both
- * keep their clearance without this page touching the global variable.
- */
-function overlayTopFloor(margin) {
-  try {
-    const raw = getComputedStyle(document.body).getPropertyValue('--dsh-frame-overlay-top').trim()
-    const value = Number.parseFloat(raw)
-    if (Number.isFinite(value) && value > 0) return Math.max(margin, value)
-  } catch {
-    /* fall through to the plain viewport margin */
-  }
-  return margin
-}
-
-/**
- * Fixed panel placement: a right-side panel for the experimental entry,
- * otherwise below the anchor. Both stay inside the viewport margin, and the
- * gap side is only abandoned when the opposite side genuinely fits.
- */
-function memoPopoverStyle(anchor, placement, requestedWidth, requestedHeight) {
-  const margin = window.innerWidth <= 480 ? 12 : 16
-  const topFloor = overlayTopFloor(margin)
-  const available = Math.max(PANEL_MIN_WIDTH, window.innerWidth - margin * 2)
-  const width = Math.max(PANEL_MIN_WIDTH, Math.min(PANEL_MAX_WIDTH, available, requestedWidth || PANEL_DEFAULT_WIDTH))
-  if (placement === 'right') {
-    const rect = anchor && anchor.isConnected ? anchor.getBoundingClientRect() : null
-    let desiredRight = rect && rect.width > 0 ? rect.right : window.innerWidth - margin
-    const sidebar = [...document.querySelectorAll('[data-sidebar-right-panel][data-sidebar-right-open]')].find(node => {
-      const box = node.getBoundingClientRect()
-      return box.width > 24 && box.left > 0 && box.left < window.innerWidth - 24
-    })
-    if (sidebar) {
-      desiredRight = Math.min(desiredRight, sidebar.getBoundingClientRect().left - 8)
-    }
-    const rightInset = Math.max(margin, Math.min(window.innerWidth - margin, window.innerWidth - desiredRight))
-    const top = rect && rect.width > 0 ? Math.max(topFloor, Math.round(rect.bottom + 8)) : topFloor
-    const maxHeight = Math.max(160, window.innerHeight - top - margin)
-    const height = requestedHeight
-      ? Math.max(Math.min(PANEL_MIN_HEIGHT, maxHeight), Math.min(maxHeight, requestedHeight))
-      : 0
-    const style: Record<string, string> = { right: `${rightInset}px`, left: 'auto', top: `${top}px`, width: `${width}px`, maxHeight: `${maxHeight}px` }
-    if (height) style.height = `${height}px`
-    return style
-  }
-  const maxHeight = Math.max(160, Math.min(460, window.innerHeight - topFloor - margin))
-  if (!anchor) return { left: `${margin}px`, top: `${topFloor}px`, width: `${width}px`, maxHeight: `${maxHeight}px` }
-  const rect = anchor.getBoundingClientRect()
-  const left = rect.left < 420
-    ? Math.max(margin, rect.left)
-    : Math.max(margin, Math.min(rect.right - width, window.innerWidth - width - margin))
-  let top = rect.bottom + 8
-  // Flip above only when the space below the anchor cannot hold the panel.
-  if (top + maxHeight > window.innerHeight - margin) top = Math.max(topFloor, rect.top - maxHeight - 8)
-  return { left: `${left}px`, top: `${top}px`, width: `${width}px`, maxHeight: `${maxHeight}px` }
-}
 
 /** Compact floating memo list, anchored to the entry that opened it. */
 function MemoPopover(props) {
