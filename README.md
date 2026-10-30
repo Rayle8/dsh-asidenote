@@ -60,7 +60,7 @@
 | 阴影 | `--dsw-elevation-panel` | 浮层 `border:0`，0.5px 发丝描边画在阴影第一层 |
 | 材质 | `--dsw-specific-menu` + `--dsw-menu-backdrop-filter` | 与 DSH 菜单 / popover 同一材质 |
 | 动效 | `--ds-transition-duration*`、`--ds-ease-in-out` | 100 / 200ms，只动 opacity 与 transform |
-| 滚动条 | 主题共享 skin | 面板内只重绑 `--dsh-scrollbar-*` 到 l2，不写组件私有滚动条 |
+| 滚动条 | 主题共享 skin | 面板内只重绑 `--dsh-scrollbar-*` 到 l2，并为列表设置 9px 轨道 / 2px 内缩 |
 
 反馈层同样复用产品能力：复制、转发、删除、清除完成与写失败都经 `shell.overlay` 的全局 Toast 报告，浮窗关闭后仍然可见；图标按钮用 `ui-primitives` 的 `Tooltip`。
 

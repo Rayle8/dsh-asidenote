@@ -419,6 +419,24 @@ test('animations and transitions stay tokenised', () => {
   assert.match(css, /@media \(prefers-reduced-motion:no-preference\)/)
 })
 
+test('the panel opens in place with an opacity fade', () => {
+  const css = readCss()
+  assert.match(css, /@keyframes dsh-wt-pop-in\{from\{opacity:0\}to\{opacity:1\}\}/, 'the panel keyframes must be opacity only')
+  assert.doesNotMatch(css, /@keyframes dsh-wt-pop-in\{[^@]*?(?:transform|translate|scale)/, 'the panel must not move or scale on open')
+})
+
+test('the prefix input shares the child title text box', () => {
+  const css = readCss()
+  const input = css.match(/\.dsh-wt-settingInput\{([^}]*)\}/)
+  assert.ok(input, 'missing settingInput rule')
+  assert.doesNotMatch(input[1], /font:inherit/, 'the shorthand must not reset the type')
+  assert.match(input[1], /font-size:var\(--wt-fs-row\)/, 'input must use the child title size')
+  assert.match(input[1], /line-height:var\(--wt-lh-row\)/, 'input must use the child title line box')
+  assert.match(input[1], /font-weight:500/, 'input text must match the 500-weight title')
+  assert.match(css, /\.dsh-wt-settingItem>\.dsh-wt-settingInput\{[^}]*font-size:var\(--wt-fs-row\)/, 'host input CSS must not win')
+  assert.match(read('client.js'), /fontWeight: 500/, 'the inline guard must keep the title weight')
+})
+
 test('section toggles stay inside the scrolling list', () => {
   const css = readCss()
   // .dsh-wt-listArea clips on the x axis, so any horizontal pull on a section

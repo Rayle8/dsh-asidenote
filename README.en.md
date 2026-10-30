@@ -60,7 +60,7 @@ The panel and the entry button read from one token block at the top of `client.j
 | Shadow | `--dsw-elevation-panel` | the panel is `border:0`; the 0.5px hairline is the shadow's first layer |
 | Material | `--dsw-specific-menu` + `--dsw-menu-backdrop-filter` | the same material as DSH menus and popovers |
 | Motion | `--ds-transition-duration*`, `--ds-ease-in-out` | 100 / 200ms, opacity and transform only |
-| Scrollbar | shared theme skin | the panel only rebinds `--dsh-scrollbar-*` to l2 |
+| Scrollbar | shared theme skin | the panel rebinds `--dsh-scrollbar-*` to l2 and gives the list a 9px rail with a 2px inset |
 
 Feedback reuses product surfaces too: copy, forward, delete, clear-completed, and failed writes all report through a `shell.overlay` toast that outlives the panel, and icon buttons use the `ui-primitives` `Tooltip`.
 

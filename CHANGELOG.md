@@ -1,7 +1,11 @@
 # Changelog
 
-## Unreleased
+## 1.9.1
 
+- Remove the tiny down-right settle when the panel opens; it now fades in without moving.
+- Force the prefix-prompt input to the same 13px/20px, weight-500 text as its child title, even against host input styles.
+- Restore the bottom edge fade as a soft 28px gradient/blur that only appears while notes remain below the fold, with no top fade.
+- Move the list to the DSH workspace scrollbar rail: 9px track, 2px transparent inset, and a visible 5px pill thumb that no longer sits flush against the panel edge.
 - Pull the panel's visual hierarchy apart: the title and count share one line, the count drops to a 12/400 caption, section labels drop from 13/500 primary to 12/500 secondary, and settings/close move into one right-side action group.
 - Give completed counts the only accent: the badge uses the success tint with a success hairline, while an empty open section no longer renders a zero badge.
 - Keep the open count readable when it exists: a solid neutral fill and primary numeral replace the old low-contrast outline.
