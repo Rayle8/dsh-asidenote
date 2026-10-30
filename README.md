@@ -54,7 +54,7 @@
 - 侧边栏提醒标签在生成期间保留，方便随时查看。
 - 同一浏览器的多个标签页会同步更新。
 - 中英文界面，跟随 DSH 语言设置。
-- 界面样式全部复用 DSH 设计令牌：语义色别名、共享圆角与阴影、菜单材质、共享滚动条；字号收敛到 12 / 13 / 14 三档、字重上限 500、中性描边统一 0.5px；悬停只在支持 hover 的设备启用，瞬时结果走全局 Toast。详见 [UI / 交互规范复查报告](./docs/ui-design-check.md)。
+- 界面样式全部复用 DSH 设计令牌：语义色别名、共享圆角与阴影、实心抬升表面、共享滚动条；字号收敛到 12 / 13 / 14 三档、字重上限 500、中性描边统一 0.5px；悬停只在支持 hover 的设备启用，瞬时结果走全局 Toast。详见 [UI / 交互规范复查报告](./docs/ui-design-check.md)。
 
 ## 功能截图
 
@@ -105,7 +105,7 @@
 | 间距 | `--wt-space-1 … -6` | 4 / 8 / 12 / 16 / 24 / 32 |
 | 圆角 | `--dsw-radius-sm/md/lg/panel` + 999 | 8（紧凑控件）/ 16（分组与字段）/ 28（浮动面板）/ 胶囊配 `corner-shape:round` |
 | 阴影 | `--dsw-elevation-panel` | 浮层 `border:0`，0.5px 发丝描边画在阴影第一层 |
-| 材质 | `--dsw-specific-menu` + `--dsw-menu-backdrop-filter` | 与 DSH 菜单 / popover 同一材质 |
+| 材质 | `--dsh-wt-panelSurface`（`--dsw-alias-bg-layer-2`） | 实心面板表面，与吸顶块共用同一颜色 |
 | 动效 | `--ds-transition-duration*`、`--ds-ease-in-out` | 100 / 200ms，只动 opacity 与 transform |
 | 滚动条 | 主题共享 skin | 面板内只重绑 `--dsh-scrollbar-*` 到 l2，并为列表设置 9px 轨道 / 2px 内缩 |
 
