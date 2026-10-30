@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Round the top corners of the pinned section headers with the shared small radius, so the fill reads as a raised surface instead of a squared-off bar.
 - Keep the sticky section headers transparent in flow and, once pinned, fill them with `--dsw-alias-menu-group-header-fill`; its #303136 base matches the measured panel surface (#303035) within 1/255, so the fill no longer reads as a differently coloured bar. The backdrop blur stays off for now.
 
 ## 1.9.7

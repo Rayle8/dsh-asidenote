@@ -730,3 +730,11 @@ test('sticky heads are filled only while pinned, not at rest', () => {
   assert.ok(base, 'base header rule missing')
   assert.doesNotMatch(base.body, /backdrop-filter/, 'the header must not blur while it sits in flow')
 })
+
+test('the pinned header rounds its top corners with the shared radius', () => {
+  const rule = readCss().match(/\.dsh-wt-sectionHead\[data-stuck\],\.dsh-wt-doneHead\[data-stuck\]\{([^}]*)\}/)
+  assert.ok(rule, 'stuck header rule missing')
+  assert.match(rule[1], /border-top-left-radius:var\(--dsw-radius-sm\)/)
+  assert.match(rule[1], /border-top-right-radius:var\(--dsw-radius-sm\)/)
+  assert.doesNotMatch(rule[1], /border-bottom-(?:left|right)-radius|border-radius:/, 'only the top corners are rounded')
+})
