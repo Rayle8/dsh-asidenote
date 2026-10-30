@@ -740,4 +740,14 @@ test('the pinned header rounds its top corners with the shared radius', () => {
   assert.match(rule[1], /border-top-left-radius:var\(--dsw-radius-sm\)/)
   assert.match(rule[1], /border-top-right-radius:var\(--dsw-radius-sm\)/)
   assert.doesNotMatch(rule[1], /border-bottom-(?:left|right)-radius|border-radius:/, 'only the top corners are rounded')
+
+  // A square, opaque panel-tone layer sits behind the rounded fill so the
+  // corner cut-outs cannot reveal the rows scrolling underneath.
+  const underlay = readCss().match(/\.dsh-wt-sectionHead\[data-stuck\]::before,\.dsh-wt-doneHead\[data-stuck\]::before\{([^}]*)\}/)
+  assert.ok(underlay, 'corner underlay rule missing')
+  assert.match(underlay[1], /position:absolute/)
+  assert.match(underlay[1], /inset:0/)
+  assert.match(underlay[1], /z-index:-1/)
+  assert.match(underlay[1], /background:color-mix\(in srgb,var\(--dsw-alias-bg-layer-2\) 45%,var\(--dsw-alias-bg-layer-3\)\)/)
+  assert.doesNotMatch(underlay[1], /#[0-9a-f]{3,8}\b|\brgba?\(/i)
 })
