@@ -29,19 +29,36 @@ window.__ModuleLoader__.load({
     const SESSION_STORAGE_KEY = 'dsh.session-memos.v1'
     /** Unsaved add/edit drafts, restored when the panel is reopened. */
     const DRAFT_STORAGE_KEY = 'dsh.memo.drafts.v1'
-    /** Notes already forwarded to the composer, per session; keeps the half check. */
+    /** Notes already forwarded to the composer, per session; marks the forward button. */
     const FORWARDED_STORAGE_KEY = 'dsh.memo.forwarded.v1'
     /** Shown in the in-panel settings; keep in sync with package.json. */
     const PLUGIN_VERSION = '1.9.0'
     const PLUGIN_AUTHOR = '阿三石'
     const PLUGIN_REPO_URL = 'https://github.com/Rayle8/dsh-workspace-todos'
     const PLUGIN_REPO_LABEL = 'github.com/Rayle8/dsh-workspace-todos'
-    /** Enter-to-send preference; persisted across panel openings. */
+    /** Send preference; persisted across panel openings. Enter sends by default. */
     const SEND_SHORTCUT_KEY = 'dsh.memo.send-shortcut.v1'
-    const SEND_SHORTCUT_DEFAULT = 'ctrl-enter'
+    const SEND_SHORTCUT_DEFAULT = 'enter'
+    /** macOS names the command modifier with a symbol; other platforms say Ctrl. */
+    const IS_MAC = (() => {
+      try {
+        const platform = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || ''
+        return /mac/i.test(String(platform))
+      } catch (error) {
+        return false
+      }
+    })()
+    const MOD_LABEL = IS_MAC ? '⌘' : 'Ctrl'
+
+    /** Whether the key event carries this platform's command modifier. */
+    function isSendModifier(event) {
+      return IS_MAC ? event.metaKey === true : event.ctrlKey === true
+    }
     /** Remembered expand/collapse state of the open/completed sections. */
     const SECTION_STATE_KEY = 'dsh.memo.sections.v1'
     const SECTION_STATE_DEFAULT = { open: true, done: false }
+    /** How long the inline clear-completed confirmation waits before it dismisses itself. */
+    const CLEAR_CONFIRM_MS = 5000
     /** Persisted width of the experimental right-side panel. */
     const PANEL_WIDTH_KEY = 'dsh.memo.panel-width.v1'
     const PANEL_DEFAULT_WIDTH = 360
@@ -54,14 +71,6 @@ window.__ModuleLoader__.load({
     const MAX_TEXT = 280
     /** Defensive cap so a corrupted store cannot freeze the panel. */
     const MAX_ITEMS = 300
-    /** A forwarded open note waits this long for a second click before it completes. */
-    const HALF_DONE_DELAY = 3000
-    /** Countdown cadence of the pending hint, so `n` steps 3 → 2 → 1 once per second. */
-    const HALF_DONE_TICK = 1000
-    /** First `n` of the pending hint, derived so the delay and the copy stay in sync. */
-    const HALF_DONE_COUNTDOWN = Math.round(HALF_DONE_DELAY / HALF_DONE_TICK)
-    /** Card-leave animation played before the delayed completion is committed. */
-    const HALF_DONE_LEAVE = 200
     /** Same-tab subscribers, so the composer dock's count follows panel edits. */
     const TODO_LISTENERS = new Set()
 
@@ -84,6 +93,9 @@ window.__ModuleLoader__.load({
         'popover.close': '关闭便笺',
         'popover.count': '{open} 未完成 · {total} 条',
         'popover.completed': '已完成',
+        'popover.clearCancel': '取消',
+        'popover.clearConfirm': '清除 {n} 项已完成便笺？',
+        'popover.clearConfirmAction': '确认清除',
         'popover.clearDone': '清除已完成',
         'popover.storage': '按会话隔离 · 数据仅保存在本地',
         'popover.empty.title': '还没有便笺',
@@ -95,16 +107,16 @@ window.__ModuleLoader__.load({
         'settings.author': '作者',
         'settings.project': '项目地址',
         'settings.shortcut': '发送快捷键',
-        'settings.shortcutCtrlEnter': 'Ctrl+Enter 发送，Enter 换行',
-        'settings.shortcutEnter': 'Enter 发送，Ctrl+Enter 换行',
+        'settings.shortcutCtrlEnter': '{mod}+Enter 发送，Enter 换行',
+        'settings.shortcutEnter': 'Enter 发送，{mod}+Enter 换行',
         'settings.forward': '一键转发',
         'settings.forwardPrefixItem': '前缀提示词',
         'settings.forwardPrefixHint': '留空则只转发便笺正文',
-        'settings.forwardCheck': '转发勾选完成',
-        'settings.halfCheck': '转发后勾选框变为半选，再次点击标记完成',
+        'settings.forwardCheck': '转发标识',
+        'settings.forwardMark': '转发后转发按钮显示勾选，勾选框只表示未完成和已完成',
         'add.placeholder': '记一条便笺',
-        'add.shortcut': 'Ctrl+Enter 发送 · Enter 换行',
-        'add.shortcutEnter': 'Enter 发送 · Ctrl+Enter 换行',
+        'add.shortcut': '{mod}+Enter 发送 · Enter 换行',
+        'add.shortcutEnter': 'Enter 发送 · {mod}+Enter 换行',
         'add.action': '添加',
         'list.open': '未完成',
         'list.allDone.title': '未完成的都清空了',
@@ -113,14 +125,14 @@ window.__ModuleLoader__.load({
         'item.markOpen': '标记为未完成',
         'item.copy': '复制',
         'item.forward': '转发到会话',
-        'item.pendingCountdown': '已完成，{n} 秒后进入已完成清单，再次点击可以还原为未完成状态',
+        'item.forwarded': '已转发到会话，点击可移除标识',
         'item.edit': '编辑',
         'item.delete': '删除',
         'item.editHint': '双击编辑',
         'edit.save': '保存',
         'edit.cancel': '取消',
-        'edit.hintCtrlEnter': 'Ctrl+Enter 保存 · Enter 换行',
-        'edit.hintEnter': 'Enter 保存 · Ctrl+Enter 换行',
+        'edit.hintCtrlEnter': '{mod}+Enter 保存 · Enter 换行',
+        'edit.hintEnter': 'Enter 保存 · {mod}+Enter 换行',
         'time.now': '刚刚',
         'time.minutes': '{n} 分钟前',
         'time.hours': '{n} 小时前',
@@ -138,6 +150,7 @@ window.__ModuleLoader__.load({
         'toast.copied': '已复制',
         'toast.copyFailed': '复制失败，请重试',
         'toast.forwarded': '已转发到会话',
+        'toast.unforwarded': '已取消转发标识',
         'toast.forwardFailed': '没有找到输入框，转发失败',
         'toast.deleted': '已删除',
         'toast.cleared': '已清除已完成',
@@ -150,6 +163,9 @@ window.__ModuleLoader__.load({
         'popover.close': 'Close notes',
         'popover.count': '{open} open · {total} total',
         'popover.completed': 'Completed',
+        'popover.clearCancel': 'Cancel',
+        'popover.clearConfirm': 'Clear {n} completed notes?',
+        'popover.clearConfirmAction': 'Clear',
         'popover.clearDone': 'Clear completed',
         'popover.storage': 'Separate per session · saved only on this device',
         'popover.empty.title': 'No notes yet',
@@ -161,16 +177,16 @@ window.__ModuleLoader__.load({
         'settings.author': 'Author',
         'settings.project': 'Project',
         'settings.shortcut': 'Send shortcut',
-        'settings.shortcutCtrlEnter': 'Ctrl+Enter sends, Enter for a new line',
-        'settings.shortcutEnter': 'Enter sends, Ctrl+Enter for a new line',
+        'settings.shortcutCtrlEnter': '{mod}+Enter sends, Enter for a new line',
+        'settings.shortcutEnter': 'Enter sends, {mod}+Enter for a new line',
         'settings.forward': 'One-click forward',
         'settings.forwardPrefixItem': 'Prefix prompt',
         'settings.forwardPrefixHint': 'Leave empty to forward the note only',
-        'settings.forwardCheck': 'Forward completion',
-        'settings.halfCheck': 'After forwarding the checkbox turns half-checked; click again to complete',
+        'settings.forwardCheck': 'Forwarded marker',
+        'settings.forwardMark': 'A forwarded note checks its forward button; the checkbox only shows open and done',
         'add.placeholder': 'Write a note',
-        'add.shortcut': 'Ctrl+Enter sends · Enter for a new line',
-        'add.shortcutEnter': 'Enter sends · Ctrl+Enter for a new line',
+        'add.shortcut': '{mod}+Enter sends · Enter for a new line',
+        'add.shortcutEnter': 'Enter sends · {mod}+Enter for a new line',
         'add.action': 'Add',
         'list.open': 'Open',
         'list.allDone.title': 'Nothing left open',
@@ -179,14 +195,14 @@ window.__ModuleLoader__.load({
         'item.markOpen': 'Mark as open',
         'item.copy': 'Copy',
         'item.forward': 'Forward to chat',
-        'item.pendingCountdown': 'Done — moving to Completed in {n}s; click again to restore it to open',
+        'item.forwarded': 'Forwarded to chat — click to remove the mark',
         'item.edit': 'Edit',
         'item.delete': 'Delete',
         'item.editHint': 'Double-click to edit',
         'edit.save': 'Save',
         'edit.cancel': 'Cancel',
-        'edit.hintCtrlEnter': 'Ctrl+Enter saves · Enter for a new line',
-        'edit.hintEnter': 'Enter saves · Ctrl+Enter for a new line',
+        'edit.hintCtrlEnter': '{mod}+Enter saves · Enter for a new line',
+        'edit.hintEnter': 'Enter saves · {mod}+Enter for a new line',
         'time.now': 'just now',
         'time.minutes': '{n} min ago',
         'time.hours': '{n} hr ago',
@@ -204,6 +220,7 @@ window.__ModuleLoader__.load({
         'toast.copied': 'Copied',
         'toast.copyFailed': 'Copy failed — try again',
         'toast.forwarded': 'Forwarded to chat',
+        'toast.unforwarded': 'Forward mark removed',
         'toast.forwardFailed': 'No composer found — nothing was forwarded',
         'toast.deleted': 'Deleted',
         'toast.cleared': 'Cleared completed',
@@ -251,34 +268,33 @@ window.__ModuleLoader__.load({
       '.dsh-wt-chevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);transition:transform var(--wt-dur-fast) var(--wt-ease)}',
       '.dsh-wt-chevron[data-open="true"]{transform:rotate(90deg)}',
       '.dsh-wt-sectionCount{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 var(--wt-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--wt-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--wt-fs-caption);line-height:16px;font-weight:500;font-variant-numeric:tabular-nums}',
-      '.dsh-wt-sectionCount[data-tone="done"]{border-color:var(--dsw-alias-state-success-primary);background:var(--dsw-alias-state-success-tertiary);color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-clear{display:inline-flex;align-items:center;flex:none;height:24px;margin-left:auto;padding:0 var(--wt-space-2);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);font-weight:500;cursor:pointer;transition:var(--wt-transition)}',
       '.dsh-wt-clear:active{background:var(--wt-active);color:var(--dsw-alias-label-primary)}',
+      '.dsh-wt-clearConfirm{display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-2);min-width:0;margin-top:var(--wt-space-1);padding:var(--wt-space-2);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}',
+      '.dsh-wt-clearConfirmText{flex:1 1 auto;min-width:0;margin:0;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-primary);overflow-wrap:anywhere}',
+      '.dsh-wt-clearConfirmActions{display:flex;align-items:center;flex:none;gap:var(--wt-space-1)}',
       '.dsh-wt-doneRows{margin-top:var(--wt-space-2)}',
       '.dsh-wt-rows{list-style:none;margin:0;padding:0;border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);overflow:hidden}',
       '.dsh-wt-row{display:flex;align-items:flex-start;gap:var(--wt-space-2);padding:var(--wt-space-2);border-top:0.5px solid var(--wt-divider);transition:var(--wt-transition)}',
       '.dsh-wt-row:first-child{border-top:0}',
-      '.dsh-wt-rowLeaving{pointer-events:none;opacity:0;transform:translateY(-2px) scale(.985);transition:opacity var(--wt-dur-base) var(--wt-ease),transform var(--wt-dur-base) var(--wt-ease)}',
       '',
       '/* ── 6 一行便笺 · 勾选圈 14px，命中区 24px ─────────────────────────── */',
       '.dsh-wt-check{display:flex;align-items:center;justify-content:center;flex:none;width:24px;height:24px;margin:-2px 0 0;padding:0;border:0;border-radius:var(--wt-radius-pill);corner-shape:round;background:transparent;color:transparent;font:inherit;cursor:pointer;transition:var(--wt-transition)}',
       '.dsh-wt-checkCircle{display:flex;align-items:center;justify-content:center;width:14px;height:14px;box-sizing:border-box;border:0.5px solid var(--dsw-alias-label-tertiary);border-radius:var(--wt-radius-pill);corner-shape:round;background:transparent;color:transparent;transition:border-color var(--wt-dur-fast) var(--wt-ease),background-color var(--wt-dur-fast) var(--wt-ease),color var(--wt-dur-fast) var(--wt-ease),transform var(--wt-dur-fast) var(--wt-ease)}',
       '.dsh-wt-check:active .dsh-wt-checkCircle{transform:scale(.9)}',
       '.dsh-wt-check[aria-checked="true"] .dsh-wt-checkCircle{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-label-primary-foreground)}',
-      '.dsh-wt-checkHalf .dsh-wt-checkCircle{border-color:var(--dsw-alias-brand-primary);background:linear-gradient(90deg,var(--dsw-alias-brand-primary) 50%,transparent 50%)}',
-      '.dsh-wt-checkForwarded[aria-checked="true"] .dsh-wt-checkCircle{border-color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-label-secondary);color:var(--dsw-alias-label-primary-foreground)}',
       '.dsh-wt-itemBody{display:flex;flex:1;flex-direction:column;gap:var(--wt-space-1);min-width:0}',
       '.dsh-wt-text{display:block;width:100%;margin:0;padding:0;border:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--wt-fs-row);line-height:var(--wt-lh-row);text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;cursor:text;user-select:text;-webkit-user-select:text}',
       '.dsh-wt-rowDone .dsh-wt-text{color:var(--dsw-alias-label-secondary);text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:var(--dsw-alias-label-tertiary)}',
       '.dsh-wt-rowFoot{display:flex;align-items:center;justify-content:space-between;gap:var(--wt-space-2);min-height:24px}',
       '.dsh-wt-meta{flex:0 1 auto;min-width:0;overflow:hidden;font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}',
-      '.dsh-wt-rowHint{margin:0;min-height:calc(var(--wt-lh-caption) * 2);font-size:var(--wt-fs-caption);line-height:var(--wt-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}',
       '',
       '/* ── 7 行操作 · 图标按钮 H24/R8，触摸端常显 ────────────────────────── */',
       '.dsh-wt-actions{display:flex;flex:none;gap:var(--wt-space-1)}',
-      '.dsh-wt-iconBtn{display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--wt-transition)}',
+      '.dsh-wt-iconBtn{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--wt-transition)}',
       '.dsh-wt-iconBtn:active{background:var(--wt-active);color:var(--dsw-alias-label-primary);transform:scale(.94)}',
       '.dsh-wt-iconBtn:disabled,.dsh-wt-iconBtn[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}',
+      '.dsh-wt-forwardMark{position:absolute;right:0;bottom:0;display:flex;align-items:center;justify-content:center;width:10px;height:10px;border-radius:var(--wt-radius-pill);corner-shape:round;background:var(--dsw-alias-label-secondary);color:var(--dsw-alias-label-primary-foreground);pointer-events:none}',
       '',
       '/* ── 8 就地编辑 · 保存/取消为紧凑描边按钮 ──────────────────────────── */',
       '.dsh-wt-edit{display:flex;flex-direction:column;gap:var(--wt-space-1);width:100%}',
@@ -291,6 +307,8 @@ window.__ModuleLoader__.load({
       '.dsh-wt-mini[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}',
       '.dsh-wt-miniPrimary{border-color:transparent;background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground)}',
       '.dsh-wt-miniPrimary:active{background:var(--dsw-alias-button-primary-dimmed)}',
+      '.dsh-wt-miniDanger{border-color:transparent;background:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary-foreground)}',
+      '.dsh-wt-miniDanger:active{background:var(--dsw-alias-state-error-primary)}',
       '',
       '/* ── 9 空态 · 虚线 1px，说明 12/次级墨色 ──────────────────────────── */',
       '.dsh-wt-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--wt-space-2);padding:var(--wt-space-5) var(--wt-space-4);border:1px dashed var(--wt-divider);border-radius:var(--dsw-radius-lg);text-align:center}',
@@ -362,6 +380,7 @@ window.__ModuleLoader__.load({
       '.dsh-wt-addBtn:hover:not([disabled]){background:var(--dsw-alias-button-primary-hover)}',
       '.dsh-wt-mini:hover:not([disabled]){background:var(--wt-hover)}',
       '.dsh-wt-miniPrimary:hover:not([disabled]){background:var(--dsw-alias-button-primary-hover);color:var(--dsw-alias-label-primary-foreground)}',
+      '.dsh-wt-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}',
       '.dsh-wt-clear:hover{background:var(--wt-hover);color:var(--dsw-alias-label-primary)}',
       '.dsh-wt-doneToggle:hover{background:var(--wt-hover)}',
       '.dsh-wt-check:hover .dsh-wt-checkCircle{border-color:var(--dsw-alias-label-primary)}',
@@ -1024,67 +1043,17 @@ window.__ModuleLoader__.load({
     }
 
     function TodoRow(props) {
-      const { item, done, say, onToast, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onEditDraftChange, onFinishEdit, onCancelEdit, editRef, forwardPrefix, sendShortcut = 'ctrl-enter', forwarded = false, onForwarded } = props
+      const { item, done, say, onToast, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onEditDraftChange, onFinishEdit, onCancelEdit, editRef, forwardPrefix, sendShortcut = SEND_SHORTCUT_DEFAULT, forwarded = false, onForwarded, onUnforwarded } = props
       const editHintKey = sendShortcut === 'enter' ? 'edit.hintEnter' : 'edit.hintCtrlEnter'
       const [pending, setPending] = React.useState('')
-      // A forwarded note stays open and wears a half check until the user decides.
-      const [half, setHalf] = React.useState(() => forwarded === true && done !== true)
-      // Optimistic full check while the staged completion can still be undone.
-      const [pendingDone, setPendingDone] = React.useState(false)
-      // Remaining seconds announced by the pending hint; ticks 3 → 2 → 1.
-      const [pendingSeconds, setPendingSeconds] = React.useState(HALF_DONE_COUNTDOWN)
-      // Card-leave animation played just before the completion is committed.
-      const [leaving, setLeaving] = React.useState(false)
-      const pendingTimerRef = React.useRef(null)
-      const pendingTickRef = React.useRef(null)
-      const leaveTimerRef = React.useRef(null)
       const mountedRef = React.useRef(true)
-      const doneRef = React.useRef(done)
-
-      const clearPendingTick = () => {
-        if (pendingTickRef.current) {
-          clearInterval(pendingTickRef.current)
-          pendingTickRef.current = null
-        }
-      }
-
-      const clearPendingTimers = () => {
-        if (pendingTimerRef.current) {
-          clearTimeout(pendingTimerRef.current)
-          pendingTimerRef.current = null
-        }
-        if (leaveTimerRef.current) {
-          clearTimeout(leaveTimerRef.current)
-          leaveTimerRef.current = null
-        }
-        clearPendingTick()
-      }
 
       React.useEffect(() => {
         mountedRef.current = true
         return () => {
           mountedRef.current = false
-          clearPendingTimers()
         }
       }, [])
-
-      React.useEffect(() => {
-        doneRef.current = done
-      }, [done])
-
-      // A committed toggle (or another tab) beats the local half/pending state.
-      React.useEffect(() => {
-        if (done) {
-          clearPendingTimers()
-          setHalf(false)
-          setPendingDone(false)
-          setPendingSeconds(HALF_DONE_COUNTDOWN)
-          setLeaving(false)
-          return
-        }
-        // Reopening a forwarded note (and reopening the panel) restores its half check.
-        if (forwarded === true) setHalf(true)
-      }, [done, forwarded])
 
       const copy = async () => {
         if (pending) return
@@ -1101,77 +1070,23 @@ window.__ModuleLoader__.load({
       }
 
       const forward = () => {
+        // A forwarded note toggles its mark off instead of staging the text again.
+        if (forwarded) {
+          if (onUnforwarded) onUnforwarded(item)
+          if (onToast) onToast('unforwarded')
+          return
+        }
         if (!appendToConversation(item.text, forwardPrefix)) {
           if (onToast) onToast('forwardFailed')
           return
         }
-        // Remember the forward so the half check (and the muted check) survives reopen.
+        // Remember the forward so the button keeps its check after a reopen.
         if (onForwarded) onForwarded(item)
         if (onToast) onToast('forwarded')
-        // Forwarding an open note never completes it; it stages the half check.
-        if (done) return
-        clearPendingTimers()
-        setPendingDone(false)
-        setPendingSeconds(HALF_DONE_COUNTDOWN)
-        setLeaving(false)
-        setHalf(true)
       }
 
-      const cancelPending = () => {
-        clearPendingTimers()
-        setPendingDone(false)
-        setPendingSeconds(HALF_DONE_COUNTDOWN)
-        setLeaving(false)
-      }
-
-      const startPending = () => {
-        clearPendingTimers()
-        setPendingDone(true)
-        setPendingSeconds(HALF_DONE_COUNTDOWN)
-        setLeaving(false)
-        // Countdown ticks run on their own 1s interval and are cleared with the timeouts,
-        // so a cancel, unmount, or commit can never leave a stray tick behind.
-        pendingTickRef.current = setInterval(() => {
-          if (!mountedRef.current) return
-          setPendingSeconds(value => (value > 1 ? value - 1 : value))
-        }, HALF_DONE_TICK)
-        pendingTimerRef.current = setTimeout(() => {
-          pendingTimerRef.current = null
-          clearPendingTick()
-          if (!mountedRef.current) return
-          setLeaving(true)
-          leaveTimerRef.current = setTimeout(() => {
-            leaveTimerRef.current = null
-            if (!mountedRef.current) return
-            setPendingDone(false)
-            setPendingSeconds(HALF_DONE_COUNTDOWN)
-            setLeaving(false)
-            setHalf(false)
-            if (doneRef.current) return
-            onToggle(item)
-          }, HALF_DONE_LEAVE)
-        }, HALF_DONE_DELAY)
-      }
-
-      const toggleCheck = () => {
-        if (done) {
-          cancelPending()
-          // A forwarded note goes back to the half check, not a plain empty circle.
-          setHalf(forwarded === true)
-          onToggle(item)
-          return
-        }
-        // Second click during the delay keeps the note open and restores the half check.
-        if (pendingDone) {
-          cancelPending()
-          return
-        }
-        if (half) {
-          startPending()
-          return
-        }
-        onToggle(item)
-      }
+      // The checkbox is only the note's state: open or done. Forwarding never moves it.
+      const toggleCheck = () => onToggle(item)
 
       const resizeEditor = node => {
         if (!node) return
@@ -1233,20 +1148,21 @@ window.__ModuleLoader__.load({
                   return
                 }
                 if (event.key !== 'Enter') return
-                const modifier = event.ctrlKey || event.metaKey
+                const chord = event.ctrlKey || event.metaKey
+                const platformModifier = isSendModifier(event)
                 if (sendShortcut === 'enter') {
-                  if (!modifier && !event.shiftKey) {
+                  if (!chord && !event.shiftKey) {
                     event.preventDefault()
                     onFinishEdit(item)
                   } else {
-                    // Ctrl/Meta+Enter and Shift+Enter break the line instead of saving.
+                    // The platform modifier (⌘/Ctrl)+Enter and Shift+Enter break the line instead of saving.
                     event.preventDefault()
                     insertEditNewline(event.currentTarget)
                   }
                   return
                 }
-                // Default 'ctrl-enter': the modifier saves; Enter and Shift+Enter break the line.
-                if (modifier) {
+                // 'ctrl-enter': the platform modifier saves; Enter and Shift+Enter break the line.
+                if (platformModifier) {
                   event.preventDefault()
                   if (event.shiftKey) insertEditNewline(event.currentTarget)
                   else onFinishEdit(item)
@@ -1280,7 +1196,7 @@ window.__ModuleLoader__.load({
                 },
                 say('edit.cancel'),
               ),
-              h('span', { className: 'dsh-wt-editHint', title: say(editHintKey) }, say(editHintKey)),
+              h('span', { className: 'dsh-wt-editHint', title: say(editHintKey, { mod: MOD_LABEL }) }, say(editHintKey, { mod: MOD_LABEL })),
             ),
           )
         : h(
@@ -1293,29 +1209,19 @@ window.__ModuleLoader__.load({
             item.text,
           )
 
-      const halfCheck = half && !done && !pendingDone
-      // A completed note that was forwarded wears a muted (gray) check instead of the brand one.
-      const forwardedDone = done === true && forwarded === true
-      const checked = done || pendingDone
-      const checkClass = forwardedDone
-        ? 'dsh-wt-check dsh-wt-checkForwarded'
-        : halfCheck
-          ? 'dsh-wt-check dsh-wt-checkHalf'
-          : 'dsh-wt-check'
-      const rowClass = `${done ? 'dsh-wt-row dsh-wt-rowDone' : 'dsh-wt-row'}${leaving ? ' dsh-wt-rowLeaving' : ''}`
+      const checked = done === true
 
       return h(
         'li',
-        { className: rowClass },
+        { className: done ? 'dsh-wt-row dsh-wt-rowDone' : 'dsh-wt-row' },
         h(
           'button',
           {
             type: 'button',
-            className: checkClass,
+            className: 'dsh-wt-check',
             role: 'checkbox',
-            'aria-checked': checked ? 'true' : half ? 'mixed' : 'false',
+            'aria-checked': checked ? 'true' : 'false',
             'aria-label': say(done ? 'item.markOpen' : 'item.markDone'),
-            'aria-describedby': pendingDone ? `${item.id}-pending-hint` : undefined,
             onClick: toggleCheck,
           },
           h(
@@ -1349,15 +1255,21 @@ window.__ModuleLoader__.load({
                     },
                     h(IconCopy, null),
                   )),
-                  withTooltip(say('item.forward'), h(
+                  // A completed note has nothing left to hand to the composer,
+                  // so the forward action is absent rather than disabled.
+                  done ? null : withTooltip(say(forwarded ? 'item.forwarded' : 'item.forward'), h(
                     'button',
                     {
                       type: 'button',
                       className: 'dsh-wt-iconBtn',
-                      'aria-label': say('item.forward'),
+                      'aria-label': say(forwarded ? 'item.forwarded' : 'item.forward'),
+                      'data-forwarded': forwarded ? 'true' : undefined,
                       onClick: forward,
                     },
                     h(IconForward, null),
+                    forwarded
+                      ? h('span', { className: 'dsh-wt-forwardMark', 'aria-hidden': true }, h(IconCheck, { size: 8 }))
+                      : null,
                   )),
                   withTooltip(say('item.edit'), h(
                     'button',
@@ -1381,19 +1293,6 @@ window.__ModuleLoader__.load({
                   )),
                 ),
           ),
-          pendingDone
-            ? h(
-                'div',
-                {
-                  id: `${item.id}-pending-hint`,
-                  className: 'dsh-wt-rowHint',
-                  role: 'status',
-                  'aria-live': 'polite',
-                  'aria-atomic': 'true',
-                },
-                say('item.pendingCountdown', { n: pendingSeconds }),
-              )
-            : null,
         ),
       )
     }
@@ -1481,11 +1380,12 @@ window.__ModuleLoader__.load({
       const [initialSections] = React.useState(readSectionState)
       const [showDone, setShowDone] = React.useState(initialSections.done)
       const [showOpen, setShowOpen] = React.useState(initialSections.open)
+      const [confirmClear, setConfirmClear] = React.useState(false)
       const sectionsRef = React.useRef(initialSections)
       const [showSettings, setShowSettings] = React.useState(false)
       const [sendShortcut, setSendShortcut] = React.useState(readSendShortcut)
       const [forwardPrefix, setForwardPrefix] = React.useState(readForwardPrefix)
-      // Forwarded item ids of this session, read once per mount so reopen restores the half check.
+      // Forwarded item ids of this session, read once per mount so reopen restores the forward mark.
       const [forwardedIds, setForwardedIds] = React.useState(() => readForwardedIds(sessionId))
       const forwardedSessionRef = React.useRef(sessionId ? String(sessionId) : '')
       const [panelWidth, setPanelWidth] = React.useState(readPanelWidth)
@@ -1499,6 +1399,7 @@ window.__ModuleLoader__.load({
       const addRef = React.useRef(null)
       const cancelEditRef = React.useRef(false)
       const composingRef = React.useRef(false)
+      const clearConfirmTimerRef = React.useRef(0)
 
       const resizeAdd = node => {
         if (!node) return
@@ -1701,6 +1602,16 @@ window.__ModuleLoader__.load({
       const openCount = openItems.length
       const total = items.length
 
+      // Retire the confirmation when the completed section empties or collapses,
+      // or when the popover switches session; unmount also drops the timer.
+      React.useEffect(() => () => stopClearConfirmTimer(), [])
+      React.useEffect(() => {
+        if (confirmClear && (!showDone || doneItems.length === 0)) dismissClearConfirm()
+      }, [confirmClear, showDone, doneItems.length])
+      React.useEffect(() => {
+        dismissClearConfirm()
+      }, [sessionId])
+
       const chooseShortcut = value => {
         setSendShortcut(value)
         writeSendShortcut(value)
@@ -1775,12 +1686,19 @@ window.__ModuleLoader__.load({
         })
       }
 
-      /** Remember a successful forward so the half check survives closing the panel. */
+      /** Remember a successful forward so the forward button keeps its check after closing the panel. */
       const rememberForwarded = item => {
         const id = item && item.id ? String(item.id) : ''
         if (!id) return
         markForwarded(sessionId, id)
         setForwardedIds(current => (current[id] ? current : { ...current, [id]: true }))
+      }
+
+      /** Toggle the forward mark off; the note and its open/done state stay untouched. */
+      const unrememberForwarded = item => {
+        const id = item && item.id ? String(item.id) : ''
+        if (!id) return
+        forgetForwardedItems(id)
       }
 
       const remove = item => {
@@ -1846,14 +1764,45 @@ window.__ModuleLoader__.load({
         writeSectionState(next)
       }
 
+      /** Drop the pending auto-dismiss clock without touching state. */
+      const stopClearConfirmTimer = () => {
+        if (!clearConfirmTimerRef.current) return
+        window.clearTimeout(clearConfirmTimerRef.current)
+        clearConfirmTimerRef.current = 0
+      }
+
+      /** Close the inline band and drop its pending timer. */
+      const dismissClearConfirm = () => {
+        stopClearConfirmTimer()
+        setConfirmClear(false)
+      }
+
+      /** Open the inline band; it retires itself after a short pause. */
+      const askClearConfirm = () => {
+        stopClearConfirmTimer()
+        setConfirmClear(true)
+        clearConfirmTimerRef.current = window.setTimeout(() => {
+          clearConfirmTimerRef.current = 0
+          setConfirmClear(false)
+        }, CLEAR_CONFIRM_MS)
+      }
+
+      /** Only the destructive confirm action reaches the existing clear routine. */
+      const confirmClearDone = () => {
+        dismissClearConfirm()
+        clearDone()
+      }
+
       const clearDone = () => {
+        // Capture the completed items before the commit so their forward flags can be cleared.
+        const clearedItems = items.filter(item => item.done)
         const ok = commit(currentItems => currentItems.filter(item => !item.done))
         if (!ok) {
           report('saveFailed')
           return
         }
         report('cleared')
-        forgetForwardedItems(items.filter(item => item.done).map(item => item.id))
+        forgetForwardedItems(clearedItems.map(item => item.id))
         applySections({ open: sectionsRef.current.open, done: false })
       }
 
@@ -1886,6 +1835,7 @@ window.__ModuleLoader__.load({
         sendShortcut,
         forwarded: forwardedIds[item.id] === true,
         onForwarded: rememberForwarded,
+        onUnforwarded: unrememberForwarded,
       })
 
       const content = h(
@@ -1975,10 +1925,10 @@ window.__ModuleLoader__.load({
                       h('input', {
                         type: 'radio',
                         name: 'dsh-wt-send-shortcut',
-                        checked: sendShortcut === 'ctrl-enter',
-                        onChange: () => chooseShortcut('ctrl-enter'),
+                        checked: sendShortcut === 'enter',
+                        onChange: () => chooseShortcut('enter'),
                       }),
-                      h('span', null, say('settings.shortcutCtrlEnter')),
+                      h('span', null, say('settings.shortcutEnter', { mod: MOD_LABEL })),
                     ),
                     h(
                       'label',
@@ -1986,10 +1936,10 @@ window.__ModuleLoader__.load({
                       h('input', {
                         type: 'radio',
                         name: 'dsh-wt-send-shortcut',
-                        checked: sendShortcut === 'enter',
-                        onChange: () => chooseShortcut('enter'),
+                        checked: sendShortcut === 'ctrl-enter',
+                        onChange: () => chooseShortcut('ctrl-enter'),
                       }),
-                      h('span', null, say('settings.shortcutEnter')),
+                      h('span', null, say('settings.shortcutCtrlEnter', { mod: MOD_LABEL })),
                     ),
                   ),
                 ),
@@ -2019,7 +1969,7 @@ window.__ModuleLoader__.load({
                     'div',
                     { className: 'dsh-wt-settingItem' },
                     h('div', { className: 'dsh-wt-settingItemLabel' }, say('settings.forwardCheck')),
-                    h('p', { className: 'dsh-wt-settingHint dsh-wt-settingHintNote' }, say('settings.halfCheck')),
+                    h('p', { className: 'dsh-wt-settingHint dsh-wt-settingHintNote' }, say('settings.forwardMark')),
                   ),
                 ),
               ),
@@ -2094,16 +2044,17 @@ window.__ModuleLoader__.load({
                 event.preventDefault()
                 return
               }
-              const modifier = event.ctrlKey || event.metaKey
+              const chord = event.ctrlKey || event.metaKey
+              const platformModifier = isSendModifier(event)
               const shouldSend = sendShortcut === 'enter'
-                ? !modifier && !event.shiftKey
-                : modifier
+                ? !chord && !event.shiftKey
+                : platformModifier
               if (shouldSend) {
                 event.preventDefault()
                 add()
                 return
               }
-              if (sendShortcut === 'enter' && (modifier || event.shiftKey)) {
+              if (sendShortcut === 'enter' && (chord || event.shiftKey)) {
                 event.preventDefault()
                 insertDraftNewline(event.currentTarget)
               }
@@ -2112,7 +2063,7 @@ window.__ModuleLoader__.load({
           h(
             'div',
             { className: 'dsh-wt-addFoot' },
-            h('span', { className: 'dsh-wt-addShortcut' }, say(sendShortcut === 'enter' ? 'add.shortcutEnter' : 'add.shortcut')),
+            h('span', { className: 'dsh-wt-addShortcut' }, say(sendShortcut === 'enter' ? 'add.shortcutEnter' : 'add.shortcut', { mod: MOD_LABEL })),
             h('button', { type: 'submit', className: 'dsh-wt-addBtn', disabled: !draft.trim() }, say('add.action')),
           ),
         ),
@@ -2164,12 +2115,35 @@ window.__ModuleLoader__.load({
                     },
                     h('span', { className: 'dsh-wt-chevron', 'data-open': showDone ? 'true' : 'false' }, h(IconChevron, null)),
                     say('popover.completed'),
-                    h('span', { className: 'dsh-wt-sectionCount', 'data-tone': 'done' }, String(doneItems.length)),
+                    h('span', { className: 'dsh-wt-sectionCount' }, String(doneItems.length)),
                   ),
                   showDone
-                    ? h('button', { type: 'button', className: 'dsh-wt-clear', onClick: clearDone }, say('popover.clearDone'))
+                    ? h('button', {
+                        type: 'button',
+                        className: 'dsh-wt-clear',
+                        'aria-expanded': confirmClear ? 'true' : 'false',
+                        onClick: askClearConfirm,
+                      }, say('popover.clearDone'))
                     : null,
                 ),
+                showDone && confirmClear
+                  ? h(
+                      'div',
+                      {
+                        className: 'dsh-wt-clearConfirm',
+                        role: 'group',
+                        'aria-live': 'polite',
+                        'aria-label': say('popover.clearConfirm', { n: doneItems.length }),
+                      },
+                      h('p', { className: 'dsh-wt-clearConfirmText' }, say('popover.clearConfirm', { n: doneItems.length })),
+                      h(
+                        'div',
+                        { className: 'dsh-wt-clearConfirmActions' },
+                        h('button', { type: 'button', className: 'dsh-wt-mini', onClick: dismissClearConfirm }, say('popover.clearCancel')),
+                        h('button', { type: 'button', className: 'dsh-wt-mini dsh-wt-miniDanger', onClick: confirmClearDone }, say('popover.clearConfirmAction')),
+                      ),
+                    )
+                  : null,
                 showDone ? h('ul', { className: 'dsh-wt-rows dsh-wt-doneRows' }, doneItems.map(row)) : null,
               )
             : null,
@@ -2270,6 +2244,7 @@ window.__ModuleLoader__.load({
       const TOAST_COPY = {
         copied: { key: 'toast.copied', tone: 'success' },
         forwarded: { key: 'toast.forwarded', tone: 'success' },
+        unforwarded: { key: 'toast.unforwarded', tone: 'success' },
         deleted: { key: 'toast.deleted', tone: 'success' },
         cleared: { key: 'toast.cleared', tone: 'success' },
         copyFailed: { key: 'toast.copyFailed' },
