@@ -1,18 +1,54 @@
-# Notes
+# SessionNote · Session Notes
 
 [中文](README.md) | English
 
-> Product name: **Notes** (便笺). The repository keeps the `dsh-workspace-todos` name.
+> Product name: **SessionNote** (会话便笺). The repository keeps the `dsh-workspace-todos` name.
 
-A lightweight note for the DeepSeek Harness Web GUI, scoped to one **session** at a time. Switching sessions never mixes notes, and sessions in the same workspace stay independent. The entry lives in the top-right header button and the notes panel opens from the right side.
+**A to-do list for every AI session.**
+
+Capture a thought · One list per session · Bring it back to the conversation
+
+SessionNote is a lightweight session notes plugin for DeepSeek Harness (DSH): keep details beside the current conversation, capture tasks and ideas, and bring them back when you are ready.
+
+## Why SessionNote
+
+Working with AI often brings up things you want to revisit: a detail to change later, a result to double-check, or an idea to explore next.
+
+Sending them straight into the conversation can interrupt the task at hand. Writing them somewhere else means finding them again later. SessionNote keeps them beside the conversation so you can jot them down and carry on.
+
+## From a quick note to the next step
+
+### Capture it and keep going
+
+Click the **Notes** button at the top right of the conversation to open the right-side panel. Record tasks, ideas, and details to revisit. The button shows the unfinished count; check off each item as you finish it.
+
+### Every session has its own list
+
+Notes are saved independently for each session. Even within the same workspace, each conversation keeps its own tasks and context.
+
+### Bring it back when you are ready
+
+Click a note's forward button to append it to the current chat input as a list item. Add to or edit it, then send when you are ready. You can customize the prefix prompt, which is added only when the input is empty. Forwarding never sends the message automatically or marks the note as completed.
+
+### Small details for everyday use
+
+- **Saved drafts**: close the panel and pick up where you left off when you reopen it.
+- **Completed history**: separate open and completed sections, with creation and completion times.
+- **Adjustable panel**: resize the width and height, with your preferences remembered.
+- **Fits into DSH**: follows the light/dark theme and Chinese/English language settings.
+- **Browser-local persistence**: records survive page refreshes and DSH restarts, with updates synced across tabs in the same browser.
+
+> Notes are stored in the current browser and do not sync across devices or browsers. Clearing site data removes them. See [Where data lives](#where-data-lives).
+
+[Installation](#install) · [Feedback and issues](https://github.com/Rayle8/dsh-workspace-todos/issues)
+
+## Preview and entry
 
 ![Notes right-side panel](./preview-right.png)
 
 The same panel in the dark theme; every colour comes from DSH theme tokens:
 
 ![Notes right-side panel, dark](./preview-right-dark.png)
-
-## Entry
 
 A **Notes** button at the top right of the conversation, with the open count:
 
@@ -22,7 +58,7 @@ The same button in the dark theme:
 
 ![Notes button at the top right, dark](./preview-badge-dark.png)
 
-Clicking it opens a fixed panel on the right. The sidebar title badge and composer status-strip entry are not used on this branch.
+Clicking the entry opens a fixed panel on the right.
 
 ## Features
 
@@ -46,12 +82,11 @@ Clicking it opens a fixed panel on the right. The sidebar title badge and compos
 - The send-shortcut hint sits in the empty space left of the Add button and updates with the setting, keeping the input placeholder short.
 - Unsaved add/edit drafts are saved per session and restored after closing and reopening the panel, with the add caret at the end of the draft; they clear after add, save, cancel, or delete.
 - Expanding **Completed** does not compress the **Open** list; only the open/completed list region scrolls, while the header, settings, composer, and footer stay fixed.
-- The **Open** and **Completed** headers stick inside the list: transparent until pinned, then filled with the same opaque `--dsh-wt-panelSurface` as the popover. The title typography stays unchanged, with no rounded corners, underlay, translucency, or top blur band.
+- The **Open** and **Completed** headers stick inside the list: transparent until pinned, then filled with the same opaque `--dsh-wt-panelSurface` as the panel. The title typography stays unchanged, with no rounded corners, underlay, translucency, or top blur band.
 - Completed notes show both the creation and the completion age and sort by newest completion; open notes show the creation age only.
 - The open/completed expand state is remembered and restored when the panel is reopened.
 - Note-card copy/edit/delete actions appear on hover or keyboard focus while keeping their layout space; touch devices keep them visible.
 - Both **Open** and **Completed** headings collapse on click with matching count styles and colours; either can stay expanded independently; only the chevron, label, and count are clickable, not the blank right side.
-- The sidebar reminder stays visible while the session is running.
 - Syncs across tabs in the same browser.
 - Chinese and English copy, following the DSH locale.
 - Every style reuses DSH design tokens: semantic colour aliases, shared radii and elevation, an opaque raised surface, and the shared scrollbar skin. Type collapses to three sizes (12 / 13 / 14), weight caps at 500, neutral strokes are 0.5px hairlines, hover styling only runs on hover-capable devices, and settled outcomes report through the frame-wide toast. See the [UI / interaction review](./docs/ui-design-check.md).
@@ -113,10 +148,11 @@ Feedback reuses product surfaces too: copy, forward, delete, clear-completed, an
 
 ## Usage
 
-1. Click the badge after a session title (it appears when that session has notes), or the **Notes** entry at the right of the composer status strip.
-2. Write one concrete follow-up in the popover and press Enter (or **Add**).
-3. Click the circle to complete it; expand **Completed** to look back.
-4. Click outside or press Esc to close.
+1. Click the **Notes** button at the top right of the conversation to open the right-side panel. Its badge shows the unfinished count when there are open notes.
+2. Write one concrete follow-up in the panel and use your configured add shortcut or click **Add**.
+3. When you are ready to continue, click the note's forward button to append it to the chat input, then review and send it yourself.
+4. Click the circle to mark it complete; expand **Completed** to look back.
+5. Click outside the panel or press Esc to close.
 
 ## Where data lives
 
@@ -181,10 +217,10 @@ window.__ModuleLoader__.load({
 
 `index.js` is the empty Host half; `cordis.patch.yml` inserts the package into the profile composition. The UI depends on `slots` only:
 
-- `conversation.composer.dock`: the entry at the right of the status strip below the input.
-- The sidebar badge is injected after each session title with a MutationObserver, because the packaged session row does not render the inline trailing slot.
+- `conversation.composer.dock`: used only to capture the active session ID; it renders no visible entry.
+- The top-right entry is injected into the host header with a MutationObserver, because the host's re-render reclaims a React portal there.
 
-The popover mounts as its own `react-dom/client` root on `document.body` and follows the trigger with fixed positioning. All styles use DSH's `--dsw-alias-*` theme variables, so light and dark themes work.
+The panel mounts as its own `react-dom/client` root on `document.body` and follows the trigger with fixed positioning. All styles use DSH's `--dsw-alias-*` theme variables, so light and dark themes work.
 
 `client.js` changes reload through the dev client HMR; otherwise refresh the page or restart DSH.
 
@@ -192,10 +228,10 @@ The popover mounts as its own `react-dom/client` root on `document.body` and fol
 
 Loaded in an isolated DSH profile and driven through headless Chrome:
 
-- the `Notes 1/1` badge appears after the session title;
-- clicking the badge or an entry opens the floating panel next to the trigger;
-- adding updates both the popover and the badge;
-- complete, edit, delete, and clear-completed work in the popover;
+- the **Notes** button appears at the top right, with the open count on its badge;
+- clicking it opens the panel on the right, aligned with the entry;
+- adding updates both the badge and the panel count;
+- complete, edit, copy, forward, delete, and clear-completed work in the panel;
 - records survive a refresh and stay session-scoped.
 
 `node --check client.js` and the contract tests pass.
