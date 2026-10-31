@@ -180,8 +180,7 @@ Therefore:
 - Refreshing, restarting DSH, or switching sessions keeps the records.
 - Nothing is written into the project or synced to another machine/browser.
 - Clearing site data clears the notes.
-- 1.x notes, drafts, forward marks, and panel settings are copied to `dsh.aside-note.*` on first load. The old keys stay, so a rollback to 1.9.x still reads them.
-- Storage keys carry no version suffix and follow the `dsh-aside-note` package name; if your data still sits under the old `dsh.aside-notes.*.v2` keys, rename them to the matching `dsh.aside-note.*` keys and reload.
+- Storage keys carry no version suffix and follow the `dsh-aside-note` package name; old keys are neither read nor migrated. If your data still sits under the old `dsh.aside-notes.*.v2` keys, rename them to the matching `dsh.aside-note.*` keys and reload.
 
 ## Install
 
@@ -316,7 +315,6 @@ Loaded in an isolated DSH profile and driven through headless Chrome:
 - adding updates both the badge and the panel count;
 - complete, edit, copy, forward, delete, and clear-completed work in the panel;
 - records survive a refresh and stay session-scoped;
-- 1.x notes appear under the new keys after a restart;
 - the npmjs → npmmirror → GitHub Release fallback, the one-hour cache, and the version comparison are covered by the contract tests, and the jsdom test drives the visible update notice; the live notice needs a published npm package or a GitHub Release.
 
 `npm run check` passes: lint, typecheck, build, and 66 tests, including a jsdom integration test that drives the whole panel, expands the release notes and runs an update through a mocked market.

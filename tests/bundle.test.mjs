@@ -28,13 +28,13 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   globalThis.document = window.document
   globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
-  // 1.x data must survive the rename: seed the old keys before the plugin
-  // boots, then expect copies under the AsideNote keys plus the marker.
-  window.localStorage.setItem('dsh.session-memos.v1', JSON.stringify({
+  // Seed the current keys before the plugin boots: one open note and a
+  // non-default send preference. No legacy key is read or copied.
+  window.localStorage.setItem('dsh.aside-note', JSON.stringify({
     version: 1,
     sessions: { 'session-1': { items: [{ id: 'seed', text: '旧便笺', done: false, createdAt: 1, updatedAt: 1 }] } },
   }))
-  window.localStorage.setItem('dsh.memo.send-shortcut.v1', 'ctrl-enter')
+  window.localStorage.setItem('dsh.aside-note.send-shortcut', 'ctrl-enter')
 
   // Loaded after the DOM globals exist: react-dom decides `canUseDOM` at import.
   const React = await import('react')
@@ -188,11 +188,10 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   assert.equal(registered.length, 2, 'both slots must be registered')
   assert.deepEqual(registered.map(entry => entry.meta.name).sort(), injected)
 
-  const migrated = JSON.parse(window.localStorage.getItem('dsh.aside-note'))
-  assert.equal(migrated.sessions['session-1'].items[0].text, '旧便笺')
+  const seeded = JSON.parse(window.localStorage.getItem('dsh.aside-note'))
+  assert.equal(seeded.sessions['session-1'].items[0].text, '旧便笺')
   assert.equal(window.localStorage.getItem('dsh.aside-note.send-shortcut'), 'ctrl-enter')
-  assert.ok(window.localStorage.getItem('dsh.aside-note.migrated'), 'the migration marker must be set')
-  assert.ok(window.localStorage.getItem('dsh.session-memos.v1'), 'old keys stay readable for a rollback')
+  assert.equal(window.localStorage.getItem('dsh.aside-note.migrated'), null, 'no migration marker is written')
 
   const style = document.querySelector('style[data-dsh-plugin="dsh-aside-note"]')
   assert.ok(style, 'the document-level stylesheet must be injected')
@@ -212,7 +211,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   assert.ok(button, 'the header entry must be injected into the host utilities row')
   assert.equal(button.dataset.sessionId, 'session-1')
   assert.match(button.getAttribute('aria-label'), /便笺/)
-  // The migrated note is open, so the entry already shows a count.
+  // The seeded note is open, so the entry already shows a count.
   assert.equal(button.querySelector('.dsh-an-headerCount').textContent, '1')
 
   // Open the panel from that entry and write a note through the real form.

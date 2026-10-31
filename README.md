@@ -180,8 +180,7 @@ AsideNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺。临时的�
 - 刷新页面、重启 DSH、切换会话都不会丢。
 - 不会写入项目文件，也不会同步到其他机器或其他浏览器。
 - 清理浏览器站点数据会清除便笺。
-- 1.x 的便笺、草稿、转发标记与面板设置会在首次加载时复制到 `dsh.aside-note.*`；旧键保留，回退到 1.9.x 仍可读。
-- 存储键不带版本后缀，并与包名 `dsh-aside-note` 对齐；如果本地数据仍在旧的 `dsh.aside-notes.*.v2` 键下，把键名改为对应的 `dsh.aside-note.*` 后刷新页面即可继续使用。
+- 存储键不带版本后缀，并与包名 `dsh-aside-note` 对齐；不读取任何旧键，也不自动迁移。如果本地数据仍在旧的 `dsh.aside-notes.*.v2` 键下，把键名改为对应的 `dsh.aside-note.*` 后刷新页面即可继续使用。
 
 ## 安装
 
@@ -316,7 +315,6 @@ window.__ModuleLoader__.load({ id: 'dsh-aside-note', factory: (require) => { …
 - 添加后按钮角标与面板计数同步；
 - 面板内可完成、编辑、复制、转发、删除、清除已完成；
 - 刷新页面后记录仍在，并按会话隔离；
-- 重启后 1.x 的旧便笺自动出现在新键下；
 - 版本检查的 npmjs → npmmirror → GitHub Release 回退、1 小时缓存与版本比较由契约测试覆盖；发布说明的标记提取、中英文回退、上限与 Markdown 压平有独立测试；jsdom 集成测试会驱动面板显示更新卡片、展开说明并通过模拟市场完成一次更新。真实更新提示需先发布到 npm 或创建 GitHub Release。
 
 `npm run check` 通过：lint、类型检查、构建与 66 个测试（含 jsdom 里驱动完整面板流程的集成测试）。
