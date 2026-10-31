@@ -200,6 +200,8 @@ npx dsh-asidenote install --version 2.0.1   # pin the version instead of ^2.0.1
 
 It is safe to re-run. No restart is needed: DSH re-composes the profile within about a second, and a page reload picks up the entry (a marketplace install triggers that reload for you).
 
+Prefer to hand it to an agent? Paste the [one-command install prompt](./docs/install-prompt.md).
+
 ### Configure the npm dependency manually
 
 Add the dependency to the DSH profile's `package.json` and list the package under `dsh.profile.bundles`:

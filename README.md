@@ -200,6 +200,8 @@ npx dsh-asidenote install --version 2.0.1   # 固定版本，而不是 ^2.0.1
 
 重复执行是幂等的。装完不需要重启 DSH：profile 会在约 1 秒内重新组合，刷新页面即可看到入口（从插件市场安装时，市场会替你刷新页面）。
 
+不想自己敲命令的话，把 [一键安装提示词](./docs/install-prompt.md) 整段交给 agent 即可。
+
 ### 手动配置 npm 依赖
 
 在 DSH profile 的 `package.json` 中加入依赖，并把包名加进 `dsh.profile.bundles`：
