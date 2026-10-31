@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Keep the CSS virtual module id slash-separated when the committed bundle is built. rolldown echoes the relative id into `client/client.js`, and `path.relative()` uses the platform separator, so a Windows build wrote `src\client\styles\panel.css.mjs` where the Linux CI artifact has `src/client/styles/panel.css.mjs` and the `git diff --exit-code client/` gate failed. The id is now normalised to `/`, which leaves the POSIX artifact unchanged byte for byte.
+
 ## 2.0.1
 
 - No plugin behavior changes. This release exists to ship the package and the release pipeline: the npm package now publishes under `dsh-asidenote` with `publishConfig` pinned to the public registry, and the README documents the npm install path.
