@@ -23,7 +23,7 @@ src/client/
 ├─ domain/               # id、clipboard、forward（写回输入框）、items（归一化/排序/时间）
 ├─ storage/              # codec、events（同标签页总线）、session、drafts、forwarded、prefs
 ├─ ui/                   # 面板外壳与纯展示组件、hooks、primitives、定位
-│                        # 更新中心：useUpdateCenter（检查/说明/更新）、UpdateNotice
+│                        # 更新中心：useUpdateCenter（检查/说明/更新与命令兜底）、UpdateNotice
 ├─ update/               # latest（版本与 Release 探测）、releaseNotes（标记解析）、
 │                        # releaseHistory（多版本区间）、
 │                        # market（插件市场公开更新 API 客户端）
@@ -50,8 +50,8 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | 更新 | `update/releaseNotes.ts` | 提取 `app-update-notes` 标记块、按语言回退、压平 Markdown、上限兜底 |
 | 更新 | `update/releaseHistory.ts` | 从 releases feed 选出「本地 < 版本 ≤ 最新」的区间，剔除草稿/预发布，倒序与上限 |
 | 更新 | `update/market.ts` | dshmarket 公开更新 API v1：capabilities → check → POST update → 轮询 operation → restart |
-| 更新 | `ui/useUpdateCenter.ts` | 自动/手动检查、懒加载说明、更新状态机（starting/running/done/error） |
-| 更新 | `ui/UpdateNotice.ts` | 关于区里的更新卡片：说明展开、完整说明链接、立即更新/刷新/重启 |
+| 更新 | `ui/useUpdateCenter.ts` | 自动/手动检查、懒加载说明、更新状态机（starting/waiting/running/done/error），市场忙碌时自动等待重试 |
+| 更新 | `ui/UpdateNotice.ts` | 关于区里的更新卡片：说明展开、完整说明链接、立即更新/刷新/重启，市场不在或一直忙时改为命令 + 拷贝更新提示词 |
 | 存储 | `storage/prefs.ts` | 面板宽高、发送快捷键、前缀、分区状态 |
 | UI 组件 | `ui/MemoPopover.ts` | 面板编排：组合 hook 与展示组件，portal 到 body |
 | UI 组件 | `PanelHead` / `SettingsPanel` / `ComposerForm` / `NoteList` / `ClearConfirm` / `TodoRow` / `EmptyState` | 纯展示，数据与回调由面板传入 |

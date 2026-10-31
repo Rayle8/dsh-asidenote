@@ -4,6 +4,16 @@ The 1.0.0–2.0.1 iterations were development builds of the same plugin; the 2.x
 
 ## next-released
 
+<!-- app-update-notes:en:start -->
+### Fixed
+- **Update:** when the market is busy with another operation, “Update now” waits and retries before reporting it. If the market stays busy — or is not installed at all — the card now states the command (`npx -y dsh-aside-note install`, or the Plugins page) and offers **Copy update prompt**, instead of stopping at “another update is already running — try again shortly”.
+<!-- app-update-notes:en:end -->
+
+<!-- app-update-notes:zh:start -->
+### 修复
+- **更新：** 市场正在执行别的操作时，「立即更新」会先等待并重试；如果市场一直忙、或根本没有安装市场，卡片不再停在「市场正在执行另一个更新，请稍后再试」，而是直接给出命令（`npx -y dsh-aside-note install`，或到「插件」页更新），并提供「拷贝更新提示词」。
+<!-- app-update-notes:zh:end -->
+
 ## 1.0.1
 
 <!-- app-update-notes:en:start -->

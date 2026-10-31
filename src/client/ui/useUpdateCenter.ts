@@ -3,10 +3,15 @@
  *
  * Three things are allowed to be independent here: the published version check
  * (auto on open, manual on demand), the release notes behind that version
- * (loaded only when the disclosure is opened), and the in-app update itself
+ * (loaded as soon as an update is offered), and the in-app update itself
  * (queued through the plugin market's public API and polled to a terminal
  * state). Keeping them separate means a missing market or a missing release
  * body cannot take the version check down with it.
+ *
+ * The market runs one mutation per host process, so it may answer
+ * `OPERATION_BUSY`. That window is waited out; when the market is absent or
+ * stays busy, the card falls back to the terminal command — the panel never
+ * runs a package manager itself.
  */
 import React from 'react'
 import { PLUGIN_REPO_URL, PLUGIN_VERSION } from '../constants'
@@ -20,10 +25,11 @@ import { updateNotesForLocale } from '../update/releaseNotes'
 import type { ReleaseNoteGroup } from '../update/releaseNotes'
 import { MARKET_PACKAGE, marketClient } from '../update/market'
 import type { MarketCapabilities } from '../update/market'
+import { copyText } from '../domain/clipboard'
 
 export type CheckStatus = 'idle' | 'checking' | 'current' | 'available' | 'error'
 export type NotesStatus = 'idle' | 'loading' | 'ready' | 'error'
-export type RunPhase = 'idle' | 'starting' | 'running' | 'done' | 'error'
+export type RunPhase = 'idle' | 'starting' | 'waiting' | 'running' | 'done' | 'error'
 export type MarketState = 'unknown' | 'unsupported' | 'ready'
 
 export interface UpdateCheckState {
@@ -76,6 +82,15 @@ const RUN_IDLE: UpdateRunState = {
 
 const POLL_INTERVAL_MS = 900
 /**
+ * The market runs one mutation per host process and answers `409
+ * OPERATION_BUSY` while another update — or its install lock — is held. That
+ * window is usually short (pnpm exiting, install post-processing, a neighbour
+ * update finishing), so the button waits it out before falling back to the
+ * terminal command. Waiting is capped: an operation that stayed busy is a real
+ * "do it yourself now", and the card shows how.
+ */
+const BUSY_RETRY_DELAYS_MS = [1000, 2000, 4000]
+/**
  * A manual check stays on screen for at least this long. A fast registry answer
  * would otherwise flip the button back in a few milliseconds, which reads as
  * "did that do anything?" and invites repeat clicks.
@@ -101,6 +116,8 @@ export function useUpdateCenter(localeId: string) {
   const disposed = React.useRef(false)
   const runRef = React.useRef<UpdateRunState>(RUN_IDLE)
   runRef.current = run
+  /** Set before the first await so the same panel cannot start two operations. */
+  const starting = React.useRef(false)
 
   React.useEffect(() => {
     disposed.current = false
@@ -224,58 +241,81 @@ export function useUpdateCenter(localeId: string) {
   }, [check.status, check.latestVersion, localeId])
 
   const startUpdate = React.useCallback(async (force = false) => {
-    if (runRef.current.phase === 'starting' || runRef.current.phase === 'running' || runRef.current.phase === 'done') return
-    setRun(terminalRun('starting'))
-    const caps = await marketClient.capabilities()
-    if (disposed.current) return
-    if (!caps) {
-      setMarket('unsupported')
-      setRun(terminalRun('error', { failureCode: 'NO_MARKET' }))
-      return
-    }
-    setMarket('ready')
-    setRestartSupported(caps.restartSupported)
-    const started = await marketClient.start(MARKET_PACKAGE, force)
-    if (disposed.current) return
-    if ('error' in started) {
-      setRun(terminalRun('error', {
-        failureCode: started.error.code,
-        message: started.error.message || null,
-        retryable: started.error.retryable,
-      }))
-      return
-    }
-    setRun({ ...RUN_IDLE, phase: 'running', percent: 0 })
-    for (let attempt = 0; attempt < MAX_POLLS; attempt += 1) {
-      await sleep(POLL_INTERVAL_MS)
+    // The button only disables on the next render, so the click guard has to be
+    // a ref: two rapid clicks in the same frame would otherwise both reach the
+    // market, and the second one comes back as the very OPERATION_BUSY refusal
+    // this is meant to avoid.
+    if (starting.current) return
+    if (runRef.current.phase === 'running' || runRef.current.phase === 'done') return
+    starting.current = true
+    try {
+      setRun(terminalRun('starting'))
+      const caps = await marketClient.capabilities()
       if (disposed.current) return
-      const operation = await marketClient.operation(started.operationId)
-      if (disposed.current) return
-      if (operation === null) {
-        setRun(terminalRun('error', { failureCode: 'UPDATE_FAILED', retryable: true }))
+      if (!caps) {
+        // No usable market: leave the card on the terminal path, not on an
+        // error the user cannot act on.
+        setMarket('unsupported')
+        setRun(RUN_IDLE)
         return
       }
-      if (operation.state === 'queued' || operation.state === 'running') {
-        setRun({ ...RUN_IDLE, phase: 'running', percent: operation.percent })
-        continue
+      setMarket('ready')
+      setRestartSupported(caps.restartSupported)
+
+      let started = await marketClient.start(MARKET_PACKAGE, force)
+      if (disposed.current) return
+      // Wait out a busy market rather than reporting it on the first answer:
+      // the lock is released by whoever holds it, not by the user retrying.
+      for (let attempt = 0; attempt < BUSY_RETRY_DELAYS_MS.length; attempt += 1) {
+        if (!('error' in started) || started.error.code !== 'OPERATION_BUSY') break
+        setRun(terminalRun('waiting'))
+        await sleep(BUSY_RETRY_DELAYS_MS[attempt])
+        if (disposed.current) return
+        started = await marketClient.start(MARKET_PACKAGE, force)
+        if (disposed.current) return
       }
-      if (operation.state === 'succeeded') {
-        setRun(terminalRun('done', {
-          percent: 100,
-          installedVersion: operation.installedVersion,
-          refreshRequired: operation.refreshRequired || !operation.restartRequired,
-          restartRequired: operation.restartRequired,
+      if ('error' in started) {
+        setRun(terminalRun('error', {
+          failureCode: started.error.code,
+          message: started.error.message || null,
+          retryable: started.error.retryable,
         }))
         return
       }
-      setRun(terminalRun('error', {
-        failureCode: operation.failure?.code || 'UPDATE_FAILED',
-        message: operation.failure?.message || null,
-        retryable: operation.failure?.retryable !== false,
-      }))
-      return
+      setRun({ ...RUN_IDLE, phase: 'running', percent: 0 })
+      for (let attempt = 0; attempt < MAX_POLLS; attempt += 1) {
+        await sleep(POLL_INTERVAL_MS)
+        if (disposed.current) return
+        const operation = await marketClient.operation(started.operationId)
+        if (disposed.current) return
+        if (operation === null) {
+          setRun(terminalRun('error', { failureCode: 'UPDATE_FAILED', retryable: true }))
+          return
+        }
+        if (operation.state === 'queued' || operation.state === 'running') {
+          setRun({ ...RUN_IDLE, phase: 'running', percent: operation.percent })
+          continue
+        }
+        if (operation.state === 'succeeded') {
+          setRun(terminalRun('done', {
+            percent: 100,
+            installedVersion: operation.installedVersion,
+            refreshRequired: operation.refreshRequired || !operation.restartRequired,
+            restartRequired: operation.restartRequired,
+          }))
+          return
+        }
+        setRun(terminalRun('error', {
+          failureCode: operation.failure?.code || 'UPDATE_FAILED',
+          message: operation.failure?.message || null,
+          retryable: operation.failure?.retryable !== false,
+        }))
+        return
+      }
+      setRun(terminalRun('error', { failureCode: 'UPDATE_TIMEOUT', retryable: true }))
+    } finally {
+      starting.current = false
     }
-    setRun(terminalRun('error', { failureCode: 'UPDATE_TIMEOUT', retryable: true }))
   }, [])
 
   const refreshPage = React.useCallback(() => {
@@ -290,6 +330,9 @@ export function useUpdateCenter(localeId: string) {
     await marketClient.restart()
     refreshPage()
   }, [refreshPage])
+
+  /** Copy the ready-to-paste update prompt; the caller reports the outcome. */
+  const copyPrompt = React.useCallback((text: string) => copyText(text), [])
 
   const fullReleaseUrl = notes.entries[0]?.url || (latestVersion
     ? `${PLUGIN_REPO_URL}/releases/tag/v${latestVersion}`
@@ -310,5 +353,6 @@ export function useUpdateCenter(localeId: string) {
     startUpdate,
     refreshPage,
     restartHost,
+    copyPrompt,
   }
 }

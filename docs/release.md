@@ -151,7 +151,7 @@ gh release view v1.0.0 -R Rayle8/dsh-aside-note
 
 ## 更新提示的耦合
 
-应用内更新卡片需要三样东西同时成立：
+更新卡片需要三样东西同时成立：
 
 1. **npm（或 GitHub Release）有新版本**：版本号来自 npm，npm 不可用时回退到 npmmirror，再回退到 GitHub 最新 Release。
 2. **对应的 GitHub Release 存在**：面板读取 `releases?per_page=50`，取出版本高于本地、且不高于最新版的 Release 正文；只打 tag 不建 Release 时列表为空，卡片会退化为「暂无更新说明 + 完整更新说明链接」。feed 不可用时回退到 `releases/tags/v<最新版本>` 单条。workflow 已经自动创建 Release 并上传 tgz。
@@ -167,11 +167,12 @@ npm pack --pack-destination dist
 gh release upload v1.0.0 dist/dsh-aside-note-1.0.0.tgz --clobber
 ```
 
-## 应用内更新的依赖
+## 应用内更新的依赖与兜底
 
 「立即更新」通过 dshmarket 的公开更新 API（`/dsh-market/api/v1`）执行，**不是**本插件自己跑包管理器。因此：
 
-- 未安装或未启用 dshmarket 时，卡片只给手动更新路径；插件不会尝试安装市场。
+- 未安装或未启用 dshmarket 时，卡片不给按钮，直接给出命令（`npx -y dsh-aside-note install` 或「插件」页）与「拷贝更新提示词」；插件不会尝试安装市场。
+- 市场同一进程只允许一个安装/更新操作，被占用时返回 `409 OPERATION_BUSY`。面板会先等待重试（1s / 2s / 4s）；仍然被占用时保留重试按钮，同时给出同一条命令与「拷贝更新提示词」，而不是只显示「稍后再试」。`tests/update-fallback.test.mjs` 覆盖「一直忙」和「没有市场」两条路径。
 - 市场返回的 `RELEASE_TOO_FRESH` / `VERSION_UNCHANGED` 会显示「仍要更新」二次确认；失败时展示稳定的失败码文案。
 - 更新完成后按市场给出的 `refreshRequired` / `restartRequired` 显示「刷新页面」或「重启 DSH」；Host 重启能力由市场的 capabilities 决定，插件不自行结束进程。
 - 市场 API 处于 beta：客户端从 capabilities 读取端点与能力，不硬编码开关。

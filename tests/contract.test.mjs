@@ -66,7 +66,7 @@ test('the release body is composed from CHANGELOG markers and used by the publis
   for (const marker of markers) assert.ok(section.includes(marker), `the release section for ${target} needs ${marker}`)
 })
 
-test('the client checks for a newer release, reads its notes inline and updates through the market', () => {
+test('the client checks for a newer release, reads its notes inline and falls back to the update command', () => {
   const client = readClientTree()
   const css = readCss()
   assert.match(client, /https:\/\/registry\.npmjs\.org/)
@@ -89,6 +89,10 @@ test('the client checks for a newer release, reads its notes inline and updates 
   assert.match(client, /packageName: name/)
   assert.doesNotMatch(client, /update\.notesShow|update\.notesHide/)
   assert.match(client, /'update\.now'/)
+  assert.match(client, /'update\.copyPrompt'/)
+  assert.match(client, /'update\.manualHint'/)
+  assert.match(client, /'update\.prompt'/)
+  assert.match(client, /npx -y dsh-aside-note install/)
   assert.match(client, /PLUGIN_VERSION\.includes\('-'\)/)
   assert.match(css, /\.dsh-an-updateDot\{/)
   assert.match(css, /\.dsh-an-updateCard\{/)
@@ -98,7 +102,7 @@ test('the client checks for a newer release, reads its notes inline and updates 
   assert.match(css, /\.dsh-an-updateNotes\[data-fade="true"\]\{/)
   assert.match(client, /'update\.notesTitle'/)
   assert.match(client, /'aria-controls': `\$\{NOTES_ID\}/)
-  assert.match(client, /'aria-busy': busy/)
+  assert.match(client, /copyText/)
   assert.match(css, /\.dsh-an-updateChevron\[data-open="true"\]\{/)
   assert.match(css, /\.dsh-an-updatePrimary\{/)
   assert.match(read('client/client.js'), /function createUpdateProbe/, 'the shipped bundle carries the check')

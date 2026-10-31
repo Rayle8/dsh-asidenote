@@ -317,10 +317,14 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   const actions = popover.querySelector('.dsh-an-updateActions')
   assert.ok(actions, 'the action row carries the update button and the full-release link')
   assert.equal(actions.lastElementChild, fullLink, 'the full-release link sits to the right of the update button')
-  assert.ok(actions.querySelector('.dsh-an-updatePrimary'), 'the update button shares that row')
+  const updateButton = actions.querySelector('.dsh-an-updatePrimary')
+  assert.ok(updateButton, 'the update button shares that row')
+  assert.equal(updateButton.textContent, '立即更新')
+  assert.equal(popover.querySelector('.dsh-an-updateFallback'), null,
+    'a reachable market shows no manual fallback before it is needed')
 
   // "Update now" queues the market operation and settles on the refresh action.
-  await act(async () => { popover.querySelector('.dsh-an-updatePrimary').click() })
+  await act(async () => { updateButton.click() })
   await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 2200)) })
   assert.equal(startedUpdates, 1, 'the update must POST exactly once')
   assert.ok(polledOperations >= 1, 'the operation must be polled')

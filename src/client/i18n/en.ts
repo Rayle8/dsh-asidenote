@@ -87,6 +87,7 @@ export const en: Record<MessageKey, string> = {
   "update.full": "Full release notes",
   "update.now": "Update now",
   "update.starting": "Preparing the update…",
+  "update.waiting": "Another update is running in the market — waiting…",
   "update.updating": "Updating…",
   "update.updatingPercent": "Updating… {percent}%",
   "update.updated": "Updated to {version}",
@@ -95,12 +96,14 @@ export const en: Record<MessageKey, string> = {
   "update.restartHint": "Restart DSH manually to finish the update",
   "update.failed": "Update failed: {reason}",
   "update.force": "Update anyway",
-  "update.noMarket": "No plugin market detected, so the update cannot run in-app; update from Plugins or run pnpm update dsh-aside-note",
   "update.tooFresh": "This release is too new for the market right now — retry later or update anyway",
   "update.unchanged": "The market answered with the same version — retry later or update anyway",
   "update.notInstalled": "This plugin is not installed in the current profile, so it cannot be updated in-app",
   "update.forbidden": "The market refused this update request",
   "update.rejected": "The market did not run this update; a linked checkout updates from its own directory",
   "update.busy": "Another update is already running in the market — try again shortly",
-  "update.timeout": "Timed out waiting for the update result — try again later"
+  "update.timeout": "Timed out waiting for the update result — try again later",
+  "update.manualHint": "Or update directly: run npx -y dsh-aside-note install in a terminal, or update from the Plugins page, then reload",
+  "update.copyPrompt": "Copy update prompt",
+  "update.prompt": "Update the DSH plugin AsideNote to the latest version by running: npx -y dsh-aside-note install."
 }

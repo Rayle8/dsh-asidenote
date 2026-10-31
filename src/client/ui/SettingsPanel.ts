@@ -141,6 +141,8 @@ export function SettingsPanel(props) {
                       onStartUpdate: update.startUpdate,
                       onRefresh: update.refreshPage,
                       onRestart: update.restartHost,
+                      onCopyPrompt: update.copyPrompt,
+                      onToast: props.onToast,
                     })
                   : null,
                 h(

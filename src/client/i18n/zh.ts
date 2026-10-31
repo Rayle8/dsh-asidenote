@@ -85,6 +85,7 @@ export const zh = {
   "update.full": "完整更新说明",
   "update.now": "立即更新",
   "update.starting": "正在准备更新…",
+  "update.waiting": "市场正在执行另一个更新，等待中…",
   "update.updating": "正在更新…",
   "update.updatingPercent": "正在更新… {percent}%",
   "update.updated": "已更新到 {version}",
@@ -93,14 +94,16 @@ export const zh = {
   "update.restartHint": "请手动重启 DSH 以完成更新",
   "update.failed": "更新失败：{reason}",
   "update.force": "仍要更新",
-  "update.noMarket": "未检测到插件市场，暂时无法在应用内更新；可在「插件」页或终端执行 pnpm update dsh-aside-note",
   "update.tooFresh": "新版本刚发布，市场暂缓安装；可稍后重试，或选择仍要更新",
   "update.unchanged": "市场返回的版本没有变化；可稍后重试，或选择仍要更新",
   "update.notInstalled": "当前 profile 中没有安装这个插件，无法在应用内更新",
   "update.forbidden": "市场拒绝了这次更新请求",
   "update.rejected": "市场没有执行这次更新；link 安装的插件需要在 checkout 中更新后刷新",
   "update.busy": "市场正在执行另一个更新，请稍后再试",
-  "update.timeout": "等待更新结果超时，请稍后再试"
+  "update.timeout": "等待更新结果超时，请稍后再试",
+  "update.manualHint": "也可以直接更新：在终端执行 npx -y dsh-aside-note install，或到「插件」页更新，装好后刷新页面即可",
+  "update.copyPrompt": "拷贝更新提示词",
+  "update.prompt": "帮我更新 DSH 插件 AsideNote（旁边记）到最新版本：在终端执行 npx -y dsh-aside-note install。"
 } as const
 
 export type MessageKey = keyof typeof zh

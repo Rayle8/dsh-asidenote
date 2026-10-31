@@ -167,6 +167,7 @@ export function MemoPopover(props) {
           changeForwardPrefix,
           prefixRef,
           update,
+          onToast: report,
         })
       : null,
     h(ComposerForm, {

@@ -7,6 +7,11 @@
  * automatic: the market queues the update when it is clicked, and the panel
  * reports the operation instead of guessing.
  *
+ * When the market is missing, or stays busy with another operation after the
+ * waiting window, the card stops insisting on its own button and states the
+ * terminal command — with one click to copy a ready-to-paste prompt for an
+ * agent. The panel still never runs a package manager itself.
+ *
  * A jump across several versions lists each release separately: the newest one
  * opens by default and the ones behind it expand on demand, so a 2.0.0 install
  * upgrading to 2.3.0 can read 2.1.0, 2.2.0 and 2.3.0 in order. The full release
@@ -22,7 +27,6 @@ const NOTES_ID = 'dsh-an-update-notes'
 
 /** Failure codes the card can explain without echoing the market's message. */
 const FAILURE_COPY: Record<string, string> = {
-  NO_MARKET: 'update.noMarket',
   RELEASE_TOO_FRESH: 'update.tooFresh',
   VERSION_UNCHANGED: 'update.unchanged',
   PLUGIN_NOT_INSTALLED: 'update.notInstalled',
@@ -46,6 +50,8 @@ export function UpdateNotice(props: {
   onStartUpdate: (force?: boolean) => void
   onRefresh: () => void
   onRestart: () => void
+  onCopyPrompt: (text: string) => Promise<boolean>
+  onToast?: (kind: string) => void
 }) {
   const { say, latestVersion, market, restartSupported, notes, expandedVersions, run, fullReleaseUrl } = props
   const notesRef = React.useRef<HTMLDivElement | null>(null)
@@ -85,16 +91,34 @@ export function UpdateNotice(props: {
   if (latestVersion === null) return null
 
   const phase: RunPhase = run.phase
-  const busy = phase === 'starting' || phase === 'running'
+  const busy = phase === 'starting' || phase === 'waiting' || phase === 'running'
   const stopped = market === 'unsupported'
   const failureKey = run.failureCode ? FAILURE_COPY[run.failureCode] : ''
   const canForce = run.failureCode === 'RELEASE_TOO_FRESH' || run.failureCode === 'VERSION_UNCHANGED'
+  /**
+   * No market, or one that stayed busy: the user needs the command now, not a
+   * "try again later" with nothing behind it. A busy market keeps its retry
+   * button, so both paths stay reachable.
+   */
+  const manual = stopped || run.failureCode === 'OPERATION_BUSY'
 
   const progress = phase === 'running'
     ? (run.percent === null
         ? say('update.updating')
         : say('update.updatingPercent', { percent: run.percent }))
     : ''
+
+  /**
+   * Hand the user a prompt they can paste into an agent; report the outcome.
+   * The prompt asks for the latest release rather than this card's version, so
+   * it stays correct if a newer one lands between render and click.
+   */
+  const copyPrompt = () => {
+    const text = say('update.prompt')
+    Promise.resolve(props.onCopyPrompt(text)).then(ok => {
+      if (typeof props.onToast === 'function') props.onToast(ok ? 'copied' : 'copyFailed')
+    })
+  }
 
   const noteGroups = (list: ReleaseNoteGroup[]) => list.map((group, index) =>
     h(
@@ -193,7 +217,7 @@ export function UpdateNotice(props: {
       'div',
       { className: 'dsh-an-updateActions' },
       stopped
-        ? h('p', { className: 'dsh-an-updateHint' }, say('update.noMarket'))
+        ? null
         : phase === 'done'
           ? h(
               'div',
@@ -214,7 +238,11 @@ export function UpdateNotice(props: {
                 'aria-busy': busy,
                 onClick: () => props.onStartUpdate(false),
               },
-              busy ? (phase === 'starting' ? say('update.starting') : progress) : say('update.now'),
+              busy
+                ? (phase === 'running'
+                    ? progress
+                    : phase === 'waiting' ? say('update.waiting') : say('update.starting'))
+                : say('update.now'),
             ),
       fullReleaseUrl
         ? h(
@@ -251,6 +279,18 @@ export function UpdateNotice(props: {
                 say('update.force'),
               )
             : null,
+        )
+      : null,
+    manual
+      ? h(
+          'div',
+          { className: 'dsh-an-updateFallback' },
+          h('p', { className: 'dsh-an-updateHint' }, say('update.manualHint')),
+          h(
+            'button',
+            { type: 'button', className: 'dsh-an-updateCopy', onClick: copyPrompt },
+            say('update.copyPrompt'),
+          ),
         )
       : null,
     run.phase === 'done' && run.restartRequired && !restartSupported
