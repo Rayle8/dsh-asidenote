@@ -4,6 +4,8 @@ The 1.0.0–2.0.1 iterations were development builds of the same plugin; the 2.x
 
 ## next-released
 
+## 1.0.3
+
 <!-- app-update-notes:en:start -->
 ### Fixed
 - **Install:** the one-command installer runs `pnpm install` through the node and pnpm DeepSeek Harness ships (it falls back to the pnpm on PATH, and `DSH_RUNTIME_DIR` pins a runtime), so a profile is never written by another pnpm major — which surfaced as `ERR_PNPM_UNEXPECTED_STORE` on the host's next install. When pnpm asks to purge a store left by another major it re-runs once with `CI=true`.

@@ -15,7 +15,7 @@ export const DRAFT_STORAGE_KEY = 'dsh.aside-note.drafts'
 /** Notes already forwarded to the composer, per session; marks the forward button. */
 export const FORWARDED_STORAGE_KEY = 'dsh.aside-note.forwarded'
 /** Shown in the in-panel settings; keep in sync with package.json. */
-export const PLUGIN_VERSION = '1.0.2'
+export const PLUGIN_VERSION = '1.0.3'
 export const PLUGIN_AUTHOR = '阿三石'
 export const PLUGIN_REPO_URL = 'https://github.com/Rayle8/dsh-aside-note'
 export const PLUGIN_REPO_LABEL = 'github.com/Rayle8/dsh-aside-note'
