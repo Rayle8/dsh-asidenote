@@ -2,6 +2,8 @@
 
 ## next-released
 
+- Add `npx dsh-asidenote install` (`scripts/install.mjs`, shipped as the package's `bin`): it resolves the DSH profile (`DSH_PROFILE_DIR`, `--profile`, `--profile-dir`), backs up the manifest and lockfile, adds the dependency plus the `dsh.profile.bundles` entry, runs `pnpm install` and verifies the installed `client/client.js`. `--dry-run` and `--no-install` keep it reviewable, re-running is idempotent, and `tests/install.test.mjs` covers the manifest edits.
+- The install docs say what the harness actually does: no restart is needed after install or upgrade, because DSH re-composes the profile within about a second and the page picks the bundle up on its next load.
 - Keep the CSS virtual module id slash-separated when the committed bundle is built. rolldown echoes the relative id into `client/client.js`, and `path.relative()` uses the platform separator, so a Windows build wrote `src\client\styles\panel.css.mjs` where the Linux CI artifact has `src/client/styles/panel.css.mjs` and the `git diff --exit-code client/` gate failed. The id is now normalised to `/`, which leaves the POSIX artifact unchanged byte for byte.
 - Add `npm run release -- <version>` (`tools/release.mjs`): it bumps `package.json` and `PLUGIN_VERSION`, turns `## next-released` into the version heading, inserts a fresh empty `## next-released`, runs `npm run check`, then commits the release and tags it without pushing. The publish workflow now refuses a tag whose `CHANGELOG.md` section is missing or empty instead of silently falling back to generated release notes, and CI keeps the `next-released` heading at the top.
 

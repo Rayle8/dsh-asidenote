@@ -184,7 +184,23 @@ Therefore:
 
 ## Install
 
-### Install from npm (recommended)
+### One-command install (recommended)
+
+```bash
+npx dsh-asidenote install
+```
+
+The installer pulls this package from npm, finds the DSH profile (it honours `DSH_PROFILE_DIR`, otherwise `~/.dsh/profiles/desktop`), backs up `package.json` and `pnpm-lock.yaml` into `.local-backup/`, adds the dependency, appends `dsh-asidenote` to `dsh.profile.bundles`, runs `pnpm install` and finally verifies the installed `client/client.js`.
+
+```bash
+npx dsh-asidenote install --profile work    # pick a profile
+npx dsh-asidenote install --dry-run         # print the plan, write nothing
+npx dsh-asidenote install --version 2.0.1   # pin the version instead of ^2.0.1
+```
+
+It is safe to re-run. No restart is needed: DSH re-composes the profile within about a second, and a page reload picks up the entry (a marketplace install triggers that reload for you).
+
+### Configure the npm dependency manually
 
 Add the dependency to the DSH profile's `package.json` and list the package under `dsh.profile.bundles`:
 
@@ -201,7 +217,7 @@ Add the dependency to the DSH profile's `package.json` and list the package unde
 }
 ```
 
-Then run `pnpm install` in the profile directory and restart DSH, or toggle the bundle off/on in the sidebar **Plugins** page. To upgrade, raise the range or run `pnpm update dsh-asidenote`.
+Then run `pnpm install` in the profile directory and reload the page — no restart is needed. To upgrade, raise the range or run `pnpm update dsh-asidenote`.
 
 ### Install from a git checkout (development)
 
