@@ -68,16 +68,16 @@ docs/assets/             # README 截图（preview-* 与 features/）
 
 | 键 | 内容 |
 | --- | --- |
-| `dsh.aside-notes` | `{ version: 1, sessions: { [sessionId]: { sessionId, updatedAt, items: Note[] } } }` |
-| `dsh.aside-notes.drafts` | `{ version: 1, sessions: { [sessionId]: { add, edits: { [itemId]: text } } } }` |
-| `dsh.aside-notes.forwarded` | `{ version: 1, sessions: { [sessionId]: { [itemId]: true } } }` |
-| `dsh.aside-notes.sections` | `{ open, done }` |
-| `dsh.aside-notes.panel-width` / `panel-height` | 数字；高度 `0` 表示内容自适应 |
-| `dsh.aside-notes.send-shortcut` | `enter` 或 `ctrl-enter` |
-| `dsh.aside-notes.forward-prefix` | 最长 80 字符的转发前缀 |
-| `dsh.aside-notes.migrated` | 迁移完成的标记 |
+| `dsh.aside-note` | `{ version: 1, sessions: { [sessionId]: { sessionId, updatedAt, items: Note[] } } }` |
+| `dsh.aside-note.drafts` | `{ version: 1, sessions: { [sessionId]: { add, edits: { [itemId]: text } } } }` |
+| `dsh.aside-note.forwarded` | `{ version: 1, sessions: { [sessionId]: { [itemId]: true } } }` |
+| `dsh.aside-note.sections` | `{ open, done }` |
+| `dsh.aside-note.panel-width` / `panel-height` | 数字；高度 `0` 表示内容自适应 |
+| `dsh.aside-note.send-shortcut` | `enter` 或 `ctrl-enter` |
+| `dsh.aside-note.forward-prefix` | 最长 80 字符的转发前缀 |
+| `dsh.aside-note.migrated` | 迁移完成的标记 |
 
-`Note` 形如 `{ id, text, done, createdAt, updatedAt, completedAt? }`；`text` 上限 280，单会话上限 300 条。键名不带版本后缀。1.x 的 `dsh.session-memos.v1` 与 `dsh.memo.*.v1` 在首次加载时复制到当前键，旧键不删除，回退到 1.9.x 仍可读。
+`Note` 形如 `{ id, text, done, createdAt, updatedAt, completedAt? }`；`text` 上限 280，单会话上限 300 条。键名不带版本后缀，前缀与包名 `dsh-aside-note` 对齐。1.x 的 `dsh.session-memos.v1` 与 `dsh.memo.*.v1` 在首次加载时复制到当前键，旧键不删除，回退到 1.9.x 仍可读。
 
 ## 5. 构建与产物
 
