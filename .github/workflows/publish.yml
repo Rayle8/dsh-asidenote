@@ -7,7 +7,9 @@ on:
     tags: ['v*']
 
 permissions:
-  contents: read
+  # The tag run also creates the matching GitHub Release, which is the target
+  # of the in-app "new version" link.
+  contents: write
   # Required for trusted publishing: npm exchanges this OIDC token for a
   # short-lived publish credential instead of a long-lived access token.
   id-token: write
@@ -50,4 +52,28 @@ jobs:
           fi
 
       - name: Publish
-        run: npm publish --provenance --access public
+        run: |
+          # A tag carrying a prerelease suffix goes to the `next` dist-tag so it
+          # never becomes `latest` (and never nags stable users).
+          if [[ "$GITHUB_REF_NAME" == v*-* ]]; then
+            npm publish --provenance --access public --tag next
+          else
+            npm publish --provenance --access public
+          fi
+
+      - name: Create the GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The update notice links to releases/latest, so a tag without a
+          # Release would leave that link at 404 even though npm published.
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "Release $GITHUB_REF_NAME already exists"
+            exit 0
+          fi
+          flags=(--verify-tag --title "AsideNote ${GITHUB_REF_NAME#v}")
+          if [[ "$GITHUB_REF_NAME" == v*-* ]]; then
+            flags+=(--prerelease)
+          fi
+          gh release create "$GITHUB_REF_NAME" "${flags[@]}" --generate-notes
