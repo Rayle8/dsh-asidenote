@@ -17,6 +17,11 @@ import { JSDOM } from 'jsdom'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const bundle = fs.readFileSync(path.join(root, 'client', 'client.js'), 'utf8')
 
+// The build under test moves every release; the registry answer must be that
+// same version, or the regression this file guards ("published === running")
+// stops being exercised.
+const RUNNING = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).version
+
 const json = (status, body) => ({ ok: status >= 200 && status < 300, status, json: async () => body })
 const wait = (window, ms) => new Promise(resolve => window.setTimeout(resolve, ms))
 
@@ -49,10 +54,10 @@ test('an up-to-date manual check never offers the running version', async t => {
       if (holdManualCheck) {
         holdManualCheck = false
         return new Promise(resolve => {
-          releaseManualCheck = () => resolve(json(200, { version: '0.9.10' }))
+          releaseManualCheck = () => resolve(json(200, { version: RUNNING }))
         })
       }
-      return json(200, { version: '0.9.10' })
+      return json(200, { version: RUNNING })
     }
     return json(404, {})
   }
@@ -129,7 +134,7 @@ test('an up-to-date manual check never offers the running version', async t => {
     'the running version must not be offered while the check is in flight')
   assert.equal(popover.querySelector('.dsh-an-updateDot'), null,
     'the gear must not gain a dot for the running version')
-  assert.doesNotMatch(popover.textContent, /有新版本\s*v?0\.9\.10/,
+  assert.doesNotMatch(popover.textContent, new RegExp(`有新版本\\s*v?${RUNNING.replace(/\./g, '\\.')}`),
     'the card must not announce the running version as new')
 
   // Release the answer: the check settles back to "up to date", still with no

@@ -17,6 +17,19 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const bundlePath = path.join(root, 'client', 'client.js')
 const bundle = fs.readFileSync(bundlePath, 'utf8')
 
+const manifest = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'))
+// Update-flow fixtures move with the build. LATEST is one major above the
+// running version, IN_BETWEEN sits in the gap so the panel lists two releases,
+// and OLD is below the build so it must never be listed. Pinning these broke
+// every release: the build bumps and the "newer" fixture silently becomes older.
+const RUNNING = manifest.version
+const [MAJOR, MINOR, PATCH] = RUNNING.split('.').map(Number)
+const LATEST = `${MAJOR + 1}.0.0`
+const IN_BETWEEN = `${MAJOR}.${MINOR}.${PATCH + 1}`
+const OLD = '0.0.1'
+const PRERELEASE = `${LATEST}-beta.1`
+const DRAFT = `${MAJOR + 1}.0.1`
+
 test('the built bundle boots, applies, and seats its slots', async t => {
   const dom = new JSDOM(
     '<!doctype html><html><body><div class="_headerUtilities"></div></body></html>',
@@ -69,13 +82,14 @@ test('the built bundle boots, applies, and seats its slots', async t => {
 - **旧版本：** 修复了上一个版本的问题。 （#30）
 <!-- app-update-notes:zh:end -->
 `
+  const releaseUrl = version => `https://github.com/Rayle8/dsh-aside-note/releases/tag/v${version}`
   const RELEASES = [
-    { tag_name: 'v0.9.12', html_url: 'https://github.com/Rayle8/dsh-aside-note/releases/tag/v0.9.12', body: RELEASE_BODY },
-    { tag_name: 'v0.9.11', html_url: 'https://github.com/Rayle8/dsh-aside-note/releases/tag/v0.9.11', body: OLDER_BODY },
+    { tag_name: `v${LATEST}`, html_url: releaseUrl(LATEST), body: RELEASE_BODY },
+    { tag_name: `v${IN_BETWEEN}`, html_url: releaseUrl(IN_BETWEEN), body: OLDER_BODY },
     // Older than the running build and a prerelease: neither may appear.
-    { tag_name: 'v0.9.9', html_url: 'https://github.com/Rayle8/dsh-aside-note/releases/tag/v0.9.9', body: OLDER_BODY },
-    { tag_name: 'v0.9.13-beta.1', prerelease: true, body: RELEASE_BODY },
-    { tag_name: 'v0.9.14', draft: true, body: RELEASE_BODY },
+    { tag_name: `v${OLD}`, html_url: releaseUrl(OLD), body: OLDER_BODY },
+    { tag_name: `v${PRERELEASE}`, prerelease: true, body: RELEASE_BODY },
+    { tag_name: `v${DRAFT}`, draft: true, body: RELEASE_BODY },
   ]
   const MARKET_CAPABILITIES = {
     schema: 'dsh-market/update-api/v1',
@@ -104,10 +118,10 @@ test('the built bundle boots, applies, and seats its slots', async t => {
       if (holdManualCheck) {
         holdManualCheck = false
         return new Promise(resolve => {
-          releaseManualCheck = () => resolve(json(200, { version: '0.9.12' }))
+          releaseManualCheck = () => resolve(json(200, { version: LATEST }))
         })
       }
-      return json(200, { version: '0.9.12' })
+      return json(200, { version: LATEST })
     }
     if (url === 'https://api.github.com/repos/Rayle8/dsh-aside-note/releases?per_page=50') {
       return json(200, RELEASES)
@@ -123,8 +137,8 @@ test('the built bundle boots, applies, and seats its slots', async t => {
         operation: {
           operationId: 'boot-1-update-1',
           state: 'succeeded',
-          beforeVersion: '0.9.8',
-          installedVersion: '0.9.12',
+          beforeVersion: RUNNING,
+          installedVersion: LATEST,
           progress: { percent: 100 },
           outcome: { refreshRequired: true, restartRequired: false },
           failure: null,
@@ -262,7 +276,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   assert.ok(popover.querySelector('.dsh-an-updateDot'), 'the gear carries the update dot')
   const updateCard = popover.querySelector('.dsh-an-updateCard')
   assert.ok(updateCard, 'a newer version must surface in Settings > About')
-  assert.match(updateCard.textContent, /0\.9\.11/)
+  assert.ok(updateCard.textContent.includes(IN_BETWEEN), 'the release in the gap is part of the notes')
   // Notes are part of the card, loaded without a disclosure click.
   await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 80)) })
   assert.ok(popover.querySelector('.dsh-an-updateNotes'), 'release notes must load by default')
@@ -289,16 +303,16 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   assert.ok(notes, 'release notes stay visible after a check')
   assert.match(notes.textContent, /本次更新包含 2 个版本/)
   const heads = [...notes.querySelectorAll('.dsh-an-updateVersionHead')]
-  assert.deepEqual(heads.map(head => head.textContent.replace('▸', '')), ['v0.9.12最新', 'v0.9.11'])
+  assert.deepEqual(heads.map(head => head.textContent.replace('▸', '')), [`v${LATEST}最新`, `v${IN_BETWEEN}`])
   assert.match(notes.textContent, /更新中心/)
-  assert.doesNotMatch(notes.textContent, /0\.9\.13-beta/, 'prereleases are not offered')
-  assert.doesNotMatch(notes.textContent, /v0\.9\.9\b/, 'releases older than the build are not listed')
+  assert.ok(!notes.textContent.includes(`v${PRERELEASE}`), 'prereleases are not offered')
+  assert.ok(!notes.textContent.includes(`v${OLD}`), 'releases older than the build are not listed')
   assert.equal(heads[0].getAttribute('aria-expanded'), 'true', 'the release being installed opens')
   assert.equal(heads[1].getAttribute('aria-expanded'), 'false', 'older releases wait for a click')
   await act(async () => { heads[1].click() })
   assert.match(notes.textContent, /修复了上一个版本的问题/, 'clicking an older version expands its notes')
   const fullLink = popover.querySelector('.dsh-an-updateFull')
-  assert.equal(fullLink.getAttribute('href'), 'https://github.com/Rayle8/dsh-aside-note/releases/tag/v0.9.12')
+  assert.equal(fullLink.getAttribute('href'), releaseUrl(LATEST))
   assert.equal(fullLink.getAttribute('target'), '_blank')
   const actions = popover.querySelector('.dsh-an-updateActions')
   assert.ok(actions, 'the action row carries the update button and the full-release link')
