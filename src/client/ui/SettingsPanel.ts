@@ -118,7 +118,6 @@ export function SettingsPanel(props) {
                   update.check.status === 'error'
                     ? h('span', { className: 'dsh-an-updateHint dsh-an-updateHintError', role: 'status' }, say('update.checkFailed'))
                     : null,
-                  h('span', { className: 'dsh-an-settingAuthor' }, `${say('settings.author')} ${PLUGIN_AUTHOR}`),
                 ),
                 update.latestVersion
                   ? h(UpdateNotice, {
@@ -141,8 +140,16 @@ export function SettingsPanel(props) {
                   : null,
                 h(
                   'div',
-                  { className: 'dsh-an-settingProject' },
+                  { className: 'dsh-an-settingMetaRow' },
+                  h('span', null, say('settings.author')),
+                  h('span', { className: 'dsh-an-settingDot', 'aria-hidden': true }, '·'),
+                  h('span', null, PLUGIN_AUTHOR),
+                ),
+                h(
+                  'div',
+                  { className: 'dsh-an-settingMetaRow' },
                   h('span', null, say('settings.project')),
+                  h('span', { className: 'dsh-an-settingDot', 'aria-hidden': true }, '·'),
                   h(
                     'a',
                     {

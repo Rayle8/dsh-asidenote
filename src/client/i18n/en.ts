@@ -20,7 +20,7 @@ export const en: Record<MessageKey, string> = {
   "settings.about": "About",
   "settings.version": "Version",
   "settings.author": "Author",
-  "settings.project": "Project",
+  "settings.project": "Source",
   "settings.shortcut": "Send shortcut",
   "settings.shortcutCtrlEnter": "{mod}+Enter sends, Enter for a new line",
   "settings.shortcutEnter": "Enter sends, {mod}+Enter for a new line",

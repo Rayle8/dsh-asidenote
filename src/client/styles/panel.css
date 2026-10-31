@@ -122,10 +122,10 @@ body{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-
 .dsh-an-settingHintNote{margin-top:var(--an-space-1)}
 .dsh-an-settingAbout{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}
 .dsh-an-settingAbout>span{flex:none}
-.dsh-an-settingAuthor{flex:none;margin-left:auto;white-space:nowrap}
 .dsh-an-settingAbout .dsh-an-updateHint{flex:0 1 auto;min-width:0}
-.dsh-an-settingProject{display:flex;align-items:baseline;gap:var(--an-space-1);min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}
-.dsh-an-settingProject>span{flex:none}
+.dsh-an-settingMetaRow{display:flex;align-items:baseline;gap:var(--an-space-1);min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}
+.dsh-an-settingMetaRow>span{flex:none}
+.dsh-an-settingDot{flex:none;color:var(--dsw-alias-label-tertiary)}
 .dsh-an-settingLink{flex:0 1 auto;min-width:0;overflow:hidden;color:var(--dsw-alias-link);font-weight:500;text-decoration:none;text-overflow:ellipsis;transition:var(--an-transition)}
 .dsh-an-settingLink:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}
 /* 更新中心：检查入口、可展开的更新说明与更新动作，全部走共享令牌 */

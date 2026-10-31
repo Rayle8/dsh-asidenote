@@ -18,7 +18,7 @@ export const zh = {
   "settings.about": "关于",
   "settings.version": "版本",
   "settings.author": "作者",
-  "settings.project": "项目地址",
+  "settings.project": "源代码",
   "settings.shortcut": "发送快捷键",
   "settings.shortcutCtrlEnter": "{mod}+Enter 发送，Enter 换行",
   "settings.shortcutEnter": "Enter 发送，{mod}+Enter 换行",
