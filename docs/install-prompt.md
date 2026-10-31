@@ -1,80 +1,35 @@
 # 一键安装提示词
 
-给 agent 的整段提示词，复制即可。它优先调用包内的安装器（`npx dsh-asidenote install`），
-装不上时回退到手动改 profile；两条路径都以「不改仓库、不重启 DSH」为前提。
+给 agent 的一句话，复制即可。安装动作全部由 `npx dsh-asidenote install` 完成——它自己定位 DSH profile、备份清单、写依赖与 `dsh.profile.bundles`、执行 `pnpm install` 并校验产物。
 
-- 安装器源码与行为：[`scripts/install.mjs`](../scripts/install.mjs)
-- 人工安装步骤：[README › 安装](../README.md#安装)
-- 包与版本：npm [`dsh-asidenote`](https://www.npmjs.com/package/dsh-asidenote)
+面向的机器都已经装好 DeepSeek Harness；没装的情况只需要 agent 转告用户先装客户端，不需要尝试别的安装方式。
 
-## 中文提示词
+## 中文
 
 ```text
-在这台机器上安装 DSH 插件 AsideNote（npm 包 dsh-asidenote）。只做安装：不改仓库、不重启 DSH、
-不动 profile 里其它依赖。
-
-第一步，优先用包内安装器（需要 Node 22+）：
-  npx -y dsh-asidenote install
-它自己完成：定位 profile → 备份 package.json / pnpm-lock.yaml 到 .local-backup/ → 写入依赖并追加
-dsh.profile.bundles → pnpm install → 校验 client/client.js。要指定 profile 就加 --profile <名字>
-（或 --profile-dir <目录>）；想先看计划就加 --dry-run。
-
-第二步，如果 npx 不可用，或这个版本还没有 bin（未发版时），按手动路径做：
-1. 定位 profile：优先 $env:DSH_PROFILE_DIR（Windows）或 $DSH_PROFILE_DIR（macOS/Linux）；
-   否则用 ~/.dsh/profiles/<profile>，默认 desktop（不确定就先启动一次 DSH）。
-2. 备份 package.json 与 pnpm-lock.yaml 到 .local-backup/ 后再改。
-3. 在 profile 的 package.json 里：dependencies 增加 "dsh-asidenote": "^2.0.1"；
-   在 dsh.profile.bundles 末尾追加 "dsh-asidenote"，保留原有条目与顺序，不要动 @deepseek-ai/*。
-4. 在 profile 目录执行 pnpm install（没有 pnpm 就先 corepack enable）。
-5. 校验 node_modules/dsh-asidenote/package.json 的 version，以及 client/client.js 存在。
-6. 把上面的实际输出贴给用户。
-
-最后告诉用户：无需重启 DSH，刷新页面即可生效（profile 约 1 秒重新组合；从插件市场安装时
-市场会替你刷新）。便笺存在浏览器 localStorage（dsh.aside-notes.*.v2），不写项目文件。
-
-禁止：git clone、npm run build、删除或升级 profile 里其它依赖、修改 npm registry、自动重启 DSH。
-遇到已安装的情况：先跑 --dry-run 确认是已配置还是版本不同，再决定是否重装，不要重复追加 bundles。
+帮我安装 DSH 插件 AsideNote（便笺），在终端执行：npx -y dsh-asidenote install
+装好后告诉我刷新页面即可，不用重启 DSH。
+如果提示找不到 DSH 或找不到 profile，转告我先安装并启动 DeepSeek Harness 再重试；
+不要改仓库、不要手动拼装依赖、不要重启 DSH。
 ```
 
-## English prompt
+## English
 
 ```text
-Install the DSH plugin AsideNote (npm package dsh-asidenote) on this machine. Install only:
-do not change the repository, do not restart DSH, do not touch other profile dependencies.
-
-Step 1 — prefer the bundled installer (Node 22+):
-  npx -y dsh-asidenote install
-It resolves the profile, backs up package.json / pnpm-lock.yaml into .local-backup/, adds the
-dependency and the dsh.profile.bundles entry, runs pnpm install and verifies client/client.js.
-Add --profile <name> (or --profile-dir <dir>) to pick a profile, --dry-run to preview.
-
-Step 2 — if npx is unavailable or the published version has no bin yet, do it by hand:
-1. Find the profile: $DSH_PROFILE_DIR when set, otherwise ~/.dsh/profiles/<profile> (default
-   desktop; start DSH once if the profile does not exist yet).
-2. Back up package.json and pnpm-lock.yaml into .local-backup/ before editing.
-3. In the profile package.json: add "dsh-asidenote": "^2.0.1" to dependencies, and append
-   "dsh-asidenote" to dsh.profile.bundles — keep every existing entry and its order, and leave
-   @deepseek-ai/* alone.
-4. Run pnpm install in the profile directory (corepack enable first if pnpm is missing).
-5. Verify node_modules/dsh-asidenote/package.json's version and that client/client.js exists.
-6. Paste the real output back to the user.
-
-Finally tell the user: no DSH restart is needed — reload the page (the profile is re-composed within
-about a second; a marketplace install triggers that reload for you). Notes live in the browser
-localStorage (dsh.aside-notes.*.v2); nothing is written to projects.
-
-Never: git clone, npm run build, remove or upgrade other profile dependencies, change the npm
-registry, or restart DSH automatically. If it is already installed, run --dry-run first to see
-whether it is configured or on another version, and never append the bundle line twice.
+Install the DSH plugin AsideNote by running: npx -y dsh-asidenote install
+Tell me to reload the page when it finishes — no DSH restart needed.
+If it says DSH or a profile cannot be found, tell me to install and start the DeepSeek Harness
+client first and retry; do not clone the repo, hand-assemble dependencies, or restart DSH.
 ```
 
-## 验收标准
+## 说明
 
-- profile 的 `dependencies` 里有 `dsh-asidenote`，`dsh.profile.bundles` 里有同名条目且只出现一次；
-- `node_modules/dsh-asidenote/package.json` 的 `version` 是预期版本，`client/client.js` 存在；
-- 用户被明确告知：刷新页面即可，无需重启；便笺在浏览器本地存储里。
+- 命令从 **2.0.2** 起可用（2.0.1 及更早的包里还没有 `bin`，`npx` 会提示找不到可执行文件）。
+- 装完的效果：会话顶部右侧出现「便笺」按钮；便笺存在浏览器 `localStorage`，不写项目文件。
+- 不需要重启：profile 会在约 1 秒内重新组合，刷新页面即可。
+- 卸载：从 `dsh.profile.bundles` 移除 `dsh-asidenote`，在 profile 目录执行 `pnpm remove dsh-asidenote`，刷新页面。
+- 要手动配置或指定 profile，见 [README › 安装](../README.md#安装)。
 
-## 卸载
+## 未安装 DSH 时用户看到什么
 
-从 `dsh.profile.bundles` 移除 `dsh-asidenote`，在 profile 目录执行 `pnpm remove dsh-asidenote`，
-刷新页面。便笺数据仍在浏览器 localStorage 里，需要清空时删除 `dsh.aside-notes.*` 开头的键。
+安装器会检测 `~/.dsh/profiles`：不存在就直接说明「还没有安装 / 启动过 DeepSeek Harness，装好客户端启动一次再执行这条命令」，不会去改任何文件；指定了 `--profile` 但名字不存在时，也会提示可用 `--profile` 换一个或先启动一次 DSH。

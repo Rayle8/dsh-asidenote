@@ -67,14 +67,21 @@ function dshHome() {
   return process.env.DSH_HOME || join(homedir(), '.dsh')
 }
 
+function profilesRoot() {
+  return join(dshHome(), 'profiles')
+}
+
+function profileName() {
+  return typeof args.get('profile') === 'string' ? args.get('profile') : process.env.DSH_PROFILE || 'desktop'
+}
+
 function profileDir() {
   const explicit = args.get('profile-dir')
   if (typeof explicit === 'string') return resolve(explicit)
   // DSH sets this in the shells it spawns, so a bare run lands on the profile
   // the caller is actually using.
   if (process.env.DSH_PROFILE_DIR) return resolve(process.env.DSH_PROFILE_DIR)
-  const name = typeof args.get('profile') === 'string' ? args.get('profile') : process.env.DSH_PROFILE || 'desktop'
-  return join(dshHome(), 'profiles', name)
+  return join(profilesRoot(), profileName())
 }
 
 function run(command, commandArgs, cwd) {
@@ -90,10 +97,13 @@ function run(command, commandArgs, cwd) {
 const dir = profileDir()
 const manifestPath = join(dir, 'package.json')
 if (!existsSync(manifestPath)) {
-  fail(
-    `No profile manifest at ${manifestPath}\n` +
-      '  Pass --profile <name> or --profile-dir <dir>, or start DSH once so the profile exists.',
-  )
+  const detail =
+    typeof args.get('profile-dir') === 'string'
+      ? `No DSH profile at ${dir}: expected a package.json with a dsh.profile section.`
+      : existsSync(profilesRoot())
+        ? `No profile "${profileName()}" under ${profilesRoot()}. Pass --profile <name>, or start DSH once to create it.`
+        : `DeepSeek Harness does not look installed yet (no ${profilesRoot()}).\nInstall the DeepSeek Harness client, start it once, then run this command again.`
+  fail(`${detail}\n  Looked for ${manifestPath}`)
 }
 
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8').replace(/^\uFEFF/, ''))

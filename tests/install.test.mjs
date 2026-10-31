@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { test } from 'node:test'
 import { fileURLToPath } from 'node:url'
 
@@ -25,6 +25,10 @@ function runInstaller(dir, args = []) {
   const env = { ...process.env }
   delete env.DSH_PROFILE_DIR
   return spawnSync(process.execPath, [SCRIPT, '--profile-dir', dir, ...args], { encoding: 'utf8', env })
+}
+
+function runRaw(args, env) {
+  return spawnSync(process.execPath, [SCRIPT, ...args], { encoding: 'utf8', env })
 }
 
 const BASE = {
@@ -95,4 +99,26 @@ test('a directory that is not a DSH profile is refused untouched', (t) => {
   assert.match(result.stderr, /does not look like a DSH profile/)
   assert.equal(readFileSync(join(dir, 'package.json'), 'utf8'), before)
   assert.equal(readdirSync(dir).includes('.local-backup'), false)
+})
+
+test('a missing profile points at --profile instead of failing obscurely', (t) => {
+  const dir = join(mkdtempSync(join(tmpdir(), 'asidenote-missing-')), 'nope')
+  t.after(() => rmSync(dirname(dir), { recursive: true, force: true }))
+
+  const result = runInstaller(dir)
+  assert.equal(result.status, 1)
+  assert.match(result.stderr, /No DSH profile at/)
+})
+
+test('a machine without DSH is told to install the client first', (t) => {
+  const home = mkdtempSync(join(tmpdir(), 'asidenote-home-'))
+  t.after(() => rmSync(home, { recursive: true, force: true }))
+  const env = { ...process.env, DSH_HOME: home }
+  delete env.DSH_PROFILE_DIR
+  delete env.DSH_PROFILE
+
+  const result = runRaw([], env)
+  assert.equal(result.status, 1)
+  assert.match(result.stderr, /DeepSeek Harness does not look installed yet/)
+  assert.equal(readdirSync(home).length, 0, 'nothing is written when DSH is absent')
 })

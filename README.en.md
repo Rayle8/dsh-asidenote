@@ -198,7 +198,7 @@ npx dsh-asidenote install --dry-run         # print the plan, write nothing
 npx dsh-asidenote install --version 2.0.1   # pin the version instead of ^2.0.1
 ```
 
-It is safe to re-run. No restart is needed: DSH re-composes the profile within about a second, and a page reload picks up the entry (a marketplace install triggers that reload for you).
+The installer ships from **2.0.2** on; earlier versions have no `bin`, so `npx` reports no executable. It is safe to re-run. No restart is needed: DSH re-composes the profile within about a second, and a page reload picks up the entry (a marketplace install triggers that reload for you).
 
 Prefer to hand it to an agent? Paste the [one-command install prompt](./docs/install-prompt.md).
 
