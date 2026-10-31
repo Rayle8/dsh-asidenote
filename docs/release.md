@@ -127,7 +127,8 @@ https://github.com/Rayle8/dsh-asidenote/releases/latest
 因此**每个版本都必须有 GitHub Release**，否则用户点更新说明会得到 404。workflow 已经自动创建 Release 并上传 tgz；如果手动补建，使用：
 
 ```bash
-gh release create v2.0.1 --verify-tag --title "AsideNote 2.0.1" --generate-notes
+node tools/release.mjs extract 2.0.1 > /tmp/notes.md
+gh release create v2.0.1 --verify-tag --title "AsideNote 2.0.1" --notes-file /tmp/notes.md
 npm pack --pack-destination dist
 gh release upload v2.0.1 dist/dsh-asidenote-2.0.1.tgz --clobber
 ```
