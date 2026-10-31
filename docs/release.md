@@ -40,12 +40,12 @@ git push -u origin feat/xxx
 
 | 变更 | 版本 |
 | --- | --- |
-| 修复、文档、内部整理 | `2.0.x` |
-| 新功能、兼容性增强 | `2.x.0` |
-| 破坏性变更（存储键、插件 id、DSH 兼容范围） | `3.0.0` |
-| 预发布 | `2.1.0-beta.1` |
+| 修复、文档、内部整理 | `0.9.x` |
+| 新功能、兼容性增强 | `0.x.0` |
+| 破坏性变更（存储键、插件 id、DSH 兼容范围） | `1.0.0` |
+| 预发布 | `0.10.0-beta.1` |
 
-预发布 tag 形如 `v2.1.0-beta.1`：workflow 会发布到 npm 的 `next` dist-tag，并把 GitHub Release 标记为 prerelease，不会影响稳定用户的更新提示。
+预发布 tag 形如 `v0.10.0-beta.1`：workflow 会发布到 npm 的 `next` dist-tag，并把 GitHub Release 标记为 prerelease，不会影响稳定用户的更新提示。
 
 ## 发布步骤
 
@@ -54,7 +54,7 @@ git push -u origin feat/xxx
 ```bash
 # 1. 确认 next-released 下已经写好本次要发布的内容
 # 2. 一条命令完成版本号、CHANGELOG、检查、提交和 tag
-npm run release -- 2.1.0
+npm run release -- 0.10.0
 
 # 3. 推送 main 与 tag；tag 触发 npm 发布和 GitHub Release
 git push origin main
@@ -69,9 +69,9 @@ git push origin v2.1.0
 4. 运行 `npm run check`，确认 lint、类型、测试和构建产物都一致；
 5. 提交 `release: <version>` 并打 `v<version>` tag，**不自动 push**。
 
-预发布同样适用：`npm run release -- 2.1.0-beta.1` 会得到 `v2.1.0-beta.1` tag，workflow 自动发到 npm 的 `next` dist-tag。
+预发布同样适用：`npm run release -- 0.10.0-beta.1` 会得到 `v0.10.0-beta.1` tag，workflow 自动发到 npm 的 `next` dist-tag。
 
-只想先看改动、不提交时用 `npm run release -- 2.1.0 --dry-run`：会改文件并跑检查，但不 commit、不打 tag，之后用 `git restore .` 丢弃。
+只想先看改动、不提交时用 `npm run release -- 0.10.0 --dry-run`：会改文件并跑检查，但不 commit、不打 tag，之后用 `git restore .` 丢弃。
 
 ## 自动发布链路
 

@@ -191,7 +191,7 @@ AsideNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺。临时的�
 ```json
 {
   "dependencies": {
-    "dsh-asidenote": "^2.0.0"
+    "dsh-asidenote": "^0.9.9"
   },
   "dsh": {
     "profile": {
@@ -234,7 +234,7 @@ git clone git@github.com:Rayle8/dsh-asidenote.git
 
    ```bash
    mkdir -p ~/dsh-plugins/dsh-asidenote
-   tar -xzf dsh-asidenote-2.0.0.tgz --strip-components=1 -C ~/dsh-plugins/dsh-asidenote
+   tar -xzf dsh-asidenote-0.9.9.tgz --strip-components=1 -C ~/dsh-plugins/dsh-asidenote
    ```
 
 2. 把解压目录按上面的 link 写法接入 profile，例如 `"dsh-asidenote": "link:/Users/<you>/dsh-plugins/dsh-asidenote"`，再在 profile 目录执行 `pnpm install`。

@@ -57,7 +57,7 @@ const DRAFT_STORAGE_KEY = "dsh.aside-notes.drafts.v2";
 /** Notes already forwarded to the composer, per session; marks the forward button. */
 const FORWARDED_STORAGE_KEY = "dsh.aside-notes.forwarded.v2";
 /** Shown in the in-panel settings; keep in sync with package.json. */
-const PLUGIN_VERSION = "2.0.1";
+const PLUGIN_VERSION = "0.9.9";
 const PLUGIN_AUTHOR = "阿三石";
 const PLUGIN_REPO_URL = "https://github.com/Rayle8/dsh-asidenote";
 const PLUGIN_REPO_LABEL = "github.com/Rayle8/dsh-asidenote";
@@ -1913,11 +1913,11 @@ function useUpdateCenter(localeId) {
 	}, []);
 	const latestVersion = check.status === "current" ? null : check.latestVersion;
 	react.default.useEffect(() => {
-		if ("2.0.1".includes("-")) return void 0;
+		if ("0.9.9".includes("-")) return void 0;
 		let active = true;
 		fetchLatestVersion().then((version) => {
 			if (!active || version === null) return;
-			if (isNewerVersion(version, "2.0.1")) setCheck({
+			if (isNewerVersion(version, "0.9.9")) setCheck({
 				status: "available",
 				latestVersion: version,
 				checkedAt: Date.now()
@@ -1966,7 +1966,7 @@ function useUpdateCenter(localeId) {
 			});
 			return;
 		}
-		if (isNewerVersion(version, "2.0.1")) {
+		if (isNewerVersion(version, "0.9.9")) {
 			const sameRelease = previousVersion !== null && version === previousVersion;
 			setCheck({
 				status: "available",

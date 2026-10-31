@@ -191,7 +191,7 @@ Add the dependency to the DSH profile's `package.json` and list the package unde
 ```json
 {
   "dependencies": {
-    "dsh-asidenote": "^2.0.0"
+    "dsh-asidenote": "^0.9.9"
   },
   "dsh": {
     "profile": {
@@ -234,7 +234,7 @@ If you would rather not clone the repository, use the package attached to a [Rel
 
    ```bash
    mkdir -p ~/dsh-plugins/dsh-asidenote
-   tar -xzf dsh-asidenote-2.0.0.tgz --strip-components=1 -C ~/dsh-plugins/dsh-asidenote
+   tar -xzf dsh-asidenote-0.9.9.tgz --strip-components=1 -C ~/dsh-plugins/dsh-asidenote
    ```
 
 2. Link that directory into the profile with the same `link:` form shown above, for example `"dsh-asidenote": "link:/Users/<you>/dsh-plugins/dsh-asidenote"`, then run `pnpm install` in the profile directory.

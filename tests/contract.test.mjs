@@ -56,11 +56,14 @@ test('the release body is composed from CHANGELOG markers and used by the publis
     heading[1] === 'next-released' || heading[1] === version,
     `the first section is next-released until release day (saw ${heading[1]})`,
   )
-  const start = changelog.indexOf(`## ${heading[1]}`)
+  // After a release the notes live under the version heading, with the fresh
+  // next-released placeholder above it; before one they live under next-released.
+  const target = changelog.includes(`\n## ${version}\n`) ? version : heading[1]
+  const start = changelog.indexOf(`## ${target}`)
   const next = changelog.indexOf('\n## ', start + 3)
   const section = next === -1 ? changelog.slice(start) : changelog.slice(start, next)
   const markers = ['en', 'zh'].map(locale => `<!-- app-update-notes:${locale}:start -->`)
-  for (const marker of markers) assert.ok(section.includes(marker), `the current release section needs ${marker}`)
+  for (const marker of markers) assert.ok(section.includes(marker), `the release section for ${target} needs ${marker}`)
 })
 
 test('the client checks for a newer release, reads its notes inline and updates through the market', () => {

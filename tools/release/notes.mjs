@@ -11,8 +11,8 @@
  * The markers are emitted by this script, so a release written in CHANGELOG.md
  * cannot forget them. Usage:
  *
- *   node tools/release/notes.mjs --version 2.1.0 --tag v2.1.0 \
- *     --prev v2.0.1 --repo Rayle8/dsh-asidenote --out notes.md
+ *   node tools/release/notes.mjs --version 0.10.0 --tag v0.10.0 \
+ *     --prev v0.9.9 --repo Rayle8/dsh-asidenote --out notes.md
  *
  * Exported for tests; `main()` only runs when this file is executed.
  */
