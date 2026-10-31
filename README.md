@@ -20,11 +20,11 @@
 
 会话顶部右侧的「旁边记」按钮，带未完成数量：
 
-![顶部右侧旁边记按钮](./docs/assets/preview-badge.png)
+<img src="./docs/assets/preview-badge.png" width="460" alt="顶部右侧旁边记按钮">
 
 暗色主题下的同一按钮：
 
-![顶部右侧旁边记按钮（暗色）](./docs/assets/preview-badge-dark.png)
+<img src="./docs/assets/preview-badge-dark.png" width="460" alt="顶部右侧旁边记按钮（暗色）">
 
 点击入口后在右侧打开固定面板。
 

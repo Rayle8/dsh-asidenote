@@ -4,6 +4,16 @@ The 1.0.0–2.0.1 iterations were development builds of the same plugin; the 2.x
 
 ## next-released
 
+<!-- app-update-notes:en:start -->
+### Changed
+- **Screenshots:** the README images are re-shot from the 旁边记 build at 4× device scale — panel title, composer placeholder, empty state and Settings › About carry the new name and tagline, the feature shots are now 1080 px wide and the previews 1920 px, so they stay crisp when zoomed — the four preview images come from the same demo session as the feature shots, and the sidebar account menu is hidden so the shots carry no personal account.
+<!-- app-update-notes:en:end -->
+
+<!-- app-update-notes:zh:start -->
+### 变更
+- **截图：** README 的图片按**旁边记**重新拍摄，并以 4 倍设备像素导出：浮窗标题、输入占位、空状态与设置 › 关于都已是新名字与 slogan；功能图加宽到 1080、整窗图到 1920，放大看依然清晰；四张预览图与功能图出自同一个演示会话，并隐藏侧栏账号菜单，不出现个人账号。
+<!-- app-update-notes:zh:end -->
+
 ## 1.0.0
 
 <!-- app-update-notes:en:start -->

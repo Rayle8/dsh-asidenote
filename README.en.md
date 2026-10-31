@@ -20,11 +20,11 @@ The same panel in the dark theme; every colour comes from DSH theme tokens:
 
 An **AsideNote** button at the top right of the conversation, with the open count:
 
-![AsideNote button at the top right](./docs/assets/preview-badge.png)
+<img src="./docs/assets/preview-badge.png" width="460" alt="AsideNote button at the top right">
 
 The same button in the dark theme:
 
-![AsideNote button at the top right, dark](./docs/assets/preview-badge-dark.png)
+<img src="./docs/assets/preview-badge-dark.png" width="460" alt="AsideNote button at the top right, dark">
 
 Clicking the entry opens a fixed panel on the right.
 

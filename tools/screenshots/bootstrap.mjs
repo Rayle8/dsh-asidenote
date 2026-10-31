@@ -3,16 +3,11 @@
 //
 // env: TOKEN (required), PORT (default 61399), PROMPT, TITLE (optional)
 import { connect, evaluate, sleep } from './lib/cdp.mjs'
+import { NOTES, NOTES_KEY, anchorExpression } from './lib/notes.mjs'
 
 const port = process.env.PORT || 61399
 const token = process.env.TOKEN
-const prompt = process.env.PROMPT || '给「旁边记」插件写三条中文发布文案，每条不超过 20 字，不要调用任何工具。'
-const NOTES = [
-  { text: '把发布说明里的截图换成新版面板', done: false, age: 46 * 60000 },
-  { text: '核对暗色主题下的对比度', done: false, age: 12 * 60000 },
-  { text: '确认 390px 视口下面板不溢出', done: true, age: 2 * 3600000, doneAge: 1 * 3600000 },
-  { text: '补一条空状态说明文案', done: true, age: 26 * 3600000, doneAge: 20 * 60000 },
-]
+const prompt = process.env.PROMPT || '给「旁边记」插件写三条中文发布文案，每条不超过 20 字；只输出编号和文案，不要提问，不要调用任何工具。'
 
 if (!token) throw new Error('TOKEN is required')
 
@@ -76,22 +71,10 @@ await evaluate(session, `(() => {
 })()`)
 await sleep(1500)
 
-// Backdate the notes so both themes show the same ages.
-await evaluate(session, `(() => {
-  const key = 'dsh.aside-notes.v2'
-  const db = JSON.parse(localStorage.getItem(key))
-  const now = Date.now()
-  const plan = ${JSON.stringify(NOTES)}
-  for (const s of Object.values(db.sessions)) for (const it of s.items) {
-    const note = plan.find(n => n.text === it.text)
-    if (!note) continue
-    it.createdAt = now - note.age
-    it.updatedAt = now - (note.doneAge ?? note.age)
-    if (note.done) it.completedAt = now - note.doneAge
-  }
-  localStorage.setItem(key, JSON.stringify(db))
-  return true
-})()`)
+// Anchor the notes to the plan's ages; capture.mjs re-anchors before each theme.
+if (!(await evaluate(session, anchorExpression()))) {
+  throw new Error(`no note store at ${NOTES_KEY}`)
+}
 
 console.log(await evaluate(session, `document.querySelector('.dsh-an-popover')?.innerText ?? 'panel closed'`))
 session.ws.close()

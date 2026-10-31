@@ -20,6 +20,8 @@ NODE_FLAGS=()
 if node -e 'process.exit(typeof WebSocket === "undefined" ? 0 : 1)'; then
   NODE_FLAGS+=(--experimental-websocket)
 fi
+# bash 3.2 (macOS) errors on "${arr[@]}" when the array is empty under `set -u`.
+node_run() { node ${NODE_FLAGS[@]+"${NODE_FLAGS[@]}"} "$@"; }
 
 SERVER_PID=''
 CHROME_PID=''
@@ -103,7 +105,7 @@ start_server
 log "starting headless Chrome (CDP :$CDP_PORT)"
 "$CHROME" --headless=new --no-sandbox --disable-gpu \
   --remote-debugging-port="$CDP_PORT" --user-data-dir="$WORK/chrome" \
-  --window-size=1440,1043 --force-device-scale-factor=2 --hide-scrollbars about:blank \
+  --window-size=1440,1043 --force-device-scale-factor=4 --hide-scrollbars about:blank \
   > "$WORK/chrome.log" 2>&1 &
 CHROME_PID=$!
 for _ in $(seq 1 30); do
@@ -112,20 +114,24 @@ for _ in $(seq 1 30); do
 done
 
 log "building the demo session and notes"
-( cd "$REPO/tools/screenshots" && PORT="$PORT" TOKEN="$TOKEN" node "${NODE_FLAGS[@]}" bootstrap.mjs )
+( cd "$REPO/tools/screenshots" && PORT="$PORT" TOKEN="$TOKEN" node_run bootstrap.mjs )
 
 log "capturing light"
-( cd "$REPO/tools/screenshots" && THEME=light PORT="$PORT" TOKEN="$TOKEN" OUT="$WORK/raw" node "${NODE_FLAGS[@]}" capture.mjs )
+( cd "$REPO/tools/screenshots" && THEME=light PORT="$PORT" TOKEN="$TOKEN" OUT="$WORK/raw" node_run capture.mjs )
+( cd "$REPO/tools/screenshots" && PREVIEW=1 THEME=light PORT="$PORT" TOKEN="$TOKEN" OUT="$WORK/raw" node_run capture.mjs )
 
 log "restarting in dark"
 stop_server
 write_theme dark
 start_server
-( cd "$REPO/tools/screenshots" && THEME=dark PORT="$PORT" TOKEN="$TOKEN" OUT="$WORK/raw" node "${NODE_FLAGS[@]}" capture.mjs )
+( cd "$REPO/tools/screenshots" && THEME=dark PORT="$PORT" TOKEN="$TOKEN" OUT="$WORK/raw" node_run capture.mjs )
+( cd "$REPO/tools/screenshots" && PREVIEW=1 THEME=dark PORT="$PORT" TOKEN="$TOKEN" OUT="$WORK/raw" node_run capture.mjs )
 
 log "cropping"
 python3 "$REPO/tools/screenshots/crop.py" --raw "$WORK/raw" --theme light --out "$REPO/docs/assets/features"
 python3 "$REPO/tools/screenshots/crop.py" --raw "$WORK/raw" --theme dark --out "$REPO/docs/assets/features"
+python3 "$REPO/tools/screenshots/crop.py" --raw "$WORK/raw" --theme light --out "$REPO/docs/assets" --preview
+python3 "$REPO/tools/screenshots/crop.py" --raw "$WORK/raw" --theme dark --out "$REPO/docs/assets" --preview
 
 log "done"
-echo "Review docs/assets/features/*.png, then run: npm test"
+echo "Review docs/assets/features/*.png and docs/assets/preview-*.png, then run: npm test"
