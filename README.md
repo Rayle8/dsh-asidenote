@@ -232,6 +232,8 @@ window.__ModuleLoader__.load({ id: 'dsh-asidenote', factory: (require) => { … 
 
 修改源码后先 `npm run build`；开发模式下 DSH 会热替换新 bundle，否则刷新页面或重启 DSH。
 
+截图与预览图的产出流程见 [截图与预览图 SOP](./docs/screenshot-sop.md)：在隔离 profile 里造演示会话，一条命令重拍明暗两套；凭据默认不复制。
+
 ## 验证
 
 已在独立的 DSH profile 中实际加载，并用无头 Chrome 走通：
@@ -243,4 +245,4 @@ window.__ModuleLoader__.load({ id: 'dsh-asidenote', factory: (require) => { … 
 - 刷新页面后记录仍在，并按会话隔离；
 - 重启后 1.x 的旧便笺自动出现在新键下。
 
-`npm run check` 通过：lint、类型检查、构建与 43 个测试（含 jsdom 里驱动完整面板流程的集成测试）。
+`npm run check` 通过：lint、类型检查、构建与 44 个测试（含 jsdom 里驱动完整面板流程的集成测试）。

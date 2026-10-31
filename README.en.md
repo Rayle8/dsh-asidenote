@@ -232,6 +232,8 @@ The panel mounts as its own `react-dom/client` root on `document.body` and follo
 
 Run `npm run build` after source changes; the dev client HMR swaps the new bundle, otherwise refresh or restart DSH.
 
+The screenshot and preview pipeline lives in the [screenshot SOP](./docs/screenshot-sop.md): one command re-shoots both themes from an isolated profile, and credentials are not copied unless `COPY_CREDENTIALS=1`.
+
 ## Verification
 
 Loaded in an isolated DSH profile and driven through headless Chrome:
@@ -243,4 +245,4 @@ Loaded in an isolated DSH profile and driven through headless Chrome:
 - records survive a refresh and stay session-scoped;
 - 1.x notes appear under the new keys after a restart.
 
-`npm run check` passes: lint, typecheck, build, and 43 tests, including a jsdom integration test that drives the whole panel.
+`npm run check` passes: lint, typecheck, build, and 44 tests, including a jsdom integration test that drives the whole panel.

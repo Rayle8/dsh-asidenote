@@ -5,3 +5,11 @@ coverage/
 .DS_Store
 Thumbs.db
 .idea/
+
+# Screenshot pipeline scratch space (see docs/screenshot-sop.md)
+.screenshots/
+.pnpm-store/
+
+# Python bytecode from the crop helper
+__pycache__/
+*.pyc
