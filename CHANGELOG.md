@@ -4,6 +4,8 @@ The 1.0.0–2.0.1 iterations were development builds of the same plugin; the 2.x
 
 ## next-released
 
+## 1.0.2
+
 <!-- app-update-notes:en:start -->
 ### Fixed
 - **Update:** when the market is busy with another operation, “Update now” waits and retries before reporting it. If the market stays busy — or is not installed at all — the card now states the command (`npx -y dsh-aside-note install`, or the Plugins page) and offers **Copy update prompt**, instead of stopping at “another update is already running — try again shortly”.
