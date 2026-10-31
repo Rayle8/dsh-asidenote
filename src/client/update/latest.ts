@@ -100,7 +100,7 @@ export function createUpdateProbe(options: UpdateProbeOptions = {}) {
   }
 
   function readNpmVersion(host: string): Promise<string | null> {
-    return readJson(`${host}/dsh-asidenote/latest`).then(body =>
+    return readJson(`${host}/dsh-aside-note/latest`).then(body =>
       body !== null && typeof body.version === 'string' ? body.version : null,
     )
   }

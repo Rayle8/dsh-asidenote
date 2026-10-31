@@ -10,7 +10,7 @@ const exists = name => fs.existsSync(path.join(root, name))
 
 test('package declares the DSH bundle and web client halves', () => {
   const manifest = JSON.parse(read('package.json'))
-  assert.equal(manifest.name, 'dsh-asidenote')
+  assert.equal(manifest.name, 'dsh-aside-note')
   assert.equal(manifest.type, 'module')
   assert.equal(manifest.exports['.'], './index.js')
   assert.equal(manifest.exports['./client'], './client/client.js')
@@ -72,7 +72,7 @@ test('the client checks for a newer release, reads its notes inline and updates 
   assert.match(client, /https:\/\/registry\.npmjs\.org/)
   assert.match(client, /https:\/\/registry\.npmmirror\.com/)
   assert.match(client, /api\.github\.com\/repos/)
-  assert.match(client, /dsh-asidenote\/latest/)
+  assert.match(client, /dsh-aside-note\/latest/)
   assert.match(client, /tag_name/)
   assert.match(client, /export function createUpdateProbe/)
   assert.match(client, /export function isNewerVersion/)
@@ -124,8 +124,8 @@ test('the update probe falls back from npm to the mirror and GitHub, and caches 
   })
   assert.equal(await probe.latest(), '2.1.0')
   assert.deepEqual(calls, [
-    'https://registry.npmjs.org/dsh-asidenote/latest',
-    'https://registry.npmmirror.com/dsh-asidenote/latest',
+    'https://registry.npmjs.org/dsh-aside-note/latest',
+    'https://registry.npmmirror.com/dsh-aside-note/latest',
   ], 'npm is consulted first and the mirror is the fallback')
   calls.length = 0
   now += hour - 1
@@ -149,9 +149,9 @@ test('the update probe falls back from npm to the mirror and GitHub, and caches 
   })
   assert.equal(await releaseOnly.latest(), '2.1.2', 'a GitHub Release backs a checkout that is not on npm, with its v prefix stripped')
   assert.deepEqual(releaseCalls, [
-    'https://registry.npmjs.org/dsh-asidenote/latest',
-    'https://registry.npmmirror.com/dsh-asidenote/latest',
-    'https://api.github.com/repos/Rayle8/dsh-asidenote/releases/latest',
+    'https://registry.npmjs.org/dsh-aside-note/latest',
+    'https://registry.npmmirror.com/dsh-aside-note/latest',
+    'https://api.github.com/repos/Rayle8/dsh-aside-note/releases/latest',
   ], 'GitHub is consulted only after both npm hosts miss')
 
   let offline = true
@@ -179,8 +179,8 @@ test('the update probe falls back from npm to the mirror and GitHub, and caches 
 test('patch inserts exactly the package host row', () => {
   const patch = read('cordis.patch.yml')
   assert.match(patch, /- insert:/)
-  assert.match(patch, /id: dsh-asidenote/)
-  assert.match(patch, /name: 'dsh-asidenote'/)
+  assert.match(patch, /id: dsh-aside-note/)
+  assert.match(patch, /name: 'dsh-aside-note'/)
   assert.doesNotMatch(patch, /@local\//)
 })
 
@@ -200,7 +200,7 @@ test('host and browser entries use the package identity', () => {
   // The loader shell is now emitted by tsdown, not hand-written in the source.
   const bundle = read('client/client.js')
   assert.match(bundle, /^window\.__ModuleLoader__\.load\(/)
-  assert.match(bundle, /id: "dsh-asidenote"/)
+  assert.match(bundle, /id: "dsh-aside-note"/)
   assert.match(bundle, /return module\.exports; \} \}\);/)
   assert.doesNotMatch(client, /__ModuleLoader__/, 'the source must not carry a hand-written shell')
   assert.doesNotMatch(client, /ctx\.slots\.inject\('conversation\.hero\.options'/)
@@ -271,7 +271,7 @@ test('host and browser entries use the package identity', () => {
 
 test('the retired page entry is gone, not kept as a second implementation', () => {
   const client = read('src/client/index.ts')
-  for (const dead of ['function PanelBody', 'function PageShell', 'function MemoEntry', 'useTodoStore', 'dsh.dsh-asidenote.v1']) {
+  for (const dead of ['function PanelBody', 'function PageShell', 'function MemoEntry', 'useTodoStore', 'dsh.dsh-aside-note.v1']) {
     assert.ok(!client.includes(dead), `dead surface still present: ${dead}`)
   }
   assert.doesNotMatch(readCss(), /dsh-an-(?:page|shell|heroBtn|footerBtn|dockBtn|badge|statNum|track|select)\b/)

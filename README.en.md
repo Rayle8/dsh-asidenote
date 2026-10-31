@@ -4,7 +4,7 @@ Lightweight session notes
 
 [中文](README.md) | English
 
-> Product name: **AsideNote** (随记); the package, plugin id and repository are all `dsh-asidenote`. Old repository links redirect automatically.
+> Product name: **AsideNote** (随记); the package, plugin id and repository are all `dsh-aside-note`. Old repository links redirect automatically.
 
 **A quick note when you need it. Out of the way when you don’t.**
 
@@ -62,7 +62,7 @@ Click a note's forward button to append it to the current chat input as a list i
 
 > Notes are stored in the current browser and do not sync across devices or browsers. Clearing site data removes them. See [Where data lives](#where-data-lives).
 
-[Installation](#install) · [Feedback and issues](https://github.com/Rayle8/dsh-asidenote/issues)
+[Installation](#install) · [Feedback and issues](https://github.com/Rayle8/dsh-aside-note/issues)
 
 ## Features
 
@@ -187,15 +187,15 @@ Therefore:
 ### One-command install (recommended)
 
 ```bash
-npx dsh-asidenote install
+npx dsh-aside-note install
 ```
 
-The installer pulls this package from npm, finds the DSH profile (it honours `DSH_PROFILE_DIR`, otherwise `~/.dsh/profiles/desktop`), backs up `package.json` and `pnpm-lock.yaml` into `.local-backup/`, adds the dependency, appends `dsh-asidenote` to `dsh.profile.bundles`, runs `pnpm install` and finally verifies the installed `client/client.js`.
+The installer pulls this package from npm, finds the DSH profile (it honours `DSH_PROFILE_DIR`, otherwise `~/.dsh/profiles/desktop`), backs up `package.json` and `pnpm-lock.yaml` into `.local-backup/`, adds the dependency, appends `dsh-aside-note` to `dsh.profile.bundles`, runs `pnpm install` and finally verifies the installed `client/client.js`.
 
 ```bash
-npx dsh-asidenote install --profile work    # pick a profile
-npx dsh-asidenote install --dry-run         # print the plan, write nothing
-npx dsh-asidenote install --version 2.0.1   # pin the version instead of ^2.0.1
+npx dsh-aside-note install --profile work    # pick a profile
+npx dsh-aside-note install --dry-run         # print the plan, write nothing
+npx dsh-aside-note install --version 0.9.10  # pin the version instead of ^0.9.10
 ```
 
 The installer ships from **2.0.2** on; earlier versions have no `bin`, so `npx` reports no executable. It is safe to re-run. No restart is needed: DSH re-composes the profile within about a second, and a page reload picks up the entry (a marketplace install triggers that reload for you).
@@ -209,22 +209,22 @@ Add the dependency to the DSH profile's `package.json` and list the package unde
 ```json
 {
   "dependencies": {
-    "dsh-asidenote": "^0.9.9"
+    "dsh-aside-note": "^0.9.10"
   },
   "dsh": {
     "profile": {
-      "bundles": ["dsh-asidenote"]
+      "bundles": ["dsh-aside-note"]
     }
   }
 }
 ```
 
-Then run `pnpm install` in the profile directory and reload the page — no restart is needed. To upgrade, raise the range or run `pnpm update dsh-asidenote`.
+Then run `pnpm install` in the profile directory and reload the page — no restart is needed. To upgrade, raise the range or run `pnpm update dsh-aside-note`.
 
 ### Install from a git checkout (development)
 
 ```bash
-git clone git@github.com:Rayle8/dsh-asidenote.git
+git clone git@github.com:Rayle8/dsh-aside-note.git
 ```
 
 Link the checkout into a DSH profile (replace `<path-to-repo>`):
@@ -232,11 +232,11 @@ Link the checkout into a DSH profile (replace `<path-to-repo>`):
 ```json
 {
   "dependencies": {
-    "dsh-asidenote": "link:<path-to-repo>"
+    "dsh-aside-note": "link:<path-to-repo>"
   },
   "dsh": {
     "profile": {
-      "bundles": ["dsh-asidenote"]
+      "bundles": ["dsh-aside-note"]
     }
   }
 }
@@ -246,16 +246,16 @@ Then run `pnpm install` in the profile directory. On startup DSH reads `dsh.bund
 
 ### Install from a GitHub Release (no npm)
 
-If you would rather not clone the repository, use the package attached to a [Release](https://github.com/Rayle8/dsh-asidenote/releases):
+If you would rather not clone the repository, use the package attached to a [Release](https://github.com/Rayle8/dsh-aside-note/releases):
 
-1. Download `dsh-asidenote-<version>.tgz` and unpack it into a stable directory:
+1. Download `dsh-aside-note-<version>.tgz` and unpack it into a stable directory:
 
    ```bash
-   mkdir -p ~/dsh-plugins/dsh-asidenote
-   tar -xzf dsh-asidenote-0.9.9.tgz --strip-components=1 -C ~/dsh-plugins/dsh-asidenote
+   mkdir -p ~/dsh-plugins/dsh-aside-note
+   tar -xzf dsh-aside-note-0.9.10.tgz --strip-components=1 -C ~/dsh-plugins/dsh-aside-note
    ```
 
-2. Link that directory into the profile with the same `link:` form shown above, for example `"dsh-asidenote": "link:/Users/<you>/dsh-plugins/dsh-asidenote"`, then run `pnpm install` in the profile directory.
+2. Link that directory into the profile with the same `link:` form shown above, for example `"dsh-aside-note": "link:/Users/<you>/dsh-plugins/dsh-aside-note"`, then run `pnpm install` in the profile directory.
 
 To upgrade, download the new tarball, unpack it over the same directory, then toggle the bundle off/on in the **Plugins** page (or restart DSH); the in-app notice points at the matching Release.
 
@@ -267,7 +267,7 @@ When the panel opens, the plugin quietly checks the latest published version (np
 - **Notes show by default:** an available update immediately lists the release notes from the GitHub Release body — no disclosure to open. The notes are the block between its `app-update-notes:en` / `app-update-notes:zh` markers, flattened to plain text — no HTML is executed or injected.
 - **Across several versions:** when the published release is several versions ahead, the notes list every release in the gap, newest first. The newest stays open and each older version expands on its own. Drafts and prereleases are skipped, at most six releases are listed, and a link points at the releases page when more were left out.
 - **Full release notes** sits to the right of the update button and opens the matching GitHub Release page in a new tab.
-- **Update now** queues the upgrade through the plugin market's public update API when dshmarket is present, reports live progress, and offers a page refresh or DSH restart when it finishes. Without a market, the card explains the manual path (`pnpm update dsh-asidenote`, or the Plugins page).
+- **Update now** queues the upgrade through the plugin market's public update API when dshmarket is present, reports live progress, and offers a page refresh or DSH restart when it finishes. Without a market, the card explains the manual path (`pnpm update dsh-aside-note`, or the Plugins page).
 
 Updating is always an explicit click: nothing installs on its own, no commands run behind your back, and your notes are never touched. The check only reads public version numbers and release bodies.
 
@@ -286,7 +286,7 @@ npm run build     # regenerate client/client.js only
 The entry is `src/client/index.ts`, which exports `apply(ctx)`; tsdown wraps it in DSH's loader shell:
 
 ```js
-window.__ModuleLoader__.load({ id: 'dsh-asidenote', factory: (require) => { … } })
+window.__ModuleLoader__.load({ id: 'dsh-aside-note', factory: (require) => { … } })
 ```
 
 The artifact is committed: CI rebuilds it and fails when `client/` does not match, so do not edit `client/client.js` by hand.

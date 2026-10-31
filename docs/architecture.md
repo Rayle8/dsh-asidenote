@@ -8,7 +8,7 @@ AsideNote 是**纯客户端插件**：宿主半侧 `index.js` 是 8 行 no-op，
 
 - `package.json` 的 `dsh.bundle.patch` 指向 `cordis.patch.yml`，`dsh.client` 声明 `./client` 与需要预注入的宿主模块。
 - 壳把 `./client`（即 `client/client.js`）当 classic script 加载：`window.__ModuleLoader__.load({ id, factory })`。`factory(require)` 里的 `require` 绑定到冻结的模块表，只认 `react`、`react/jsx-runtime`、`react-dom`、`react-dom/client`、`@deepseek-ai/dsh-client-ui-primitives`；其余依赖全部内联。
-- 样式是 `import css from './styles/panel.css?inline'`，由入口在 `apply()` 里插入**一张** `<style data-dsh-plugin="dsh-asidenote">`，dispose 时移除。面板与输入框 dock 不在同一棵 React 树里，所以不能做面板级 `<style>`。
+- 样式是 `import css from './styles/panel.css?inline'`，由入口在 `apply()` 里插入**一张** `<style data-dsh-plugin="dsh-aside-note">`，dispose 时移除。面板与输入框 dock 不在同一棵 React 树里，所以不能做面板级 `<style>`。
 - 只依赖两个服务：`slots`（`conversation.composer.dock` 捕获当前会话、`shell.overlay` 承载全局 Toast）与 `locale`（注册字典、绑定 `t`）。
 - 顶部入口是注入宿主 header 的原生 DOM 按钮，不是 React portal——宿主重渲染会回收 portal。
 

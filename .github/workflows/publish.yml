@@ -61,6 +61,14 @@ jobs:
 
       - name: Publish
         run: |
+          # A manual first publish or a re-run may have already shipped this
+          # version; in that case the tag still owns the Release creation below.
+          name="$(node -p "require('./package.json').name")"
+          version="$(node -p "require('./package.json').version")"
+          if npm view "${name}@${version}" version >/dev/null 2>&1; then
+            echo "${name}@${version} already exists; skipping npm publish"
+            exit 0
+          fi
           # A tag carrying a prerelease suffix goes to the `next` dist-tag so it
           # never becomes `latest` (and never nags stable users).
           if [[ "$GITHUB_REF_NAME" == v*-* ]]; then

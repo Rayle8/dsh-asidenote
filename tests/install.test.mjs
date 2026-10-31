@@ -45,29 +45,29 @@ test('a fresh profile gets the dependency and the bundle line', (t) => {
   assert.equal(result.status, 0, result.stderr)
 
   const manifest = manifestOf(dir)
-  assert.equal(manifest.dependencies['dsh-asidenote'], '^2.0.1')
+  assert.equal(manifest.dependencies['dsh-aside-note'], '^0.9.10')
   assert.deepEqual(manifest.dsh.profile.bundles, [
     '@deepseek-ai/dsh-base',
     '@deepseek-ai/dsh-web-app',
-    'dsh-asidenote',
+    'dsh-aside-note',
   ])
   assert.ok(existsSync(join(dir, '.local-backup')), 'the manifest is backed up before it is edited')
 })
 
 test('re-running is idempotent and keeps the existing bundle order', (t) => {
   const manifest = structuredClone(BASE)
-  manifest.dependencies['dsh-asidenote'] = '~2.0.0'
-  manifest.dsh.profile.bundles.splice(1, 0, 'dsh-asidenote')
+  manifest.dependencies['dsh-aside-note'] = '~0.9.9'
+  manifest.dsh.profile.bundles.splice(1, 0, 'dsh-aside-note')
   const dir = makeProfile(manifest, t)
 
   assert.equal(runInstaller(dir, ['--no-install']).status, 0)
   assert.equal(runInstaller(dir, ['--no-install']).status, 0)
 
   const after = manifestOf(dir)
-  assert.equal(after.dependencies['dsh-asidenote'], '^2.0.1')
+  assert.equal(after.dependencies['dsh-aside-note'], '^0.9.10')
   assert.deepEqual(after.dsh.profile.bundles, [
     '@deepseek-ai/dsh-base',
-    'dsh-asidenote',
+    'dsh-aside-note',
     '@deepseek-ai/dsh-web-app',
   ])
 })
@@ -87,7 +87,7 @@ test('--version writes the exact range it was given', (t) => {
   const dir = makeProfile(structuredClone(BASE), t)
 
   assert.equal(runInstaller(dir, ['--no-install', '--version', '2.0.1']).status, 0)
-  assert.equal(manifestOf(dir).dependencies['dsh-asidenote'], '2.0.1')
+  assert.equal(manifestOf(dir).dependencies['dsh-aside-note'], '2.0.1')
 })
 
 test('a directory that is not a DSH profile is refused untouched', (t) => {

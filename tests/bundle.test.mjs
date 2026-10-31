@@ -70,12 +70,12 @@ test('the built bundle boots, applies, and seats its slots', async t => {
 <!-- app-update-notes:zh:end -->
 `
   const RELEASES = [
-    { tag_name: 'v0.9.11', html_url: 'https://github.com/Rayle8/dsh-asidenote/releases/tag/v0.9.11', body: RELEASE_BODY },
-    { tag_name: 'v0.9.10', html_url: 'https://github.com/Rayle8/dsh-asidenote/releases/tag/v0.9.10', body: OLDER_BODY },
+    { tag_name: 'v0.9.12', html_url: 'https://github.com/Rayle8/dsh-aside-note/releases/tag/v0.9.12', body: RELEASE_BODY },
+    { tag_name: 'v0.9.11', html_url: 'https://github.com/Rayle8/dsh-aside-note/releases/tag/v0.9.11', body: OLDER_BODY },
     // Older than the running build and a prerelease: neither may appear.
-    { tag_name: 'v0.9.9', html_url: 'https://github.com/Rayle8/dsh-asidenote/releases/tag/v0.9.9', body: OLDER_BODY },
-    { tag_name: 'v0.9.12-beta.1', prerelease: true, body: RELEASE_BODY },
-    { tag_name: 'v0.9.13', draft: true, body: RELEASE_BODY },
+    { tag_name: 'v0.9.9', html_url: 'https://github.com/Rayle8/dsh-aside-note/releases/tag/v0.9.9', body: OLDER_BODY },
+    { tag_name: 'v0.9.13-beta.1', prerelease: true, body: RELEASE_BODY },
+    { tag_name: 'v0.9.14', draft: true, body: RELEASE_BODY },
   ]
   const MARKET_CAPABILITIES = {
     schema: 'dsh-market/update-api/v1',
@@ -104,12 +104,12 @@ test('the built bundle boots, applies, and seats its slots', async t => {
       if (holdManualCheck) {
         holdManualCheck = false
         return new Promise(resolve => {
-          releaseManualCheck = () => resolve(json(200, { version: '0.9.11' }))
+          releaseManualCheck = () => resolve(json(200, { version: '0.9.12' }))
         })
       }
-      return json(200, { version: '0.9.11' })
+      return json(200, { version: '0.9.12' })
     }
-    if (url === 'https://api.github.com/repos/Rayle8/dsh-asidenote/releases?per_page=50') {
+    if (url === 'https://api.github.com/repos/Rayle8/dsh-aside-note/releases?per_page=50') {
       return json(200, RELEASES)
     }
     if (url === '/dsh-market/api/v1/capabilities') return json(200, MARKET_CAPABILITIES)
@@ -124,7 +124,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
           operationId: 'boot-1-update-1',
           state: 'succeeded',
           beforeVersion: '0.9.8',
-          installedVersion: '0.9.11',
+          installedVersion: '0.9.12',
           progress: { percent: 100 },
           outcome: { refreshRequired: true, restartRequired: false },
           failure: null,
@@ -139,7 +139,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   window.__ModuleLoader__ = { load: spec => { loaded = spec } }
   window.eval(bundle)
 
-  assert.equal(loaded.id, 'dsh-asidenote')
+  assert.equal(loaded.id, 'dsh-aside-note')
   const moduleTable = {
     react: React,
     'react-dom': ReactDOM,
@@ -194,7 +194,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   assert.ok(window.localStorage.getItem('dsh.aside-notes.migrated.v2'), 'the migration marker must be set')
   assert.ok(window.localStorage.getItem('dsh.session-memos.v1'), 'old keys stay readable for a rollback')
 
-  const style = document.querySelector('style[data-dsh-plugin="dsh-asidenote"]')
+  const style = document.querySelector('style[data-dsh-plugin="dsh-aside-note"]')
   assert.ok(style, 'the document-level stylesheet must be injected')
   assert.match(style.textContent, /\.dsh-an-popover\{/)
 
@@ -251,8 +251,8 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   // gains a dot and About shows the update card.
   await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 20)) })
   assert.deepEqual(registryCalls().map(call => call.url), [
-    'https://registry.npmjs.org/dsh-asidenote/latest',
-    'https://registry.npmmirror.com/dsh-asidenote/latest',
+    'https://registry.npmjs.org/dsh-aside-note/latest',
+    'https://registry.npmmirror.com/dsh-aside-note/latest',
   ], 'the npmjs miss must fall back to the npmmirror host')
   assert.ok(popover.querySelector('.dsh-an-updateDot'), 'the gear carries the update dot')
   const updateCard = popover.querySelector('.dsh-an-updateCard')
@@ -284,16 +284,16 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   assert.ok(notes, 'release notes stay visible after a check')
   assert.match(notes.textContent, /本次更新包含 2 个版本/)
   const heads = [...notes.querySelectorAll('.dsh-an-updateVersionHead')]
-  assert.deepEqual(heads.map(head => head.textContent.replace('▸', '')), ['v0.9.11最新', 'v0.9.10'])
+  assert.deepEqual(heads.map(head => head.textContent.replace('▸', '')), ['v0.9.12最新', 'v0.9.11'])
   assert.match(notes.textContent, /更新中心/)
-  assert.doesNotMatch(notes.textContent, /0\.9\.12-beta/, 'prereleases are not offered')
+  assert.doesNotMatch(notes.textContent, /0\.9\.13-beta/, 'prereleases are not offered')
   assert.doesNotMatch(notes.textContent, /v0\.9\.9\b/, 'releases older than the build are not listed')
   assert.equal(heads[0].getAttribute('aria-expanded'), 'true', 'the release being installed opens')
   assert.equal(heads[1].getAttribute('aria-expanded'), 'false', 'older releases wait for a click')
   await act(async () => { heads[1].click() })
   assert.match(notes.textContent, /修复了上一个版本的问题/, 'clicking an older version expands its notes')
   const fullLink = popover.querySelector('.dsh-an-updateFull')
-  assert.equal(fullLink.getAttribute('href'), 'https://github.com/Rayle8/dsh-asidenote/releases/tag/v0.9.11')
+  assert.equal(fullLink.getAttribute('href'), 'https://github.com/Rayle8/dsh-aside-note/releases/tag/v0.9.12')
   assert.equal(fullLink.getAttribute('target'), '_blank')
   const actions = popover.querySelector('.dsh-an-updateActions')
   assert.ok(actions, 'the action row carries the update button and the full-release link')
@@ -374,7 +374,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
 
   await act(async () => { reactRoot.unmount() })
   for (const dispose of disposers) dispose()
-  assert.equal(document.querySelector('style[data-dsh-plugin="dsh-asidenote"]'), null,
+  assert.equal(document.querySelector('style[data-dsh-plugin="dsh-aside-note"]'), null,
     'the stylesheet must be removed when the plugin is disposed')
   dom.window.close()
 })

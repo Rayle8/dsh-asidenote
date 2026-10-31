@@ -13,7 +13,7 @@
 /** Where the market mounts its public API. */
 export const MARKET_API_BASE = '/dsh-market/api/v1'
 /** The package this panel updates. */
-export const MARKET_PACKAGE = 'dsh-asidenote'
+export const MARKET_PACKAGE = 'dsh-aside-note'
 /** A check should answer quickly; a slow market falls back to the manual path. */
 export const MARKET_TIMEOUT_MS = 8000
 

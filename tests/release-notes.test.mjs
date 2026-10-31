@@ -34,7 +34,7 @@ const BODY = `# English
 
 ## Install
 
-- npm install dsh-asidenote
+- npm install dsh-aside-note
 
 # 中文
 

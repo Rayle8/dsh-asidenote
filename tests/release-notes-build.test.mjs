@@ -48,7 +48,7 @@ test('builds a bilingual body with install links, markers and the compare link',
     version: '2.1.0',
     tag: 'v2.1.0',
     prevTag: 'v2.0.1',
-    repo: 'Rayle8/dsh-asidenote',
+    repo: 'Rayle8/dsh-aside-note',
   })
   assert.match(body, /^# English/)
   assert.match(body, /## What's changed/)
@@ -56,8 +56,8 @@ test('builds a bilingual body with install links, markers and the compare link',
   assert.match(body, /## 更新内容/)
   assert.match(body, /<!-- app-update-notes:en:start -->/)
   assert.match(body, /<!-- app-update-notes:zh:start -->/)
-  assert.match(body, /npm install dsh-asidenote@2\.1\.0/)
-  assert.match(body, /dsh-asidenote-2\.1\.0\.tgz/)
+  assert.match(body, /npm install dsh-aside-note@2\.1\.0/)
+  assert.match(body, /dsh-aside-note-2\.1\.0\.tgz/)
   assert.match(body, /compare\/v2\.0\.1\.\.\.v2\.1\.0/)
   // The English release page must not swallow the Chinese block, and vice versa.
   assert.equal(extractLocaleBlock(body, 'en').includes('更新中心'), false)

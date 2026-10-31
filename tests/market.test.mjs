@@ -67,7 +67,7 @@ test('the package check carries force and normalises the row', async () => {
       return jsonResponse(200, {
         schema: 'dsh-market/update-api/v1',
         package: {
-          name: 'dsh-asidenote',
+          name: 'dsh-aside-note',
           source: 'npm',
           installedVersion: '2.0.0',
           latestVersion: '2.0.1',
@@ -77,15 +77,15 @@ test('the package check carries force and normalises the row', async () => {
       })
     },
   })
-  const info = await market.check('dsh-asidenote', true)
+  const info = await market.check('dsh-aside-note', true)
   assert.deepEqual(info, {
-    name: 'dsh-asidenote',
+    name: 'dsh-aside-note',
     source: 'npm',
     installedVersion: '2.0.0',
     latestVersion: '2.0.1',
     updateAvailable: true,
   })
-  assert.equal(urls[0], `${MARKET_API_BASE}/updates?name=dsh-asidenote&force=1`)
+  assert.equal(urls[0], `${MARKET_API_BASE}/updates?name=dsh-aside-note&force=1`)
 })
 
 test('starting an update returns the operation, or a retryable failure code', async () => {
@@ -102,7 +102,7 @@ test('starting an update returns the operation, or a retryable failure code', as
   assert.deepEqual(await accepted.start(), { operationId: 'boot-1-update-1', state: 'queued' })
   assert.equal(requests[0].init.method, 'POST')
   assert.equal(requests[0].init.headers['content-type'], 'application/json')
-  assert.deepEqual(JSON.parse(requests[0].init.body), { packageName: 'dsh-asidenote' })
+  assert.deepEqual(JSON.parse(requests[0].init.body), { packageName: 'dsh-aside-note' })
 
   const busy = createMarketClient({
     fetchImpl: async () => jsonResponse(409, {
@@ -129,7 +129,7 @@ test('operation polling normalises progress, outcome and retryability', async ()
         state: 'running',
         beforeVersion: '2.0.0',
         installedVersion: '2.0.0',
-        progress: { percent: 42.4, detail: 'resolving dsh-asidenote' },
+        progress: { percent: 42.4, detail: 'resolving dsh-aside-note' },
         outcome: { refreshRequired: false, restartRequired: false },
         failure: null,
       },
@@ -139,7 +139,7 @@ test('operation polling normalises progress, outcome and retryability', async ()
     operationId: 'boot-1-update-1',
     state: 'running',
     percent: 42,
-    detail: 'resolving dsh-asidenote',
+    detail: 'resolving dsh-aside-note',
     beforeVersion: '2.0.0',
     installedVersion: '2.0.0',
     refreshRequired: false,

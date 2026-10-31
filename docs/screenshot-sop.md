@@ -46,8 +46,8 @@ COPY_CREDENTIALS=1          # 复制本机凭据到临时 profile（默认关闭
 建议在**独立 worktree** 里执行，避免与主工作树里正在进行的改动互相覆盖：
 
 ```bash
-git worktree add ../dsh-asidenote-shots -b chore/shots
-cd ../dsh-asidenote-shots
+git worktree add ../dsh-aside-note-shots -b chore/shots
+cd ../dsh-aside-note-shots
 tools/screenshots/run.sh
 npm test
 ```

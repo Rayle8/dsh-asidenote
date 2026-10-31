@@ -4,7 +4,7 @@
 
 [English](README.en.md) | 中文
 
-> 产品名是 **AsideNote**（随记），包、插件 id 与仓库均为 `dsh-asidenote`；旧仓库链接会由 GitHub 自动重定向。
+> 产品名是 **AsideNote**（随记），包、插件 id 与仓库均为 `dsh-aside-note`；旧仓库链接会由 GitHub 自动重定向。
 
 **有事记一下，没事不打扰。**
 
@@ -62,7 +62,7 @@ AsideNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺。临时的�
 
 > 便笺保存在当前浏览器，不跨设备或浏览器同步；清理站点数据会清除记录。详见[数据保存在哪里](#数据保存在哪里)。
 
-[查看安装方法](#安装) · [反馈问题或建议](https://github.com/Rayle8/dsh-asidenote/issues)
+[查看安装方法](#安装) · [反馈问题或建议](https://github.com/Rayle8/dsh-aside-note/issues)
 
 ## 功能
 
@@ -187,15 +187,15 @@ AsideNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺。临时的�
 ### 一键安装（推荐）
 
 ```bash
-npx dsh-asidenote install
+npx dsh-aside-note install
 ```
 
-脚本会从 npm 临时拉取本包，找到 DSH profile（存在 `DSH_PROFILE_DIR` 时用它，否则默认 `~/.dsh/profiles/desktop`），先把 `package.json` 和 `pnpm-lock.yaml` 备份到 `.local-backup/`，再写入依赖、把 `dsh-asidenote` 追加进 `dsh.profile.bundles`，执行 `pnpm install`，最后校验装出来的 `client/client.js`。
+脚本会从 npm 临时拉取本包，找到 DSH profile（存在 `DSH_PROFILE_DIR` 时用它，否则默认 `~/.dsh/profiles/desktop`），先把 `package.json` 和 `pnpm-lock.yaml` 备份到 `.local-backup/`，再写入依赖、把 `dsh-aside-note` 追加进 `dsh.profile.bundles`，执行 `pnpm install`，最后校验装出来的 `client/client.js`。
 
 ```bash
-npx dsh-asidenote install --profile work    # 指定 profile
-npx dsh-asidenote install --dry-run         # 只打印计划，不改任何文件
-npx dsh-asidenote install --version 2.0.1   # 固定版本，而不是 ^2.0.1
+npx dsh-aside-note install --profile work    # 指定 profile
+npx dsh-aside-note install --dry-run         # 只打印计划，不改任何文件
+npx dsh-aside-note install --version 0.9.10  # 固定版本，而不是 ^0.9.10
 ```
 
 安装器从 **2.0.2** 起随包发布；更早的版本没有 `bin`，`npx` 会提示找不到可执行文件。重复执行是幂等的。装完不需要重启 DSH：profile 会在约 1 秒内重新组合，刷新页面即可看到入口（从插件市场安装时，市场会替你刷新页面）。
@@ -209,22 +209,22 @@ npx dsh-asidenote install --version 2.0.1   # 固定版本，而不是 ^2.0.1
 ```json
 {
   "dependencies": {
-    "dsh-asidenote": "^0.9.9"
+    "dsh-aside-note": "^0.9.10"
   },
   "dsh": {
     "profile": {
-      "bundles": ["dsh-asidenote"]
+      "bundles": ["dsh-aside-note"]
     }
   }
 }
 ```
 
-然后在 profile 目录执行 `pnpm install`，刷新页面即可生效，无需重启；升级时调整版本范围或执行 `pnpm update dsh-asidenote`。
+然后在 profile 目录执行 `pnpm install`，刷新页面即可生效，无需重启；升级时调整版本范围或执行 `pnpm update dsh-aside-note`。
 
 ### 从 git checkout 安装（开发）
 
 ```bash
-git clone git@github.com:Rayle8/dsh-asidenote.git
+git clone git@github.com:Rayle8/dsh-aside-note.git
 ```
 
 把克隆目录 link 进 DSH profile（把 `<path-to-repo>` 换成实际克隆目录）：
@@ -232,11 +232,11 @@ git clone git@github.com:Rayle8/dsh-asidenote.git
 ```json
 {
   "dependencies": {
-    "dsh-asidenote": "link:<path-to-repo>"
+    "dsh-aside-note": "link:<path-to-repo>"
   },
   "dsh": {
     "profile": {
-      "bundles": ["dsh-asidenote"]
+      "bundles": ["dsh-aside-note"]
     }
   }
 }
@@ -246,16 +246,16 @@ git clone git@github.com:Rayle8/dsh-asidenote.git
 
 ### 从 GitHub Release 安装（不需要 npm）
 
-不想 clone 仓库时，直接使用 [Releases](https://github.com/Rayle8/dsh-asidenote/releases) 里的发布包：
+不想 clone 仓库时，直接使用 [Releases](https://github.com/Rayle8/dsh-aside-note/releases) 里的发布包：
 
-1. 下载 `dsh-asidenote-<version>.tgz`，解压到固定目录：
+1. 下载 `dsh-aside-note-<version>.tgz`，解压到固定目录：
 
    ```bash
-   mkdir -p ~/dsh-plugins/dsh-asidenote
-   tar -xzf dsh-asidenote-0.9.9.tgz --strip-components=1 -C ~/dsh-plugins/dsh-asidenote
+   mkdir -p ~/dsh-plugins/dsh-aside-note
+   tar -xzf dsh-aside-note-0.9.10.tgz --strip-components=1 -C ~/dsh-plugins/dsh-aside-note
    ```
 
-2. 把解压目录按上面的 link 写法接入 profile，例如 `"dsh-asidenote": "link:/Users/<you>/dsh-plugins/dsh-asidenote"`，再在 profile 目录执行 `pnpm install`。
+2. 把解压目录按上面的 link 写法接入 profile，例如 `"dsh-aside-note": "link:/Users/<you>/dsh-plugins/dsh-aside-note"`，再在 profile 目录执行 `pnpm install`。
 
 升级时下载新版本的 tgz、解压覆盖同一目录，然后在「插件」页把组合包关闭再开启（或重启 DSH）；设置里的更新提示会指向对应的 Release。
 
@@ -267,7 +267,7 @@ git clone git@github.com:Rayle8/dsh-asidenote.git
 - **更新内容默认展示**：有新版时直接在卡片里列出 GitHub Release 的更新说明，不需要再点开。说明由 Release 正文中 `app-update-notes:zh` / `app-update-notes:en` 标记之间的内容提供，统一压成纯文本渲染，不会执行或注入任何 HTML。
 - **跨多个版本**：如果线上版本领先本地好几个版本，说明区会按版本从新到旧逐条列出这段区间内的 Release；最新版本默认展开，更早的版本各自折叠、点标题单独展开。草稿与预发布不参与，最多列出 6 个版本，更多时给出「更早的版本请见完整更新说明」链接。
 - **完整更新说明**：链接位于「立即更新」右侧，点击在新标签页打开对应的 GitHub Release 页面。
-- **立即更新**：检测到插件市场（dshmarket）时，通过它的公开更新 API 排队升级 dsh-asidenote，显示实时进度；完成后提供「刷新页面」或「重启 DSH」。未检测到时，卡片会说明手动更新路径（`pnpm update dsh-asidenote` 或「插件」页）。
+- **立即更新**：检测到插件市场（dshmarket）时，通过它的公开更新 API 排队升级 dsh-aside-note，显示实时进度；完成后提供「刷新页面」或「重启 DSH」。未检测到时，卡片会说明手动更新路径（`pnpm update dsh-aside-note` 或「插件」页）。
 
 更新始终需要手动点击：插件不会自动安装、执行命令或改动本地便笺。版本检查与说明读取只访问公开的版本号与 Release 正文，不上报任何数据。
 
@@ -286,7 +286,7 @@ npm run build     # 只重新生成 client/client.js
 入口是 `src/client/index.ts`，导出 `apply(ctx)`；tsdown 负责套上 DSH 的加载壳：
 
 ```js
-window.__ModuleLoader__.load({ id: 'dsh-asidenote', factory: (require) => { … } })
+window.__ModuleLoader__.load({ id: 'dsh-aside-note', factory: (require) => { … } })
 ```
 
 产物单独提交：CI 会重建并对比 `client/`，不一致就失败，因此不要手改 `client/client.js`。

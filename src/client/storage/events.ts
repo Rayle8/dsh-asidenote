@@ -13,7 +13,7 @@ export function notifyTodoChange() {
     try {
       listener()
     } catch (error) {
-      console.error('dsh-asidenote: listener failed', error)
+      console.error('dsh-aside-note: listener failed', error)
     }
   }
 }

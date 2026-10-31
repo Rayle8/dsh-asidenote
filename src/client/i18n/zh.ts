@@ -92,7 +92,7 @@ export const zh = {
   "update.restartHint": "请手动重启 DSH 以完成更新",
   "update.failed": "更新失败：{reason}",
   "update.force": "仍要更新",
-  "update.noMarket": "未检测到插件市场，暂时无法在应用内更新；可在「插件」页或终端执行 pnpm update dsh-asidenote",
+  "update.noMarket": "未检测到插件市场，暂时无法在应用内更新；可在「插件」页或终端执行 pnpm update dsh-aside-note",
   "update.tooFresh": "新版本刚发布，市场暂缓安装；可稍后重试，或选择仍要更新",
   "update.unchanged": "市场返回的版本没有变化；可稍后重试，或选择仍要更新",
   "update.notInstalled": "当前 profile 中没有安装这个插件，无法在应用内更新",

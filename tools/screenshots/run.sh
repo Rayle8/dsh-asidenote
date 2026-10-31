@@ -45,8 +45,8 @@ cat > "$WORK/dshhome/profiles/$PROFILE/package.json" <<JSON
 {
   "name": "dsh-profile-$PROFILE",
   "private": true,
-  "dependencies": { "dsh-asidenote": "link:$REPO" },
-  "dsh": { "profile": { "bundles": ["@deepseek-ai/dsh-base", "@deepseek-ai/dsh-web-app", "dsh-asidenote"] } }
+  "dependencies": { "dsh-aside-note": "link:$REPO" },
+  "dsh": { "profile": { "bundles": ["@deepseek-ai/dsh-base", "@deepseek-ai/dsh-web-app", "dsh-aside-note"] } }
 }
 JSON
 write_theme() {

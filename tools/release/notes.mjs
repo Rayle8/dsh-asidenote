@@ -12,7 +12,7 @@
  * cannot forget them. Usage:
  *
  *   node tools/release/notes.mjs --version 0.10.0 --tag v0.10.0 \
- *     --prev v0.9.9 --repo Rayle8/dsh-asidenote --out notes.md
+ *     --prev v0.9.9 --repo Rayle8/dsh-aside-note --out notes.md
  *
  * Exported for tests; `main()` only runs when this file is executed.
  */
@@ -23,7 +23,7 @@ import { fileURLToPath } from 'node:url'
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const DEFAULT_REPO_ROOT = path.resolve(HERE, '..', '..')
 
-const PACKAGE = 'dsh-asidenote'
+const PACKAGE = 'dsh-aside-note'
 
 function escapeRegExp(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -67,7 +67,7 @@ export function buildReleaseBody(options) {
     version,
     tag = `v${version}`,
     prevTag = '',
-    repo = 'Rayle8/dsh-asidenote',
+    repo = 'Rayle8/dsh-aside-note',
     packageName = PACKAGE,
   } = options
 
@@ -148,7 +148,7 @@ function main() {
     version,
     tag: args.tag || `v${version}`,
     prevTag: args.prev || '',
-    repo: args.repo || 'Rayle8/dsh-asidenote',
+    repo: args.repo || 'Rayle8/dsh-aside-note',
   })
   if (args.out) fs.writeFileSync(args.out, body)
   else process.stdout.write(body)

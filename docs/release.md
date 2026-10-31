@@ -123,16 +123,16 @@ trusted publisher 配置：
 ```text
 type: github
 file: publish.yml
-repository: Rayle8/dsh-asidenote
+repository: Rayle8/dsh-aside-note
 permissions: publish, stage publish
 ```
 
 首次创建配置后必须在 2 天内完成一次 trusted publish，否则配置过期。过期后重跑下面的命令并用 security key 重新授权：
 
 ```bash
-npx -y npm@11.21.1 trust github dsh-asidenote \
+npx -y npm@11.21.1 trust github dsh-aside-note \
   --file publish.yml \
-  --repo Rayle8/dsh-asidenote \
+  --repo Rayle8/dsh-aside-note \
   --allow-publish \
   --registry=https://registry.npmjs.org/ -y
 ```
@@ -142,12 +142,12 @@ npx -y npm@11.21.1 trust github dsh-asidenote \
 ## 发布后校验
 
 ```bash
-npm view dsh-asidenote version dist-tags --registry=https://registry.npmjs.org/
-gh run list -R Rayle8/dsh-asidenote -L 3
-gh release view v2.0.1 -R Rayle8/dsh-asidenote
+npm view dsh-aside-note version dist-tags --registry=https://registry.npmjs.org/
+gh run list -R Rayle8/dsh-aside-note -L 3
+gh release view v2.0.1 -R Rayle8/dsh-aside-note
 ```
 
-再在一个临时目录 `npm install dsh-asidenote@2.0.1`，或在测试 profile 里加载，确认 bundle 能启动。
+再在一个临时目录 `npm install dsh-aside-note@2.0.1`，或在测试 profile 里加载，确认 bundle 能启动。
 
 ## 更新提示的耦合
 
@@ -164,7 +164,7 @@ gh release view v2.0.1 -R Rayle8/dsh-asidenote
 node tools/release/notes.mjs --version 2.0.1 --tag v2.0.1 --prev v2.0.0 --out notes.md
 gh release create v2.0.1 --verify-tag --title "AsideNote 2.0.1" --notes-file notes.md
 npm pack --pack-destination dist
-gh release upload v2.0.1 dist/dsh-asidenote-2.0.1.tgz --clobber
+gh release upload v2.0.1 dist/dsh-aside-note-2.0.1.tgz --clobber
 ```
 
 ## 应用内更新的依赖
@@ -184,7 +184,7 @@ gh release upload v2.0.1 dist/dsh-asidenote-2.0.1.tgz --clobber
 | workflow 在 changelog 校验步骤失败 | `CHANGELOG.md` 缺少非空的 `## <version>` 小节；删掉 tag，把 `next-released` 改名后重新提交并重打 tag |
 | `EPUBLISHCONFLICT` / 版本已存在 | 该版本已发布，不能覆盖；改为新版本号 |
 | CI 报 `client/` 与源码不一致 | 本地 `npm run build` 后把 `client/client.js` 一起提交 |
-| `ENEEDAUTH` / OIDC 认证失败 | trusted publisher 的 workflow 文件名或仓库名不匹配；核对 `publish.yml` 与 `Rayle8/dsh-asidenote` |
+| `ENEEDAUTH` / OIDC 认证失败 | trusted publisher 的 workflow 文件名或仓库名不匹配；核对 `publish.yml` 与 `Rayle8/dsh-aside-note` |
 | 配置过期 | 重跑上面的 `npm trust` 命令并完成 Touch ID 授权 |
 | 刚发布后 `npm view` 仍是旧版本 | registry 传播或 npmmirror 同步有延迟；等几分钟，更新检查的镜像回退会自动处理 |
 | Release 已存在但没有 tgz 资产 | 重跑 workflow 会先卡在 npm 版本冲突；手动 `npm pack` 后 `gh release upload <tag> <tgz> --clobber` |

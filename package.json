@@ -1,17 +1,17 @@
 {
-  "name": "dsh-asidenote",
-  "version": "0.9.9",
+  "name": "dsh-aside-note",
+  "version": "0.9.10",
   "type": "module",
   "description": "AsideNote: a lightweight per-session notes button and right-side panel for the DeepSeek Harness Web GUI.",
   "license": "MIT",
   "author": "Rayle8",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Rayle8/dsh-asidenote.git"
+    "url": "git+https://github.com/Rayle8/dsh-aside-note.git"
   },
-  "homepage": "https://github.com/Rayle8/dsh-asidenote#readme",
+  "homepage": "https://github.com/Rayle8/dsh-aside-note#readme",
   "bugs": {
-    "url": "https://github.com/Rayle8/dsh-asidenote/issues"
+    "url": "https://github.com/Rayle8/dsh-aside-note/issues"
   },
   "keywords": [
     "dsh",
@@ -27,7 +27,7 @@
   },
   "main": "index.js",
   "bin": {
-    "dsh-asidenote": "scripts/install.mjs"
+    "dsh-aside-note": "scripts/install.mjs"
   },
   "exports": {
     ".": "./index.js",

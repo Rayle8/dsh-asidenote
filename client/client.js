@@ -1,4 +1,4 @@
-window.__ModuleLoader__.load({ id: "dsh-asidenote", factory: (require) => {
+window.__ModuleLoader__.load({ id: "dsh-aside-note", factory: (require) => {
 
 var module = { exports: {} }; var exports = module.exports;
 // \0rolldown/runtime.js
@@ -47,9 +47,9 @@ var panel_css_default = "/*\n * Panel, composer dock, header entry and toast sty
 * storage modules and the panel import it instead of repeating literals.
 */
 /** Locale namespace of this plugin's copy (also binds the renderer's `t` prop). */
-const NS = "dsh-asidenote";
+const NS = "dsh-aside-note";
 /** Sidebar launcher id and the main panel key it addresses. */
-const PANEL_ID = "dsh-asidenote";
+const PANEL_ID = "dsh-aside-note";
 /** Session-scoped memo store used by the popover and the session-header entry. */
 const SESSION_STORAGE_KEY = "dsh.aside-notes.v2";
 /** Unsaved add/edit drafts, restored when the panel is reopened. */
@@ -57,10 +57,10 @@ const DRAFT_STORAGE_KEY = "dsh.aside-notes.drafts.v2";
 /** Notes already forwarded to the composer, per session; marks the forward button. */
 const FORWARDED_STORAGE_KEY = "dsh.aside-notes.forwarded.v2";
 /** Shown in the in-panel settings; keep in sync with package.json. */
-const PLUGIN_VERSION = "0.9.9";
+const PLUGIN_VERSION = "0.9.10";
 const PLUGIN_AUTHOR = "阿三石";
-const PLUGIN_REPO_URL = "https://github.com/Rayle8/dsh-asidenote";
-const PLUGIN_REPO_LABEL = "github.com/Rayle8/dsh-asidenote";
+const PLUGIN_REPO_URL = "https://github.com/Rayle8/dsh-aside-note";
+const PLUGIN_REPO_LABEL = "github.com/Rayle8/dsh-aside-note";
 /** Send preference; persisted across panel openings. Enter sends by default. */
 const SEND_SHORTCUT_KEY = "dsh.aside-notes.send-shortcut.v2";
 /** Lead-in written before a forwarded note; empty means no prefix. */
@@ -188,7 +188,7 @@ const en = {
 	"update.restartHint": "Restart DSH manually to finish the update",
 	"update.failed": "Update failed: {reason}",
 	"update.force": "Update anyway",
-	"update.noMarket": "No plugin market detected, so the update cannot run in-app; update from Plugins or run pnpm update dsh-asidenote",
+	"update.noMarket": "No plugin market detected, so the update cannot run in-app; update from Plugins or run pnpm update dsh-aside-note",
 	"update.tooFresh": "This release is too new for the market right now — retry later or update anyway",
 	"update.unchanged": "The market answered with the same version — retry later or update anyway",
 	"update.notInstalled": "This plugin is not installed in the current profile, so it cannot be updated in-app",
@@ -293,7 +293,7 @@ const zh = {
 	"update.restartHint": "请手动重启 DSH 以完成更新",
 	"update.failed": "更新失败：{reason}",
 	"update.force": "仍要更新",
-	"update.noMarket": "未检测到插件市场，暂时无法在应用内更新；可在「插件」页或终端执行 pnpm update dsh-asidenote",
+	"update.noMarket": "未检测到插件市场，暂时无法在应用内更新；可在「插件」页或终端执行 pnpm update dsh-aside-note",
 	"update.tooFresh": "新版本刚发布，市场暂缓安装；可稍后重试，或选择仍要更新",
 	"update.unchanged": "市场返回的版本没有变化；可稍后重试，或选择仍要更新",
 	"update.notInstalled": "当前 profile 中没有安装这个插件，无法在应用内更新",
@@ -610,7 +610,7 @@ function notifyTodoChange() {
 	for (const listener of TODO_LISTENERS) try {
 		listener();
 	} catch (error) {
-		console.error("dsh-asidenote: listener failed", error);
+		console.error("dsh-aside-note: listener failed", error);
 	}
 }
 
@@ -1439,7 +1439,7 @@ function createUpdateProbe(options = {}) {
 		return fetchWithTimeout(fetchImpl, url).then((response) => response.ok ? response.json() : null).catch(() => null);
 	}
 	function readNpmVersion(host) {
-		return readJson(`${host}/dsh-asidenote/latest`).then((body) => body !== null && typeof body.version === "string" ? body.version : null);
+		return readJson(`${host}/dsh-aside-note/latest`).then((body) => body !== null && typeof body.version === "string" ? body.version : null);
 	}
 	function readGitHubVersion() {
 		return readJson(UPDATE_GITHUB_RELEASE_URL).then((body) => {
@@ -1694,7 +1694,7 @@ function updateNotesForLocale(body, locale) {
 /** Where the market mounts its public API. */
 const MARKET_API_BASE = "/dsh-market/api/v1";
 /** The package this panel updates. */
-const MARKET_PACKAGE = "dsh-asidenote";
+const MARKET_PACKAGE = "dsh-aside-note";
 /** A check should answer quickly; a slow market falls back to the manual path. */
 const MARKET_TIMEOUT_MS = 8e3;
 function asText(value) {
@@ -1913,11 +1913,11 @@ function useUpdateCenter(localeId) {
 	}, []);
 	const latestVersion = check.status === "current" ? null : check.latestVersion;
 	react.default.useEffect(() => {
-		if ("0.9.9".includes("-")) return void 0;
+		if ("0.9.10".includes("-")) return void 0;
 		let active = true;
 		fetchLatestVersion().then((version) => {
 			if (!active || version === null) return;
-			if (isNewerVersion(version, "0.9.9")) setCheck({
+			if (isNewerVersion(version, "0.9.10")) setCheck({
 				status: "available",
 				latestVersion: version,
 				checkedAt: Date.now()
@@ -1966,7 +1966,7 @@ function useUpdateCenter(localeId) {
 			});
 			return;
 		}
-		if (isNewerVersion(version, "0.9.9")) {
+		if (isNewerVersion(version, "0.9.10")) {
 			const sameRelease = previousVersion !== null && version === previousVersion;
 			setCheck({
 				status: "available",
@@ -2109,7 +2109,7 @@ function useUpdateCenter(localeId) {
 		await marketClient.restart();
 		refreshPage();
 	}, [refreshPage]);
-	const fullReleaseUrl = notes.entries[0]?.url || (latestVersion ? `${"https://github.com/Rayle8/dsh-asidenote"}/releases/tag/v${latestVersion}` : null);
+	const fullReleaseUrl = notes.entries[0]?.url || (latestVersion ? `${"https://github.com/Rayle8/dsh-aside-note"}/releases/tag/v${latestVersion}` : null);
 	return {
 		check,
 		latestVersion,
@@ -3346,14 +3346,14 @@ function apply(ctx) {
 	const locale = ctx.get("locale");
 	ctx.effect(() => {
 		const style = document.createElement("style");
-		style.dataset.dshPlugin = "dsh-asidenote";
+		style.dataset.dshPlugin = "dsh-aside-note";
 		style.textContent = panel_css_default;
 		document.head.appendChild(style);
 		return () => {
 			style.remove();
 		};
-	}, "dsh-asidenote: styles");
-	if (locale && typeof locale.register === "function") ctx.effect(() => locale.register(NS, DICT), "dsh-asidenote: dictionaries");
+	}, "dsh-aside-note: styles");
+	if (locale && typeof locale.register === "function") ctx.effect(() => locale.register(NS, DICT), "dsh-aside-note: dictionaries");
 	const localeId = () => {
 		try {
 			const current = locale && typeof locale.getLocale === "function" ? locale.getLocale() : null;
@@ -3417,7 +3417,7 @@ function apply(ctx) {
 		onOpen: (sessionId, anchor) => openMemoPopover(sessionId, anchor, "right")
 	});
 	refreshHeaderEntry = headerEntry.refresh;
-	ctx.effect(() => headerEntry.attach(() => closeMemoPopover()), "dsh-asidenote: right-side entry");
+	ctx.effect(() => headerEntry.attach(() => closeMemoPopover()), "dsh-aside-note: right-side entry");
 	function BoundSessionCapture(props) {
 		const sessionId = props.sessionId || "";
 		react.default.useEffect(() => {

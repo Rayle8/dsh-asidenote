@@ -5,9 +5,9 @@
  * storage modules and the panel import it instead of repeating literals.
  */
 /** Locale namespace of this plugin's copy (also binds the renderer's `t` prop). */
-export const NS = 'dsh-asidenote'
+export const NS = 'dsh-aside-note'
 /** Sidebar launcher id and the main panel key it addresses. */
-export const PANEL_ID = 'dsh-asidenote'
+export const PANEL_ID = 'dsh-aside-note'
 /** Session-scoped memo store used by the popover and the session-header entry. */
 export const SESSION_STORAGE_KEY = 'dsh.aside-notes.v2'
 /** Unsaved add/edit drafts, restored when the panel is reopened. */
@@ -15,10 +15,10 @@ export const DRAFT_STORAGE_KEY = 'dsh.aside-notes.drafts.v2'
 /** Notes already forwarded to the composer, per session; marks the forward button. */
 export const FORWARDED_STORAGE_KEY = 'dsh.aside-notes.forwarded.v2'
 /** Shown in the in-panel settings; keep in sync with package.json. */
-export const PLUGIN_VERSION = '0.9.9'
+export const PLUGIN_VERSION = '0.9.10'
 export const PLUGIN_AUTHOR = '阿三石'
-export const PLUGIN_REPO_URL = 'https://github.com/Rayle8/dsh-asidenote'
-export const PLUGIN_REPO_LABEL = 'github.com/Rayle8/dsh-asidenote'
+export const PLUGIN_REPO_URL = 'https://github.com/Rayle8/dsh-aside-note'
+export const PLUGIN_REPO_LABEL = 'github.com/Rayle8/dsh-aside-note'
 /** Send preference; persisted across panel openings. Enter sends by default. */
 export const SEND_SHORTCUT_KEY = 'dsh.aside-notes.send-shortcut.v2'
 /** Lead-in written before a forwarded note; empty means no prefix. */

@@ -77,14 +77,14 @@ function apply(ctx: DshClientCtx) {
   // leave it unstyled until the panel had been opened once.
   ctx.effect(() => {
     const style = document.createElement('style')
-    style.dataset.dshPlugin = 'dsh-asidenote'
+    style.dataset.dshPlugin = 'dsh-aside-note'
     style.textContent = CSS
     document.head.appendChild(style)
     return () => { style.remove() }
-  }, 'dsh-asidenote: styles')
+  }, 'dsh-aside-note: styles')
 
   if (locale && typeof locale.register === 'function') {
-    ctx.effect(() => locale.register(NS, DICT), 'dsh-asidenote: dictionaries')
+    ctx.effect(() => locale.register(NS, DICT), 'dsh-aside-note: dictionaries')
   }
 
   const localeId = () => {
@@ -158,7 +158,7 @@ function apply(ctx: DshClientCtx) {
   })
   refreshHeaderEntry = headerEntry.refresh
 
-  ctx.effect(() => headerEntry.attach(() => closeMemoPopover()), 'dsh-asidenote: right-side entry')
+  ctx.effect(() => headerEntry.attach(() => closeMemoPopover()), 'dsh-aside-note: right-side entry')
 
   function BoundSessionCapture(props) {
     const sessionId = props.sessionId || ''

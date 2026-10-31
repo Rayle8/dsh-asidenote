@@ -8,12 +8,12 @@
  * it is safe to re-run: an already-configured profile is left as it is.
  *
  * Usage:
- *   npx dsh-asidenote install                     # DSH_PROFILE_DIR, else "desktop"
- *   npx dsh-asidenote install --profile work      # ~/.dsh/profiles/work (or %USERPROFILE%\.dsh\profiles\work)
- *   npx dsh-asidenote install --profile-dir <dir> # explicit profile directory
- *   npx dsh-asidenote install --version 2.0.1    # exact pin instead of ^2.0.1
- *   npx dsh-asidenote install --dry-run          # print the plan, change nothing
- *   npx dsh-asidenote install --no-install       # edit the manifest only
+ *   npx dsh-aside-note install                     # DSH_PROFILE_DIR, else "desktop"
+ *   npx dsh-aside-note install --profile work      # ~/.dsh/profiles/work (or %USERPROFILE%\.dsh\profiles\work)
+ *   npx dsh-aside-note install --profile-dir <dir> # explicit profile directory
+ *   npx dsh-aside-note install --version 0.9.10   # exact pin instead of ^0.9.10
+ *   npx dsh-aside-note install --dry-run          # print the plan, change nothing
+ *   npx dsh-aside-note install --no-install       # edit the manifest only
  *
  * A profile edit does not need a restart: DSH re-composes the profile within
  * about a second, and the page picks the new client bundle up on its next load.
@@ -23,10 +23,10 @@ import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
 
-const PACKAGE = 'dsh-asidenote'
-const DEFAULT_RANGE = '^2.0.1'
+const PACKAGE = 'dsh-aside-note'
+const DEFAULT_RANGE = '^0.9.10'
 
-const USAGE = `Usage: dsh-asidenote install [options]
+const USAGE = `Usage: dsh-aside-note install [options]
 
 Installs the AsideNote plugin into a DSH profile: it adds the dependency, adds
 the bundle line, runs the profile's package manager and verifies the result.
