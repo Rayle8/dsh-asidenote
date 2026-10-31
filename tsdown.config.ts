@@ -1,18 +1,18 @@
 /**
- * Browser client bundle for the notes plugin.
+ * Builds the browser bundle for AsideNote.
  *
- * The shell loads a `dsh.client` package's `./client` export as a classic
- * script: `window.__ModuleLoader__.load({ id, factory })`, where the factory
- * receives a `require` bound to the frozen module table. The output below is
- * exactly that closure — nothing else. React and the shared primitives stay
- * external; everything else is inlined.
+ * The shell loads a `dsh.client` package through its `./client` export as a
+ * classic script: `window.__ModuleLoader__.load({ id, factory })`, where the
+ * factory receives a `require` bound to the frozen module table. The output
+ * below is exactly that closure — nothing else. React and the shared
+ * primitives stay external; everything else is inlined.
  *
  * Mirrors the client preset of the two reference plugins:
  * https://github.com/bowenliang123/dsh-context and https://github.com/dsh-market/dsh-market
  */
 import { readFileSync } from 'node:fs'
 import { dirname, relative, resolve as resolvePath } from 'node:path'
-import { defineConfig } from 'tsdown'
+import { defineConfig, type TsdownPlugin } from 'tsdown'
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
 
@@ -24,9 +24,9 @@ const CSS_VIRTUAL_PREFIX = '\0dsh-css:'
  *
  * The sheet is injected by the entry module rather than by the bundler, so the
  * plugin owns one <style> tag and can remove it on dispose. The virtual id must
- * not end in `.css`: tsdown's own css pipeline matches on that suffix.
+ * not end in `.css`: the tsdown css pipeline matches on that suffix.
  */
-function inlineCss() {
+function inlineCss(): TsdownPlugin {
   return {
     name: 'dsh-css-inline',
     resolveId(source: string, importer: string | undefined) {
@@ -54,6 +54,8 @@ const CLIENT_EXTERNALS = [
   '@deepseek-ai/dsh-client-ui-primitives',
 ]
 
+// tsdown loads this file by convention, so nothing in the project imports it.
+// noinspection JSUnusedGlobalSymbols
 export default defineConfig({
   entry: { client: 'src/client/index.ts' },
   // package.json exports "./client" → "./client/client.js".
@@ -66,8 +68,8 @@ export default defineConfig({
   // every change into a whole-file diff.
   minify: false,
   clean: false,
-  // CJS normally targets Node; this one is a browser classic script, so say so
-  // explicitly instead of relying on the format's default platform.
+  // CJS would default to Node, but this is a browser classic script; name the
+  // platform rather than inheriting the format default.
   inputOptions: { platform: 'browser' },
   deps: {
     neverBundle: CLIENT_EXTERNALS,
