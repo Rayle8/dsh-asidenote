@@ -21,8 +21,7 @@ src/client/
 ├─ dsh.d.ts              # 宿主 ctx / locale / slots 的最小 ambient 类型
 ├─ i18n/                 # zh.ts（键的唯一来源）、en.ts、index.ts（fill / makeSay）
 ├─ domain/               # id、clipboard、forward（写回输入框）、items（归一化/排序/时间）
-├─ storage/              # codec、events（同标签页总线）、session、drafts、forwarded、
-│                        # prefs、migrate（1.x → 当前键）
+├─ storage/              # codec、events（同标签页总线）、session、drafts、forwarded、prefs
 ├─ ui/                   # 面板外壳与纯展示组件、hooks、primitives、定位
 │                        # 更新中心：useUpdateCenter（检查/说明/更新）、UpdateNotice
 ├─ update/               # latest（版本与 Release 探测）、releaseNotes（标记解析）、
@@ -41,8 +40,8 @@ docs/assets/             # README 截图（preview-* 与 features/）
 
 | 层 | 模块 | 职责 |
 | --- | --- | --- |
-| 入口 | `index.ts` | `migrateLegacyStorage()` → 注入样式 → 注册字典 → 座位入口/Toast/slot |
-| 身份 | `constants.ts` | 包与插件的 id、`dsh-an-*` 相关的键与上限；改存储键必须同时改这里和 `migrate.ts` |
+| 入口 | `index.ts` | 注入样式 → 注册字典 → 座位入口/Toast/slot |
+| 身份 | `constants.ts` | 包与插件的 id、`dsh-an-*` 相关的键与上限 |
 | 文案 | `i18n/` | `zh.ts` 定义键集合与 `MessageKey`；`en.ts` 用 `Record<MessageKey, string>`，缺键编译失败 |
 | 领域 | `domain/items.ts` | `normalizeItems`（防御性清洗、去重、上限）、排序、相对时间文案 |
 | 领域 | `domain/forward.ts` | 把便笺写回 Lexical contenteditable 或 textarea，保留光标与换行语义 |
@@ -54,7 +53,6 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | 更新 | `ui/useUpdateCenter.ts` | 自动/手动检查、懒加载说明、更新状态机（starting/running/done/error） |
 | 更新 | `ui/UpdateNotice.ts` | 关于区里的更新卡片：说明展开、完整说明链接、立即更新/刷新/重启 |
 | 存储 | `storage/prefs.ts` | 面板宽高、发送快捷键、前缀、分区状态 |
-| 存储 | `storage/migrate.ts` | 首次加载把 1.x 键原样复制到当前键，旧键只读保留 |
 | UI 组件 | `ui/MemoPopover.ts` | 面板编排：组合 hook 与展示组件，portal 到 body |
 | UI 组件 | `PanelHead` / `SettingsPanel` / `ComposerForm` / `NoteList` / `ClearConfirm` / `TodoRow` / `EmptyState` | 纯展示，数据与回调由面板传入 |
 | UI hooks | `useSessionMemoStore` / `usePanelGeometry` / `useSections` / `useForwardMarks` / `usePanelSettings` / `useComposerDraft` / `useNoteActions` / `useClearConfirm` / `useListEdge` / `useOutsideDismiss` | 把状态与副作用从 JSX 里分离；每个 hook 只做一件事 |
@@ -68,16 +66,15 @@ docs/assets/             # README 截图（preview-* 与 features/）
 
 | 键 | 内容 |
 | --- | --- |
-| `dsh.aside-notes` | `{ version: 1, sessions: { [sessionId]: { sessionId, updatedAt, items: Note[] } } }` |
-| `dsh.aside-notes.drafts` | `{ version: 1, sessions: { [sessionId]: { add, edits: { [itemId]: text } } } }` |
-| `dsh.aside-notes.forwarded` | `{ version: 1, sessions: { [sessionId]: { [itemId]: true } } }` |
-| `dsh.aside-notes.sections` | `{ open, done }` |
-| `dsh.aside-notes.panel-width` / `panel-height` | 数字；高度 `0` 表示内容自适应 |
-| `dsh.aside-notes.send-shortcut` | `enter` 或 `ctrl-enter` |
-| `dsh.aside-notes.forward-prefix` | 最长 80 字符的转发前缀 |
-| `dsh.aside-notes.migrated` | 迁移完成的标记 |
+| `dsh.aside-note` | `{ version: 1, sessions: { [sessionId]: { sessionId, updatedAt, items: Note[] } } }` |
+| `dsh.aside-note.drafts` | `{ version: 1, sessions: { [sessionId]: { add, edits: { [itemId]: text } } } }` |
+| `dsh.aside-note.forwarded` | `{ version: 1, sessions: { [sessionId]: { [itemId]: true } } }` |
+| `dsh.aside-note.sections` | `{ open, done }` |
+| `dsh.aside-note.panel-width` / `panel-height` | 数字；高度 `0` 表示内容自适应 |
+| `dsh.aside-note.send-shortcut` | `enter` 或 `ctrl-enter` |
+| `dsh.aside-note.forward-prefix` | 最长 80 字符的转发前缀 |
 
-`Note` 形如 `{ id, text, done, createdAt, updatedAt, completedAt? }`；`text` 上限 280，单会话上限 300 条。键名不带版本后缀。1.x 的 `dsh.session-memos.v1` 与 `dsh.memo.*.v1` 在首次加载时复制到当前键，旧键不删除，回退到 1.9.x 仍可读。
+`Note` 形如 `{ id, text, done, createdAt, updatedAt, completedAt? }`；`text` 上限 280，单会话上限 300 条。键名不带版本后缀，前缀与包名 `dsh-aside-note` 对齐；不读取旧键，也不做自动迁移。
 
 ## 5. 构建与产物
 
@@ -91,15 +88,15 @@ docs/assets/             # README 截图（preview-* 与 features/）
 
 | 文件 | 覆盖 |
 | --- | --- |
-| `tests/contract.test.mjs` | 清单与 patch 形状、工具链约定、样式令牌、无障碍与交互规则、字典完整性、迁移键 |
-| `tests/bundle.test.mjs` | 在 jsdom 里执行**构建产物**：模块表、slot 注册、样式注入、入口注入、1.x 迁移，并驱动完整面板流程（添加、设置、完成、清除确认、编辑、缩放、删除、分区记忆） |
+| `tests/contract.test.mjs` | 清单与 patch 形状、工具链约定、样式令牌、无障碍与交互规则、字典完整性 |
+| `tests/bundle.test.mjs` | 在 jsdom 里执行**构建产物**：模块表、slot 注册、样式注入、入口注入，并驱动完整面板流程（添加、设置、完成、清除确认、编辑、缩放、删除、分区记忆） |
 
 契约测试按模块读取源码（需要时读 bundle 或 CSS），断言的是约束而不是实现细节；集成测试提供行为兜底。
 
 ## 7. 扩展时先看这里
 
 - 新增文案：只改 `src/client/i18n/{zh,en}.ts`，两边键与占位符必须一致；中文提示不加句号。
-- 新增持久化字段：`constants.ts` 加键 → `storage/` 对应模块读写 → 需要兼容旧数据时在 `migrate.ts` 加映射 → 补契约/集成测试。
+- 新增持久化字段：`constants.ts` 加键 → `storage/` 对应模块读写 → 补契约/集成测试；不保留旧键的自动迁移。
 - 新增面板状态：优先放 `ui/use*.ts`；纯逻辑放 `domain/`，不要 import React。
 - 改样式：只动 `src/client/styles/panel.css`，遵守 [面板 UI 规则](./panel-ui-rules.md)（语义别名、三档字号、0.5px 发丝线、hover 门控）。
 - 不要手改 `client/client.js`：改源码后 `npm run build`，把它和源码一起提交。

@@ -6,7 +6,7 @@ The 1.0.0–2.0.1 iterations were development builds of the same plugin; the 2.x
 
 <!-- app-update-notes:en:start -->
 ### Changed
-- **Storage:** local storage keys no longer carry a version suffix; the notes key is `dsh.aside-notes`, with `.drafts`, `.forwarded`, `.sections`, `.panel-width`, `.panel-height`, `.send-shortcut`, `.forward-prefix` and `.migrated` beside it. Data under the old `.v2` keys is not read; drop `.v2` from those key names after upgrading to keep it.
+- **Storage:** local storage keys now follow the package name: the notes key is `dsh.aside-note`, with `.drafts`, `.forwarded`, `.sections`, `.panel-width`, `.panel-height`, `.send-shortcut` and `.forward-prefix` beside it. The old `dsh.aside-notes.*.v2` keys and the 1.x `dsh.session-memos.v1` / `dsh.memo.*.v1` keys are not read or migrated; rename your data under `localStorage` after upgrading to keep it.
 
 ### Fixed
 - **Update check:** a manual check no longer flashes the running version as a newly available release before settling on “up to date”.
@@ -14,7 +14,7 @@ The 1.0.0–2.0.1 iterations were development builds of the same plugin; the 2.x
 
 <!-- app-update-notes:zh:start -->
 ### 变更
-- **存储：** 本地存储键不再带版本后缀；便笺键为 `dsh.aside-notes`，其余为 `.drafts`、`.forwarded`、`.sections`、`.panel-width`、`.panel-height`、`.send-shortcut`、`.forward-prefix` 与 `.migrated`。旧的 `.v2` 键不再读取；升级后如需保留数据，请把这些键名去掉 `.v2`。
+- **存储：** 本地存储键统一到包名：便笺键为 `dsh.aside-note`，其余为 `.drafts`、`.forwarded`、`.sections`、`.panel-width`、`.panel-height`、`.send-shortcut` 与 `.forward-prefix`。旧的 `dsh.aside-notes.*.v2` 与 1.x 的 `dsh.session-memos.v1` / `dsh.memo.*.v1` 键不再读取，也不自动迁移；升级后如需保留数据，请在 `localStorage` 中手动改名。
 
 ### 修复
 - **检查更新：** 手动检查不会再先把当前版本短暂显示为新版本，再回到「已是最新版本」。
