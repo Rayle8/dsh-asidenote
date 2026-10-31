@@ -205,11 +205,28 @@ git clone git@github.com:Rayle8/dsh-asidenote.git
 
 然后在 profile 目录执行 `pnpm install`。DSH 启动时会读取 `dsh.bundle.patch` 和 `dsh.client`。新增插件行后，可以在侧边栏「插件」页对该组合包**关闭再开启**，让运行中的 Host 在线重新组合，无需重启；如果插件页里还看不到它，再重启一次 DSH。之后修改 `src/client/` 后执行 `npm run build` 生成 `client/client.js`；开发模式下 DSH 会热替换该 bundle，否则刷新页面。构建需要 Node 22+。
 
+### 从 GitHub Release 安装（不需要 npm）
+
+不想 clone 仓库时，直接使用 [Releases](https://github.com/Rayle8/dsh-asidenote/releases) 里的发布包：
+
+1. 下载 `dsh-asidenote-<version>.tgz`，解压到固定目录：
+
+   ```bash
+   mkdir -p ~/dsh-plugins/dsh-asidenote
+   tar -xzf dsh-asidenote-2.0.0.tgz --strip-components=1 -C ~/dsh-plugins/dsh-asidenote
+   ```
+
+2. 把解压目录按上面的 link 写法接入 profile，例如 `"dsh-asidenote": "link:/Users/<you>/dsh-plugins/dsh-asidenote"`，再在 profile 目录执行 `pnpm install`。
+
+升级时下载新版本的 tgz、解压覆盖同一目录，然后在「插件」页把组合包关闭再开启（或重启 DSH）；设置里的更新提示会指向对应的 Release。
+
 ## 更新提示
 
 打开面板时，插件会向 npm registry 读取 `dsh-asidenote` 的最新版本号（npmjs 不可用时回退到 npmmirror），再回退到 GitHub 的最新 Release 标签；结果缓存一小时，命中与未找到都复用同一份答案，避免频繁打开面板时重复请求。若最新版本高于当前版本，设置按钮右上角出现提示点，设置 › 关于 中出现「有新版本 ↑ vX.Y.Z」链接，点击打开 GitHub Release 的更新说明。
 
 这项检查只读取公开的版本号，不上报任何数据，也不会自动安装、执行命令或改动本地便笺；升级仍由你在 profile 中重新拉取并构建后重启 DSH 完成。
+
+发布新版本时请在 GitHub 上创建对应的 Release（只打 tag 不建 Release 时，`releases/latest` 返回 404）。没有 npm 包时，GitHub Release 就是实际的版本源；npm 上架后会自动优先使用 npm 的版本号。
 
 ## 开发
 

@@ -205,11 +205,28 @@ Link the checkout into a DSH profile (replace `<path-to-repo>`):
 
 Then run `pnpm install` in the profile directory. On startup DSH reads `dsh.bundle.patch` and `dsh.client`. After adding the bundle row, toggle it off/on in the sidebar **Plugins** page to recompose a running Host without a restart; restart once if the row is not listed yet. After changing `src/client/`, run `npm run build` to regenerate `client/client.js`; the dev client HMR swaps the bundle, otherwise refresh. Building needs Node 22+.
 
+### Install from a GitHub Release (no npm)
+
+If you would rather not clone the repository, use the package attached to a [Release](https://github.com/Rayle8/dsh-asidenote/releases):
+
+1. Download `dsh-asidenote-<version>.tgz` and unpack it into a stable directory:
+
+   ```bash
+   mkdir -p ~/dsh-plugins/dsh-asidenote
+   tar -xzf dsh-asidenote-2.0.0.tgz --strip-components=1 -C ~/dsh-plugins/dsh-asidenote
+   ```
+
+2. Link that directory into the profile with the same `link:` form shown above, for example `"dsh-asidenote": "link:/Users/<you>/dsh-plugins/dsh-asidenote"`, then run `pnpm install` in the profile directory.
+
+To upgrade, download the new tarball, unpack it over the same directory, then toggle the bundle off/on in the **Plugins** page (or restart DSH); the in-app notice points at the matching Release.
+
 ## Update notice
 
 When the panel opens, the plugin reads the latest `dsh-asidenote` version from the npm registry (falling back to npmmirror when npmjs is unreachable), then from the latest GitHub Release tag. The answer, including a miss, is cached for an hour so repeated panel opens make no extra request. If a newer version exists, the settings button gains a dot and Settings › About shows an “Update available ↑ vX.Y.Z” link that opens the GitHub release notes.
 
 The check reads only the public version number: it sends no telemetry and never installs anything, runs commands, or touches your notes. Upgrading stays an explicit pull-and-build step in your profile followed by a DSH restart.
+
+When you ship a version, create the matching GitHub Release (a tag alone leaves `releases/latest` at 404). Without an npm package, the GitHub Release is the effective version source; once the package is on npm, npm's version is preferred automatically.
 
 ## Development
 
