@@ -160,7 +160,7 @@ Feedback reuses product surfaces too: copy, forward, delete, clear-completed, an
 
 ## Where data lives
 
-Notes live in the browser's `localStorage` under `dsh.aside-notes.v2`:
+Notes live in the browser's `localStorage` under `dsh.aside-notes`:
 
 ```json
 {
@@ -180,7 +180,8 @@ Therefore:
 - Refreshing, restarting DSH, or switching sessions keeps the records.
 - Nothing is written into the project or synced to another machine/browser.
 - Clearing site data clears the notes.
-- 1.x notes, drafts, forward marks, and panel settings are copied to `dsh.aside-notes.*.v2` on first load. The old keys stay, so a rollback to 1.9.x still reads them.
+- 1.x notes, drafts, forward marks, and panel settings are copied to `dsh.aside-notes.*` on first load. The old keys stay, so a rollback to 1.9.x still reads them.
+- Storage keys carry no version suffix; if your data still sits under the old `.v2` keys, drop `.v2` from the key names and reload.
 
 ## Install
 
