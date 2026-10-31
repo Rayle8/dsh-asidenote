@@ -82,15 +82,16 @@ jobs:
           fi
           version="${GITHUB_REF_NAME#v}"
           notes_file="$(mktemp)"
-          # The tag gate above already proved the section exists and is not
-          # empty, so there is deliberately no --generate-notes fallback: it
-          # would hide a missing changelog and publish the wrong notes.
-          node tools/release.mjs extract "$version" > "$notes_file"
           prev="$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)"
-          if [ -n "$prev" ]; then
-            printf '\n**Full Changelog**: https://github.com/Rayle8/dsh-asidenote/compare/%s...%s\n' \
-              "$prev" "$GITHUB_REF_NAME" >> "$notes_file"
-          fi
+          # Compose the release body from CHANGELOG.md: English + 中文 sections,
+          # app-update-notes markers for the in-app update card, install links and
+          # the Full Changelog link. The tag gate above already proved the section
+          # exists and is not empty, so a failure here means the section lacks the
+          # markers; that fails the release on purpose instead of falling back to
+          # generated notes the update card cannot read.
+          builder=(node tools/release/notes.mjs --version "$version" --tag "$GITHUB_REF_NAME")
+          if [ -n "$prev" ]; then builder+=(--prev "$prev"); fi
+          "${builder[@]}" --out "$notes_file"
           flags=(--verify-tag --title "AsideNote $version" --notes-file "$notes_file")
           if [[ "$GITHUB_REF_NAME" == v*-* ]]; then
             flags+=(--prerelease)

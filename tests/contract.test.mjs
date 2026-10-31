@@ -37,7 +37,33 @@ test('client version matches the package version', () => {
   assert.match(read('src/client/constants.ts'), new RegExp(`PLUGIN_VERSION = '${manifest.version.replace(/\./g, '\\.')}'`))
 })
 
-test('the client checks for a newer release and links to the release notes', () => {
+test('the release body is composed from CHANGELOG markers and used by the publish workflow', () => {
+  assert.ok(exists('tools/release/notes.mjs'))
+  const workflow = read('.github/workflows/publish.yml')
+  assert.match(workflow, /tools\/release\/notes\.mjs/)
+  assert.match(workflow, /--notes-file/)
+  // The tag gate proves the section exists, so a builder failure must fail the
+  // release instead of quietly publishing generated notes without markers.
+  assert.match(workflow, /tools\/release\.mjs check/)
+  assert.doesNotMatch(workflow, /--generate-notes/)
+  const changelog = read('CHANGELOG.md')
+  const version = JSON.parse(read('package.json')).version
+  // Development keeps a next-released section; the release commit renames it to
+  // the version chosen then, so either title is valid for this check.
+  const heading = changelog.match(/^## (.+)$/m)
+  assert.ok(heading, 'CHANGELOG needs a section heading')
+  assert.ok(
+    heading[1] === 'next-released' || heading[1] === version,
+    `the first section is next-released until release day (saw ${heading[1]})`,
+  )
+  const start = changelog.indexOf(`## ${heading[1]}`)
+  const next = changelog.indexOf('\n## ', start + 3)
+  const section = next === -1 ? changelog.slice(start) : changelog.slice(start, next)
+  const markers = ['en', 'zh'].map(locale => `<!-- app-update-notes:${locale}:start -->`)
+  for (const marker of markers) assert.ok(section.includes(marker), `the current release section needs ${marker}`)
+})
+
+test('the client checks for a newer release, reads its notes inline and updates through the market', () => {
   const client = readClientTree()
   const css = readCss()
   assert.match(client, /https:\/\/registry\.npmjs\.org/)
@@ -45,20 +71,38 @@ test('the client checks for a newer release and links to the release notes', () 
   assert.match(client, /api\.github\.com\/repos/)
   assert.match(client, /dsh-asidenote\/latest/)
   assert.match(client, /tag_name/)
-  assert.match(client, /export const PLUGIN_RELEASES_URL = `\$\{PLUGIN_REPO_URL\}\/releases\/latest`/)
   assert.match(client, /export function createUpdateProbe/)
   assert.match(client, /export function isNewerVersion/)
-  assert.match(client, /export function useNewerVersion/)
-  assert.match(client, /const newerVersion = useNewerVersion\(\)/)
+  assert.match(client, /export function createReleaseHistoryProbe/)
+  assert.match(client, /export const UPDATE_GITHUB_API/)
+  assert.match(client, /per_page=50/)
+  assert.match(client, /selectReleaseHistory/)
+  assert.match(client, /'update\.historyCount'/)
+  assert.match(client, /export function resetUpdateChecks/)
+  assert.match(client, /export function useUpdateCenter/)
+  assert.match(client, /updateNotesForLocale/)
+  assert.match(client, /dsh-market\/api\/v1/)
+  assert.match(client, /export function createMarketClient/)
+  assert.match(client, /packageName: name/)
+  assert.doesNotMatch(client, /update\.notesShow|update\.notesHide/)
+  assert.match(client, /'update\.now'/)
   assert.match(client, /PLUGIN_VERSION\.includes\('-'\)/)
-  assert.match(client, /href: PLUGIN_RELEASES_URL/)
-  assert.match(client, /'update\.tip'/)
   assert.match(css, /\.dsh-an-updateDot\{/)
-  assert.match(css, /\.dsh-an-settingUpdate\{/)
-  assert.match(css, /\.dsh-an-settingUpdate:hover\{[^}]*var\(--an-hover\)/)
+  assert.match(css, /\.dsh-an-updateCard\{/)
+  assert.doesNotMatch(css, /\.dsh-an-updateToggle\{/)
+  assert.match(css, /\.dsh-an-updateVersionHead\{/)
+  assert.match(css, /--dsh-scrollbar-width:var\(--dsh-an-scrollRail\)/)
+  assert.match(css, /\.dsh-an-updateNotes\[data-fade="true"\]\{/)
+  assert.match(client, /'update\.notesTitle'/)
+  assert.match(client, /'aria-controls': `\$\{NOTES_ID\}/)
+  assert.match(client, /'aria-busy': busy/)
+  assert.match(css, /\.dsh-an-updateChevron\[data-open="true"\]\{/)
+  assert.match(css, /\.dsh-an-updatePrimary\{/)
   assert.match(read('client/client.js'), /function createUpdateProbe/, 'the shipped bundle carries the check')
+  assert.match(read('client/client.js'), /function createMarketClient/, 'the shipped bundle carries the market client')
+  assert.match(read('client/client.js'), /function extractUpdateNotes/, 'the shipped bundle carries the notes parser')
   // Read-only check: it installs and executes nothing.
-  assert.doesNotMatch(client, /npm install|dsh plugin update|child_process|exec\(/)
+  assert.doesNotMatch(client, /child_process|node:child_process/)
 })
 
 test('the update probe falls back from npm to the mirror and GitHub, and caches both hits and misses', async () => {

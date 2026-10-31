@@ -3,16 +3,16 @@ import React from 'react'
 import {
   MOD_LABEL,
   PLUGIN_AUTHOR,
-  PLUGIN_RELEASES_URL,
   PLUGIN_REPO_LABEL,
   PLUGIN_REPO_URL,
   PLUGIN_VERSION,
 } from '../constants'
+import { UpdateNotice } from './UpdateNotice'
 
 const h = React.createElement
 
 export function SettingsPanel(props) {
-  const { say, sendShortcut, chooseShortcut, forwardPrefix, changeForwardPrefix, prefixRef, newerVersion } = props
+  const { say, sendShortcut, chooseShortcut, forwardPrefix, changeForwardPrefix, prefixRef, update } = props
   return h(
             'div',
             { className: 'dsh-an-settings' },
@@ -91,31 +91,63 @@ export function SettingsPanel(props) {
               h(
                 'div',
                 { className: 'dsh-an-settingBody' },
+                // One line: version, check control and result, then the author
+                // pushed to the far right. Wrapping keeps the author right-aligned
+                // when the panel is narrow.
                 h(
                   'div',
                   { className: 'dsh-an-settingAbout' },
-                  h('span', null, `${say('settings.version')} ${PLUGIN_VERSION}`),
-                  h('span', { className: 'dsh-an-settingDot', 'aria-hidden': true }, '·'),
-                  h('span', null, `${say('settings.author')} ${PLUGIN_AUTHOR}`),
+                  h('span', { className: 'dsh-an-settingAboutVersion' }, `${say('settings.version')} ${PLUGIN_VERSION}`),
+                  h(
+                    'button',
+                    {
+                      type: 'button',
+                      className: 'dsh-an-updateCheck',
+                      disabled: update.check.status === 'checking',
+                      onClick: update.checkNow,
+                    },
+                    say(update.check.status === 'checking'
+                      ? 'update.checking'
+                      : update.check.status === 'error'
+                        ? 'update.retryCheck'
+                        : 'update.check'),
+                  ),
+                  update.check.status === 'current'
+                    ? h('span', { className: 'dsh-an-updateHint', role: 'status' }, say('update.current'))
+                    : null,
+                  update.check.status === 'error'
+                    ? h('span', { className: 'dsh-an-updateHint dsh-an-updateHintError', role: 'status' }, say('update.checkFailed'))
+                    : null,
                 ),
-                newerVersion
-                  ? h(
-                      'a',
-                      {
-                        className: 'dsh-an-settingUpdate',
-                        href: PLUGIN_RELEASES_URL,
-                        target: '_blank',
-                        rel: 'noreferrer',
-                        title: say('update.tip', { version: `v${newerVersion}` }),
-                      },
-                      h('span', null, say('update.label')),
-                      h('span', { className: 'dsh-an-settingUpdateVersion' }, `↑ v${newerVersion}`),
-                    )
+                update.latestVersion
+                  ? h(UpdateNotice, {
+                      say,
+                      latestVersion: update.latestVersion,
+                      market: update.market,
+                      restartSupported: update.restartSupported,
+                      notes: update.notes,
+                      expandedVersions: update.expandedVersions,
+                      releasesUrl: update.releasesUrl,
+                      run: update.run,
+                      fullReleaseUrl: update.fullReleaseUrl,
+                      onToggleVersion: update.toggleVersion,
+                      onStartUpdate: update.startUpdate,
+                      onRefresh: update.refreshPage,
+                      onRestart: update.restartHost,
+                    })
                   : null,
                 h(
                   'div',
-                  { className: 'dsh-an-settingProject' },
+                  { className: 'dsh-an-settingMetaRow' },
+                  h('span', null, say('settings.author')),
+                  h('span', { className: 'dsh-an-settingDot', 'aria-hidden': true }, '·'),
+                  h('span', null, PLUGIN_AUTHOR),
+                ),
+                h(
+                  'div',
+                  { className: 'dsh-an-settingMetaRow' },
                   h('span', null, say('settings.project')),
+                  h('span', { className: 'dsh-an-settingDot', 'aria-hidden': true }, '·'),
                   h(
                     'a',
                     {

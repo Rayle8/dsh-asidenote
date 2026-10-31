@@ -2,8 +2,35 @@
 
 ## next-released
 
+<!-- app-update-notes:en:start -->
+### Added
+- **Update centre:** Settings › About can check for updates, shows the release notes inline, and updates in place through the plugin market; refresh when prompted.
+- **Multi-release notes:** pending releases are listed by version, with the newest open.
+- **Release tooling:** `npm run release -- <version>` (`tools/release.mjs`) bumps `package.json` and `PLUGIN_VERSION`, turns `## next-released` into the version heading, inserts a fresh empty `## next-released`, runs `npm run check`, then commits the release and tags it without pushing.
+
+### Changed
+- **Release notes:** the GitHub Release body is composed from this changelog by `tools/release/notes.mjs`, so the release page and the panel share the same English and Chinese notes, install links and Full Changelog link.
+- **Release gate:** the publish workflow refuses a tag whose `CHANGELOG.md` section is missing, empty or lacks the `app-update-notes` markers instead of silently falling back to generated release notes, so a broken Release is caught before `npm publish`.
+- **CI:** every commit must keep the `next-released` heading at the top of this file.
+
+### Fixed
 - Keep the CSS virtual module id slash-separated when the committed bundle is built. rolldown echoes the relative id into `client/client.js`, and `path.relative()` uses the platform separator, so a Windows build wrote `src\client\styles\panel.css.mjs` where the Linux CI artifact has `src/client/styles/panel.css.mjs` and the `git diff --exit-code client/` gate failed. The id is now normalised to `/`, which leaves the POSIX artifact unchanged byte for byte.
-- Add `npm run release -- <version>` (`tools/release.mjs`): it bumps `package.json` and `PLUGIN_VERSION`, turns `## next-released` into the version heading, inserts a fresh empty `## next-released`, runs `npm run check`, then commits the release and tags it without pushing. The publish workflow now refuses a tag whose `CHANGELOG.md` section is missing or empty instead of silently falling back to generated release notes, and CI keeps the `next-released` heading at the top.
+<!-- app-update-notes:en:end -->
+
+<!-- app-update-notes:zh:start -->
+### 新增
+- **更新中心：** 设置 › 关于可以手动检查更新、直接查看更新说明，并通过插件市场就地更新；完成后按提示刷新页面。
+- **多版本说明：** 待更新的版本按版本列出，最新版本默认展开。
+- **发布工具：** `npm run release -- <version>`（`tools/release.mjs`）会同步 `package.json` 与 `PLUGIN_VERSION`、把 `## next-released` 改名为版本标题并插入新的空标题、运行 `npm run check`，然后提交发布并打 tag，不自动 push。
+
+### 变更
+- **发布说明：** GitHub Release 正文由 `tools/release/notes.mjs` 从本 CHANGELOG 生成，发布页与面板共用同一份中英文说明、安装链接和 Full Changelog 链接。
+- **发布校验：** tag 对应的 `CHANGELOG.md` 小节缺失、为空或缺少 `app-update-notes` 标记时，发布流程直接失败，不再静默回退到自动生成的说明，避免在 `npm publish` 之后才发现 Release 内容不对。
+- **CI：** 每次提交都必须让本文件顶部的标题保持为 `next-released`。
+
+### 修复
+- 构建提交进仓库的 bundle 时，CSS 虚拟模块 id 保持用 `/` 分隔。rolldown 会把相对 id 写进 `client/client.js`，而 `path.relative()` 使用平台分隔符，导致 Windows 构建写出 `src\client\styles\panel.css.mjs`，与 Linux CI 产物 `src/client/styles/panel.css.mjs` 不一致，`git diff --exit-code client/` 校验随之失败。现在 id 统一规范成 `/`，POSIX 产物逐字节不变。
+<!-- app-update-notes:zh:end -->
 
 ## 2.0.1
 

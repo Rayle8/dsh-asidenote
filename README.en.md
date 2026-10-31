@@ -69,7 +69,7 @@ Click a note's forward button to append it to the current chat input as a list i
 - Data is keyed by **session ID**; different sessions in one workspace stay independent.
 - A 28px square top-right icon button shows the open count as a low-contrast gray corner badge; its tooltip reads “Session notes N”.
 - Clicking it opens a fixed right-side panel; switching sessions closes the old panel and updates the entry.
-- The settings button beside the notes title expands a settings card for the send shortcut (Enter sends, or ⌘/Ctrl+Enter sends, labelled for the current platform); **One-click forward** provides a prefix prompt field that starts one line tall and grows with wrapped text up to six lines, with an explanation underneath, and the bottom shows the version, the author 阿三石, and a clickable GitHub project link; when a newer release exists, the settings button gains a dot and Settings › About offers the update link; settings persist automatically.
+- The settings button beside the notes title expands a settings card for the send shortcut (Enter sends, or ⌘/Ctrl+Enter sends, labelled for the current platform); **One-click forward** provides a prefix prompt field that starts one line tall and grows with wrapped text up to six lines, with an explanation underneath, and the bottom shows the version and check control, the author, and a clickable source link; settings persist automatically. When a newer release exists, the settings button gains a dot and Settings › About offers a manual check, the release notes by default, a full-release link and “Update now”.
 - The panel's top-right corner aligns with the header entry and shifts left of the DSH right sidebar when that sidebar is open.
 - Clicking the entry opens the right-side panel for add, complete, copy, edit (double-click or pencil), delete, clear completed (with a confirmation), and expand completed.
 - Drag the handle on the panel's left edge to resize its width; double-click the handle to reset it, and the width persists in the browser.
@@ -243,11 +243,17 @@ To upgrade, download the new tarball, unpack it over the same directory, then to
 
 ## Update notice
 
-When the panel opens, the plugin reads the latest `dsh-asidenote` version from the npm registry (falling back to npmmirror when npmjs is unreachable), then from the latest GitHub Release tag. The answer, including a miss, is cached for an hour so repeated panel opens make no extra request. If a newer version exists, the settings button gains a dot and Settings › About shows an “Update available ↑ vX.Y.Z” link that opens the GitHub release notes.
+When the panel opens, the plugin quietly checks the latest published version (npm, falling back to npmmirror and then the latest GitHub Release) and caches the answer for an hour. When a newer version exists, the settings button gains a dot and Settings › About shows the update card:
 
-The check reads only the public version number: it sends no telemetry and never installs anything, runs commands, or touches your notes. Upgrading stays an explicit pull-and-build step in your profile followed by a DSH restart.
+- **Check for updates** re-reads the registry immediately, bypassing that hourly cache, and reports “checking”, “up to date” or a failure underneath.
+- **Notes show by default:** an available update immediately lists the release notes from the GitHub Release body — no disclosure to open. The notes are the block between its `app-update-notes:en` / `app-update-notes:zh` markers, flattened to plain text — no HTML is executed or injected.
+- **Across several versions:** when the published release is several versions ahead, the notes list every release in the gap, newest first. The newest stays open and each older version expands on its own. Drafts and prereleases are skipped, at most six releases are listed, and a link points at the releases page when more were left out.
+- **Full release notes** sits to the right of the update button and opens the matching GitHub Release page in a new tab.
+- **Update now** queues the upgrade through the plugin market's public update API when dshmarket is present, reports live progress, and offers a page refresh or DSH restart when it finishes. Without a market, the card explains the manual path (`pnpm update dsh-asidenote`, or the Plugins page).
 
-When you ship a version, create the matching GitHub Release (a tag alone leaves `releases/latest` at 404). Without an npm package, the GitHub Release is the effective version source; once the package is on npm, npm's version is preferred automatically.
+Updating is always an explicit click: nothing installs on its own, no commands run behind your back, and your notes are never touched. The check only reads public version numbers and release bodies.
+
+Release notes are composed by `tools/release/notes.mjs` from `CHANGELOG.md` — English and Chinese blocks with `app-update-notes` markers, install links and a Full Changelog link — and the tag-triggered workflow creates the Release (with the tarball attached) from it. See [release and versioning](./docs/release.md).
 
 ## Development
 
@@ -294,4 +300,4 @@ Loaded in an isolated DSH profile and driven through headless Chrome:
 - 1.x notes appear under the new keys after a restart;
 - the npmjs → npmmirror → GitHub Release fallback, the one-hour cache, and the version comparison are covered by the contract tests, and the jsdom test drives the visible update notice; the live notice needs a published npm package or a GitHub Release.
 
-`npm run check` passes: lint, typecheck, build, and 46 tests, including a jsdom integration test that drives the whole panel.
+`npm run check` passes: lint, typecheck, build, and 66 tests, including a jsdom integration test that drives the whole panel, expands the release notes and runs an update through a mocked market.
