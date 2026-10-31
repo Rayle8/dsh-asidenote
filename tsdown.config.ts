@@ -33,9 +33,12 @@ function inlineCss(): TsdownPlugin {
       if (!source.endsWith(`.css${CSS_INLINE}`)) return null
       const file = source.slice(0, -CSS_INLINE.length)
       const absolute = importer ? resolvePath(dirname(importer), file) : file
-      // Keep the virtual id relative: rolldown echoes it in a comment, and an
-      // absolute path would leak the author's machine and break the CI diff gate.
-      return CSS_VIRTUAL_PREFIX + relative(process.cwd(), absolute) + '.mjs'
+      // Keep the virtual id relative and slash-separated: rolldown echoes it in
+      // a comment, so an absolute path would leak the author's machine, and a
+      // Windows "\" would make the bundle differ from the Linux CI artifact by
+      // one byte and fail the committed-bundle gate.
+      const id = relative(process.cwd(), absolute).replaceAll('\\', '/')
+      return CSS_VIRTUAL_PREFIX + id + '.mjs'
     },
     load(id: string) {
       if (!id.startsWith(CSS_VIRTUAL_PREFIX)) return null
