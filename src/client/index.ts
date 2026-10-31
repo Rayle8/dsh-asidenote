@@ -15,7 +15,6 @@ import { DICT, fill, makeSay } from './i18n'
 import { createToastSeat } from './ui/toastSeat'
 import { createHeaderEntry } from './ui/headerEntry'
 import { MemoPopover } from './ui/MemoPopover'
-import { migrateLegacyStorage } from './storage/migrate'
 
 const h = React.createElement
 
@@ -67,9 +66,6 @@ const h = React.createElement
 
 /** Compact floating memo list, anchored to the entry that opened it. */
 function apply(ctx: DshClientCtx) {
-  // 1.x notes live under the old keys; copy them once, before any reader runs.
-  migrateLegacyStorage()
-
   const locale = ctx.get('locale')
 
   // One document-level sheet covers both the panel and the composer dock;
