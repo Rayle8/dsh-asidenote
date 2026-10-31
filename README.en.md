@@ -4,7 +4,7 @@ Lightweight session notes
 
 [中文](README.md) | English
 
-> Product name: **AsideNote** (随记), with `dsh-asidenote` as the package and plugin id. The repository keeps its old `dsh-workspace-todos` name, so existing links still work.
+> Product name: **AsideNote** (随记); the package, plugin id and repository are all `dsh-asidenote`. Old repository links redirect automatically.
 
 **A quick note when you need it. Out of the way when you don’t.**
 
@@ -62,7 +62,7 @@ Click a note's forward button to append it to the current chat input as a list i
 
 > Notes are stored in the current browser and do not sync across devices or browsers. Clearing site data removes them. See [Where data lives](#where-data-lives).
 
-[Installation](#install) · [Feedback and issues](https://github.com/Rayle8/dsh-workspace-todos/issues)
+[Installation](#install) · [Feedback and issues](https://github.com/Rayle8/dsh-asidenote/issues)
 
 ## Features
 
@@ -185,7 +185,7 @@ Therefore:
 ## Install
 
 ```bash
-git clone git@github.com:Rayle8/dsh-workspace-todos.git
+git clone git@github.com:Rayle8/dsh-asidenote.git
 ```
 
 Link the checkout into a DSH profile (replace `<path-to-repo>`):
@@ -239,6 +239,8 @@ The panel mounts as its own `react-dom/client` root on `document.body` and follo
 Run `npm run build` after source changes; the dev client HMR swaps the new bundle, otherwise refresh or restart DSH.
 
 The screenshot and preview pipeline lives in the [screenshot SOP](./docs/screenshot-sop.md): one command re-shoots both themes from an isolated profile, and credentials are not copied unless `COPY_CREDENTIALS=1`.
+
+Code structure, data model and build conventions: [architecture](./docs/architecture.md).
 
 ## Verification
 

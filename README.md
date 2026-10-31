@@ -4,7 +4,7 @@
 
 [English](README.en.md) | 中文
 
-> 产品名是 **AsideNote**（随记），包与插件 id 为 `dsh-asidenote`；仓库仍沿用旧名 `dsh-workspace-todos`，链接继续有效。
+> 产品名是 **AsideNote**（随记），包、插件 id 与仓库均为 `dsh-asidenote`；旧仓库链接会由 GitHub 自动重定向。
 
 **有事记一下，没事不打扰。**
 
@@ -62,7 +62,7 @@ AsideNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺。临时的�
 
 > 便笺保存在当前浏览器，不跨设备或浏览器同步；清理站点数据会清除记录。详见[数据保存在哪里](#数据保存在哪里)。
 
-[查看安装方法](#安装) · [反馈问题或建议](https://github.com/Rayle8/dsh-workspace-todos/issues)
+[查看安装方法](#安装) · [反馈问题或建议](https://github.com/Rayle8/dsh-asidenote/issues)
 
 ## 功能
 
@@ -185,7 +185,7 @@ AsideNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺。临时的�
 ## 安装
 
 ```bash
-git clone git@github.com:Rayle8/dsh-workspace-todos.git
+git clone git@github.com:Rayle8/dsh-asidenote.git
 ```
 
 把克隆目录 link 进 DSH profile（把 `<path-to-repo>` 换成实际克隆目录）：
@@ -239,6 +239,8 @@ window.__ModuleLoader__.load({ id: 'dsh-asidenote', factory: (require) => { … 
 修改源码后先 `npm run build`；开发模式下 DSH 会热替换新 bundle，否则刷新页面或重启 DSH。
 
 截图与预览图的产出流程见 [截图与预览图 SOP](./docs/screenshot-sop.md)：在隔离 profile 里造演示会话，一条命令重拍明暗两套；凭据默认不复制。
+
+代码结构、数据模型与构建约定见 [架构文档](./docs/architecture.md)。
 
 ## 验证
 

@@ -59,8 +59,8 @@ const FORWARDED_STORAGE_KEY = "dsh.aside-notes.forwarded.v2";
 /** Shown in the in-panel settings; keep in sync with package.json. */
 const PLUGIN_VERSION = "2.0.0";
 const PLUGIN_AUTHOR = "阿三石";
-const PLUGIN_REPO_URL = "https://github.com/Rayle8/dsh-workspace-todos";
-const PLUGIN_REPO_LABEL = "github.com/Rayle8/dsh-workspace-todos";
+const PLUGIN_REPO_URL = "https://github.com/Rayle8/dsh-asidenote";
+const PLUGIN_REPO_LABEL = "github.com/Rayle8/dsh-asidenote";
 /** Release notes opened by the update notice. */
 const PLUGIN_RELEASES_URL = `${PLUGIN_REPO_URL}/releases/latest`;
 /** Send preference; persisted across panel openings. Enter sends by default. */

@@ -177,7 +177,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   const updateChip = popover.querySelector('.dsh-an-settingUpdate')
   assert.ok(updateChip, 'a newer version must surface in Settings > About')
   assert.match(updateChip.textContent, /2\.1\.0/)
-  assert.equal(updateChip.getAttribute('href'), 'https://github.com/Rayle8/dsh-workspace-todos/releases/latest')
+  assert.equal(updateChip.getAttribute('href'), 'https://github.com/Rayle8/dsh-asidenote/releases/latest')
 
   const prefixField = popover.querySelector('#dsh-an-forward-prefix')
   await act(async () => {
