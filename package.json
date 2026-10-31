@@ -1,6 +1,6 @@
 {
   "name": "dsh-aside-note",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "AsideNote (旁边记) — keep your ideas beside the conversation: a lightweight per-session notes button and right-side panel for the DeepSeek Harness Web GUI.",
   "license": "MIT",
