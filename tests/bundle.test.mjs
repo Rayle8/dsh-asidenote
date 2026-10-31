@@ -188,10 +188,10 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   assert.equal(registered.length, 2, 'both slots must be registered')
   assert.deepEqual(registered.map(entry => entry.meta.name).sort(), injected)
 
-  const migrated = JSON.parse(window.localStorage.getItem('dsh.aside-notes.v2'))
+  const migrated = JSON.parse(window.localStorage.getItem('dsh.aside-notes'))
   assert.equal(migrated.sessions['session-1'].items[0].text, '旧便笺')
-  assert.equal(window.localStorage.getItem('dsh.aside-notes.send-shortcut.v2'), 'ctrl-enter')
-  assert.ok(window.localStorage.getItem('dsh.aside-notes.migrated.v2'), 'the migration marker must be set')
+  assert.equal(window.localStorage.getItem('dsh.aside-notes.send-shortcut'), 'ctrl-enter')
+  assert.ok(window.localStorage.getItem('dsh.aside-notes.migrated'), 'the migration marker must be set')
   assert.ok(window.localStorage.getItem('dsh.session-memos.v1'), 'old keys stay readable for a rollback')
 
   const style = document.querySelector('style[data-dsh-plugin="dsh-aside-note"]')
@@ -232,7 +232,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   const addButton = popover.querySelector('.dsh-an-addBtn')
   assert.equal(addButton.disabled, false, 'the add button enables once the draft has text')
   await act(async () => { addButton.click() })
-  const written = JSON.parse(window.localStorage.getItem('dsh.aside-notes.v2'))
+  const written = JSON.parse(window.localStorage.getItem('dsh.aside-notes'))
   assert.equal(written.sessions['session-1'].items[0].text, '新的一条')
   assert.equal(written.sessions['session-1'].items.length, 2)
   // The entry refreshes on a rAF after the store write; give jsdom one frame.
@@ -245,7 +245,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   const radios = popover.querySelectorAll('input[type="radio"]')
   assert.equal(radios.length, 2)
   await act(async () => { radios[1].click() })
-  assert.equal(window.localStorage.getItem('dsh.aside-notes.send-shortcut.v2'), 'ctrl-enter')
+  assert.equal(window.localStorage.getItem('dsh.aside-notes.send-shortcut'), 'ctrl-enter')
 
   // The npmjs read fails, the mirror answers with a newer version: the gear
   // gains a dot and About shows the update card.
@@ -313,7 +313,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     valueSetter.call(prefixField, '请处理：')
     prefixField.dispatchEvent(new window.Event('input', { bubbles: true }))
   })
-  assert.equal(window.localStorage.getItem('dsh.aside-notes.forward-prefix.v2'), '请处理：')
+  assert.equal(window.localStorage.getItem('dsh.aside-notes.forward-prefix'), '请处理：')
 
   // Complete one note, then clear the completed list through its confirmation.
   const check = popover.querySelector('.dsh-an-check')
@@ -327,7 +327,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   await act(async () => { clearButton.click() })
   assert.ok(popover.querySelector('.dsh-an-clearConfirm'), 'clearing asks for a second click')
   await act(async () => { popover.querySelector('.dsh-an-miniDanger').click() })
-  const afterClear = JSON.parse(window.localStorage.getItem('dsh.aside-notes.v2'))
+  const afterClear = JSON.parse(window.localStorage.getItem('dsh.aside-notes'))
   assert.equal(afterClear.sessions['session-1'].items.length, 1)
   assert.equal(afterClear.sessions['session-1'].items[0].done, false)
 
@@ -342,26 +342,26 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     editInput.dispatchEvent(new window.Event('input', { bubbles: true }))
   })
   await act(async () => { popover.querySelector('.dsh-an-miniPrimary').click() })
-  const afterEdit = JSON.parse(window.localStorage.getItem('dsh.aside-notes.v2'))
+  const afterEdit = JSON.parse(window.localStorage.getItem('dsh.aside-notes'))
   assert.equal(afterEdit.sessions['session-1'].items[0].text, '改过的便笺')
 
   const widthHandle = popover.querySelector('.dsh-an-resizeHandle')
   assert.ok(widthHandle, 'a right-side panel exposes the width handle')
-  const widthBefore = Number(window.localStorage.getItem('dsh.aside-notes.panel-width.v2')) || 360
+  const widthBefore = Number(window.localStorage.getItem('dsh.aside-notes.panel-width')) || 360
   await act(async () => { widthHandle.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true })) })
-  assert.ok(Number(window.localStorage.getItem('dsh.aside-notes.panel-width.v2')) > widthBefore)
+  assert.ok(Number(window.localStorage.getItem('dsh.aside-notes.panel-width')) > widthBefore)
 
   // Delete the last note; the store empties and the panel falls back to the empty state.
   const deleteButton = popover.querySelector('.dsh-an-iconBtnDanger[aria-label="删除"]')
   assert.ok(deleteButton, 'the row must offer delete')
   await act(async () => { deleteButton.click() })
-  const afterDelete = JSON.parse(window.localStorage.getItem('dsh.aside-notes.v2'))
+  const afterDelete = JSON.parse(window.localStorage.getItem('dsh.aside-notes'))
   assert.equal(afterDelete.sessions['session-1'].items.length, 0)
   assert.ok(popover.querySelector('.dsh-an-empty'), 'the list falls back to the empty state')
 
   // Section collapse is remembered.
   await act(async () => { popover.querySelector('.dsh-an-sectionHead .dsh-an-doneToggle').click() })
-  const sections = JSON.parse(window.localStorage.getItem('dsh.aside-notes.sections.v2'))
+  const sections = JSON.parse(window.localStorage.getItem('dsh.aside-notes.sections'))
   assert.equal(sections.open, false)
 
   // The probe caches its answer, so reopening the panel reads no registry again.

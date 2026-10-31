@@ -22,7 +22,7 @@ src/client/
 ├─ i18n/                 # zh.ts（键的唯一来源）、en.ts、index.ts（fill / makeSay）
 ├─ domain/               # id、clipboard、forward（写回输入框）、items（归一化/排序/时间）
 ├─ storage/              # codec、events（同标签页总线）、session、drafts、forwarded、
-│                        # prefs、migrate（1.x → v2）
+│                        # prefs、migrate（1.x → 当前键）
 ├─ ui/                   # 面板外壳与纯展示组件、hooks、primitives、定位
 │                        # 更新中心：useUpdateCenter（检查/说明/更新）、UpdateNotice
 ├─ update/               # latest（版本与 Release 探测）、releaseNotes（标记解析）、
@@ -54,7 +54,7 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | 更新 | `ui/useUpdateCenter.ts` | 自动/手动检查、懒加载说明、更新状态机（starting/running/done/error） |
 | 更新 | `ui/UpdateNotice.ts` | 关于区里的更新卡片：说明展开、完整说明链接、立即更新/刷新/重启 |
 | 存储 | `storage/prefs.ts` | 面板宽高、发送快捷键、前缀、分区状态 |
-| 存储 | `storage/migrate.ts` | 首次加载把 1.x 键原样复制到 v2，旧键只读保留 |
+| 存储 | `storage/migrate.ts` | 首次加载把 1.x 键原样复制到当前键，旧键只读保留 |
 | UI 组件 | `ui/MemoPopover.ts` | 面板编排：组合 hook 与展示组件，portal 到 body |
 | UI 组件 | `PanelHead` / `SettingsPanel` / `ComposerForm` / `NoteList` / `ClearConfirm` / `TodoRow` / `EmptyState` | 纯展示，数据与回调由面板传入 |
 | UI hooks | `useSessionMemoStore` / `usePanelGeometry` / `useSections` / `useForwardMarks` / `usePanelSettings` / `useComposerDraft` / `useNoteActions` / `useClearConfirm` / `useListEdge` / `useOutsideDismiss` | 把状态与副作用从 JSX 里分离；每个 hook 只做一件事 |
@@ -68,16 +68,16 @@ docs/assets/             # README 截图（preview-* 与 features/）
 
 | 键 | 内容 |
 | --- | --- |
-| `dsh.aside-notes.v2` | `{ version: 1, sessions: { [sessionId]: { sessionId, updatedAt, items: Note[] } } }` |
-| `dsh.aside-notes.drafts.v2` | `{ version: 1, sessions: { [sessionId]: { add, edits: { [itemId]: text } } } }` |
-| `dsh.aside-notes.forwarded.v2` | `{ version: 1, sessions: { [sessionId]: { [itemId]: true } } }` |
-| `dsh.aside-notes.sections.v2` | `{ open, done }` |
-| `dsh.aside-notes.panel-width.v2` / `panel-height.v2` | 数字；高度 `0` 表示内容自适应 |
-| `dsh.aside-notes.send-shortcut.v2` | `enter` 或 `ctrl-enter` |
-| `dsh.aside-notes.forward-prefix.v2` | 最长 80 字符的转发前缀 |
-| `dsh.aside-notes.migrated.v2` | 迁移完成的标记 |
+| `dsh.aside-notes` | `{ version: 1, sessions: { [sessionId]: { sessionId, updatedAt, items: Note[] } } }` |
+| `dsh.aside-notes.drafts` | `{ version: 1, sessions: { [sessionId]: { add, edits: { [itemId]: text } } } }` |
+| `dsh.aside-notes.forwarded` | `{ version: 1, sessions: { [sessionId]: { [itemId]: true } } }` |
+| `dsh.aside-notes.sections` | `{ open, done }` |
+| `dsh.aside-notes.panel-width` / `panel-height` | 数字；高度 `0` 表示内容自适应 |
+| `dsh.aside-notes.send-shortcut` | `enter` 或 `ctrl-enter` |
+| `dsh.aside-notes.forward-prefix` | 最长 80 字符的转发前缀 |
+| `dsh.aside-notes.migrated` | 迁移完成的标记 |
 
-`Note` 形如 `{ id, text, done, createdAt, updatedAt, completedAt? }`；`text` 上限 280，单会话上限 300 条。1.x 的 `dsh.session-memos.v1` 与 `dsh.memo.*.v1` 在首次加载时复制到 v2，旧键不删除，回退到 1.9.x 仍可读。
+`Note` 形如 `{ id, text, done, createdAt, updatedAt, completedAt? }`；`text` 上限 280，单会话上限 300 条。键名不带版本后缀。1.x 的 `dsh.session-memos.v1` 与 `dsh.memo.*.v1` 在首次加载时复制到当前键，旧键不删除，回退到 1.9.x 仍可读。
 
 ## 5. 构建与产物
 

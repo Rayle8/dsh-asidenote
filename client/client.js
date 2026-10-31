@@ -51,20 +51,20 @@ const NS = "dsh-aside-note";
 /** Sidebar launcher id and the main panel key it addresses. */
 const PANEL_ID = "dsh-aside-note";
 /** Session-scoped memo store used by the popover and the session-header entry. */
-const SESSION_STORAGE_KEY = "dsh.aside-notes.v2";
+const SESSION_STORAGE_KEY = "dsh.aside-notes";
 /** Unsaved add/edit drafts, restored when the panel is reopened. */
-const DRAFT_STORAGE_KEY = "dsh.aside-notes.drafts.v2";
+const DRAFT_STORAGE_KEY = "dsh.aside-notes.drafts";
 /** Notes already forwarded to the composer, per session; marks the forward button. */
-const FORWARDED_STORAGE_KEY = "dsh.aside-notes.forwarded.v2";
+const FORWARDED_STORAGE_KEY = "dsh.aside-notes.forwarded";
 /** Shown in the in-panel settings; keep in sync with package.json. */
 const PLUGIN_VERSION = "0.9.10";
 const PLUGIN_AUTHOR = "阿三石";
 const PLUGIN_REPO_URL = "https://github.com/Rayle8/dsh-aside-note";
 const PLUGIN_REPO_LABEL = "github.com/Rayle8/dsh-aside-note";
 /** Send preference; persisted across panel openings. Enter sends by default. */
-const SEND_SHORTCUT_KEY = "dsh.aside-notes.send-shortcut.v2";
+const SEND_SHORTCUT_KEY = "dsh.aside-notes.send-shortcut";
 /** Lead-in written before a forwarded note; empty means no prefix. */
-const FORWARD_PREFIX_STORAGE_KEY = "dsh.aside-notes.forward-prefix.v2";
+const FORWARD_PREFIX_STORAGE_KEY = "dsh.aside-notes.forward-prefix";
 const SEND_SHORTCUT_DEFAULT = "enter";
 /** macOS names the command modifier with a symbol; other platforms say Ctrl. */
 const IS_MAC = (() => {
@@ -81,7 +81,7 @@ function isSendModifier(event) {
 	return IS_MAC ? event.metaKey === true : event.ctrlKey === true;
 }
 /** Remembered expand/collapse state of the open/completed sections. */
-const SECTION_STATE_KEY = "dsh.aside-notes.sections.v2";
+const SECTION_STATE_KEY = "dsh.aside-notes.sections";
 const SECTION_STATE_DEFAULT = {
 	open: true,
 	done: false
@@ -89,9 +89,9 @@ const SECTION_STATE_DEFAULT = {
 /** How long the inline clear-completed confirmation waits before it dismisses itself. */
 const CLEAR_CONFIRM_MS = 5e3;
 /** Persisted width of the experimental right-side panel. */
-const PANEL_WIDTH_KEY = "dsh.aside-notes.panel-width.v2";
+const PANEL_WIDTH_KEY = "dsh.aside-notes.panel-width";
 /** Persisted height of the experimental right-side panel; 0 means content-sized. */
-const PANEL_HEIGHT_KEY = "dsh.aside-notes.panel-height.v2";
+const PANEL_HEIGHT_KEY = "dsh.aside-notes.panel-height";
 
 // src/client/i18n/en.ts
 /** English copy; a missing key fails the typecheck rather than falling back at runtime. */
@@ -737,7 +737,7 @@ function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, tr, onO
 			});
 		};
 		const onStorage = (event) => {
-			if (event.key === "dsh.aside-notes.v2") schedule();
+			if (event.key === "dsh.aside-notes") schedule();
 		};
 		TODO_LISTENERS.add(schedule);
 		window.addEventListener("storage", onStorage);
@@ -778,7 +778,7 @@ function useSessionMemoStore(sessionId) {
 	}, [sessionKey]);
 	react.default.useEffect(() => {
 		const onStorage = (event) => {
-			if (event.key !== "dsh.aside-notes.v2") return;
+			if (event.key !== "dsh.aside-notes") return;
 			setRecord(readSessionRecord(sessionRef.current));
 		};
 		const onLocal = () => setRecord(readSessionRecord(sessionRef.current));
@@ -818,7 +818,7 @@ function readPanelWidth() {
 	const ls = storage();
 	const max = Math.min(720, Math.max(280, window.innerWidth - 32));
 	try {
-		const saved = ls && Number(ls.getItem("dsh.aside-notes.panel-width.v2"));
+		const saved = ls && Number(ls.getItem("dsh.aside-notes.panel-width"));
 		if (Number.isFinite(saved) && saved > 0) return Math.max(280, Math.min(max, saved));
 	} catch {}
 	return Math.max(280, Math.min(max, 360));
@@ -835,7 +835,7 @@ function writePanelWidth(width) {
 function readPanelHeight() {
 	const ls = storage();
 	try {
-		const saved = ls && Number(ls.getItem("dsh.aside-notes.panel-height.v2"));
+		const saved = ls && Number(ls.getItem("dsh.aside-notes.panel-height"));
 		if (Number.isFinite(saved) && saved > 0) return saved;
 	} catch {}
 	return 0;
@@ -852,7 +852,7 @@ function writePanelHeight(height) {
 /** Read the Enter-to-send preference. */
 function readSendShortcut() {
 	try {
-		const saved = storage() && storage().getItem("dsh.aside-notes.send-shortcut.v2");
+		const saved = storage() && storage().getItem("dsh.aside-notes.send-shortcut");
 		return saved === "enter" || saved === "ctrl-enter" ? saved : SEND_SHORTCUT_DEFAULT;
 	} catch {
 		return SEND_SHORTCUT_DEFAULT;
@@ -867,7 +867,7 @@ function writeSendShortcut(value) {
 /** Read the user's forward lead-in; an empty string means no prefix. */
 function readForwardPrefix() {
 	try {
-		const raw = storage() && storage().getItem("dsh.aside-notes.forward-prefix.v2");
+		const raw = storage() && storage().getItem("dsh.aside-notes.forward-prefix");
 		return typeof raw === "string" ? raw.slice(0, 80) : "";
 	} catch {
 		return "";
@@ -3292,7 +3292,7 @@ function MemoPopover(props) {
 
 // src/client/storage/migrate.ts
 /** One-time marker; its presence means the copy below already ran successfully. */
-const MIGRATED_KEY = "dsh.aside-notes.migrated.v2";
+const MIGRATED_KEY = "dsh.aside-notes.migrated";
 /**
 * The 1.x keys, read once and copied verbatim.
 *
