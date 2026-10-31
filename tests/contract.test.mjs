@@ -45,6 +45,15 @@ test('patch inserts exactly the package host row', () => {
   assert.doesNotMatch(patch, /@local\//)
 })
 
+test('the browser half never reaches for Node globals', () => {
+  // tsconfig now carries Node types for the build config; this keeps them out
+  // of the bundle, where `process` happens to exist under the jsdom test.
+  const tree = readClientTree()
+  assert.doesNotMatch(tree, /from ['"]node:/, 'client code must not import Node builtins')
+  assert.doesNotMatch(tree, /\bprocess\.[a-z]/, 'client code must not read process')
+  assert.doesNotMatch(tree, /\bBuffer\b/, 'client code must not use Buffer')
+})
+
 test('host and browser entries use the package identity', () => {
   assert.match(read('index.js'), /export function apply\(\)/)
   // The client half is several modules now; identity checks span the tree.
