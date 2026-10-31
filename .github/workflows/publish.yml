@@ -72,8 +72,38 @@ jobs:
             echo "Release $GITHUB_REF_NAME already exists"
             exit 0
           fi
-          flags=(--verify-tag --title "AsideNote ${GITHUB_REF_NAME#v}")
+          version="${GITHUB_REF_NAME#v}"
+          notes_file="$(mktemp)"
+          # Use the matching CHANGELOG section as the release notes; fall back
+          # to generated notes when the section is missing.
+          awk -v ver="$version" '
+            $0 == "## " ver { flag = 1; next }
+            flag && /^## / { exit }
+            flag { print }
+          ' CHANGELOG.md > "$notes_file"
+          if [ -s "$notes_file" ]; then
+            prev="$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)"
+            if [ -n "$prev" ]; then
+              printf '\n**Full Changelog**: https://github.com/Rayle8/dsh-asidenote/compare/%s...%s\n' \
+                "$prev" "$GITHUB_REF_NAME" >> "$notes_file"
+            fi
+            notes_flag=(--notes-file "$notes_file")
+          else
+            notes_flag=(--generate-notes)
+          fi
+          flags=(--verify-tag --title "AsideNote $version" "${notes_flag[@]}")
           if [[ "$GITHUB_REF_NAME" == v*-* ]]; then
             flags+=(--prerelease)
           fi
-          gh release create "$GITHUB_REF_NAME" "${flags[@]}" --generate-notes
+          gh release create "$GITHUB_REF_NAME" "${flags[@]}"
+
+      - name: Attach the package tarball
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Keep the "install from a Release" path working even though npm is
+          # now the primary channel.
+          mkdir -p dist
+          npm pack --pack-destination dist
+          gh release upload "$GITHUB_REF_NAME" dist/*.tgz --clobber

@@ -79,7 +79,8 @@ git push origin v2.0.1
 2. `npm run check`；
 3. 校验 `v$(package.json version)` 与 tag 完全一致；
 4. `npm publish --provenance`：通过 trusted publishing（OIDC）获取短时凭据，不使用长期 token；
-5. 创建同名 GitHub Release（`--generate-notes`，预发布加 `--prerelease`）。
+5. 创建同名 GitHub Release：说明取自 `CHANGELOG.md` 对应版本小节，并附 Full Changelog 链接；预发布加 `--prerelease`；
+6. 把 `npm pack` 生成的 tgz 作为 Release 资产上传，保持「从 Release 安装」可用。
 
 trusted publisher 配置：
 
@@ -120,10 +121,12 @@ gh release view v2.0.1 -R Rayle8/dsh-asidenote
 https://github.com/Rayle8/dsh-asidenote/releases/latest
 ```
 
-因此**每个版本都必须有 GitHub Release**，否则用户点更新说明会得到 404。workflow 已经自动创建 Release；如果手动补建，使用：
+因此**每个版本都必须有 GitHub Release**，否则用户点更新说明会得到 404。workflow 已经自动创建 Release 并上传 tgz；如果手动补建，使用：
 
 ```bash
 gh release create v2.0.1 --verify-tag --title "AsideNote 2.0.1" --generate-notes
+npm pack --pack-destination dist
+gh release upload v2.0.1 dist/dsh-asidenote-2.0.1.tgz --clobber
 ```
 
 `releases/latest` 会跳过 prerelease，所以预发布不会触发稳定用户的提示。
@@ -138,6 +141,7 @@ gh release create v2.0.1 --verify-tag --title "AsideNote 2.0.1" --generate-notes
 | `ENEEDAUTH` / OIDC 认证失败 | trusted publisher 的 workflow 文件名或仓库名不匹配；核对 `publish.yml` 与 `Rayle8/dsh-asidenote` |
 | 配置过期 | 重跑上面的 `npm trust` 命令并完成 Touch ID 授权 |
 | 刚发布后 `npm view` 仍是旧版本 | registry 传播或 npmmirror 同步有延迟；等几分钟，更新检查的镜像回退会自动处理 |
+| Release 已存在但没有 tgz 资产 | 重跑 workflow 会先卡在 npm 版本冲突；手动 `npm pack` 后 `gh release upload <tag> <tgz> --clobber` |
 
 ## 不要做
 
