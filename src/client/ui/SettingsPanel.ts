@@ -91,16 +91,13 @@ export function SettingsPanel(props) {
               h(
                 'div',
                 { className: 'dsh-an-settingBody' },
+                // One line: version, check control and result, then the author
+                // pushed to the far right. Wrapping keeps the author right-aligned
+                // when the panel is narrow.
                 h(
                   'div',
                   { className: 'dsh-an-settingAbout' },
-                  h('span', null, `${say('settings.version')} ${PLUGIN_VERSION}`),
-                  h('span', { className: 'dsh-an-settingDot', 'aria-hidden': true }, '·'),
-                  h('span', null, `${say('settings.author')} ${PLUGIN_AUTHOR}`),
-                ),
-                h(
-                  'div',
-                  { className: 'dsh-an-updateCheckRow' },
+                  h('span', { className: 'dsh-an-settingAboutVersion' }, `${say('settings.version')} ${PLUGIN_VERSION}`),
                   h(
                     'button',
                     {
@@ -121,6 +118,7 @@ export function SettingsPanel(props) {
                   update.check.status === 'error'
                     ? h('span', { className: 'dsh-an-updateHint dsh-an-updateHintError', role: 'status' }, say('update.checkFailed'))
                     : null,
+                  h('span', { className: 'dsh-an-settingAuthor' }, `${say('settings.author')} ${PLUGIN_AUTHOR}`),
                 ),
                 update.latestVersion
                   ? h(UpdateNotice, {
