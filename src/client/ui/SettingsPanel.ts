@@ -3,6 +3,7 @@ import React from 'react'
 import {
   MOD_LABEL,
   PLUGIN_AUTHOR,
+  PLUGIN_RELEASES_URL,
   PLUGIN_REPO_LABEL,
   PLUGIN_REPO_URL,
   PLUGIN_VERSION,
@@ -11,7 +12,7 @@ import {
 const h = React.createElement
 
 export function SettingsPanel(props) {
-  const { say, sendShortcut, chooseShortcut, forwardPrefix, changeForwardPrefix, prefixRef } = props
+  const { say, sendShortcut, chooseShortcut, forwardPrefix, changeForwardPrefix, prefixRef, newerVersion } = props
   return h(
             'div',
             { className: 'dsh-an-settings' },
@@ -97,6 +98,20 @@ export function SettingsPanel(props) {
                   h('span', { className: 'dsh-an-settingDot', 'aria-hidden': true }, '·'),
                   h('span', null, `${say('settings.author')} ${PLUGIN_AUTHOR}`),
                 ),
+                newerVersion
+                  ? h(
+                      'a',
+                      {
+                        className: 'dsh-an-settingUpdate',
+                        href: PLUGIN_RELEASES_URL,
+                        target: '_blank',
+                        rel: 'noreferrer',
+                        title: say('update.tip', { version: `v${newerVersion}` }),
+                      },
+                      h('span', null, say('update.label')),
+                      h('span', { className: 'dsh-an-settingUpdateVersion' }, `↑ v${newerVersion}`),
+                    )
+                  : null,
                 h(
                   'div',
                   { className: 'dsh-an-settingProject' },

@@ -67,5 +67,7 @@ export const en: Record<MessageKey, string> = {
   "toast.forwardFailed": "No composer found — nothing was forwarded",
   "toast.deleted": "Deleted",
   "toast.cleared": "Cleared completed",
-  "toast.saveFailed": "Save failed — nothing changed"
+  "toast.saveFailed": "Save failed — nothing changed",
+  "update.label": "Update available",
+  "update.tip": "Version {version} is now available — open the release notes"
 }

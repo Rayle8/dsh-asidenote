@@ -65,7 +65,9 @@ export const zh = {
   "toast.forwardFailed": "没有找到输入框，转发失败",
   "toast.deleted": "已删除",
   "toast.cleared": "已清除已完成",
-  "toast.saveFailed": "保存失败，内容没有改动"
+  "toast.saveFailed": "保存失败，内容没有改动",
+  "update.label": "有新版本",
+  "update.tip": "新版本 {version} 已发布，点击查看更新说明"
 } as const
 
 export type MessageKey = keyof typeof zh

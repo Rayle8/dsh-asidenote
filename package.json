@@ -7,11 +7,11 @@
   "author": "Rayle8",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Rayle8/dsh-dsh-asidenote.git"
+    "url": "git+https://github.com/Rayle8/dsh-workspace-todos.git"
   },
-  "homepage": "https://github.com/Rayle8/dsh-dsh-asidenote#readme",
+  "homepage": "https://github.com/Rayle8/dsh-workspace-todos#readme",
   "bugs": {
-    "url": "https://github.com/Rayle8/dsh-dsh-asidenote/issues"
+    "url": "https://github.com/Rayle8/dsh-workspace-todos/issues"
   },
   "keywords": [
     "dsh",

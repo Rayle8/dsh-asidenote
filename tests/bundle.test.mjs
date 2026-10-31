@@ -42,6 +42,18 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   const ReactDOMClient = await import('react-dom/client')
   const { act } = React
 
+  // The panel probes npm when it opens; answer inside this realm so the test
+  // exercises the shipped fallback and cache without touching the network.
+  const updateCalls = []
+  window.fetch = async input => {
+    const url = String(input)
+    updateCalls.push(url)
+    if (url.startsWith('https://registry.npmjs.org/')) {
+      return { ok: false, json: async () => ({}) }
+    }
+    return { ok: true, json: async () => ({ version: '2.1.0' }) }
+  }
+
   let loaded = null
   window.__ModuleLoader__ = { load: spec => { loaded = spec } }
   window.eval(bundle)
@@ -154,6 +166,19 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   await act(async () => { radios[1].click() })
   assert.equal(window.localStorage.getItem('dsh.aside-notes.send-shortcut.v2'), 'ctrl-enter')
 
+  // The npmjs read fails, the mirror answers with a newer version: the gear
+  // gains a dot and About offers the release-notes link.
+  await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 20)) })
+  assert.deepEqual(updateCalls, [
+    'https://registry.npmjs.org/dsh-asidenote/latest',
+    'https://registry.npmmirror.com/dsh-asidenote/latest',
+  ], 'the npmjs miss must fall back to the npmmirror host')
+  assert.ok(popover.querySelector('.dsh-an-updateDot'), 'the gear carries the update dot')
+  const updateChip = popover.querySelector('.dsh-an-settingUpdate')
+  assert.ok(updateChip, 'a newer version must surface in Settings > About')
+  assert.match(updateChip.textContent, /2\.1\.0/)
+  assert.equal(updateChip.getAttribute('href'), 'https://github.com/Rayle8/dsh-workspace-todos/releases/latest')
+
   const prefixField = popover.querySelector('#dsh-an-forward-prefix')
   await act(async () => {
     valueSetter.call(prefixField, '请处理：')
@@ -209,6 +234,14 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   await act(async () => { popover.querySelector('.dsh-an-sectionHead .dsh-an-doneToggle').click() })
   const sections = JSON.parse(window.localStorage.getItem('dsh.aside-notes.sections.v2'))
   assert.equal(sections.open, false)
+
+  // The probe caches its answer, so reopening the panel reads no registry again.
+  await act(async () => { popover.querySelector('.dsh-an-popClose').click() })
+  assert.equal(document.querySelector('.dsh-an-popover'), null, 'the close button removes the panel')
+  await act(async () => { button.click() })
+  await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 20)) })
+  assert.equal(updateCalls.length, 2, 'the cached answer must be reused by a reopened panel')
+  assert.ok(document.querySelector('.dsh-an-popover').querySelector('.dsh-an-updateDot'))
 
   await act(async () => { reactRoot.unmount() })
   for (const dispose of disposers) dispose()

@@ -14,6 +14,7 @@ import { usePanelGeometry } from './usePanelGeometry'
 import { useSections } from './useSections'
 import { useForwardMarks } from './useForwardMarks'
 import { usePanelSettings } from './usePanelSettings'
+import { useNewerVersion } from './useNewerVersion'
 import { useComposerDraft } from './useComposerDraft'
 import { useNoteActions } from './useNoteActions'
 import { useClearConfirm } from './useClearConfirm'
@@ -40,6 +41,8 @@ export function MemoPopover(props) {
   const { sectionsRef, showOpen, showDone, toggleOpen, toggleDone, applySections } = useSections()
   const { forwardedIds, rememberForwarded, unrememberForwarded, forgetForwardedItems } = useForwardMarks(sessionId)
   const { showSettings, setShowSettings, sendShortcut, chooseShortcut, forwardPrefix, changeForwardPrefix, prefixRef } = usePanelSettings()
+  // One registry read per hour, shared by every panel open; null when current.
+  const newerVersion = useNewerVersion()
   const { draft, addRef, composingRef, add, onDraftChange, onDraftKeyDown } = useComposerDraft({ sessionId, commit, report, sendShortcut })
   const { editingId, editDraft, setEditDraft, editRef, startEdit, finishEdit, cancelEdit, toggle, remove } = useNoteActions({
     sessionId,
@@ -151,6 +154,7 @@ export function MemoPopover(props) {
       showSettings,
       onToggleSettings: () => setShowSettings(value => !value),
       onClose: props.onClose,
+      newerVersion,
     }),
     showSettings
       ? h(SettingsPanel, {
@@ -160,6 +164,7 @@ export function MemoPopover(props) {
           forwardPrefix,
           changeForwardPrefix,
           prefixRef,
+          newerVersion,
         })
       : null,
     h(ComposerForm, {

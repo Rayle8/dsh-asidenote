@@ -21,6 +21,8 @@ body{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-
 .dsh-an-popClose,.dsh-an-settingsBtn{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}
 .dsh-an-popClose:active,.dsh-an-settingsBtn:active{background:var(--an-active)}
 .dsh-an-settingsBtn[data-active="true"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
+.dsh-an-settingsBtn{position:relative}
+.dsh-an-updateDot{position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-brand-primary);box-shadow:0 0 0 2px var(--dsh-an-panelSurface)}
 
 /* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */
 .dsh-an-add{display:flex;flex-direction:column;gap:var(--an-space-2);padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--an-transition)}
@@ -125,6 +127,9 @@ body{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-
 .dsh-an-settingDot{flex:none;color:var(--dsw-alias-label-tertiary)}
 .dsh-an-settingLink{flex:0 1 auto;min-width:0;overflow:hidden;color:var(--dsw-alias-link);font-weight:500;text-decoration:none;text-overflow:ellipsis;transition:var(--an-transition)}
 .dsh-an-settingLink:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}
+.dsh-an-settingUpdate{display:inline-flex;align-items:baseline;align-self:flex-start;gap:var(--an-space-1);padding:2px var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-link);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-decoration:none;transition:var(--an-transition)}
+.dsh-an-settingUpdate:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}
+.dsh-an-settingUpdateVersion{font-variant-numeric:tabular-nums}
 
 /* ── 11 面板脚注 · 存储状态就地提示，错误用状态色 ─────────────────── */
 .dsh-an-popFoot{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}
@@ -170,6 +175,7 @@ body{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-
 .dsh-an-check:hover .dsh-an-checkCircle{border-color:var(--dsw-alias-label-primary)}
 .dsh-an-settingChoice:hover input{border-color:var(--dsw-alias-label-primary)}
 .dsh-an-settingLink:hover{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}
+.dsh-an-settingUpdate:hover{background:var(--an-hover)}
 .dsh-an-headerBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
 .dsh-an-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}
 .dsh-an-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}
