@@ -6,11 +6,15 @@ The 1.0.0–2.0.1 iterations were development builds of the same plugin; the 2.x
 
 <!-- app-update-notes:en:start -->
 ### Changed
+- **Install:** the installer now closes by telling the user that the 旁边记 entry sits at the top right of the conversation after install — no restart — and, when it is still missing, to refresh the Plugins page and toggle the plugin off and on once, which recomposes the running host.
+- **README:** the install story is a single section now — **Quick install**, right above “Why AsideNote”, with **Install with an agent** and **Install from the command line** — replacing the separate npm, git-checkout and Release methods and the standalone install-prompt page; the link recipe a contributor needs moved to **Development**. The feature list is merged from 28 bullets into ten groups.
 - **Screenshots:** the README images are re-shot from the 旁边记 build at 4× device scale — panel title, composer placeholder, empty state and Settings › About carry the new name and tagline, the feature shots are now 1080 px wide and the previews 1920 px, so they stay crisp when zoomed — the four preview images come from the same demo session as the feature shots, and the sidebar account menu is hidden so the shots carry no personal account.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 变更
+- **安装：** 安装器结束时不再只说「无需重启」，而是明确告诉用户安装后会话右上角即可看到「旁边记」；入口没出现时，到「插件」页刷新并把插件关闭再开启一次，运行中的 Host 会随之重新组合。
+- **README：** 安装说明集中为「快速安装」一节，放在「为什么做旁边记」之前，分「通过 agent 安装」与「通过命令行安装」；原先并列的 npm 依赖、git checkout、Release 包三种方式与独立的安装提示词页面一并移除，贡献者需要的 link 写法则移入「开发」。「功能」清单从 28 条合并为 10 条。
 - **截图：** README 的图片按**旁边记**重新拍摄，并以 4 倍设备像素导出：浮窗标题、输入占位、空状态与设置 › 关于都已是新名字与 slogan；功能图加宽到 1080、整窗图到 1920，放大看依然清晰；四张预览图与功能图出自同一个演示会话，并隐藏侧栏账号菜单，不出现个人账号。
 <!-- app-update-notes:zh:end -->
 

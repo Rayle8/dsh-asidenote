@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { chmodSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { test } from 'node:test'
@@ -31,6 +31,30 @@ function runRaw(args, env) {
   return spawnSync(process.execPath, [SCRIPT, ...args], { encoding: 'utf8', env })
 }
 
+/**
+ * A `pnpm` that stands in for the package manager and leaves behind what a real
+ * install would: the installed manifest and the client bundle the script checks
+ * for. It keeps the network out of the test.
+ */
+function fakePnpm(t) {
+  const dir = mkdtempSync(join(tmpdir(), 'asidenote-pnpm-'))
+  t.after(() => rmSync(dir, { recursive: true, force: true }))
+  const bin = join(dir, 'pnpm')
+  writeFileSync(
+    bin,
+    [
+      '#!/bin/sh',
+      'set -e',
+      'mkdir -p node_modules/dsh-aside-note/client',
+      `printf '{"version":"1.0.0"}' > node_modules/dsh-aside-note/package.json`,
+      `printf '// bundle\\n' > node_modules/dsh-aside-note/client/client.js`,
+      '',
+    ].join('\n'),
+  )
+  chmodSync(bin, 0o755)
+  return dir
+}
+
 const BASE = {
   name: 'test-profile',
   private: true,
@@ -53,6 +77,28 @@ test('a fresh profile gets the dependency and the bundle line', (t) => {
   ])
   assert.ok(existsSync(join(dir, '.local-backup')), 'the manifest is backed up before it is edited')
 })
+
+test(
+  'a finished install says how to make the entry appear in the Plugins page',
+  { skip: process.platform === 'win32' && 'the stand-in pnpm is a POSIX shell script' },
+  (t) => {
+    const dir = makeProfile(structuredClone(BASE), t)
+    const shim = fakePnpm(t)
+    const env = { ...process.env, PATH: `${shim}:${process.env.PATH}` }
+    delete env.DSH_PROFILE_DIR
+
+    const result = spawnSync(process.execPath, [SCRIPT, '--profile-dir', dir], { encoding: 'utf8', env })
+
+    assert.equal(result.status, 0, result.stderr)
+    assert.match(result.stdout, /installed: dsh-aside-note@1\.0\.0/)
+    assert.match(result.stdout, /After install/)
+    assert.match(result.stdout, /Plugins page/)
+    assert.match(result.stdout, /旁边记/)
+    assert.match(result.stdout, /off\s+and on once/)
+    // The DSH client has no page reload; the entry is expected right after install.
+    assert.doesNotMatch(result.stdout, /reload the page/i)
+  },
+)
 
 test('re-running is idempotent and keeps the existing bundle order', (t) => {
   const manifest = structuredClone(BASE)

@@ -4,7 +4,7 @@ Keep your ideas beside the conversation
 
 [中文](README.md) | English
 
-> Product name: **AsideNote** (Chinese name **旁边记**, “keep your ideas beside the conversation”); the package, plugin id and repository are all `dsh-aside-note`. Old repository links redirect automatically.
+> Product name: **AsideNote** (Chinese name **旁边记**, “keep your ideas beside the conversation”); the package, plugin id and repository are all `dsh-aside-note`.
 
 Jot it down · Open as needed · Tuck it away
 
@@ -27,6 +27,40 @@ The same button in the dark theme:
 <img src="./docs/assets/preview-badge-dark.png" width="460" alt="AsideNote button at the top right, dark">
 
 Clicking the entry opens a fixed panel on the right.
+
+## Quick install
+
+AsideNote installs into a DSH profile as the npm package `dsh-aside-note`. Pick one: hand the prompt to an agent, or run a single command.
+
+### Install with an agent
+
+Give your agent this block:
+
+```text
+Install the DSH plugin AsideNote by running: npx -y dsh-aside-note install
+No DSH restart is needed afterwards: the 旁边记 entry is at the top right of the conversation.
+If it is missing, tell me to refresh the Plugins page and switch the plugin off and on once.
+If it says DSH or a profile cannot be found, tell me to install and start the DeepSeek Harness
+client first and retry; do not clone the repo, hand-assemble dependencies, or restart DSH.
+```
+
+### Install from the command line
+
+```bash
+npx dsh-aside-note install
+```
+
+The installer pulls this package from npm, finds the DSH profile (it honours `DSH_PROFILE_DIR`, otherwise `~/.dsh/profiles/desktop`), backs up `package.json` and `pnpm-lock.yaml` into `.local-backup/`, adds the dependency, appends `dsh-aside-note` to `dsh.profile.bundles`, runs `pnpm install` and finally verifies the installed `client/client.js`.
+
+```bash
+npx dsh-aside-note install --profile work    # pick a profile
+npx dsh-aside-note install --dry-run         # print the plan, write nothing
+npx dsh-aside-note install --version 1.0.0   # pin the version instead of ^1.0.0
+```
+
+It is safe to re-run. No restart is needed: DSH re-composes the profile within about a second, and the 旁边记 entry appears at the top right of the conversation. If it does not, refresh the sidebar **Plugins** page and toggle the plugin off and on once — the running host recomposes and the entry appears.
+
+To uninstall, drop `dsh-aside-note` from `dsh.profile.bundles`, run `pnpm remove dsh-aside-note` in the profile directory, and no restart is needed: the entry disappears right away, and if the **Plugins** page still lists it, refresh that page.
 
 ## Why AsideNote
 
@@ -60,38 +94,20 @@ Click a note's forward button to append it to the current chat input as a list i
 
 > Notes are stored in the current browser and do not sync across devices or browsers. Clearing site data removes them. See [Where data lives](#where-data-lives).
 
-[Installation](#install) · [Feedback and issues](https://github.com/Rayle8/dsh-aside-note/issues)
+[Quick install](#quick-install) · [Feedback and issues](https://github.com/Rayle8/dsh-aside-note/issues)
 
 ## Features
 
-- Data is keyed by **session ID**; different sessions in one workspace stay independent.
-- A 28px square top-right icon button shows the open count as a low-contrast gray corner badge; its tooltip reads “AsideNote · N open”.
-- Clicking it opens a fixed right-side panel; switching sessions closes the old panel and updates the entry.
-- The settings button beside the notes title expands a settings card for the send shortcut (Enter sends, or ⌘/Ctrl+Enter sends, labelled for the current platform); **One-click forward** provides a prefix prompt field that starts one line tall and grows with wrapped text up to six lines, with an explanation underneath. Settings › About shows the product name and tagline, then the version and check control, the author, and a clickable source link; settings persist automatically. When a newer release exists, the settings button gains a dot and Settings › About offers a manual check, the release notes by default, a full-release link and “Update now”.
-- The panel's top-right corner aligns with the header entry and shifts left of the DSH right sidebar when that sidebar is open.
-- Clicking the entry opens the right-side panel for add, complete, copy, edit (double-click or pencil), delete, clear completed (with a confirmation), and expand completed.
-- Drag the handle on the panel's left edge to resize its width; double-click the handle to reset it, and the width persists in the browser.
-- Drag the bottom-center handle to resize its height; double-click the handle to return to content sizing, and the height persists.
-- Open notes have copy, forward, edit, and delete actions; completed notes hide the forward action but keep copy, edit, and delete. Copy sits to the left of edit and reports **Copied** through the frame-wide toast instead of changing the button.
-- Forward appends each note as a `-` list item; the configured prefix (localized: **Complete this task:** in English) is written only when the composer is empty, never when it already has content. The caret stays at the end and nothing is sent automatically.
-- After forwarding, the forward button gains a check and the forwarded state is remembered per session; the checkbox only ever shows open or done and is never changed by forwarding.
-- Forwarding and completion are independent: completed notes hide the forward action and keep their completed check, and clicking the forward button on an already-forwarded open note removes the mark instead of appending it again.
-- The completion circle shares the first line with the note text; for open notes, copy, forward, edit, and delete sit at the bottom-right beside the time, saving one row.
-- Clearing completed notes asks for a second confirmation: the first click opens a confirmation band, and only confirming clears them.
-- The completion circle is visually 14px inside a 24px hit area and centers on the first line of note text.
-- Both the new-note input and the editor grow into multiple rows as you type; both use the configured send shortcut, with the other combination inserting a newline (⌘+Enter on macOS, Ctrl+Enter elsewhere), and the editor shows a right-aligned shortcut hint.
-- The add row no longer shows a plus icon, and **Add** always sits at the right of its own second row, so wrapping never flickers or jumps.
-- The send-shortcut hint sits in the empty space left of the Add button and updates with the setting, keeping the input placeholder short.
-- Unsaved add/edit drafts are saved per session and restored after closing and reopening the panel, with the add caret at the end of the draft; they clear after add, save, cancel, or delete.
-- Expanding **Completed** does not compress the **Open** list; only the open/completed list region scrolls, while the header, settings, composer, and footer stay fixed.
-- The **Open** and **Completed** headers stick inside the list: transparent until pinned, then filled with the same opaque `--dsh-an-panelSurface` as the panel. The title typography stays unchanged, with no rounded corners, underlay, translucency, or top blur band.
-- Completed notes show both the creation and the completion age and sort by newest completion; open notes show the creation age only.
-- The open/completed expand state is remembered and restored when the panel is reopened.
-- Note-card copy/edit/delete actions appear on hover or keyboard focus while keeping their layout space; touch devices keep them visible.
-- Both **Open** and **Completed** headings collapse on click with matching count styles and colours; either can stay expanded independently; only the chevron, label, and count are clickable, not the blank right side.
-- Syncs across tabs in the same browser.
-- Chinese and English copy, following the DSH locale.
-- Every style reuses DSH design tokens: semantic colour aliases, shared radii and elevation, an opaque raised surface, and the shared scrollbar skin. Type collapses to three sizes (12 / 13 / 14), weight caps at 500, neutral strokes are 0.5px hairlines, hover styling only runs on hover-capable devices, and settled outcomes report through the frame-wide toast. See the [Panel UI rules](./docs/panel-ui-rules.md).
+- **Per-session notes**: data is keyed by session ID, so sessions in one workspace stay independent, and tabs in the same browser stay in sync.
+- **Entry and panel**: an icon button at the top right badges the open count; clicking it opens a fixed panel aligned to the entry, which shifts left of the DSH right sidebar and closes when you switch sessions.
+- **Note actions**: add, complete, copy, edit by double-click or pencil, and delete; clearing completed notes asks for confirmation, and completed notes expand for review.
+- **One-click forward**: each note is appended to the composer as a `-` item, with the customizable prefix written only when the composer is empty — nothing is sent automatically. The forward button gains a check per session, and clicking it again removes the mark.
+- **Remembered state**: add and edit drafts are saved per session and restored when the panel reopens; the open/completed expand state is remembered too.
+- **Panel size**: drag the left edge for width and the bottom handle for height, double-click either to reset; both persist in the browser.
+- **List regions**: **Open** and **Completed** each keep a sticky header and its own scroll, and expanding completed never compresses open; completed notes show creation and completion times, newest completion first.
+- **Settings**: send shortcut (Enter or ⌘/Ctrl+Enter), forward prefix, and About (version, check, author, source), saved automatically.
+- **Update notice**: a newer release puts a dot on the settings button, and Settings › About shows the notes and the update action; see [Update notice](#update-notice).
+- **Native look**: colours, radii, elevation and scrollbars all reuse DSH design tokens, following light/dark and the DSH locale; see [Design tokens](#design-tokens).
 
 ## Feature screenshots
 
@@ -180,52 +196,32 @@ Therefore:
 - Clearing site data clears the notes.
 - Storage keys carry no version suffix and follow the `dsh-aside-note` package name; old keys are neither read nor migrated. If your data still sits under the old `dsh.aside-notes.*.v2` keys, rename them to the matching `dsh.aside-note.*` keys and reload.
 
-## Install
+## Update notice
 
-### One-command install (recommended)
+When the panel opens, the plugin quietly checks the latest published version (npm, falling back to npmmirror and then the latest GitHub Release) and caches the answer for an hour. When a newer version exists, the settings button gains a dot and Settings › About shows the update card:
 
-```bash
-npx dsh-aside-note install
-```
+- **Check for updates** re-reads the registry immediately, bypassing that hourly cache, and reports “checking”, “up to date” or a failure underneath.
+- **Notes show by default:** an available update immediately lists the release notes from the GitHub Release body — no disclosure to open. The notes are the block between its `app-update-notes:en` / `app-update-notes:zh` markers, flattened to plain text — no HTML is executed or injected.
+- **Across several versions:** when the published release is several versions ahead, the notes list every release in the gap, newest first. The newest stays open and each older version expands on its own. Drafts and prereleases are skipped, at most six releases are listed, and a link points at the releases page when more were left out.
+- **Full release notes** sits to the right of the update button and opens the matching GitHub Release page in a new tab.
+- **Update now** queues the upgrade through the plugin market's public update API when dshmarket is present, reports live progress, and offers a page refresh or DSH restart when it finishes. A market busy with another operation is waited out first.
+- **Manual fallback:** when the market is absent, or still busy after waiting, the card stops saying “try again later” and states the command (`npx -y dsh-aside-note install`, or the Plugins page) with **Copy update prompt** — one click to copy a ready-to-paste instruction for an agent.
 
-The installer pulls this package from npm, finds the DSH profile (it honours `DSH_PROFILE_DIR`, otherwise `~/.dsh/profiles/desktop`), backs up `package.json` and `pnpm-lock.yaml` into `.local-backup/`, adds the dependency, appends `dsh-aside-note` to `dsh.profile.bundles`, runs `pnpm install` and finally verifies the installed `client/client.js`.
+Updating is always an explicit click: the panel only checks, explains and queues — it never runs a command itself, and your notes are never touched. The check only reads public version numbers and release bodies.
 
-```bash
-npx dsh-aside-note install --profile work    # pick a profile
-npx dsh-aside-note install --dry-run         # print the plan, write nothing
-npx dsh-aside-note install --version 1.0.0   # pin the version instead of ^1.0.0
-```
+Release notes are composed by `tools/release/notes.mjs` from `CHANGELOG.md` — English and Chinese blocks with `app-update-notes` markers, install links and a Full Changelog link — and the tag-triggered workflow creates the Release (with the tarball attached) from it. See [release and versioning](./docs/release.md).
 
-The installer ships from **0.9.10** on; earlier versions have no `bin`, so `npx` reports no executable. It is safe to re-run. No restart is needed: DSH re-composes the profile within about a second, and a page reload picks up the entry (a marketplace install triggers that reload for you).
+## Development
 
-Prefer to hand it to an agent? Paste the [one-command install prompt](./docs/install-prompt.md).
-
-### Configure the npm dependency manually
-
-Add the dependency to the DSH profile's `package.json` and list the package under `dsh.profile.bundles`:
-
-```json
-{
-  "dependencies": {
-    "dsh-aside-note": "^1.0.0"
-  },
-  "dsh": {
-    "profile": {
-      "bundles": ["dsh-aside-note"]
-    }
-  }
-}
-```
-
-Then run `pnpm install` in the profile directory and reload the page — no restart is needed. To upgrade, raise the range or run `pnpm update dsh-aside-note`.
-
-### Install from a git checkout (development)
+The browser half lives in `src/client/` and tsdown bundles it into a single `client/client.js`:
 
 ```bash
-git clone git@github.com:Rayle8/dsh-aside-note.git
+npm install
+npm run check     # lint + typecheck + tests + build
+npm run build     # regenerate client/client.js only
 ```
 
-Link the checkout into a DSH profile (replace `<path-to-repo>`):
+To run the checkout inside DSH, link it into a profile (replace `<path-to-repo>`) and run `pnpm install` in the profile directory:
 
 ```json
 {
@@ -240,46 +236,7 @@ Link the checkout into a DSH profile (replace `<path-to-repo>`):
 }
 ```
 
-Then run `pnpm install` in the profile directory. On startup DSH reads `dsh.bundle.patch` and `dsh.client`. After adding the bundle row, toggle it off/on in the sidebar **Plugins** page to recompose a running Host without a restart; restart once if the row is not listed yet. After changing `src/client/`, run `npm run build` to regenerate `client/client.js`; the dev client HMR swaps the bundle, otherwise refresh. Building needs Node 22+.
-
-### Install from a GitHub Release (no npm)
-
-If you would rather not clone the repository, use the package attached to a [Release](https://github.com/Rayle8/dsh-aside-note/releases):
-
-1. Download `dsh-aside-note-<version>.tgz` and unpack it into a stable directory:
-
-   ```bash
-   mkdir -p ~/dsh-plugins/dsh-aside-note
-   tar -xzf dsh-aside-note-1.0.0.tgz --strip-components=1 -C ~/dsh-plugins/dsh-aside-note
-   ```
-
-2. Link that directory into the profile with the same `link:` form shown above, for example `"dsh-aside-note": "link:/Users/<you>/dsh-plugins/dsh-aside-note"`, then run `pnpm install` in the profile directory.
-
-To upgrade, download the new tarball, unpack it over the same directory, then toggle the bundle off/on in the **Plugins** page (or restart DSH); the in-app notice points at the matching Release.
-
-## Update notice
-
-When the panel opens, the plugin quietly checks the latest published version (npm, falling back to npmmirror and then the latest GitHub Release) and caches the answer for an hour. When a newer version exists, the settings button gains a dot and Settings › About shows the update card:
-
-- **Check for updates** re-reads the registry immediately, bypassing that hourly cache, and reports “checking”, “up to date” or a failure underneath.
-- **Notes show by default:** an available update immediately lists the release notes from the GitHub Release body — no disclosure to open. The notes are the block between its `app-update-notes:en` / `app-update-notes:zh` markers, flattened to plain text — no HTML is executed or injected.
-- **Across several versions:** when the published release is several versions ahead, the notes list every release in the gap, newest first. The newest stays open and each older version expands on its own. Drafts and prereleases are skipped, at most six releases are listed, and a link points at the releases page when more were left out.
-- **Full release notes** sits to the right of the update button and opens the matching GitHub Release page in a new tab.
-- **Update now** queues the upgrade through the plugin market's public update API when dshmarket is present, reports live progress, and offers a page refresh or DSH restart when it finishes. Without a market, the card explains the manual path (`pnpm update dsh-aside-note`, or the Plugins page).
-
-Updating is always an explicit click: nothing installs on its own, no commands run behind your back, and your notes are never touched. The check only reads public version numbers and release bodies.
-
-Release notes are composed by `tools/release/notes.mjs` from `CHANGELOG.md` — English and Chinese blocks with `app-update-notes` markers, install links and a Full Changelog link — and the tag-triggered workflow creates the Release (with the tarball attached) from it. See [release and versioning](./docs/release.md).
-
-## Development
-
-The browser half lives in `src/client/` and tsdown bundles it into a single `client/client.js`:
-
-```bash
-npm install
-npm run check     # lint + typecheck + tests + build
-npm run build     # regenerate client/client.js only
-```
+After adding the bundle row, toggle it off/on in the sidebar **Plugins** page to recompose a running Host without a restart.
 
 The entry is `src/client/index.ts`, which exports `apply(ctx)`; tsdown wraps it in DSH's loader shell:
 
@@ -315,4 +272,4 @@ Loaded in an isolated DSH profile and driven through headless Chrome:
 - records survive a refresh and stay session-scoped;
 - the npmjs → npmmirror → GitHub Release fallback, the one-hour cache, and the version comparison are covered by the contract tests, and the jsdom test drives the visible update notice; the live notice needs a published npm package or a GitHub Release.
 
-`npm run check` passes: lint, typecheck, build, and 66 tests, including a jsdom integration test that drives the whole panel, expands the release notes and runs an update through a mocked market.
+`npm run check` passes: lint, typecheck, build, and 90 tests, including jsdom integration tests that drive the whole panel, expand the release notes, run an update through a mocked market, and check the busy/no-market fallback.

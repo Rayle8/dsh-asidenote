@@ -4,7 +4,7 @@
 
 [English](README.en.md) | 中文
 
-> 中文名 **旁边记**，英文名 **AsideNote**；包、插件 id 与仓库均为 `dsh-aside-note`；旧仓库链接会由 GitHub 自动重定向。
+> 中文名 **旁边记**，英文名 **AsideNote**；包、插件 id 与仓库均为 `dsh-aside-note`。
 
 轻量记录 · 按需打开 · 用完收起
 
@@ -27,6 +27,40 @@
 <img src="./docs/assets/preview-badge-dark.png" width="460" alt="顶部右侧旁边记按钮（暗色）">
 
 点击入口后在右侧打开固定面板。
+
+## 快速安装
+
+旁边记以 npm 包 `dsh-aside-note` 装进 DSH profile。两种方式选一个：把提示词交给 agent，或自己执行一条命令。
+
+### 通过 agent 安装
+
+把下面这段发给你的 agent：
+
+```text
+帮我安装 DSH 插件 AsideNote（旁边记），在终端执行：npx -y dsh-aside-note install
+装好后不用重启 DSH，会话右上角即可看到「旁边记」入口；如果没出现，
+让我到「插件」页刷新，再把它手动关闭并开启一次。
+如果提示找不到 DSH 或找不到 profile，转告我先安装并启动 DeepSeek Harness 再重试；
+不要改仓库、不要手动拼装依赖、不要重启 DSH。
+```
+
+### 通过命令行安装
+
+```bash
+npx dsh-aside-note install
+```
+
+脚本会从 npm 临时拉取本包，找到 DSH profile（存在 `DSH_PROFILE_DIR` 时用它，否则默认 `~/.dsh/profiles/desktop`），先把 `package.json` 和 `pnpm-lock.yaml` 备份到 `.local-backup/`，再写入依赖、把 `dsh-aside-note` 追加进 `dsh.profile.bundles`，执行 `pnpm install`，最后校验装出来的 `client/client.js`。
+
+```bash
+npx dsh-aside-note install --profile work    # 指定 profile
+npx dsh-aside-note install --dry-run         # 只打印计划，不改任何文件
+npx dsh-aside-note install --version 1.0.0   # 固定版本，而不是 ^1.0.0
+```
+
+重复执行是幂等的。装完不需要重启 DSH：profile 会在约 1 秒内重新组合，安装后会话右上角即可看到「旁边记」入口。如果入口没有出现，到侧边栏「插件」页刷新，把它关闭再开启一次，运行中的 Host 会重新组合，入口随即可见。
+
+卸载：从 `dsh.profile.bundles` 移除 `dsh-aside-note`，在 profile 目录执行 `pnpm remove dsh-aside-note`，无需重启；右上角入口随之消失，若「插件」页里仍列着它，刷新该页即可。
 
 ## 为什么做旁边记
 
@@ -60,38 +94,20 @@
 
 > 便笺保存在当前浏览器，不跨设备或浏览器同步；清理站点数据会清除记录。详见[数据保存在哪里](#数据保存在哪里)。
 
-[查看安装方法](#安装) · [反馈问题或建议](https://github.com/Rayle8/dsh-aside-note/issues)
+[查看安装方法](#快速安装) · [反馈问题或建议](https://github.com/Rayle8/dsh-aside-note/issues)
 
 ## 功能
 
-- 数据按**会话 ID** 隔离；同一个工作区的不同会话也各自独立。
-- 顶部右侧保持 `28px` 正方形图标按钮，用低对比灰色角标显示未完成数；悬浮提示为「旁边记 · N 项未完成」。
-- 点击按钮在窗口右侧打开固定面板；切换会话时自动收起旧面板并更新入口。
-- 面板标题右侧的设置按钮展开设置卡片：可切换发送快捷键（Enter 发送，或 ⌘/Ctrl+Enter 发送，按键名随平台显示）；「一键转发」下提供单行起高的前缀提示词文本框（输入换行后自动增高至六行）和下方说明；关于分组顶部显示「旁边记」与 slogan，下面依次是版本与检查更新、作者、可点击的源代码链接；设置自动保存。发布新版本时，设置按钮出现提示点，设置 › 关于 提供「检查更新」、默认展示的更新说明、「完整更新说明」与「立即更新」。
-- 面板右上角对齐顶部入口按钮；DSH 右侧栏打开时自动左移，避免被右侧栏遮挡。
-- 点击入口打开右侧面板：添加、打勾完成、复制、双击或铅笔编辑、删除、清除已完成（二次确认）、展开已完成。
-- 拖动面板左边缘把手可调整宽度，双击把手复位；宽度会保存在浏览器中。
-- 拖动面板底部中央把手可调整高度，双击把手恢复内容自适应；高度会保存。
-- 未完成的便笺右侧提供复制、转发、编辑、删除；已完成的隐藏转发按钮，复制/编辑/删除保留。复制在编辑左侧，复制成功后由全局 Toast 提示，不再改动按钮本身。
-- 转发只把每条便笺作为无序列表项 `- 内容` 追加；仅当输入框为空时写入设置中的前缀提示词（默认按界面语言，中文为「完成以下任务：」），已有内容时不再补前缀，光标停在末尾且不会自动发送。
-- 转发成功后转发按钮显示勾选，并按会话记住转发状态；勾选框始终只表示未完成和已完成，不会被转发改变。
-- 转发与完成状态互不影响：已完成便笺不显示转发按钮，勾选框保持完成态；已转发的便笺再次点击转发按钮会取消转发标识，不会重复追加。
-- 勾选框与正文第一行合并；未完成行的复制/转发/编辑/删除放在底部时间行右侧，减少一行空间占用。
-- 「清除已完成」需要二次确认：首次点击展开确认条，确认后才清除。
-- 完成圆点视觉为 14px，点击区域 24px，与正文第一行文字中心对齐。
-- 新增录入框和编辑框都会随内容自动增高为多行；录入框和二次编辑框都会沿用设置中的发送快捷键，另一种组合换行（macOS 显示为 ⌘+Enter，Windows 为 Ctrl+Enter），编辑框右侧显示当前快捷键提示。
-- 新增框不再显示左侧加号；「添加」按钮固定在第二行右侧，输入换行时不会闪烁或跳动。
-- 发送快捷键提示放在添加按钮左侧的空白处；切换设置后提示同步更新，输入框占位提示保持简洁。
-- 新增和编辑中的草稿按会话自动保存；临时关闭面板后重新打开会恢复，光标停在草稿末尾，添加、保存、取消或删除后自动清除。
-- 展开「已完成」不会压缩上方「未完成」列表；只有未完成与已完成区域内部滚动，标题、设置、录入框和底部保持固定。
-- 「未完成」「已完成」标题在列表内吸顶：未吸顶时保持透明；吸顶时使用与面板共用的 `--dsh-an-panelSurface` 实色填充，标题字号、字重和间距保持原样，不做圆角、不加底层、不使用半透明或顶部模糊。
-- 已完成的便笺同时显示创建时间与完成时间，并按完成时间倒序排列；未完成的只显示创建时间。
-- 「未完成」「已完成」的展开/折叠状态会记住，重新打开面板时恢复上次状态。
-- 便笺卡片的复制/编辑/删除按钮默认隐藏，悬浮或键盘聚焦时显示；触屏设备保持常显。
-- 「未完成」和「已完成」标题都可点击折叠，两侧计数样式和颜色保持一致；两者可独立展开，互不影响；点击区域仅限箭头、文字和计数，右侧空白不触发。
-- 同一浏览器的多个标签页会同步更新。
-- 中英文界面，跟随 DSH 语言设置。
-- 界面样式全部复用 DSH 设计令牌：语义色别名、共享圆角与阴影、实心抬升表面、共享滚动条；字号收敛到 12 / 13 / 14 三档、字重上限 500、中性描边统一 0.5px；悬停只在支持 hover 的设备启用，瞬时结果走全局 Toast。详见 [面板 UI 规则](./docs/panel-ui-rules.md)。
+- **会话级便笺**：数据按会话 ID 隔离，同一工作区的不同会话各自独立；同一浏览器的多个标签页同步更新。
+- **入口与面板**：会话顶部右侧的图标按钮用角标显示未完成数；点击打开固定面板并与之对齐，DSH 右侧栏打开时自动左移，切换会话时收起。
+- **条目操作**：添加、打勾完成、复制、双击或铅笔编辑、删除；「清除已完成」需要二次确认，已完成的条目可展开回看。
+- **一键转发**：把便笺按 `- 内容` 追加到输入框，仅当输入框为空时写入可自定义的前缀，不自动发送；转发后按钮显示勾选，按会话记住，再点一次取消。
+- **状态记忆**：新增与编辑的草稿按会话自动保存，关掉面板再打开会恢复；「未完成 / 已完成」的展开折叠状态也会记住。
+- **面板尺寸**：拖左边缘调宽度、拖底部把手调高度，双击复位；宽高都保存在浏览器里。
+- **列表分区**：「未完成」「已完成」各有吸顶标题与独立滚动，展开已完成不会压缩未完成；已完成显示创建与完成时间，并按完成时间倒序。
+- **设置**：发送快捷键（Enter 或 ⌘/Ctrl+Enter）、转发前缀、关于（版本、检查更新、作者、源码），改动自动保存。
+- **更新提示**：有新版本时设置按钮出现提示点，设置 › 关于 可查看更新说明并更新；详见[更新提示](#更新提示)。
+- **界面融入**：颜色、圆角、阴影与滚动条全部复用 DSH 设计令牌，自动适配明暗主题与中英文；详见[设计规范](#设计规范)。
 
 ## 功能截图
 
@@ -180,52 +196,32 @@
 - 清理浏览器站点数据会清除便笺。
 - 存储键不带版本后缀，并与包名 `dsh-aside-note` 对齐；不读取任何旧键，也不自动迁移。如果本地数据仍在旧的 `dsh.aside-notes.*.v2` 键下，把键名改为对应的 `dsh.aside-note.*` 后刷新页面即可继续使用。
 
-## 安装
+## 更新提示
 
-### 一键安装（推荐）
+打开面板时，插件会静默检查一次 npm 上的最新版本（npmjs 不可用时回退到 npmmirror，再回退到 GitHub 的最新 Release）；结果缓存一小时。若最新版本更高，设置按钮右上角出现提示点，设置 › 关于 中出现更新卡片：
 
-```bash
-npx dsh-aside-note install
-```
+- **检查更新**：立即重新读取 registry，绕过这一小时的缓存；按钮下方会显示「正在检查」「已是最新」或失败状态。
+- **更新内容默认展示**：有新版时直接在卡片里列出 GitHub Release 的更新说明，不需要再点开。说明由 Release 正文中 `app-update-notes:zh` / `app-update-notes:en` 标记之间的内容提供，统一压成纯文本渲染，不会执行或注入任何 HTML。
+- **跨多个版本**：如果线上版本领先本地好几个版本，说明区会按版本从新到旧逐条列出这段区间内的 Release；最新版本默认展开，更早的版本各自折叠、点标题单独展开。草稿与预发布不参与，最多列出 6 个版本，更多时给出「更早的版本请见完整更新说明」链接。
+- **完整更新说明**：链接位于「立即更新」右侧，点击在新标签页打开对应的 GitHub Release 页面。
+- **立即更新**：检测到插件市场（dshmarket）时，通过它的公开更新 API 排队升级 dsh-aside-note，显示实时进度；完成后提供「刷新页面」或「重启 DSH」。市场正被别的操作占用时会先等待重试。
+- **更新方式兜底**：市场不在、或等待后仍在忙时，卡片不再只说「请稍后再试」，而是直接给出命令 `npx -y dsh-aside-note install`（或到「插件」页更新），并提供「拷贝更新提示词」——一键复制可直接粘给 agent 的更新指令。
 
-脚本会从 npm 临时拉取本包，找到 DSH profile（存在 `DSH_PROFILE_DIR` 时用它，否则默认 `~/.dsh/profiles/desktop`），先把 `package.json` 和 `pnpm-lock.yaml` 备份到 `.local-backup/`，再写入依赖、把 `dsh-aside-note` 追加进 `dsh.profile.bundles`，执行 `pnpm install`，最后校验装出来的 `client/client.js`。
+更新始终需要手动点击：面板只负责检查、说明和排队，自己不执行任何命令，也从不改动本地便笺。版本检查与说明读取只访问公开的版本号与 Release 正文，不上报任何数据。
 
-```bash
-npx dsh-aside-note install --profile work    # 指定 profile
-npx dsh-aside-note install --dry-run         # 只打印计划，不改任何文件
-npx dsh-aside-note install --version 1.0.0   # 固定版本，而不是 ^1.0.0
-```
+发布说明由 `tools/release/notes.mjs` 从 `CHANGELOG.md` 生成：中英文两段，各自带 `app-update-notes` 标记，外加安装链接与 Full Changelog 链接；打 tag 时发布流程会用它创建 Release 并附上 tgz。详见 [发布与版本迭代](./docs/release.md)。
 
-安装器从 **0.9.10** 起随包发布；更早的版本没有 `bin`，`npx` 会提示找不到可执行文件。重复执行是幂等的。装完不需要重启 DSH：profile 会在约 1 秒内重新组合，刷新页面即可看到入口（从插件市场安装时，市场会替你刷新页面）。
+## 开发
 
-不想自己敲命令的话，把 [一键安装提示词](./docs/install-prompt.md) 里那句话发给 agent 即可。
-
-### 手动配置 npm 依赖
-
-在 DSH profile 的 `package.json` 中加入依赖，并把包名加进 `dsh.profile.bundles`：
-
-```json
-{
-  "dependencies": {
-    "dsh-aside-note": "^1.0.0"
-  },
-  "dsh": {
-    "profile": {
-      "bundles": ["dsh-aside-note"]
-    }
-  }
-}
-```
-
-然后在 profile 目录执行 `pnpm install`，刷新页面即可生效，无需重启；升级时调整版本范围或执行 `pnpm update dsh-aside-note`。
-
-### 从 git checkout 安装（开发）
+浏览器半侧在 `src/client/`，由 tsdown 打包成单个 `client/client.js`：
 
 ```bash
-git clone git@github.com:Rayle8/dsh-aside-note.git
+npm install
+npm run check     # lint + typecheck + 测试 + 构建
+npm run build     # 只重新生成 client/client.js
 ```
 
-把克隆目录 link 进 DSH profile（把 `<path-to-repo>` 换成实际克隆目录）：
+本地调试时把仓库 link 进 DSH profile（`<path-to-repo>` 换成克隆目录），再在 profile 目录执行 `pnpm install`：
 
 ```json
 {
@@ -240,46 +236,7 @@ git clone git@github.com:Rayle8/dsh-aside-note.git
 }
 ```
 
-然后在 profile 目录执行 `pnpm install`。DSH 启动时会读取 `dsh.bundle.patch` 和 `dsh.client`。新增插件行后，可以在侧边栏「插件」页对该组合包**关闭再开启**，让运行中的 Host 在线重新组合，无需重启；如果插件页里还看不到它，再重启一次 DSH。之后修改 `src/client/` 后执行 `npm run build` 生成 `client/client.js`；开发模式下 DSH 会热替换该 bundle，否则刷新页面。构建需要 Node 22+。
-
-### 从 GitHub Release 安装（不需要 npm）
-
-不想 clone 仓库时，直接使用 [Releases](https://github.com/Rayle8/dsh-aside-note/releases) 里的发布包：
-
-1. 下载 `dsh-aside-note-<version>.tgz`，解压到固定目录：
-
-   ```bash
-   mkdir -p ~/dsh-plugins/dsh-aside-note
-   tar -xzf dsh-aside-note-1.0.0.tgz --strip-components=1 -C ~/dsh-plugins/dsh-aside-note
-   ```
-
-2. 把解压目录按上面的 link 写法接入 profile，例如 `"dsh-aside-note": "link:/Users/<you>/dsh-plugins/dsh-aside-note"`，再在 profile 目录执行 `pnpm install`。
-
-升级时下载新版本的 tgz、解压覆盖同一目录，然后在「插件」页把组合包关闭再开启（或重启 DSH）；设置里的更新提示会指向对应的 Release。
-
-## 更新提示
-
-打开面板时，插件会静默检查一次 npm 上的最新版本（npmjs 不可用时回退到 npmmirror，再回退到 GitHub 的最新 Release）；结果缓存一小时。若最新版本更高，设置按钮右上角出现提示点，设置 › 关于 中出现更新卡片：
-
-- **检查更新**：立即重新读取 registry，绕过这一小时的缓存；按钮下方会显示「正在检查」「已是最新」或失败状态。
-- **更新内容默认展示**：有新版时直接在卡片里列出 GitHub Release 的更新说明，不需要再点开。说明由 Release 正文中 `app-update-notes:zh` / `app-update-notes:en` 标记之间的内容提供，统一压成纯文本渲染，不会执行或注入任何 HTML。
-- **跨多个版本**：如果线上版本领先本地好几个版本，说明区会按版本从新到旧逐条列出这段区间内的 Release；最新版本默认展开，更早的版本各自折叠、点标题单独展开。草稿与预发布不参与，最多列出 6 个版本，更多时给出「更早的版本请见完整更新说明」链接。
-- **完整更新说明**：链接位于「立即更新」右侧，点击在新标签页打开对应的 GitHub Release 页面。
-- **立即更新**：检测到插件市场（dshmarket）时，通过它的公开更新 API 排队升级 dsh-aside-note，显示实时进度；完成后提供「刷新页面」或「重启 DSH」。未检测到时，卡片会说明手动更新路径（`pnpm update dsh-aside-note` 或「插件」页）。
-
-更新始终需要手动点击：插件不会自动安装、执行命令或改动本地便笺。版本检查与说明读取只访问公开的版本号与 Release 正文，不上报任何数据。
-
-发布说明由 `tools/release/notes.mjs` 从 `CHANGELOG.md` 生成：中英文两段，各自带 `app-update-notes` 标记，外加安装链接与 Full Changelog 链接；打 tag 时发布流程会用它创建 Release 并附上 tgz。详见 [发布与版本迭代](./docs/release.md)。
-
-## 开发
-
-浏览器半侧在 `src/client/`，由 tsdown 打包成单个 `client/client.js`：
-
-```bash
-npm install
-npm run check     # lint + typecheck + 测试 + 构建
-npm run build     # 只重新生成 client/client.js
-```
+新增插件行后，在侧边栏「插件」页把该组合包关闭再开启，运行中的 Host 会在线重新组合，无需重启。
 
 入口是 `src/client/index.ts`，导出 `apply(ctx)`；tsdown 负责套上 DSH 的加载壳：
 
