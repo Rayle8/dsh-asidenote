@@ -58,7 +58,7 @@ npm run release -- 0.10.0
 
 # 3. 推送 main 与 tag；tag 触发 npm 发布和 GitHub Release
 git push origin main
-git push origin v2.1.0
+git push origin v0.10.0
 ```
 
 `npm run release -- <version>` 会：
@@ -113,7 +113,7 @@ Release 正文由 [tools/release/notes.mjs](../tools/release/notes.mjs) 从 `CHA
 - 本地预览：
 
   ```bash
-  node tools/release/notes.mjs --version 2.1.0 --tag v2.1.0 --prev v2.0.1
+  node tools/release/notes.mjs --version 1.0.0 --tag v1.0.0 --prev v0.9.10
   ```
 
   再加 `--out notes.md` 可写到文件。`tests/release-notes-build.test.mjs` 会同时校验发布页正文与面板解析结果，防止两边漂移。
@@ -144,10 +144,10 @@ npx -y npm@11.21.1 trust github dsh-aside-note \
 ```bash
 npm view dsh-aside-note version dist-tags --registry=https://registry.npmjs.org/
 gh run list -R Rayle8/dsh-aside-note -L 3
-gh release view v2.0.1 -R Rayle8/dsh-aside-note
+gh release view v1.0.0 -R Rayle8/dsh-aside-note
 ```
 
-再在一个临时目录 `npm install dsh-aside-note@2.0.1`，或在测试 profile 里加载，确认 bundle 能启动。
+再在一个临时目录 `npm install dsh-aside-note@1.0.0`，或在测试 profile 里加载，确认 bundle 能启动。
 
 ## 更新提示的耦合
 
@@ -155,16 +155,16 @@ gh release view v2.0.1 -R Rayle8/dsh-aside-note
 
 1. **npm（或 GitHub Release）有新版本**：版本号来自 npm，npm 不可用时回退到 npmmirror，再回退到 GitHub 最新 Release。
 2. **对应的 GitHub Release 存在**：面板读取 `releases?per_page=50`，取出版本高于本地、且不高于最新版的 Release 正文；只打 tag 不建 Release 时列表为空，卡片会退化为「暂无更新说明 + 完整更新说明链接」。feed 不可用时回退到 `releases/tags/v<最新版本>` 单条。workflow 已经自动创建 Release 并上传 tgz。
-3. **Release 正文带 `app-update-notes` 标记**：没有标记的旧版本在该版本条目内提示「暂无更新说明」，完整说明链接仍然可用；从 2.1.0 起由生成器保证标记存在。
+3. **Release 正文带 `app-update-notes` 标记**：没有标记的旧版本在该版本条目内提示「暂无更新说明」，完整说明链接仍然可用；从 1.0.0 起由生成器保证标记存在。
 4. **多版本区间**：本地与最新版之间跨多个版本时，面板按版本从新到旧逐条展示，最新一条默认展开、其余折叠；草稿和预发布被剔除，最多 6 条，更多时给出 releases 列表链接。
 
 `releases/latest` 会跳过 prerelease，所以预发布不会触发稳定用户的提示。手动补建 Release 时，建议直接用生成器，避免漏掉标记：
 
 ```bash
-node tools/release/notes.mjs --version 2.0.1 --tag v2.0.1 --prev v2.0.0 --out notes.md
-gh release create v2.0.1 --verify-tag --title "旁边记 2.0.1" --notes-file notes.md
+node tools/release/notes.mjs --version 1.0.0 --tag v1.0.0 --prev v0.9.10 --out notes.md
+gh release create v1.0.0 --verify-tag --title "旁边记 1.0.0" --notes-file notes.md
 npm pack --pack-destination dist
-gh release upload v2.0.1 dist/dsh-aside-note-2.0.1.tgz --clobber
+gh release upload v1.0.0 dist/dsh-aside-note-1.0.0.tgz --clobber
 ```
 
 ## 应用内更新的依赖

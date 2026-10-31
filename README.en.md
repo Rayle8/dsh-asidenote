@@ -193,10 +193,10 @@ The installer pulls this package from npm, finds the DSH profile (it honours `DS
 ```bash
 npx dsh-aside-note install --profile work    # pick a profile
 npx dsh-aside-note install --dry-run         # print the plan, write nothing
-npx dsh-aside-note install --version 0.9.10  # pin the version instead of ^0.9.10
+npx dsh-aside-note install --version 1.0.0   # pin the version instead of ^1.0.0
 ```
 
-The installer ships from **2.0.2** on; earlier versions have no `bin`, so `npx` reports no executable. It is safe to re-run. No restart is needed: DSH re-composes the profile within about a second, and a page reload picks up the entry (a marketplace install triggers that reload for you).
+The installer ships from **0.9.10** on; earlier versions have no `bin`, so `npx` reports no executable. It is safe to re-run. No restart is needed: DSH re-composes the profile within about a second, and a page reload picks up the entry (a marketplace install triggers that reload for you).
 
 Prefer to hand it to an agent? Paste the [one-command install prompt](./docs/install-prompt.md).
 
@@ -207,7 +207,7 @@ Add the dependency to the DSH profile's `package.json` and list the package unde
 ```json
 {
   "dependencies": {
-    "dsh-aside-note": "^0.9.10"
+    "dsh-aside-note": "^1.0.0"
   },
   "dsh": {
     "profile": {
@@ -250,7 +250,7 @@ If you would rather not clone the repository, use the package attached to a [Rel
 
    ```bash
    mkdir -p ~/dsh-plugins/dsh-aside-note
-   tar -xzf dsh-aside-note-0.9.10.tgz --strip-components=1 -C ~/dsh-plugins/dsh-aside-note
+   tar -xzf dsh-aside-note-1.0.0.tgz --strip-components=1 -C ~/dsh-plugins/dsh-aside-note
    ```
 
 2. Link that directory into the profile with the same `link:` form shown above, for example `"dsh-aside-note": "link:/Users/<you>/dsh-plugins/dsh-aside-note"`, then run `pnpm install` in the profile directory.

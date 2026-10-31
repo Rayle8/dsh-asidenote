@@ -193,10 +193,10 @@ npx dsh-aside-note install
 ```bash
 npx dsh-aside-note install --profile work    # 指定 profile
 npx dsh-aside-note install --dry-run         # 只打印计划，不改任何文件
-npx dsh-aside-note install --version 0.9.10  # 固定版本，而不是 ^0.9.10
+npx dsh-aside-note install --version 1.0.0   # 固定版本，而不是 ^1.0.0
 ```
 
-安装器从 **2.0.2** 起随包发布；更早的版本没有 `bin`，`npx` 会提示找不到可执行文件。重复执行是幂等的。装完不需要重启 DSH：profile 会在约 1 秒内重新组合，刷新页面即可看到入口（从插件市场安装时，市场会替你刷新页面）。
+安装器从 **0.9.10** 起随包发布；更早的版本没有 `bin`，`npx` 会提示找不到可执行文件。重复执行是幂等的。装完不需要重启 DSH：profile 会在约 1 秒内重新组合，刷新页面即可看到入口（从插件市场安装时，市场会替你刷新页面）。
 
 不想自己敲命令的话，把 [一键安装提示词](./docs/install-prompt.md) 里那句话发给 agent 即可。
 
@@ -207,7 +207,7 @@ npx dsh-aside-note install --version 0.9.10  # 固定版本，而不是 ^0.9.10
 ```json
 {
   "dependencies": {
-    "dsh-aside-note": "^0.9.10"
+    "dsh-aside-note": "^1.0.0"
   },
   "dsh": {
     "profile": {
@@ -250,7 +250,7 @@ git clone git@github.com:Rayle8/dsh-aside-note.git
 
    ```bash
    mkdir -p ~/dsh-plugins/dsh-aside-note
-   tar -xzf dsh-aside-note-0.9.10.tgz --strip-components=1 -C ~/dsh-plugins/dsh-aside-note
+   tar -xzf dsh-aside-note-1.0.0.tgz --strip-components=1 -C ~/dsh-plugins/dsh-aside-note
    ```
 
 2. 把解压目录按上面的 link 写法接入 profile，例如 `"dsh-aside-note": "link:/Users/<you>/dsh-plugins/dsh-aside-note"`，再在 profile 目录执行 `pnpm install`。

@@ -11,7 +11,7 @@
  *   npx dsh-aside-note install                     # DSH_PROFILE_DIR, else "desktop"
  *   npx dsh-aside-note install --profile work      # ~/.dsh/profiles/work (or %USERPROFILE%\.dsh\profiles\work)
  *   npx dsh-aside-note install --profile-dir <dir> # explicit profile directory
- *   npx dsh-aside-note install --version 0.9.10   # exact pin instead of ^0.9.10
+ *   npx dsh-aside-note install --version 1.0.0    # exact pin instead of ^1.0.0
  *   npx dsh-aside-note install --dry-run          # print the plan, change nothing
  *   npx dsh-aside-note install --no-install       # edit the manifest only
  *
@@ -24,7 +24,7 @@ import { join, resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
 
 const PACKAGE = 'dsh-aside-note'
-const DEFAULT_RANGE = '^0.9.10'
+const DEFAULT_RANGE = '^1.0.0'
 
 const USAGE = `Usage: dsh-aside-note install [options]
 

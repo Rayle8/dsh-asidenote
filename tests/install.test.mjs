@@ -45,7 +45,7 @@ test('a fresh profile gets the dependency and the bundle line', (t) => {
   assert.equal(result.status, 0, result.stderr)
 
   const manifest = manifestOf(dir)
-  assert.equal(manifest.dependencies['dsh-aside-note'], '^0.9.10')
+  assert.equal(manifest.dependencies['dsh-aside-note'], '^1.0.0')
   assert.deepEqual(manifest.dsh.profile.bundles, [
     '@deepseek-ai/dsh-base',
     '@deepseek-ai/dsh-web-app',
@@ -64,7 +64,7 @@ test('re-running is idempotent and keeps the existing bundle order', (t) => {
   assert.equal(runInstaller(dir, ['--no-install']).status, 0)
 
   const after = manifestOf(dir)
-  assert.equal(after.dependencies['dsh-aside-note'], '^0.9.10')
+  assert.equal(after.dependencies['dsh-aside-note'], '^1.0.0')
   assert.deepEqual(after.dsh.profile.bundles, [
     '@deepseek-ai/dsh-base',
     'dsh-aside-note',
