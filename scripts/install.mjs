@@ -20,7 +20,7 @@
  */
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
 
 const PACKAGE = 'dsh-aside-note'
@@ -84,14 +84,96 @@ function profileDir() {
   return join(profilesRoot(), profileName())
 }
 
-function run(command, commandArgs, cwd) {
+/**
+ * The node and pnpm DeepSeek Harness ships in its own runtime.
+ *
+ * The profile is a pnpm project the host owns: it is installed and updated by
+ * the host's bundled pnpm, and a profile written by another pnpm major answers
+ * `ERR_PNPM_UNEXPECTED_STORE` on the next host-side install, because the store
+ * layout changed under it. Running the host's own pair keeps the store in step.
+ *
+ * `DSH_RUNTIME_DIR` pins the runtime explicitly (and suppresses the search, so
+ * a wrong path cannot silently install through a different toolchain).
+ */
+function dshRuntime() {
+  const exe = process.platform === 'win32' ? 'node.exe' : 'node'
+  const explicit = process.env.DSH_RUNTIME_DIR
+  const roots = []
+  if (explicit) {
+    roots.push(resolve(explicit))
+  } else {
+    // …/Contents/MacOS/DeepSeek Harness → …/Contents/Resources/runtime
+    const desktopNode = process.env.DSH_DESKTOP_NODE_EXECUTABLE
+    if (desktopNode) roots.push(join(dirname(desktopNode), '..', 'Resources', 'runtime'))
+    if (process.env.DSH_APP_RESOURCES) roots.push(join(process.env.DSH_APP_RESOURCES, 'runtime'))
+    if (process.platform === 'darwin') {
+      roots.push('/Applications/DeepSeek Harness.app/Contents/Resources/runtime')
+      roots.push(join(homedir(), 'Applications/DeepSeek Harness.app/Contents/Resources/runtime'))
+    } else if (process.platform === 'win32') {
+      if (process.env.LOCALAPPDATA) {
+        roots.push(join(process.env.LOCALAPPDATA, 'Programs', 'DeepSeek Harness', 'resources', 'runtime'))
+      }
+      if (process.env.PROGRAMFILES) {
+        roots.push(join(process.env.PROGRAMFILES, 'DeepSeek Harness', 'resources', 'runtime'))
+      }
+    } else {
+      roots.push('/opt/DeepSeek Harness/resources/runtime')
+    }
+  }
+  for (const root of roots) {
+    const dependencies = join(root, 'primary-runtime', 'dependencies')
+    const node = [join(dependencies, 'node', 'bin', exe), join(dependencies, 'node', exe)].find(existsSync)
+    const pnpm = [join(dependencies, 'pnpm', 'bin', 'pnpm.mjs'), join(dependencies, 'pnpm', 'bin', 'pnpm.cjs')]
+      .find(existsSync)
+    if (node && pnpm) return { node, pnpm, root }
+  }
+  return null
+}
+
+/**
+ * Run a package manager, echoing what it printed.
+ *
+ * Output is captured rather than inherited so the caller can recognise the two
+ * answers that mean "the profile's store belongs to another pnpm major": a
+ * refused removal without a TTY, and the unexpected-store error itself.
+ */
+function runInstall(command, commandArgs, cwd, extraEnv) {
   const result = spawnSync(command, commandArgs, {
     cwd,
-    stdio: 'inherit',
+    stdio: ['inherit', 'pipe', 'pipe'],
+    encoding: 'utf8',
+    env: extraEnv ? { ...process.env, ...extraEnv } : process.env,
     // pnpm is a .cmd shim on Windows; Node refuses to execute those directly.
     shell: process.platform === 'win32',
   })
-  return !result.error && result.status === 0
+  const stdout = result.stdout ?? ''
+  const stderr = result.stderr ?? ''
+  if (stdout) process.stdout.write(stdout)
+  if (stderr) process.stderr.write(stderr)
+  if (result.error) process.stderr.write(`${String(result.error)}\n`)
+  return { ok: !result.error && result.status === 0, output: `${stdout}\n${stderr}` }
+}
+
+/** Install with the host's runtime first, then with whatever pnpm is on PATH. */
+function install(cwd) {
+  const runtime = dshRuntime()
+  const plan = runtime
+    ? [{ label: `DSH runtime (${runtime.root})`, command: runtime.node, args: [runtime.pnpm, 'install'] }]
+    : [
+        { label: 'pnpm', command: 'pnpm', args: ['install'] },
+        { label: 'corepack', command: 'corepack', args: ['pnpm', 'install'] },
+      ]
+  for (const step of plan) {
+    console.log(`\nRunning ${step.label} install …`)
+    const first = runInstall(step.command, step.args, cwd)
+    if (first.ok) return true
+    // Switching pnpm majors leaves the old store behind node_modules; pnpm asks
+    // to purge it and cannot answer its own prompt without a TTY.
+    if (!/ERR_PNPM_(?:ABORTED_REMOVE_MODULES_DIR_NO_TTY|UNEXPECTED_STORE)/.test(first.output)) continue
+    console.log(`\n${step.label}: the profile was built by another pnpm major; re-installing …`)
+    if (runInstall(step.command, step.args, cwd, { CI: 'true' }).ok) return true
+  }
+  return false
 }
 
 const dir = profileDir()
@@ -148,9 +230,7 @@ if (skipInstall) {
   process.exit(0)
 }
 
-console.log('\nRunning pnpm install …')
-const installed = run('pnpm', ['install'], dir) || run('corepack', ['pnpm', 'install'], dir)
-if (!installed) {
+if (!install(dir)) {
   fail('pnpm install failed. Install pnpm (corepack enable) and re-run, or run `pnpm install` in the profile directory.')
 }
 

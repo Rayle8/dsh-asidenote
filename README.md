@@ -50,7 +50,7 @@
 npx dsh-aside-note install
 ```
 
-脚本会从 npm 临时拉取本包，找到 DSH profile（存在 `DSH_PROFILE_DIR` 时用它，否则默认 `~/.dsh/profiles/desktop`），先把 `package.json` 和 `pnpm-lock.yaml` 备份到 `.local-backup/`，再写入依赖、把 `dsh-aside-note` 追加进 `dsh.profile.bundles`，执行 `pnpm install`，最后校验装出来的 `client/client.js`。
+脚本会从 npm 临时拉取本包，找到 DSH profile（存在 `DSH_PROFILE_DIR` 时用它，否则默认 `~/.dsh/profiles/desktop`），先把 `package.json` 和 `pnpm-lock.yaml` 备份到 `.local-backup/`，再写入依赖、把 `dsh-aside-note` 追加进 `dsh.profile.bundles`，然后用 **DeepSeek Harness 自带的 node 与 pnpm** 执行 `pnpm install`（找不到运行时才回退到 PATH 上的 pnpm，可用 `DSH_RUNTIME_DIR` 指定），最后校验装出来的 `client/client.js`。用宿主自己的工具链是为了让 profile 的 pnpm store 与宿主保持一致——换成另一个主版本的 pnpm 写入，宿主下次安装会报 `ERR_PNPM_UNEXPECTED_STORE`。
 
 ```bash
 npx dsh-aside-note install --profile work    # 指定 profile

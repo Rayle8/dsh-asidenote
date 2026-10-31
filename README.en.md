@@ -50,7 +50,7 @@ client first and retry; do not clone the repo, hand-assemble dependencies, or re
 npx dsh-aside-note install
 ```
 
-The installer pulls this package from npm, finds the DSH profile (it honours `DSH_PROFILE_DIR`, otherwise `~/.dsh/profiles/desktop`), backs up `package.json` and `pnpm-lock.yaml` into `.local-backup/`, adds the dependency, appends `dsh-aside-note` to `dsh.profile.bundles`, runs `pnpm install` and finally verifies the installed `client/client.js`.
+The installer pulls this package from npm, finds the DSH profile (it honours `DSH_PROFILE_DIR`, otherwise `~/.dsh/profiles/desktop`), backs up `package.json` and `pnpm-lock.yaml` into `.local-backup/`, adds the dependency, appends `dsh-aside-note` to `dsh.profile.bundles`, runs `pnpm install` **through the node and pnpm DeepSeek Harness ships** (falling back to the pnpm on PATH, and `DSH_RUNTIME_DIR` pins a runtime) and finally verifies the installed `client/client.js`. The host's own toolchain keeps the profile's pnpm store in step with the host — a profile written by another pnpm major answers `ERR_PNPM_UNEXPECTED_STORE` on the host's next install.
 
 ```bash
 npx dsh-aside-note install --profile work    # pick a profile

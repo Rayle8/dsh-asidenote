@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { chmodSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { test } from 'node:test'
@@ -40,19 +40,46 @@ function fakePnpm(t) {
   const dir = mkdtempSync(join(tmpdir(), 'asidenote-pnpm-'))
   t.after(() => rmSync(dir, { recursive: true, force: true }))
   const bin = join(dir, 'pnpm')
-  writeFileSync(
-    bin,
-    [
-      '#!/bin/sh',
-      'set -e',
-      'mkdir -p node_modules/dsh-aside-note/client',
-      `printf '{"version":"1.0.0"}' > node_modules/dsh-aside-note/package.json`,
-      `printf '// bundle\\n' > node_modules/dsh-aside-note/client/client.js`,
-      '',
-    ].join('\n'),
-  )
+  writeFileSync(bin, installScript())
   chmodSync(bin, 0o755)
   return dir
+}
+
+/** What a package manager leaves behind: the installed manifest and bundle. */
+function installScript() {
+  return [
+    '#!/bin/sh',
+    'set -e',
+    'mkdir -p node_modules/dsh-aside-note/client',
+    `printf '{"version":"1.0.0"}' > node_modules/dsh-aside-note/package.json`,
+    `printf '// bundle\\n' > node_modules/dsh-aside-note/client/client.js`,
+    '',
+  ].join('\n')
+}
+
+/**
+ * A stand-in for the runtime DeepSeek Harness ships: `<root>/primary-runtime/
+ * dependencies/{node,pnpm}`. The node binary is a shell script that runs the
+ * install, so the test can tell which toolchain the installer picked.
+ */
+function fakeRuntime(t) {
+  const root = mkdtempSync(join(tmpdir(), 'asidenote-runtime-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  const node = join(root, 'primary-runtime', 'dependencies', 'node', 'bin', 'node')
+  const pnpm = join(root, 'primary-runtime', 'dependencies', 'pnpm', 'bin', 'pnpm.mjs')
+  mkdirSync(dirname(node), { recursive: true })
+  mkdirSync(dirname(pnpm), { recursive: true })
+  writeFileSync(node, installScript())
+  chmodSync(node, 0o755)
+  writeFileSync(pnpm, '// stand-in for pnpm.mjs\n')
+  return root
+}
+
+/** A runtime directory that does not contain a runtime, to pin the PATH path. */
+function emptyRuntime(t) {
+  const root = mkdtempSync(join(tmpdir(), 'asidenote-noruntime-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  return root
 }
 
 const BASE = {
@@ -84,7 +111,12 @@ test(
   (t) => {
     const dir = makeProfile(structuredClone(BASE), t)
     const shim = fakePnpm(t)
-    const env = { ...process.env, PATH: `${shim}:${process.env.PATH}` }
+    const env = {
+      ...process.env,
+      PATH: `${shim}:${process.env.PATH}`,
+      // Pin the search away from a real DeepSeek Harness install on this machine.
+      DSH_RUNTIME_DIR: emptyRuntime(t),
+    }
     delete env.DSH_PROFILE_DIR
 
     const result = spawnSync(process.execPath, [SCRIPT, '--profile-dir', dir], { encoding: 'utf8', env })
@@ -97,6 +129,33 @@ test(
     assert.match(result.stdout, /off\s+and on once/)
     // The DSH client has no page reload; the entry is expected right after install.
     assert.doesNotMatch(result.stdout, /reload the page/i)
+  },
+)
+
+test(
+  'the install runs on the runtime DeepSeek Harness ships, not on PATH',
+  { skip: process.platform === 'win32' && 'the stand-in node is a POSIX shell script' },
+  (t) => {
+    const dir = makeProfile(structuredClone(BASE), t)
+    const runtime = fakeRuntime(t)
+    // A PATH pnpm that would leave a marker the test can look for: if the
+    // installer picked it, the assertion below fails loudly instead of passing
+    // by accident.
+    const shim = fakePnpm(t)
+    writeFileSync(join(shim, 'pnpm'), `#!/bin/sh\nprintf 'path-pnpm-ran' >> "${join(dir, 'path-pnpm.log')}"\nexit 1\n`)
+    chmodSync(join(shim, 'pnpm'), 0o755)
+    const env = {
+      ...process.env,
+      PATH: `${shim}:${process.env.PATH}`,
+      DSH_RUNTIME_DIR: runtime,
+    }
+    delete env.DSH_PROFILE_DIR
+
+    const result = spawnSync(process.execPath, [SCRIPT, '--profile-dir', dir], { encoding: 'utf8', env })
+
+    assert.equal(result.status, 0, result.stderr)
+    assert.match(result.stdout, /DSH runtime/)
+    assert.equal(existsSync(join(dir, 'path-pnpm.log')), false, 'the PATH pnpm must not be used')
   },
 )
 
