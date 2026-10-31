@@ -4,6 +4,8 @@ The 1.0.0–2.0.1 iterations were development builds of the same plugin; the 2.x
 
 ## next-released
 
+## 1.0.0
+
 <!-- app-update-notes:en:start -->
 ### Changed
 - **Naming:** the Chinese product name is now **旁边记** (English: AsideNote) with the tagline “让想法留在对话旁边” / “Keep your ideas beside the conversation”. The panel title, empty state and composer placeholder carry the new name, and Settings › About shows the tagline.
