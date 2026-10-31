@@ -74,21 +74,17 @@ jobs:
           fi
           version="${GITHUB_REF_NAME#v}"
           notes_file="$(mktemp)"
-          # Use the matching CHANGELOG section as the release notes; fall back
-          # to generated notes when the section is missing.
-          awk -v ver="$version" '
-            $0 == "## " ver { flag = 1; next }
-            flag && /^## / { exit }
-            flag { print }
-          ' CHANGELOG.md > "$notes_file"
-          if [ -s "$notes_file" ]; then
-            prev="$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)"
-            if [ -n "$prev" ]; then
-              printf '\n**Full Changelog**: https://github.com/Rayle8/dsh-asidenote/compare/%s...%s\n' \
-                "$prev" "$GITHUB_REF_NAME" >> "$notes_file"
-            fi
+          prev="$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)"
+          # Compose the release body from CHANGELOG.md: English + 中文 sections,
+          # app-update-notes markers for the in-app update card, install links and
+          # the Full Changelog link. A missing section or marker set falls back to
+          # GitHub's generated notes rather than shipping an empty Release.
+          builder=(node tools/release/notes.mjs --version "$version" --tag "$GITHUB_REF_NAME")
+          if [ -n "$prev" ]; then builder+=(--prev "$prev"); fi
+          if "${builder[@]}" --out "$notes_file"; then
             notes_flag=(--notes-file "$notes_file")
           else
+            echo "::warning::release notes builder failed; falling back to generated notes"
             notes_flag=(--generate-notes)
           fi
           flags=(--verify-tag --title "AsideNote $version" "${notes_flag[@]}")

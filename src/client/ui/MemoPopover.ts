@@ -14,7 +14,7 @@ import { usePanelGeometry } from './usePanelGeometry'
 import { useSections } from './useSections'
 import { useForwardMarks } from './useForwardMarks'
 import { usePanelSettings } from './usePanelSettings'
-import { useNewerVersion } from './useNewerVersion'
+import { useUpdateCenter } from './useUpdateCenter'
 import { useComposerDraft } from './useComposerDraft'
 import { useNoteActions } from './useNoteActions'
 import { useClearConfirm } from './useClearConfirm'
@@ -41,8 +41,10 @@ export function MemoPopover(props) {
   const { sectionsRef, showOpen, showDone, toggleOpen, toggleDone, applySections } = useSections()
   const { forwardedIds, rememberForwarded, unrememberForwarded, forgetForwardedItems } = useForwardMarks(sessionId)
   const { showSettings, setShowSettings, sendShortcut, chooseShortcut, forwardPrefix, changeForwardPrefix, prefixRef } = usePanelSettings()
-  // One registry read per hour, shared by every panel open; null when current.
-  const newerVersion = useNewerVersion()
+  // Version check, release notes and the in-app update share one hook; the
+  // registry answer is cached for an hour across panel opens.
+  const update = useUpdateCenter(localeId)
+  const newerVersion = update.latestVersion
   const { draft, addRef, composingRef, add, onDraftChange, onDraftKeyDown } = useComposerDraft({ sessionId, commit, report, sendShortcut })
   const { editingId, editDraft, setEditDraft, editRef, startEdit, finishEdit, cancelEdit, toggle, remove } = useNoteActions({
     sessionId,
@@ -164,7 +166,7 @@ export function MemoPopover(props) {
           forwardPrefix,
           changeForwardPrefix,
           prefixRef,
-          newerVersion,
+          update,
         })
       : null,
     h(ComposerForm, {

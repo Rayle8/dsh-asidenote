@@ -37,7 +37,7 @@ let react_dom = require("react-dom");
 react_dom = __toESM(react_dom, 1);
 
 // \0dsh-css:src/client/styles/panel.css.mjs
-var panel_css_default = "/*\n * Panel, composer dock, header entry and toast styles.\n *\n * Only DSH semantic aliases and the shared scale are used here — no palette of\n * its own. The entry point injects this sheet once for the whole frame, because\n * the dock mounts outside the panel tree.\n */\n/* ── 1 令牌 · 只映射 DSH 语义别名与共享尺度，不新建调色板 ─────────── */\nbody{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-space-5:24px;--an-space-6:32px;--an-radius-pill:999px;--an-fs-caption:12px;--an-lh-caption:20px;--an-fs-row:13px;--an-lh-row:20px;--an-fs-title:14px;--an-lh-title:20px;--an-hover:var(--dsw-alias-interactive-bg-hover);--an-active:var(--dsw-alias-interactive-bg-active);--an-field:var(--dsw-alias-bg-layer-1);--an-field-line:var(--dsw-alias-border-l4);--an-divider:var(--dsw-alias-border-l2);--an-dur-fast:var(--ds-transition-duration-fast);--an-dur-base:var(--ds-transition-duration);--an-dur-spin:700ms;--an-ease:var(--ds-ease-in-out);--an-transition:background-color var(--an-dur-fast) var(--an-ease),border-color var(--an-dur-fast) var(--an-ease),color var(--an-dur-fast) var(--an-ease),opacity var(--an-dur-fast) var(--an-ease),transform var(--an-dur-fast) var(--an-ease),box-shadow var(--an-dur-fast) var(--an-ease)}\n\n/* ── 2 浮层 · 菜单材质 + 三层阴影，边框为 0（发丝线在阴影第一层） ── */\n.dsh-an-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--an-space-3);min-height:0;padding:var(--an-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--an-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--an-divider)));--dsh-an-panelSurface:var(--dsw-alias-bg-layer-2);--dsh-an-listGutter:var(--an-space-4);--dsh-an-scrollRail:9px;--dsh-an-scrollInset:2px;overflow:hidden;animation:dsh-an-pop-in var(--an-dur-base) var(--an-ease) both}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n\n/* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */\n.dsh-an-popHead{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-width:0}\n.dsh-an-popTitleLine{display:flex;align-items:center;gap:var(--an-space-3);flex:1 1 auto;min-width:0}\n.dsh-an-popTitle{min-width:0;overflow:hidden;font-size:var(--an-fs-title);line-height:var(--an-lh-title);font-weight:500;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popMeta{min-width:0;margin:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:16px;color:var(--dsw-alias-label-secondary);font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popActions{display:flex;align-items:center;flex:none;gap:var(--an-space-2)}\n.dsh-an-popClose,.dsh-an-settingsBtn{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-popClose:active,.dsh-an-settingsBtn:active{background:var(--an-active)}\n.dsh-an-settingsBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-settingsBtn{position:relative}\n.dsh-an-updateDot{position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-brand-primary);box-shadow:0 0 0 2px var(--dsh-an-panelSurface)}\n\n/* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */\n.dsh-an-add{display:flex;flex-direction:column;gap:var(--an-space-2);padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--an-transition)}\n.dsh-an-add:focus-within{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-an-input{display:block;flex:0 0 auto;width:100%;min-width:0;box-sizing:border-box;min-height:var(--an-lh-row);max-height:120px;padding:0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);resize:none;overflow-y:auto;overflow-x:hidden}\n.dsh-an-input::placeholder{color:var(--dsw-alias-label-secondary)}\n.dsh-an-addFoot{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);width:100%;min-width:0}\n.dsh-an-addShortcut{min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-addBtn{display:inline-flex;align-items:center;justify-content:center;flex:none;height:28px;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-addBtn:active{background:var(--dsw-alias-button-primary-dimmed);transform:scale(.97)}\n.dsh-an-addBtn[disabled]{background:transparent;color:var(--dsw-alias-label-secondary);box-shadow:inset 0 0 0 0.5px var(--an-field-line);cursor:not-allowed}\n\n/* ── 5 分区与列表 · 9px 轨道内嵌 2px，底部羽化只盖内容不盖滚动条 ──── */\n/* The viewport grows into the popover padding so the 9px rail does not steal from the cards; the list pays the padding back minus the rail, so cards and the add field keep one content width at every panel size. */\n.dsh-an-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--dsh-an-listGutter) * -1)}\n/* Bottom edge treatment: a viewport-fixed alpha mask over the scroller itself, exactly like the DSH scroll areas. The first gradient fades the last 48px to transparent; the second keeps the 9px scrollbar rail opaque so the thumb stays crisp. There is no backdrop-filter layer, so there is no hard compositing edge to see. */\n.dsh-an-listViewport[data-bottom=\"true\"] .dsh-an-listArea{--dsh-an-fadeHeight:calc(var(--an-space-6) + var(--an-space-4));-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n/* Geometry only: the shared DSH skin paints the thumb, so the plugin declares no scrollbar pseudo-elements. The popover already binds the l2 thumb pair for the menu material. */\n.dsh-an-listArea{--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}\n.dsh-an-listSection{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-listSection+.dsh-an-listSection{margin-top:var(--an-space-2)}\n.dsh-an-sectionHead,.dsh-an-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-height:28px;margin:0;padding:var(--an-space-1) 0;background:transparent;transition:background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-sectionHead[data-stuck],.dsh-an-doneHead[data-stuck]{background:var(--dsh-an-panelSurface,var(--dsw-alias-bg-layer-2))}\n.dsh-an-doneToggle{display:flex;align-items:center;gap:var(--an-space-2);flex:none;min-width:0;margin:0;padding:var(--an-space-1) var(--an-space-2) var(--an-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-doneToggle:active{background:var(--an-active)}\n.dsh-an-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-chevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-chevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-sectionCount{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500;font-variant-numeric:tabular-nums}\n.dsh-an-clear{display:inline-flex;align-items:center;flex:none;height:24px;margin-left:auto;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-clear:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-clearConfirm{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);min-width:0;margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-clearConfirmText{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-primary);overflow-wrap:anywhere}\n.dsh-an-clearConfirmActions{display:flex;align-items:center;flex:none;gap:var(--an-space-1)}\n.dsh-an-doneRows{margin-top:var(--an-space-2)}\n.dsh-an-rows{list-style:none;margin:0;padding:0;border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);overflow:hidden}\n.dsh-an-row{display:flex;align-items:flex-start;gap:var(--an-space-2);padding:var(--an-space-2);border-top:0.5px solid var(--an-divider);transition:var(--an-transition)}\n.dsh-an-row:first-child{border-top:0}\n\n/* ── 6 一行便笺 · 勾选圈 14px，命中区 24px ─────────────────────────── */\n.dsh-an-check{display:flex;align-items:center;justify-content:center;flex:none;width:24px;height:24px;margin:-2px 0 0;padding:0;border:0;border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;color:transparent;font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-checkCircle{display:flex;align-items:center;justify-content:center;width:14px;height:14px;box-sizing:border-box;border:0.5px solid var(--dsw-alias-label-tertiary);border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;color:transparent;transition:border-color var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease),color var(--an-dur-fast) var(--an-ease),transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-check:active .dsh-an-checkCircle{transform:scale(.9)}\n.dsh-an-check[aria-checked=\"true\"] .dsh-an-checkCircle{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-itemBody{display:flex;flex:1;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-text{display:block;width:100%;margin:0;padding:0;border:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;cursor:text;user-select:text;-webkit-user-select:text}\n.dsh-an-rowDone .dsh-an-text{color:var(--dsw-alias-label-secondary);text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:var(--dsw-alias-label-tertiary)}\n.dsh-an-rowFoot{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);min-height:24px}\n.dsh-an-meta{flex:0 1 auto;min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}\n\n/* ── 7 行操作 · 图标按钮 H24/R8，触摸端常显 ────────────────────────── */\n.dsh-an-actions{display:flex;flex:none;gap:var(--an-space-1)}\n.dsh-an-iconBtn{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-iconBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary);transform:scale(.94)}\n.dsh-an-iconBtn:disabled,.dsh-an-iconBtn[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-forwardMark{position:absolute;right:0;bottom:0;display:flex;align-items:center;justify-content:center;width:10px;height:10px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-label-secondary);color:var(--dsw-alias-label-primary-foreground);pointer-events:none}\n\n/* ── 8 就地编辑 · 保存/取消为紧凑描边按钮 ──────────────────────────── */\n.dsh-an-edit{display:flex;flex-direction:column;gap:var(--an-space-1);width:100%}\n.dsh-an-editInput{display:block;width:100%;box-sizing:border-box;min-height:var(--an-lh-row);max-height:160px;padding:var(--an-space-1) var(--an-space-2);border:0.5px solid var(--an-field-line);border-radius:var(--dsw-radius-sm);background:var(--an-field);color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);outline:0;resize:none;overflow-y:auto;overflow-x:hidden;transition:var(--an-transition)}\n.dsh-an-editInput:focus{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-an-editActions{display:flex;align-items:center;gap:var(--an-space-1)}\n.dsh-an-editHint{flex:1 1 auto;min-width:0;margin-left:auto;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);text-align:right;color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-mini{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-mini:active{background:var(--an-active)}\n.dsh-an-mini[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-miniPrimary{border-color:transparent;background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniPrimary:active{background:var(--dsw-alias-button-primary-dimmed)}\n.dsh-an-miniDanger{border-color:transparent;background:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniDanger:active{background:var(--dsw-alias-state-error-primary)}\n\n/* ── 9 空态 · 虚线 1px，说明 12/次级墨色 ──────────────────────────── */\n.dsh-an-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--an-space-2);padding:var(--an-space-5) var(--an-space-4);border:1px dashed var(--an-divider);border-radius:var(--dsw-radius-lg);text-align:center}\n.dsh-an-emptyIcon{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0 0 var(--an-space-1);border-radius:var(--dsw-radius-md);background:var(--an-hover);color:var(--dsw-alias-label-secondary)}\n.dsh-an-emptyTitle{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-emptyBody{max-width:36ch;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n\n/* ── 10 设置 · 分组 R16，项间 0.5px 分隔线，链接走 --dsw-alias-link ── */\n.dsh-an-settings{--dsh-an-settingIndent:var(--an-space-3);display:flex;flex-direction:column;gap:var(--an-space-2);margin:0;padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-settingsHead{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-settingGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-settingGroup+.dsh-an-settingGroup{margin-top:var(--an-space-2);padding-top:var(--an-space-2);border-top:0.5px solid var(--an-divider)}\n.dsh-an-settingLabel{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-an-settingBody{display:flex;flex-direction:column;gap:var(--an-space-1);padding-left:var(--dsh-an-settingIndent)}\n.dsh-an-settingItem{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-settingItem+.dsh-an-settingItem{margin-top:var(--an-space-2);padding-top:var(--an-space-2);border-top:0.5px solid var(--an-divider)}\n.dsh-an-settingChoices{display:flex;flex-direction:column;gap:var(--an-space-1)}\n.dsh-an-settingChoice{display:flex;align-items:flex-start;gap:var(--an-space-2);font-size:var(--an-fs-row);line-height:var(--an-lh-row);color:var(--dsw-alias-label-primary);cursor:pointer}\n.dsh-an-settingChoice input{appearance:none;flex:none;width:14px;height:14px;margin:calc((var(--an-lh-row) - 14px) / 2) 0 0;box-sizing:border-box;border:0.5px solid var(--dsw-alias-label-tertiary);border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-settingChoice input:checked{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-brand-primary);box-shadow:inset 0 0 0 3px var(--an-field)}\n.dsh-an-settingInput{box-sizing:border-box;width:100%;height:28px;padding:0 var(--an-space-2);border:0.5px solid var(--an-field-line);border-radius:var(--dsw-radius-sm);background:var(--an-field);color:var(--dsw-alias-label-primary);font-family:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;outline:0;transition:var(--an-transition)}\n.dsh-an-settingItem>.dsh-an-settingInput{font-family:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500}\n.dsh-an-settingInput:focus{border-color:var(--dsw-alias-state-business-primary)}\n/* 前缀提示词改为文本域：min-height 兜住三行，空态也不会被内联高度压扁 */\n.dsh-an-settingTextarea{display:block;height:auto;min-height:calc(var(--an-lh-row) + var(--an-space-4) + 2px);padding:var(--an-space-2);resize:none;overflow-y:auto;white-space:pre-wrap;overflow-wrap:anywhere}\n.dsh-an-settingHint{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-settingHintNote{margin-top:var(--an-space-1)}\n.dsh-an-settingAbout{display:flex;align-items:baseline;gap:var(--an-space-1);min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}\n.dsh-an-settingAbout>span{flex:none}\n.dsh-an-settingProject{display:flex;align-items:baseline;gap:var(--an-space-1);min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}\n.dsh-an-settingProject>span{flex:none}\n.dsh-an-settingDot{flex:none;color:var(--dsw-alias-label-tertiary)}\n.dsh-an-settingLink{flex:0 1 auto;min-width:0;overflow:hidden;color:var(--dsw-alias-link);font-weight:500;text-decoration:none;text-overflow:ellipsis;transition:var(--an-transition)}\n.dsh-an-settingLink:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-settingUpdate{display:inline-flex;align-items:baseline;align-self:flex-start;gap:var(--an-space-1);padding:2px var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-link);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-decoration:none;transition:var(--an-transition)}\n.dsh-an-settingUpdate:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-settingUpdateVersion{font-variant-numeric:tabular-nums}\n\n/* ── 11 面板脚注 · 存储状态就地提示，错误用状态色 ─────────────────── */\n.dsh-an-popFoot{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-error{color:var(--dsw-alias-state-error-primary)}\n\n/* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */\n.dsh-an-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-headerBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-disabled=\"true\"]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}\n.dsh-an-headerCount{position:absolute;top:-2px;right:-2px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-bg-base);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:14px;font-weight:500;font-variant-numeric:tabular-nums}\n\n/* ── 13 拖拽把手 · 8px 命中带，3px 视觉条 ─────────────────────────── */\n.dsh-an-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-2);cursor:ew-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandle::before{content:\"\";width:3px;height:var(--an-space-6);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandle:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandle:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n.dsh-an-resizeHandleBottom{position:absolute;left:50%;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-6);height:var(--an-space-3);transform:translateX(-50%);cursor:ns-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandleBottom::before{content:\"\";width:var(--an-space-5);height:3px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandleBottom:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n\n/* ── 14 加载 · 控件内 12px 环，文字隐藏，不报\"进行中\" ──────────────── */\n[data-loading=\"true\"]{position:relative;color:transparent!important;pointer-events:none;cursor:progress}\n[data-loading=\"true\"]>*{visibility:hidden}\n[data-loading=\"true\"]::after{content:\"\";position:absolute;left:50%;top:50%;box-sizing:border-box;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid var(--dsw-alias-label-secondary);border-top-color:transparent;border-radius:var(--an-radius-pill);corner-shape:round;animation:dsh-an-spin var(--an-dur-spin) linear infinite}\n\n/* ── 15 悬停 · 只在支持 hover 的设备上启用（触摸端常显操作） ────────── */\n@media (hover:hover){\n.dsh-an-row:hover{background:var(--an-hover)}\n.dsh-an-actions{opacity:0;pointer-events:none}\n.dsh-an-row:hover .dsh-an-actions,.dsh-an-row:focus-within .dsh-an-actions{opacity:1;pointer-events:auto}\n.dsh-an-iconBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-iconBtnDanger:hover{background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-an-popClose:hover,.dsh-an-settingsBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-addBtn:hover:not([disabled]){background:var(--dsw-alias-button-primary-hover)}\n.dsh-an-mini:hover:not([disabled]){background:var(--an-hover)}\n.dsh-an-miniPrimary:hover:not([disabled]){background:var(--dsw-alias-button-primary-hover);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-an-clear:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-doneToggle:hover{background:var(--an-hover)}\n.dsh-an-check:hover .dsh-an-checkCircle{border-color:var(--dsw-alias-label-primary)}\n.dsh-an-settingChoice:hover input{border-color:var(--dsw-alias-label-primary)}\n.dsh-an-settingLink:hover{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-settingUpdate:hover{background:var(--an-hover)}\n.dsh-an-headerBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}\n}\n\n/* ── 16 动效 · 只动 opacity/transform，错峰出场封顶 ─────────────────── */\n@media (prefers-reduced-motion:no-preference){\n.dsh-an-rows>.dsh-an-row{animation:dsh-an-row-in var(--an-dur-base) var(--an-ease) both}\n.dsh-an-rows>.dsh-an-row:nth-child(2){animation-delay:var(--an-space-1)}\n.dsh-an-rows>.dsh-an-row:nth-child(3){animation-delay:var(--an-space-2)}\n.dsh-an-rows>.dsh-an-row:nth-child(4){animation-delay:calc(var(--an-space-2) + var(--an-space-1))}\n.dsh-an-rows>.dsh-an-row:nth-child(n+5){animation-delay:var(--an-space-3)}\n}\n@keyframes dsh-an-pop-in{from{opacity:0}to{opacity:1}}\n@keyframes dsh-an-row-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}\n@keyframes dsh-an-spin{to{transform:rotate(360deg)}}\n@media (prefers-reduced-motion:reduce){\n.dsh-an-popover,.dsh-an-rows>.dsh-an-row,.dsh-an-chevron,[data-loading=\"true\"]::after{animation:none}\n.dsh-an-popover,.dsh-an-row,.dsh-an-actions,.dsh-an-iconBtn{transition-duration:1ms}\n}\n\n/* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */\n@media (max-width:480px){\n.dsh-an-popover{padding:var(--an-space-3);--dsh-an-listGutter:var(--an-space-3)}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n.dsh-an-popHead{gap:var(--an-space-2)}\n.dsh-an-add{padding:var(--an-space-2) var(--an-space-3)}\n.dsh-an-sectionHead,.dsh-an-doneHead{min-height:24px}\n}\n\n";
+var panel_css_default = "/*\n * Panel, composer dock, header entry and toast styles.\n *\n * Only DSH semantic aliases and the shared scale are used here — no palette of\n * its own. The entry point injects this sheet once for the whole frame, because\n * the dock mounts outside the panel tree.\n */\n/* ── 1 令牌 · 只映射 DSH 语义别名与共享尺度，不新建调色板 ─────────── */\nbody{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-space-5:24px;--an-space-6:32px;--an-radius-pill:999px;--an-fs-caption:12px;--an-lh-caption:20px;--an-fs-row:13px;--an-lh-row:20px;--an-fs-title:14px;--an-lh-title:20px;--an-hover:var(--dsw-alias-interactive-bg-hover);--an-active:var(--dsw-alias-interactive-bg-active);--an-field:var(--dsw-alias-bg-layer-1);--an-field-line:var(--dsw-alias-border-l4);--an-divider:var(--dsw-alias-border-l2);--an-dur-fast:var(--ds-transition-duration-fast);--an-dur-base:var(--ds-transition-duration);--an-dur-spin:700ms;--an-ease:var(--ds-ease-in-out);--an-transition:background-color var(--an-dur-fast) var(--an-ease),border-color var(--an-dur-fast) var(--an-ease),color var(--an-dur-fast) var(--an-ease),opacity var(--an-dur-fast) var(--an-ease),transform var(--an-dur-fast) var(--an-ease),box-shadow var(--an-dur-fast) var(--an-ease)}\n\n/* ── 2 浮层 · 菜单材质 + 三层阴影，边框为 0（发丝线在阴影第一层） ── */\n.dsh-an-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--an-space-3);min-height:0;padding:var(--an-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--an-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--an-divider)));--dsh-an-panelSurface:var(--dsw-alias-bg-layer-2);--dsh-an-listGutter:var(--an-space-4);--dsh-an-scrollRail:9px;--dsh-an-scrollInset:2px;overflow:hidden;animation:dsh-an-pop-in var(--an-dur-base) var(--an-ease) both}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n\n/* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */\n.dsh-an-popHead{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-width:0}\n.dsh-an-popTitleLine{display:flex;align-items:center;gap:var(--an-space-3);flex:1 1 auto;min-width:0}\n.dsh-an-popTitle{min-width:0;overflow:hidden;font-size:var(--an-fs-title);line-height:var(--an-lh-title);font-weight:500;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popMeta{min-width:0;margin:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:16px;color:var(--dsw-alias-label-secondary);font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popActions{display:flex;align-items:center;flex:none;gap:var(--an-space-2)}\n.dsh-an-popClose,.dsh-an-settingsBtn{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-popClose:active,.dsh-an-settingsBtn:active{background:var(--an-active)}\n.dsh-an-settingsBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-settingsBtn{position:relative}\n.dsh-an-updateDot{position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-brand-primary);box-shadow:0 0 0 2px var(--dsh-an-panelSurface)}\n\n/* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */\n.dsh-an-add{display:flex;flex-direction:column;gap:var(--an-space-2);padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--an-transition)}\n.dsh-an-add:focus-within{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-an-input{display:block;flex:0 0 auto;width:100%;min-width:0;box-sizing:border-box;min-height:var(--an-lh-row);max-height:120px;padding:0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);resize:none;overflow-y:auto;overflow-x:hidden}\n.dsh-an-input::placeholder{color:var(--dsw-alias-label-secondary)}\n.dsh-an-addFoot{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);width:100%;min-width:0}\n.dsh-an-addShortcut{min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-addBtn{display:inline-flex;align-items:center;justify-content:center;flex:none;height:28px;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-addBtn:active{background:var(--dsw-alias-button-primary-dimmed);transform:scale(.97)}\n.dsh-an-addBtn[disabled]{background:transparent;color:var(--dsw-alias-label-secondary);box-shadow:inset 0 0 0 0.5px var(--an-field-line);cursor:not-allowed}\n\n/* ── 5 分区与列表 · 9px 轨道内嵌 2px，底部羽化只盖内容不盖滚动条 ──── */\n/* The viewport grows into the popover padding so the 9px rail does not steal from the cards; the list pays the padding back minus the rail, so cards and the add field keep one content width at every panel size. */\n.dsh-an-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--dsh-an-listGutter) * -1)}\n/* Bottom edge treatment: a viewport-fixed alpha mask over the scroller itself, exactly like the DSH scroll areas. The first gradient fades the last 48px to transparent; the second keeps the 9px scrollbar rail opaque so the thumb stays crisp. There is no backdrop-filter layer, so there is no hard compositing edge to see. */\n.dsh-an-listViewport[data-bottom=\"true\"] .dsh-an-listArea{--dsh-an-fadeHeight:calc(var(--an-space-6) + var(--an-space-4));-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n/* Geometry only: the shared DSH skin paints the thumb, so the plugin declares no scrollbar pseudo-elements. The popover already binds the l2 thumb pair for the menu material. */\n.dsh-an-listArea{--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}\n.dsh-an-listSection{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-listSection+.dsh-an-listSection{margin-top:var(--an-space-2)}\n.dsh-an-sectionHead,.dsh-an-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-height:28px;margin:0;padding:var(--an-space-1) 0;background:transparent;transition:background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-sectionHead[data-stuck],.dsh-an-doneHead[data-stuck]{background:var(--dsh-an-panelSurface,var(--dsw-alias-bg-layer-2))}\n.dsh-an-doneToggle{display:flex;align-items:center;gap:var(--an-space-2);flex:none;min-width:0;margin:0;padding:var(--an-space-1) var(--an-space-2) var(--an-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-doneToggle:active{background:var(--an-active)}\n.dsh-an-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-chevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-chevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-sectionCount{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500;font-variant-numeric:tabular-nums}\n.dsh-an-clear{display:inline-flex;align-items:center;flex:none;height:24px;margin-left:auto;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-clear:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-clearConfirm{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);min-width:0;margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-clearConfirmText{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-primary);overflow-wrap:anywhere}\n.dsh-an-clearConfirmActions{display:flex;align-items:center;flex:none;gap:var(--an-space-1)}\n.dsh-an-doneRows{margin-top:var(--an-space-2)}\n.dsh-an-rows{list-style:none;margin:0;padding:0;border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);overflow:hidden}\n.dsh-an-row{display:flex;align-items:flex-start;gap:var(--an-space-2);padding:var(--an-space-2);border-top:0.5px solid var(--an-divider);transition:var(--an-transition)}\n.dsh-an-row:first-child{border-top:0}\n\n/* ── 6 一行便笺 · 勾选圈 14px，命中区 24px ─────────────────────────── */\n.dsh-an-check{display:flex;align-items:center;justify-content:center;flex:none;width:24px;height:24px;margin:-2px 0 0;padding:0;border:0;border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;color:transparent;font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-checkCircle{display:flex;align-items:center;justify-content:center;width:14px;height:14px;box-sizing:border-box;border:0.5px solid var(--dsw-alias-label-tertiary);border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;color:transparent;transition:border-color var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease),color var(--an-dur-fast) var(--an-ease),transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-check:active .dsh-an-checkCircle{transform:scale(.9)}\n.dsh-an-check[aria-checked=\"true\"] .dsh-an-checkCircle{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-itemBody{display:flex;flex:1;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-text{display:block;width:100%;margin:0;padding:0;border:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;cursor:text;user-select:text;-webkit-user-select:text}\n.dsh-an-rowDone .dsh-an-text{color:var(--dsw-alias-label-secondary);text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:var(--dsw-alias-label-tertiary)}\n.dsh-an-rowFoot{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);min-height:24px}\n.dsh-an-meta{flex:0 1 auto;min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}\n\n/* ── 7 行操作 · 图标按钮 H24/R8，触摸端常显 ────────────────────────── */\n.dsh-an-actions{display:flex;flex:none;gap:var(--an-space-1)}\n.dsh-an-iconBtn{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-iconBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary);transform:scale(.94)}\n.dsh-an-iconBtn:disabled,.dsh-an-iconBtn[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-forwardMark{position:absolute;right:0;bottom:0;display:flex;align-items:center;justify-content:center;width:10px;height:10px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-label-secondary);color:var(--dsw-alias-label-primary-foreground);pointer-events:none}\n\n/* ── 8 就地编辑 · 保存/取消为紧凑描边按钮 ──────────────────────────── */\n.dsh-an-edit{display:flex;flex-direction:column;gap:var(--an-space-1);width:100%}\n.dsh-an-editInput{display:block;width:100%;box-sizing:border-box;min-height:var(--an-lh-row);max-height:160px;padding:var(--an-space-1) var(--an-space-2);border:0.5px solid var(--an-field-line);border-radius:var(--dsw-radius-sm);background:var(--an-field);color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);outline:0;resize:none;overflow-y:auto;overflow-x:hidden;transition:var(--an-transition)}\n.dsh-an-editInput:focus{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-an-editActions{display:flex;align-items:center;gap:var(--an-space-1)}\n.dsh-an-editHint{flex:1 1 auto;min-width:0;margin-left:auto;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);text-align:right;color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-mini{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-mini:active{background:var(--an-active)}\n.dsh-an-mini[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-miniPrimary{border-color:transparent;background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniPrimary:active{background:var(--dsw-alias-button-primary-dimmed)}\n.dsh-an-miniDanger{border-color:transparent;background:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniDanger:active{background:var(--dsw-alias-state-error-primary)}\n\n/* ── 9 空态 · 虚线 1px，说明 12/次级墨色 ──────────────────────────── */\n.dsh-an-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--an-space-2);padding:var(--an-space-5) var(--an-space-4);border:1px dashed var(--an-divider);border-radius:var(--dsw-radius-lg);text-align:center}\n.dsh-an-emptyIcon{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0 0 var(--an-space-1);border-radius:var(--dsw-radius-md);background:var(--an-hover);color:var(--dsw-alias-label-secondary)}\n.dsh-an-emptyTitle{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-emptyBody{max-width:36ch;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n\n/* ── 10 设置 · 分组 R16，项间 0.5px 分隔线，链接走 --dsw-alias-link ── */\n.dsh-an-settings{--dsh-an-settingIndent:var(--an-space-3);display:flex;flex-direction:column;gap:var(--an-space-2);margin:0;padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-settingsHead{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-settingGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-settingGroup+.dsh-an-settingGroup{margin-top:var(--an-space-2);padding-top:var(--an-space-2);border-top:0.5px solid var(--an-divider)}\n.dsh-an-settingLabel{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-an-settingBody{display:flex;flex-direction:column;gap:var(--an-space-1);padding-left:var(--dsh-an-settingIndent)}\n.dsh-an-settingItem{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-settingItem+.dsh-an-settingItem{margin-top:var(--an-space-2);padding-top:var(--an-space-2);border-top:0.5px solid var(--an-divider)}\n.dsh-an-settingChoices{display:flex;flex-direction:column;gap:var(--an-space-1)}\n.dsh-an-settingChoice{display:flex;align-items:flex-start;gap:var(--an-space-2);font-size:var(--an-fs-row);line-height:var(--an-lh-row);color:var(--dsw-alias-label-primary);cursor:pointer}\n.dsh-an-settingChoice input{appearance:none;flex:none;width:14px;height:14px;margin:calc((var(--an-lh-row) - 14px) / 2) 0 0;box-sizing:border-box;border:0.5px solid var(--dsw-alias-label-tertiary);border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-settingChoice input:checked{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-brand-primary);box-shadow:inset 0 0 0 3px var(--an-field)}\n.dsh-an-settingInput{box-sizing:border-box;width:100%;height:28px;padding:0 var(--an-space-2);border:0.5px solid var(--an-field-line);border-radius:var(--dsw-radius-sm);background:var(--an-field);color:var(--dsw-alias-label-primary);font-family:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;outline:0;transition:var(--an-transition)}\n.dsh-an-settingItem>.dsh-an-settingInput{font-family:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500}\n.dsh-an-settingInput:focus{border-color:var(--dsw-alias-state-business-primary)}\n/* 前缀提示词改为文本域：min-height 兜住三行，空态也不会被内联高度压扁 */\n.dsh-an-settingTextarea{display:block;height:auto;min-height:calc(var(--an-lh-row) + var(--an-space-4) + 2px);padding:var(--an-space-2);resize:none;overflow-y:auto;white-space:pre-wrap;overflow-wrap:anywhere}\n.dsh-an-settingHint{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-settingHintNote{margin-top:var(--an-space-1)}\n.dsh-an-settingAbout{display:flex;align-items:baseline;gap:var(--an-space-1);min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}\n.dsh-an-settingAbout>span{flex:none}\n.dsh-an-settingProject{display:flex;align-items:baseline;gap:var(--an-space-1);min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}\n.dsh-an-settingProject>span{flex:none}\n.dsh-an-settingDot{flex:none;color:var(--dsw-alias-label-tertiary)}\n.dsh-an-settingLink{flex:0 1 auto;min-width:0;overflow:hidden;color:var(--dsw-alias-link);font-weight:500;text-decoration:none;text-overflow:ellipsis;transition:var(--an-transition)}\n.dsh-an-settingLink:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n/* 更新中心：检查入口、可展开的更新说明与更新动作，全部走共享令牌 */\n.dsh-an-updateCheckRow{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateCheck{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCheck:disabled{color:var(--dsw-alias-label-tertiary);cursor:default}\n.dsh-an-updateHint{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n.dsh-an-updateHintError{color:var(--dsw-alias-state-error-primary)}\n.dsh-an-updateCard{display:flex;flex-direction:column;gap:var(--an-space-2);margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-updateTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-updateLinks{display:flex;align-items:center;gap:var(--an-space-3);flex-wrap:wrap;min-width:0}\n.dsh-an-updateToggle{flex:none;padding:0;border:0;background:transparent;color:var(--dsw-alias-link);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;text-align:left;transition:var(--an-transition)}\n.dsh-an-updateToggle:focus-visible,.dsh-an-updateFull:focus-visible,.dsh-an-updateLinkBtn:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateFull{flex:none;color:var(--dsw-alias-link);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-decoration:none;transition:var(--an-transition)}\n.dsh-an-updateNotes{display:flex;flex-direction:column;gap:var(--an-space-2);max-height:220px;overflow-y:auto;padding-right:var(--an-space-1);overscroll-behavior:contain}\n.dsh-an-updateGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateGroupTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-an-updateItems{display:flex;flex-direction:column;gap:var(--an-space-1);margin:0;padding-left:var(--an-space-4);color:var(--dsw-alias-label-primary)}\n.dsh-an-updateItem{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);overflow-wrap:anywhere}\n.dsh-an-updateItem strong{font-weight:500}\n.dsh-an-updateActions{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updatePrimary{display:inline-flex;align-items:center;justify-content:center;flex:none;height:26px;padding:0 var(--an-space-3);border:0;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updatePrimary:disabled{opacity:.55;cursor:default}\n.dsh-an-updateDone{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateError{display:flex;align-items:baseline;gap:var(--an-space-2);flex-wrap:wrap;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-state-error-primary);overflow-wrap:anywhere}\n.dsh-an-updateLinkBtn{padding:0;border:0;background:transparent;color:var(--dsw-alias-link);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer}\n\n/* ── 11 面板脚注 · 存储状态就地提示，错误用状态色 ─────────────────── */\n.dsh-an-popFoot{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-error{color:var(--dsw-alias-state-error-primary)}\n\n/* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */\n.dsh-an-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-headerBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-disabled=\"true\"]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}\n.dsh-an-headerCount{position:absolute;top:-2px;right:-2px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-bg-base);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:14px;font-weight:500;font-variant-numeric:tabular-nums}\n\n/* ── 13 拖拽把手 · 8px 命中带，3px 视觉条 ─────────────────────────── */\n.dsh-an-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-2);cursor:ew-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandle::before{content:\"\";width:3px;height:var(--an-space-6);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandle:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandle:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n.dsh-an-resizeHandleBottom{position:absolute;left:50%;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-6);height:var(--an-space-3);transform:translateX(-50%);cursor:ns-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandleBottom::before{content:\"\";width:var(--an-space-5);height:3px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandleBottom:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n\n/* ── 14 加载 · 控件内 12px 环，文字隐藏，不报\"进行中\" ──────────────── */\n[data-loading=\"true\"]{position:relative;color:transparent!important;pointer-events:none;cursor:progress}\n[data-loading=\"true\"]>*{visibility:hidden}\n[data-loading=\"true\"]::after{content:\"\";position:absolute;left:50%;top:50%;box-sizing:border-box;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid var(--dsw-alias-label-secondary);border-top-color:transparent;border-radius:var(--an-radius-pill);corner-shape:round;animation:dsh-an-spin var(--an-dur-spin) linear infinite}\n\n/* ── 15 悬停 · 只在支持 hover 的设备上启用（触摸端常显操作） ────────── */\n@media (hover:hover){\n.dsh-an-row:hover{background:var(--an-hover)}\n.dsh-an-actions{opacity:0;pointer-events:none}\n.dsh-an-row:hover .dsh-an-actions,.dsh-an-row:focus-within .dsh-an-actions{opacity:1;pointer-events:auto}\n.dsh-an-iconBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-iconBtnDanger:hover{background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-an-popClose:hover,.dsh-an-settingsBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-addBtn:hover:not([disabled]){background:var(--dsw-alias-button-primary-hover)}\n.dsh-an-mini:hover:not([disabled]){background:var(--an-hover)}\n.dsh-an-miniPrimary:hover:not([disabled]){background:var(--dsw-alias-button-primary-hover);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-an-clear:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-doneToggle:hover{background:var(--an-hover)}\n.dsh-an-check:hover .dsh-an-checkCircle{border-color:var(--dsw-alias-label-primary)}\n.dsh-an-settingChoice:hover input{border-color:var(--dsw-alias-label-primary)}\n.dsh-an-settingLink:hover{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updatePrimary:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}\n.dsh-an-headerBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}\n}\n\n/* ── 16 动效 · 只动 opacity/transform，错峰出场封顶 ─────────────────── */\n@media (prefers-reduced-motion:no-preference){\n.dsh-an-rows>.dsh-an-row{animation:dsh-an-row-in var(--an-dur-base) var(--an-ease) both}\n.dsh-an-rows>.dsh-an-row:nth-child(2){animation-delay:var(--an-space-1)}\n.dsh-an-rows>.dsh-an-row:nth-child(3){animation-delay:var(--an-space-2)}\n.dsh-an-rows>.dsh-an-row:nth-child(4){animation-delay:calc(var(--an-space-2) + var(--an-space-1))}\n.dsh-an-rows>.dsh-an-row:nth-child(n+5){animation-delay:var(--an-space-3)}\n}\n@keyframes dsh-an-pop-in{from{opacity:0}to{opacity:1}}\n@keyframes dsh-an-row-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}\n@keyframes dsh-an-spin{to{transform:rotate(360deg)}}\n@media (prefers-reduced-motion:reduce){\n.dsh-an-popover,.dsh-an-rows>.dsh-an-row,.dsh-an-chevron,[data-loading=\"true\"]::after{animation:none}\n.dsh-an-popover,.dsh-an-row,.dsh-an-actions,.dsh-an-iconBtn{transition-duration:1ms}\n}\n\n/* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */\n@media (max-width:480px){\n.dsh-an-popover{padding:var(--an-space-3);--dsh-an-listGutter:var(--an-space-3)}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n.dsh-an-popHead{gap:var(--an-space-2)}\n.dsh-an-add{padding:var(--an-space-2) var(--an-space-3)}\n.dsh-an-sectionHead,.dsh-an-doneHead{min-height:24px}\n}\n\n";
 
 // src/client/constants.ts
 /**
@@ -57,12 +57,10 @@ const DRAFT_STORAGE_KEY = "dsh.aside-notes.drafts.v2";
 /** Notes already forwarded to the composer, per session; marks the forward button. */
 const FORWARDED_STORAGE_KEY = "dsh.aside-notes.forwarded.v2";
 /** Shown in the in-panel settings; keep in sync with package.json. */
-const PLUGIN_VERSION = "2.0.1";
+const PLUGIN_VERSION = "2.1.0";
 const PLUGIN_AUTHOR = "阿三石";
 const PLUGIN_REPO_URL = "https://github.com/Rayle8/dsh-asidenote";
 const PLUGIN_REPO_LABEL = "github.com/Rayle8/dsh-asidenote";
-/** Release notes opened by the update notice. */
-const PLUGIN_RELEASES_URL = `${PLUGIN_REPO_URL}/releases/latest`;
 /** Send preference; persisted across panel openings. Enter sends by default. */
 const SEND_SHORTCUT_KEY = "dsh.aside-notes.send-shortcut.v2";
 /** Lead-in written before a forwarded note; empty means no prefix. */
@@ -165,7 +163,37 @@ const en = {
 	"toast.cleared": "Cleared completed",
 	"toast.saveFailed": "Save failed — nothing changed",
 	"update.label": "Update available",
-	"update.tip": "Version {version} is now available — open the release notes"
+	"update.tip": "Version {version} is now available — open the release notes",
+	"update.check": "Check for updates",
+	"update.checking": "Checking…",
+	"update.retryCheck": "Retry check",
+	"update.current": "You're up to date",
+	"update.checkFailed": "Check failed — try again later",
+	"update.available": "Version {version} is available",
+	"update.notesShow": "What's new",
+	"update.notesHide": "Hide what's new",
+	"update.notesLoading": "Loading release notes…",
+	"update.notesMissing": "No release notes to show for this version yet",
+	"update.notesFailed": "Could not load the release notes — open the full notes",
+	"update.full": "Full release notes",
+	"update.now": "Update now",
+	"update.starting": "Preparing the update…",
+	"update.updating": "Updating…",
+	"update.updatingPercent": "Updating… {percent}%",
+	"update.updated": "Updated to {version}",
+	"update.refresh": "Refresh page",
+	"update.restart": "Restart DSH",
+	"update.restartHint": "Restart DSH manually to finish the update",
+	"update.failed": "Update failed: {reason}",
+	"update.force": "Update anyway",
+	"update.noMarket": "No plugin market detected, so the update cannot run in-app; update from Plugins or run pnpm update dsh-asidenote",
+	"update.tooFresh": "This release is too new for the market right now — retry later or update anyway",
+	"update.unchanged": "The market answered with the same version — retry later or update anyway",
+	"update.notInstalled": "This plugin is not installed in the current profile, so it cannot be updated in-app",
+	"update.forbidden": "The market refused this update request",
+	"update.rejected": "The market did not run this update; a linked checkout updates from its own directory",
+	"update.busy": "Another update is already running in the market — try again shortly",
+	"update.timeout": "Timed out waiting for the update result — try again later"
 };
 
 // src/client/i18n/zh.ts
@@ -238,7 +266,37 @@ const zh = {
 	"toast.cleared": "已清除已完成",
 	"toast.saveFailed": "保存失败，内容没有改动",
 	"update.label": "有新版本",
-	"update.tip": "新版本 {version} 已发布，点击查看更新说明"
+	"update.tip": "新版本 {version} 已发布，点击查看更新说明",
+	"update.check": "检查更新",
+	"update.checking": "正在检查…",
+	"update.retryCheck": "重试检查",
+	"update.current": "已是最新版本",
+	"update.checkFailed": "检查失败，请稍后重试",
+	"update.available": "有新版本 {version}",
+	"update.notesShow": "查看更新内容",
+	"update.notesHide": "收起更新内容",
+	"update.notesLoading": "正在读取更新说明…",
+	"update.notesMissing": "这个版本还没有可显示的更新说明",
+	"update.notesFailed": "更新说明读取失败，可打开完整更新说明查看",
+	"update.full": "完整更新说明",
+	"update.now": "立即更新",
+	"update.starting": "正在准备更新…",
+	"update.updating": "正在更新…",
+	"update.updatingPercent": "正在更新… {percent}%",
+	"update.updated": "已更新到 {version}",
+	"update.refresh": "刷新页面",
+	"update.restart": "重启 DSH",
+	"update.restartHint": "请手动重启 DSH 以完成更新",
+	"update.failed": "更新失败：{reason}",
+	"update.force": "仍要更新",
+	"update.noMarket": "未检测到插件市场，暂时无法在应用内更新；可在「插件」页或终端执行 pnpm update dsh-asidenote",
+	"update.tooFresh": "新版本刚发布，市场暂缓安装；可稍后重试，或选择仍要更新",
+	"update.unchanged": "市场返回的版本没有变化；可稍后重试，或选择仍要更新",
+	"update.notInstalled": "当前 profile 中没有安装这个插件，无法在应用内更新",
+	"update.forbidden": "市场拒绝了这次更新请求",
+	"update.rejected": "市场没有执行这次更新；link 安装的插件需要在 checkout 中更新后刷新",
+	"update.busy": "市场正在执行另一个更新，请稍后再试",
+	"update.timeout": "等待更新结果超时，请稍后再试"
 };
 
 // src/client/i18n/index.ts
@@ -280,7 +338,7 @@ function makeSay(ctx, getLocaleId) {
 * stroke weight, optical size and currentColor stay consistent with the shell.
 * Tooltip and Toast are the seeded primitives — the bundle keeps them external.
 */
-const h$10 = react.default.createElement;
+const h$11 = react.default.createElement;
 const PRIMITIVES = _deepseek_ai_dsh_client_ui_primitives;
 const Tooltip = typeof PRIMITIVES.Tooltip === "function" ? PRIMITIVES.Tooltip : null;
 const Toast = typeof PRIMITIVES.Toast === "function" ? PRIMITIVES.Toast : null;
@@ -293,48 +351,48 @@ const icon = (name) => typeof PRIMITIVES[name] === "function" ? PRIMITIVES[name]
 function Glyph(props) {
 	const Component = icon(props.name);
 	if (!Component) return null;
-	return h$10(Component, { size: props.size });
+	return h$11(Component, { size: props.size });
 }
-const IconCheck = (props) => h$10(Glyph, {
+const IconCheck = (props) => h$11(Glyph, {
 	name: "IconCheckOutlineMedium",
 	size: props && props.size ? props.size : 12
 });
-const IconCopy = () => h$10(Glyph, {
+const IconCopy = () => h$11(Glyph, {
 	name: "IconCopyOutlineRegular",
 	size: 14
 });
-const IconForward = () => h$10(Glyph, {
+const IconForward = () => h$11(Glyph, {
 	name: "IconShareOutlineRegular",
 	size: 14
 });
-const IconGear = () => h$10(Glyph, {
+const IconGear = () => h$11(Glyph, {
 	name: "IconSettingsOutlineRegular",
 	size: 14
 });
-const IconPencil = () => h$10(Glyph, {
+const IconPencil = () => h$11(Glyph, {
 	name: "IconEditOutlineRegular",
 	size: 14
 });
-const IconTrash = () => h$10(Glyph, {
+const IconTrash = () => h$11(Glyph, {
 	name: "IconTrashOutlineRegular",
 	size: 14
 });
-const IconChevron = () => h$10(Glyph, {
+const IconChevron = () => h$11(Glyph, {
 	name: "IconChevronRightOutlineRegular",
 	size: 12
 });
-const IconEmpty = () => h$10(Glyph, {
+const IconEmpty = () => h$11(Glyph, {
 	name: "IconChecklistOutlineRegular",
 	size: 18
 });
-const IconClose = () => h$10(Glyph, {
+const IconClose = () => h$11(Glyph, {
 	name: "IconCloseOutlineRegular",
 	size: 14
 });
 /** Wrap one icon-only control in the shared tooltip; a bare button when absent. */
 function withTooltip(label, node) {
 	if (!Tooltip) return node;
-	return h$10(Tooltip, {
+	return h$11(Tooltip, {
 		label,
 		side: "top",
 		portal: true,
@@ -344,7 +402,7 @@ function withTooltip(label, node) {
 
 // src/client/ui/toastSeat.ts
 /** Frame-wide toast seat: one notice at a time, dismissed when it fades. */
-const h$9 = react.default.createElement;
+const h$10 = react.default.createElement;
 const TOAST_COPY = {
 	copied: {
 		key: "toast.copied",
@@ -413,11 +471,11 @@ function createToastSeat(tr) {
 		const copy = TOAST_COPY[notice.kind] || TOAST_COPY.saveFailed;
 		const bound = props && typeof props.t === "function" ? props.t(copy.key) : "";
 		const text = bound && bound !== copy.key ? bound : tr(copy.key);
-		return h$9(Toast, {
+		return h$10(Toast, {
 			key: notice.sequence,
 			text,
 			tone: copy.tone,
-			icon: copy.tone ? void 0 : WarningIcon ? h$9(WarningIcon, { size: 16 }) : void 0,
+			icon: copy.tone ? void 0 : WarningIcon ? h$10(WarningIcon, { size: 16 }) : void 0,
 			onDone: source.dismiss
 		});
 	}
@@ -1273,7 +1331,7 @@ function usePanelSettings() {
 
 // src/client/update/latest.ts
 /**
-* Latest published version probe.
+* Published-version probes: the version number and the release notes behind it.
 *
 * The panel is usually installed from a checkout, not from a store, so it asks
 * the npm registry first and falls back to the GitHub Release tag. Everything
@@ -1282,10 +1340,14 @@ function usePanelSettings() {
 */
 /** npm metadata endpoints in fallback order; the mirror covers slow npmjs routes. */
 const UPDATE_REGISTRY_HOSTS = ["https://registry.npmjs.org", "https://registry.npmmirror.com"];
+/** GitHub's REST host for this repo, derived from the displayed repo URL. */
+const UPDATE_GITHUB_API = `${PLUGIN_REPO_URL.replace("https://github.com/", "https://api.github.com/repos/")}/releases`;
 /** Second source: a GitHub Release, for checkouts that are not published to npm. */
-const UPDATE_GITHUB_RELEASE_URL = `${PLUGIN_REPO_URL.replace("https://github.com/", "https://api.github.com/repos/")}/releases/latest`;
+const UPDATE_GITHUB_RELEASE_URL = `${UPDATE_GITHUB_API}/latest`;
 /** A resolved version is reused for an hour, including a miss, to keep opens quiet. */
 const UPDATE_TTL_MS = 36e5;
+/** A manual check should not hang the panel on a black-holed network. */
+const UPDATE_TIMEOUT_MS = 8e3;
 /**
 * Numeric segment comparison, tolerant of a `v` prefix and short forms. A
 * pre-release tag on the same core is not newer ("2.0.0-rc.1" vs "2.0.0").
@@ -1301,13 +1363,20 @@ function isNewerVersion(latest, current) {
 	}
 	return false;
 }
+/** A fetch that gives up after {@link UPDATE_TIMEOUT_MS} instead of hanging. */
+function fetchWithTimeout(fetchImpl, url) {
+	if (typeof AbortController !== "function") return Promise.resolve().then(() => fetchImpl(url));
+	const controller = new AbortController();
+	const timer = setTimeout(() => controller.abort(), UPDATE_TIMEOUT_MS);
+	return Promise.resolve().then(() => fetchImpl(url, { signal: controller.signal })).finally(() => clearTimeout(timer));
+}
 function createUpdateProbe(options = {}) {
-	const fetchImpl = options.fetchImpl || ((url) => fetch(url));
+	const fetchImpl = options.fetchImpl || ((url, init) => fetch(url, init));
 	const now = options.now || (() => Date.now());
 	const ttlMs = options.ttlMs || 36e5;
 	let cached = null;
 	function readJson(url) {
-		return Promise.resolve().then(() => fetchImpl(url)).then((response) => response.ok ? response.json() : null).catch(() => null);
+		return fetchWithTimeout(fetchImpl, url).then((response) => response.ok ? response.json() : null).catch(() => null);
 	}
 	function readNpmVersion(host) {
 		return readJson(`${host}/dsh-asidenote/latest`).then((body) => body !== null && typeof body.version === "string" ? body.version : null);
@@ -1331,29 +1400,635 @@ function createUpdateProbe(options = {}) {
 		};
 		return cached.promise;
 	}
-	return { latest };
+	/** Drop the cached answer so the next call reads the network again. */
+	function reset() {
+		cached = null;
+	}
+	return {
+		latest,
+		reset
+	};
 }
 /** Process-wide probe: one fetch per hour no matter how often the panel opens. */
 const updateProbe = createUpdateProbe();
 function fetchLatestVersion() {
 	return updateProbe.latest();
 }
+function readJsonWithTimeout(fetchImpl, url) {
+	return fetchWithTimeout(fetchImpl, url).then((response) => response.ok ? response.json() : null).catch(() => null);
+}
+/**
+* Fetch the release notes for one version. GitHub is the only source: the body
+* lives on the release, not in the npm manifest. A missing release (tags pushed
+* without a Release) resolves null, and the panel keeps the release link.
+*/
+function createReleaseNotesProbe(options = {}) {
+	const fetchImpl = options.fetchImpl || ((url, init) => fetch(url, init));
+	const now = options.now || (() => Date.now());
+	const ttlMs = options.ttlMs || 36e5;
+	const cached = /* @__PURE__ */ new Map();
+	function latest(version) {
+		const key = String(version || "").replace(/^v/, "");
+		const hit = cached.get(key);
+		if (hit && now() - hit.at < ttlMs) return hit.promise;
+		const entry = {
+			at: now(),
+			promise: readJsonWithTimeout(fetchImpl, `${UPDATE_GITHUB_API}/tags/v${encodeURIComponent(key)}`).then((body) => {
+				if (body === null) return null;
+				const tag = typeof body.tag_name === "string" ? body.tag_name.replace(/^v/, "") : key;
+				return {
+					version: tag,
+					body: typeof body.body === "string" ? body.body : "",
+					url: typeof body.html_url === "string" && body.html_url ? body.html_url : `${PLUGIN_REPO_URL}/releases/tag/v${encodeURIComponent(tag)}`
+				};
+			})
+		};
+		cached.set(key, entry);
+		return entry.promise;
+	}
+	function reset() {
+		cached.clear();
+	}
+	return {
+		latest,
+		reset
+	};
+}
+/** Process-wide notes probe, cached per version for an hour. */
+const releaseNotesProbe = createReleaseNotesProbe();
+function fetchReleaseNotes(version) {
+	return releaseNotesProbe.latest(version);
+}
+/** Manual check: forget both cached answers so the next calls hit the network. */
+function resetUpdateChecks() {
+	updateProbe.reset();
+	releaseNotesProbe.reset();
+}
 
-// src/client/ui/useNewerVersion.ts
-/** Newer published version, or null when this build is current. */
-function useNewerVersion() {
-	const [latestVersion, setLatestVersion] = react.default.useState(null);
+// src/client/update/releaseNotes.ts
+/** Bounds taken from the published-notes convention, not an editorial limit. */
+const MAX_NOTE_GROUPS = 6;
+const MAX_NOTE_ITEMS = 40;
+const MAX_NOTE_ITEM_CHARS = 600;
+const MARKER_RE = /<!--\s*app-update-notes:([A-Za-z-]+):start\s*-->([\s\S]*?)<!--\s*app-update-notes:\1:end\s*-->/g;
+const GROUP_RE = /^#{2,4}\s+(.+?)\s*$/;
+const ITEM_RE = /^\s*[-*]\s+(.+?)\s*$/;
+const LEAD_RE = /^([^。．.!?！？:：]{1,40}?[:：])\s*(\S[\s\S]*)$/;
+const TRAILING_PR_REFS_RE = /\s*(?:[（(]\s*#\d+(?:\s*[,，、]\s*#\d+)*\s*[)）])\s*$/;
+const HTML_TAG_RE = /<\/?[A-Za-z][^>]*>/g;
+const IMAGE_RE = /!\[[^\]]*\]\([^)]*\)/g;
+const LINK_RE = /\[([^\]]+)\]\([^)]*\)/g;
+const CODE_RE = /`([^`]+)`/g;
+const STRONG_RE = /\*\*([^*]+)\*\*|__([^_]+)__/g;
+const EMPHASIS_RE = /\*([^*]+)\*|_([^_]+)_/g;
+const WHITESPACE_RE = /\s+/g;
+const ENTITIES = {
+	amp: "&",
+	apos: "'",
+	gt: ">",
+	lt: "<",
+	nbsp: " ",
+	quot: "\""
+};
+function decodeEntities(value) {
+	return value.replace(/&(#x[0-9a-f]+|#\d+|amp|apos|gt|lt|nbsp|quot);/gi, (match, entity) => {
+		const lower = entity.toLowerCase();
+		if (Object.prototype.hasOwnProperty.call(ENTITIES, lower)) return ENTITIES[lower];
+		const codePoint = lower.startsWith("#x") ? Number.parseInt(lower.slice(2), 16) : Number.parseInt(lower.slice(1), 10);
+		if (!Number.isInteger(codePoint) || codePoint < 0 || codePoint > 1114111) return match;
+		try {
+			return String.fromCodePoint(codePoint);
+		} catch {
+			return match;
+		}
+	});
+}
+/** Flatten one line of release-note markdown to readable plain text. */
+function noteText(value) {
+	return decodeEntities(String(value ?? "").replace(HTML_TAG_RE, "").replace(IMAGE_RE, "").replace(LINK_RE, "$1").replace(CODE_RE, "$1").replace(STRONG_RE, (_match, strong, underscored) => strong || underscored).replace(EMPHASIS_RE, (_match, italic, underscored) => italic || underscored).replace(TRAILING_PR_REFS_RE, "")).replace(WHITESPACE_RE, " ").trim();
+}
+/** Split "**Topic:** rest" into its bold lead and the remaining body. */
+function splitNoteLead(value) {
+	const text = noteText(value);
+	const match = LEAD_RE.exec(text);
+	return match ? {
+		lead: match[1].trim(),
+		body: match[2].trim()
+	} : {
+		lead: "",
+		body: text
+	};
+}
+function truncate(value, maxChars) {
+	const characters = Array.from(value);
+	return characters.length <= maxChars ? value : `${characters.slice(0, maxChars - 1).join("").trimEnd()}…`;
+}
+/**
+* Locale fallback order for a DSH locale id. A Chinese UI reads the `zh` block,
+* everything else reads `en`; either falls back to the other when a release
+* only shipped one language.
+*/
+function noteLocalesFor(locale) {
+	return String(locale ?? "").toLowerCase().startsWith("zh") ? ["zh", "en"] : ["en", "zh"];
+}
+/** The notes block for this locale, or an empty string when the release has none. */
+function extractUpdateNotes(body, locale) {
+	const blocks = /* @__PURE__ */ new Map();
+	for (const match of String(body ?? "").matchAll(MARKER_RE)) {
+		const key = match[1].toLowerCase();
+		if (!blocks.has(key)) blocks.set(key, match[2]);
+	}
+	for (const key of noteLocalesFor(locale)) {
+		const block = blocks.get(key);
+		if (block && block.trim()) return block.trim();
+	}
+	return "";
+}
+/** Parse one marker block into headings and bullets. */
+function parseReleaseNotes(markdown) {
+	const drafts = [];
+	let current = null;
+	for (const rawLine of String(markdown ?? "").split(/\r?\n/)) {
+		const line = rawLine.trimEnd();
+		const heading = GROUP_RE.exec(line);
+		if (heading) {
+			current = {
+				title: noteText(heading[1]),
+				bullets: []
+			};
+			drafts.push(current);
+			continue;
+		}
+		const item = ITEM_RE.exec(line);
+		if (item) {
+			if (current === null) {
+				current = {
+					title: "",
+					bullets: []
+				};
+				drafts.push(current);
+			}
+			current.bullets.push(item[1]);
+			continue;
+		}
+		if (line.trim() && current !== null && current.bullets.length > 0) {
+			const last = current.bullets.length - 1;
+			current.bullets[last] = `${current.bullets[last]} ${line.trim()}`;
+		}
+	}
+	const parsed = [];
+	for (const draft of drafts) {
+		const items = [];
+		for (const bullet of draft.bullets) {
+			const text = truncate(noteText(bullet), 600);
+			if (text) items.push(splitNoteLead(text));
+			if (items.length >= 40) break;
+		}
+		if (items.length > 0) parsed.push({
+			title: draft.title,
+			items
+		});
+		if (parsed.length >= 6) break;
+	}
+	return parsed;
+}
+/** Convenience for the panel: extract and parse in one step. */
+function updateNotesForLocale(body, locale) {
+	return parseReleaseNotes(extractUpdateNotes(body, locale));
+}
+
+// src/client/update/market.ts
+/**
+* Client for the plugin market's public update API (v1, beta).
+*
+* The market publishes a small same-origin JSON API so a plugin can offer its
+* own update button without running a package manager itself. Everything here
+* degrades to `null` when the market is absent, older than the API, or refuses
+* the request: an update button is a convenience, not a dependency.
+*
+* Contract: `dshmarket/UPDATE-API-V1.md` — endpoints come from
+* `/capabilities`, so a path change does not need a client release.
+*/
+/** Where the market mounts its public API. */
+const MARKET_API_BASE = "/dsh-market/api/v1";
+/** The package this panel updates. */
+const MARKET_PACKAGE = "dsh-asidenote";
+/** A check should answer quickly; a slow market falls back to the manual path. */
+const MARKET_TIMEOUT_MS = 8e3;
+function asText(value) {
+	return typeof value === "string" && value.trim() !== "" ? value.trim() : null;
+}
+function asRecord(value) {
+	return value !== null && typeof value === "object" && !Array.isArray(value) ? value : null;
+}
+function operationView(raw) {
+	const operation = asRecord(raw);
+	if (!operation) return null;
+	const progress = asRecord(operation.progress) || {};
+	const outcome = asRecord(operation.outcome) || {};
+	const failure = asRecord(operation.failure);
+	const percent = typeof progress.percent === "number" && Number.isFinite(progress.percent) ? Math.max(0, Math.min(100, Math.round(progress.percent))) : null;
+	const state = asText(operation.state);
+	return {
+		operationId: asText(operation.operationId) || "",
+		state: [
+			"queued",
+			"running",
+			"succeeded",
+			"failed",
+			"cancelled",
+			"rolled-back"
+		].includes(state) ? state : "failed",
+		percent,
+		detail: asText(progress.detail),
+		beforeVersion: asText(operation.beforeVersion),
+		installedVersion: asText(operation.installedVersion),
+		refreshRequired: outcome.refreshRequired === true,
+		restartRequired: outcome.restartRequired === true,
+		failure: failure ? {
+			code: asText(failure.code) || "UPDATE_FAILED",
+			message: asText(failure.message) || "",
+			retryable: failure.retryable === true
+		} : null
+	};
+}
+function errorFrom(body, fallback) {
+	const failure = asRecord(asRecord(body)?.failure);
+	return {
+		code: asText(failure?.code) || "UPDATE_FAILED",
+		message: asText(failure?.message) || asText(asRecord(body)?.error) || fallback,
+		retryable: failure?.retryable === true
+	};
+}
+/**
+* Build a market client. `fetchImpl` is injected so the client can be tested
+* without a browser or a live market.
+*/
+function createMarketClient(options = {}) {
+	const fetchImpl = options.fetchImpl || ((url, init) => fetch(url, init));
+	const timeoutMs = options.timeoutMs || 8e3;
+	const base = (options.base || "/dsh-market/api/v1").replace(/\/$/, "");
+	async function request(path, init = {}) {
+		const controller = typeof AbortController === "function" ? new AbortController() : null;
+		const timer = setTimeout(() => controller?.abort(), timeoutMs);
+		try {
+			const response = await fetchImpl(path.startsWith("http") ? path : `${base}${path}`, {
+				...init,
+				...controller ? { signal: controller.signal } : {}
+			});
+			const body = await response.json().catch(() => null);
+			return {
+				status: response.status,
+				body
+			};
+		} catch {
+			return null;
+		} finally {
+			clearTimeout(timer);
+		}
+	}
+	return {
+		/** Feature discovery; `null` means "no usable market on this host". */
+		async capabilities() {
+			const result = await request("/capabilities");
+			const body = asRecord(result?.body);
+			if (!result || result.status !== 200 || !body || body.schema !== "dsh-market/update-api/v1") return null;
+			const endpoints = asRecord(body.endpoints) || {};
+			return {
+				marketVersion: asText(body.marketVersion) || "",
+				stability: asText(body.stability) || "beta",
+				restartSupported: body.restart?.supported === true,
+				endpoints: {
+					updates: asText(endpoints.updates) || `${"/dsh-market/api/v1"}/updates`,
+					operations: asText(endpoints.operations) || `${"/dsh-market/api/v1"}/operations`,
+					restart: asText(endpoints.restart) || `${"/dsh-market/api/v1"}/restart`
+				}
+			};
+		},
+		/** The market's view of the installed vs published version. */
+		async check(name = MARKET_PACKAGE, force = true) {
+			const result = await request(`/updates${`?name=${encodeURIComponent(name)}${force ? "&force=1" : ""}`}`);
+			const pkg = asRecord(asRecord(result?.body)?.package);
+			if (!result || result.status !== 200 || !pkg) return null;
+			return {
+				name: asText(pkg.name) || name,
+				source: asText(pkg.source) || "unknown",
+				installedVersion: asText(pkg.installedVersion) || "",
+				latestVersion: asText(pkg.latestVersion) || "",
+				updateAvailable: pkg.updateAvailable === true
+			};
+		},
+		/** Queue an update; returns the operation to poll or a stable failure code. */
+		async start(name = MARKET_PACKAGE, force = false) {
+			const result = await request("/updates", {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({
+					packageName: name,
+					...force ? { force: true } : {}
+				})
+			});
+			if (!result) return { error: {
+				code: "UPDATE_FAILED",
+				message: "market did not answer",
+				retryable: true
+			} };
+			const operation = asRecord(asRecord(result.body)?.operation);
+			const operationId = asText(operation?.operationId);
+			if ((result.status === 200 || result.status === 202) && operationId) {
+				const state = asText(operation?.state);
+				return {
+					operationId,
+					state: state === "queued" || state === "running" ? state : "queued"
+				};
+			}
+			return { error: errorFrom(result.body, `update failed with HTTP ${result.status}`) };
+		},
+		/** Poll one operation. */
+		async operation(operationId) {
+			if (!operationId) return null;
+			const result = await request(`/operations?operationId=${encodeURIComponent(operationId)}`);
+			if (!result || result.status !== 200) return null;
+			return operationView(asRecord(result.body)?.operation);
+		},
+		/** Ask the market to restart the host; only offered when capabilities allow it. */
+		async restart() {
+			const result = await request("/restart", {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: "{}"
+			});
+			return result !== null && result.status >= 200 && result.status < 300;
+		}
+	};
+}
+/** Process-wide market client: one request shape, shared by every panel open. */
+const marketClient = createMarketClient();
+
+// src/client/ui/useUpdateCenter.ts
+/**
+* Update centre state for the settings card.
+*
+* Three things are allowed to be independent here: the published version check
+* (auto on open, manual on demand), the release notes behind that version
+* (loaded only when the disclosure is opened), and the in-app update itself
+* (queued through the plugin market's public API and polled to a terminal
+* state). Keeping them separate means a missing market or a missing release
+* body cannot take the version check down with it.
+*/
+const CHECK_IDLE = {
+	status: "idle",
+	latestVersion: null,
+	checkedAt: null
+};
+const NOTES_IDLE = {
+	status: "idle",
+	groups: [],
+	url: null
+};
+const RUN_IDLE = {
+	phase: "idle",
+	percent: null,
+	failureCode: null,
+	message: null,
+	retryable: false,
+	refreshRequired: false,
+	restartRequired: false,
+	installedVersion: null
+};
+const POLL_INTERVAL_MS = 900;
+/** A terminal state never arrives for an abandoned operation; stop asking. */
+const MAX_POLLS = 400;
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+function terminalRun(phase, patch = {}) {
+	return {
+		...RUN_IDLE,
+		phase,
+		...patch
+	};
+}
+function useUpdateCenter(localeId) {
+	const [check, setCheck] = react.default.useState(CHECK_IDLE);
+	const [notes, setNotes] = react.default.useState(NOTES_IDLE);
+	const [expanded, setExpanded] = react.default.useState(false);
+	const [run, setRun] = react.default.useState(RUN_IDLE);
+	const [market, setMarket] = react.default.useState("unknown");
+	const [restartSupported, setRestartSupported] = react.default.useState(false);
+	const disposed = react.default.useRef(false);
+	const runRef = react.default.useRef(RUN_IDLE);
+	runRef.current = run;
 	react.default.useEffect(() => {
-		if ("2.0.1".includes("-")) return void 0;
+		disposed.current = false;
+		return () => {
+			disposed.current = true;
+		};
+	}, []);
+	const latestVersion = check.status === "available" ? check.latestVersion : null;
+	react.default.useEffect(() => {
+		if ("2.1.0".includes("-")) return void 0;
 		let active = true;
 		fetchLatestVersion().then((version) => {
-			if (active && version !== null) setLatestVersion(version);
+			if (!active || version === null) return;
+			if (isNewerVersion(version, "2.1.0")) setCheck({
+				status: "available",
+				latestVersion: version,
+				checkedAt: Date.now()
+			});
+			else setCheck({
+				status: "current",
+				latestVersion: version,
+				checkedAt: Date.now()
+			});
 		});
 		return () => {
 			active = false;
 		};
 	}, []);
-	return latestVersion !== null && isNewerVersion(latestVersion, "2.0.1") ? latestVersion : null;
+	react.default.useEffect(() => {
+		if (check.status !== "available" || market !== "unknown") return void 0;
+		let active = true;
+		marketClient.capabilities().then((caps) => {
+			if (!active) return;
+			setMarket(caps ? "ready" : "unsupported");
+			setRestartSupported(caps?.restartSupported === true);
+		});
+		return () => {
+			active = false;
+		};
+	}, [check.status, market]);
+	const checkNow = react.default.useCallback(async () => {
+		if (check.status === "checking") return;
+		resetUpdateChecks();
+		setCheck((previous) => ({
+			...previous,
+			status: "checking"
+		}));
+		setNotes(NOTES_IDLE);
+		setExpanded(false);
+		setRun(RUN_IDLE);
+		const version = await fetchLatestVersion();
+		if (disposed.current) return;
+		if (version === null) {
+			setCheck({
+				status: "error",
+				latestVersion: null,
+				checkedAt: Date.now()
+			});
+			return;
+		}
+		if (isNewerVersion(version, "2.1.0")) {
+			setCheck({
+				status: "available",
+				latestVersion: version,
+				checkedAt: Date.now()
+			});
+			setMarket("unknown");
+		} else {
+			setCheck({
+				status: "current",
+				latestVersion: version,
+				checkedAt: Date.now()
+			});
+			setMarket("unknown");
+		}
+	}, [check.status]);
+	const toggleNotes = react.default.useCallback(() => {
+		setExpanded((value) => !value);
+	}, []);
+	react.default.useEffect(() => {
+		if (!expanded || check.status !== "available" || check.latestVersion === null) return void 0;
+		if (notes.status !== "idle") return void 0;
+		let active = true;
+		setNotes((previous) => ({
+			...previous,
+			status: "loading"
+		}));
+		fetchReleaseNotes(check.latestVersion).then((release) => {
+			if (!active) return;
+			if (release === null) {
+				setNotes({
+					status: "error",
+					groups: [],
+					url: null
+				});
+				return;
+			}
+			const groups = updateNotesForLocale(release.body, localeId);
+			if (groups.length === 0) {
+				setNotes({
+					status: "missing",
+					groups: [],
+					url: release.url
+				});
+				return;
+			}
+			setNotes({
+				status: "ready",
+				groups,
+				url: release.url
+			});
+		});
+		return () => {
+			active = false;
+		};
+	}, [
+		expanded,
+		check.status,
+		check.latestVersion,
+		localeId
+	]);
+	const startUpdate = react.default.useCallback(async (force = false) => {
+		if (runRef.current.phase === "starting" || runRef.current.phase === "running" || runRef.current.phase === "done") return;
+		setRun(terminalRun("starting"));
+		const caps = await marketClient.capabilities();
+		if (disposed.current) return;
+		if (!caps) {
+			setMarket("unsupported");
+			setRun(terminalRun("error", { failureCode: "NO_MARKET" }));
+			return;
+		}
+		setMarket("ready");
+		setRestartSupported(caps.restartSupported);
+		const started = await marketClient.start(MARKET_PACKAGE, force);
+		if (disposed.current) return;
+		if ("error" in started) {
+			setRun(terminalRun("error", {
+				failureCode: started.error.code,
+				message: started.error.message || null,
+				retryable: started.error.retryable
+			}));
+			return;
+		}
+		setRun({
+			...RUN_IDLE,
+			phase: "running",
+			percent: 0
+		});
+		for (let attempt = 0; attempt < MAX_POLLS; attempt += 1) {
+			await sleep(POLL_INTERVAL_MS);
+			if (disposed.current) return;
+			const operation = await marketClient.operation(started.operationId);
+			if (disposed.current) return;
+			if (operation === null) {
+				setRun(terminalRun("error", {
+					failureCode: "UPDATE_FAILED",
+					retryable: true
+				}));
+				return;
+			}
+			if (operation.state === "queued" || operation.state === "running") {
+				setRun({
+					...RUN_IDLE,
+					phase: "running",
+					percent: operation.percent
+				});
+				continue;
+			}
+			if (operation.state === "succeeded") {
+				setRun(terminalRun("done", {
+					percent: 100,
+					installedVersion: operation.installedVersion,
+					refreshRequired: operation.refreshRequired || !operation.restartRequired,
+					restartRequired: operation.restartRequired
+				}));
+				return;
+			}
+			setRun(terminalRun("error", {
+				failureCode: operation.failure?.code || "UPDATE_FAILED",
+				message: operation.failure?.message || null,
+				retryable: operation.failure?.retryable !== false
+			}));
+			return;
+		}
+		setRun(terminalRun("error", {
+			failureCode: "UPDATE_TIMEOUT",
+			retryable: true
+		}));
+	}, []);
+	const refreshPage = react.default.useCallback(() => {
+		try {
+			window.location.reload();
+		} catch {}
+	}, []);
+	const restartHost = react.default.useCallback(async () => {
+		await marketClient.restart();
+		refreshPage();
+	}, [refreshPage]);
+	return {
+		check,
+		latestVersion,
+		notes,
+		expanded,
+		run,
+		market,
+		restartSupported,
+		fullReleaseUrl: notes.url || (latestVersion ? `${"https://github.com/Rayle8/dsh-asidenote"}/releases/tag/v${latestVersion}` : null),
+		checkNow,
+		toggleNotes,
+		startUpdate,
+		refreshPage,
+		restartHost
+	};
 }
 
 // src/client/storage/drafts.ts
@@ -1836,7 +2511,7 @@ async function copyText(text) {
 
 // src/client/ui/TodoRow.ts
 /** One note: checkbox, actions, inline edit and the forwarded mark. */
-const h$8 = react.default.createElement;
+const h$9 = react.default.createElement;
 function TodoRow(props) {
 	const { item, done, say, onToast, onToggle, onStartEdit, onDelete, editing, editDraft, setEditDraft, onEditDraftChange, onFinishEdit, onCancelEdit, editRef, forwardPrefix, sendShortcut = SEND_SHORTCUT_DEFAULT, forwarded = false, onForwarded, onUnforwarded } = props;
 	const editHintKey = sendShortcut === "enter" ? "edit.hintEnter" : "edit.hintCtrlEnter";
@@ -1903,7 +2578,7 @@ function TodoRow(props) {
 			resizeEditor(node);
 		});
 	};
-	const body = editing ? h$8("div", { className: "dsh-an-edit" }, h$8("textarea", {
+	const body = editing ? h$9("div", { className: "dsh-an-edit" }, h$9("textarea", {
 		ref: setEditorRef,
 		className: "dsh-an-editInput",
 		value: editDraft,
@@ -1946,95 +2621,170 @@ function TodoRow(props) {
 			}
 		},
 		onBlur: () => onFinishEdit(item)
-	}), h$8("div", { className: "dsh-an-editActions" }, h$8("button", {
+	}), h$9("div", { className: "dsh-an-editActions" }, h$9("button", {
 		type: "button",
 		className: "dsh-an-mini dsh-an-miniPrimary",
 		onMouseDown: (event) => event.preventDefault(),
 		onClick: () => onFinishEdit(item)
-	}, say("edit.save")), h$8("button", {
+	}, say("edit.save")), h$9("button", {
 		type: "button",
 		className: "dsh-an-mini",
 		onMouseDown: (event) => event.preventDefault(),
 		onClick: onCancelEdit
-	}, say("edit.cancel")), h$8("span", {
+	}, say("edit.cancel")), h$9("span", {
 		className: "dsh-an-editHint",
 		title: say(editHintKey, { mod: MOD_LABEL })
-	}, say(editHintKey, { mod: MOD_LABEL })))) : h$8("div", {
+	}, say(editHintKey, { mod: MOD_LABEL })))) : h$9("div", {
 		className: "dsh-an-text",
 		title: say("item.editHint"),
 		onDoubleClick: () => onStartEdit(item)
 	}, item.text);
 	const checked = done === true;
-	return h$8("li", { className: done ? "dsh-an-row dsh-an-rowDone" : "dsh-an-row" }, h$8("button", {
+	return h$9("li", { className: done ? "dsh-an-row dsh-an-rowDone" : "dsh-an-row" }, h$9("button", {
 		type: "button",
 		className: "dsh-an-check",
 		role: "checkbox",
 		"aria-checked": checked ? "true" : "false",
 		"aria-label": say(done ? "item.markOpen" : "item.markDone"),
 		onClick: toggleCheck
-	}, h$8("span", { className: "dsh-an-checkCircle" }, checked ? h$8(IconCheck, { size: 9 }) : null)), h$8("div", { className: "dsh-an-itemBody" }, body, editing ? null : h$8("div", { className: "dsh-an-rowFoot" }, h$8("span", {
+	}, h$9("span", { className: "dsh-an-checkCircle" }, checked ? h$9(IconCheck, { size: 9 }) : null)), h$9("div", { className: "dsh-an-itemBody" }, body, editing ? null : h$9("div", { className: "dsh-an-rowFoot" }, h$9("span", {
 		className: "dsh-an-meta",
 		title: metaLabel(item, say, props.localeId)
-	}, metaLabel(item, say, props.localeId)), h$8("div", { className: "dsh-an-actions" }, withTooltip(say("item.copy"), h$8("button", {
+	}, metaLabel(item, say, props.localeId)), h$9("div", { className: "dsh-an-actions" }, withTooltip(say("item.copy"), h$9("button", {
 		type: "button",
 		className: "dsh-an-iconBtn",
 		"aria-label": say("item.copy"),
 		"aria-busy": pending === "copy" ? "true" : "false",
 		"data-loading": pending === "copy" ? "true" : void 0,
 		onClick: copy
-	}, h$8(IconCopy, null))), done ? null : withTooltip(say(forwarded ? "item.forwarded" : "item.forward"), h$8("button", {
+	}, h$9(IconCopy, null))), done ? null : withTooltip(say(forwarded ? "item.forwarded" : "item.forward"), h$9("button", {
 		type: "button",
 		className: "dsh-an-iconBtn",
 		"aria-label": say(forwarded ? "item.forwarded" : "item.forward"),
 		"data-forwarded": forwarded ? "true" : void 0,
 		onClick: forward
-	}, h$8(IconForward, null), forwarded ? h$8("span", {
+	}, h$9(IconForward, null), forwarded ? h$9("span", {
 		className: "dsh-an-forwardMark",
 		"aria-hidden": true
-	}, h$8(IconCheck, { size: 8 })) : null)), withTooltip(say("item.edit"), h$8("button", {
+	}, h$9(IconCheck, { size: 8 })) : null)), withTooltip(say("item.edit"), h$9("button", {
 		type: "button",
 		className: "dsh-an-iconBtn",
 		"aria-label": say("item.edit"),
 		onClick: () => onStartEdit(item)
-	}, h$8(IconPencil, null))), withTooltip(say("item.delete"), h$8("button", {
+	}, h$9(IconPencil, null))), withTooltip(say("item.delete"), h$9("button", {
 		type: "button",
 		className: "dsh-an-iconBtn dsh-an-iconBtnDanger",
 		"aria-label": say("item.delete"),
 		onClick: () => onDelete(item)
-	}, h$8(IconTrash, null)))))));
+	}, h$9(IconTrash, null)))))));
 }
 
 // src/client/ui/PanelHead.ts
 /** Panel title, counts and the settings/close actions. */
-const h$7 = react.default.createElement;
+const h$8 = react.default.createElement;
 function PanelHead(props) {
 	const { say, openCount, total, showSettings, onToggleSettings, onClose, newerVersion } = props;
-	return h$7("div", { className: "dsh-an-popHead" }, h$7("div", { className: "dsh-an-popTitleLine" }, h$7("div", { className: "dsh-an-popTitle" }, say("popover.title")), h$7("p", { className: "dsh-an-popMeta" }, say("popover.count", {
+	return h$8("div", { className: "dsh-an-popHead" }, h$8("div", { className: "dsh-an-popTitleLine" }, h$8("div", { className: "dsh-an-popTitle" }, say("popover.title")), h$8("p", { className: "dsh-an-popMeta" }, say("popover.count", {
 		open: openCount,
 		total
-	}))), h$7("div", { className: "dsh-an-popActions" }, withTooltip(say("settings.open"), h$7("button", {
+	}))), h$8("div", { className: "dsh-an-popActions" }, withTooltip(say("settings.open"), h$8("button", {
 		type: "button",
 		className: "dsh-an-settingsBtn",
 		"data-active": showSettings ? "true" : void 0,
 		"aria-label": newerVersion ? `${say("settings.open")} · ${say("update.tip", { version: `v${newerVersion}` })}` : say("settings.open"),
 		"aria-expanded": showSettings,
 		onClick: onToggleSettings
-	}, h$7(IconGear, null), newerVersion ? h$7("span", {
+	}, h$8(IconGear, null), newerVersion ? h$8("span", {
 		className: "dsh-an-updateDot",
 		"aria-hidden": true
-	}) : null)), withTooltip(say("popover.close"), h$7("button", {
+	}) : null)), withTooltip(say("popover.close"), h$8("button", {
 		type: "button",
 		className: "dsh-an-popClose",
 		"aria-label": say("popover.close"),
 		onClick: onClose
-	}, h$7(IconClose, null)))));
+	}, h$8(IconClose, null)))));
+}
+
+// src/client/ui/UpdateNotice.ts
+/**
+* Settings › About › update centre.
+*
+* One compact card: the published version, a disclosure that loads the release
+* notes for it, a link to the full release page, and the update action itself.
+* The action is a button, never automatic: the market queues the update when it
+* is clicked, and the panel reports the operation instead of guessing.
+*/
+const h$7 = react.default.createElement;
+const NOTES_ID = "dsh-an-update-notes";
+/** Failure codes the card can explain without echoing the market's message. */
+const FAILURE_COPY = {
+	NO_MARKET: "update.noMarket",
+	RELEASE_TOO_FRESH: "update.tooFresh",
+	VERSION_UNCHANGED: "update.unchanged",
+	PLUGIN_NOT_INSTALLED: "update.notInstalled",
+	UPDATE_FORBIDDEN: "update.forbidden",
+	UPDATE_REJECTED: "update.rejected",
+	OPERATION_BUSY: "update.busy",
+	UPDATE_TIMEOUT: "update.timeout"
+};
+function UpdateNotice(props) {
+	const { say, latestVersion, market, restartSupported, notes, expanded, run, fullReleaseUrl } = props;
+	if (latestVersion === null) return null;
+	const phase = run.phase;
+	const busy = phase === "starting" || phase === "running";
+	const stopped = market === "unsupported";
+	const failureKey = run.failureCode ? FAILURE_COPY[run.failureCode] : "";
+	const canForce = run.failureCode === "RELEASE_TOO_FRESH" || run.failureCode === "VERSION_UNCHANGED";
+	const progress = phase === "running" ? run.percent === null ? say("update.updating") : say("update.updatingPercent", { percent: run.percent }) : "";
+	return h$7("div", { className: "dsh-an-updateCard" }, h$7("div", { className: "dsh-an-updateTitle" }, say("update.available", { version: `v${latestVersion}` })), h$7("div", { className: "dsh-an-updateLinks" }, h$7("button", {
+		type: "button",
+		className: "dsh-an-updateToggle",
+		"aria-expanded": expanded,
+		"aria-controls": NOTES_ID,
+		onClick: props.onToggleNotes
+	}, say(expanded ? "update.notesHide" : "update.notesShow")), fullReleaseUrl ? h$7("a", {
+		className: "dsh-an-updateFull",
+		href: fullReleaseUrl,
+		target: "_blank",
+		rel: "noreferrer"
+	}, say("update.full")) : null), expanded ? h$7("div", {
+		id: NOTES_ID,
+		className: "dsh-an-updateNotes",
+		role: "region"
+	}, notes.status === "loading" ? h$7("p", { className: "dsh-an-updateHint" }, say("update.notesLoading")) : null, notes.status === "missing" ? h$7("p", { className: "dsh-an-updateHint" }, say("update.notesMissing")) : null, notes.status === "error" ? h$7("p", { className: "dsh-an-updateHint" }, say("update.notesFailed")) : null, notes.status === "ready" ? notes.groups.map((group, index) => h$7("div", {
+		key: `${group.title}-${index}`,
+		className: "dsh-an-updateGroup"
+	}, group.title ? h$7("div", { className: "dsh-an-updateGroupTitle" }, group.title) : null, h$7("ul", { className: "dsh-an-updateItems" }, group.items.map((item, itemIndex) => h$7("li", {
+		key: itemIndex,
+		className: "dsh-an-updateItem"
+	}, item.lead ? h$7("strong", null, item.lead) : null, item.lead ? " " : null, item.body))))) : null) : null, stopped ? h$7("p", { className: "dsh-an-updateHint" }, say("update.noMarket")) : h$7("div", { className: "dsh-an-updateActions" }, phase === "done" ? h$7("div", { className: "dsh-an-updateDone" }, h$7("span", { className: "dsh-an-updateHint" }, say("update.updated", { version: run.installedVersion ? `v${run.installedVersion}` : `v${latestVersion}` })), run.restartRequired && restartSupported ? h$7("button", {
+		type: "button",
+		className: "dsh-an-updatePrimary",
+		onClick: props.onRestart
+	}, say("update.restart")) : h$7("button", {
+		type: "button",
+		className: "dsh-an-updatePrimary",
+		onClick: props.onRefresh
+	}, say("update.refresh"))) : h$7("button", {
+		type: "button",
+		className: "dsh-an-updatePrimary",
+		disabled: busy,
+		onClick: () => props.onStartUpdate(false)
+	}, busy ? phase === "starting" ? say("update.starting") : progress : say("update.now")), phase === "error" ? h$7("p", {
+		className: "dsh-an-updateError",
+		role: "status"
+	}, failureKey ? say(failureKey) : say("update.failed", { reason: run.message || run.failureCode || "" }), canForce ? h$7("button", {
+		type: "button",
+		className: "dsh-an-updateLinkBtn",
+		onClick: () => props.onStartUpdate(true)
+	}, say("update.force")) : null) : null, run.phase === "done" && run.restartRequired && !restartSupported ? h$7("p", { className: "dsh-an-updateHint" }, say("update.restartHint")) : null));
 }
 
 // src/client/ui/SettingsPanel.ts
 /** Settings card: send shortcut, forward prefix and about. */
 const h$6 = react.default.createElement;
 function SettingsPanel(props) {
-	const { say, sendShortcut, chooseShortcut, forwardPrefix, changeForwardPrefix, prefixRef, newerVersion } = props;
+	const { say, sendShortcut, chooseShortcut, forwardPrefix, changeForwardPrefix, prefixRef, update } = props;
 	return h$6("div", { className: "dsh-an-settings" }, h$6("div", { className: "dsh-an-settingsHead" }, say("settings.title")), h$6("div", { className: "dsh-an-settingGroup" }, h$6("div", { className: "dsh-an-settingLabel" }, say("settings.shortcut")), h$6("div", { className: "dsh-an-settingBody" }, h$6("div", { className: "dsh-an-settingChoices" }, h$6("label", { className: "dsh-an-settingChoice" }, h$6("input", {
 		type: "radio",
 		name: "dsh-an-send-shortcut",
@@ -2068,13 +2818,31 @@ function SettingsPanel(props) {
 	}, say("settings.forwardPrefixHint"))))), h$6("div", { className: "dsh-an-settingGroup" }, h$6("div", { className: "dsh-an-settingLabel" }, say("settings.about")), h$6("div", { className: "dsh-an-settingBody" }, h$6("div", { className: "dsh-an-settingAbout" }, h$6("span", null, `${say("settings.version")} ${PLUGIN_VERSION}`), h$6("span", {
 		className: "dsh-an-settingDot",
 		"aria-hidden": true
-	}, "·"), h$6("span", null, `${say("settings.author")} ${PLUGIN_AUTHOR}`)), newerVersion ? h$6("a", {
-		className: "dsh-an-settingUpdate",
-		href: PLUGIN_RELEASES_URL,
-		target: "_blank",
-		rel: "noreferrer",
-		title: say("update.tip", { version: `v${newerVersion}` })
-	}, h$6("span", null, say("update.label")), h$6("span", { className: "dsh-an-settingUpdateVersion" }, `↑ v${newerVersion}`)) : null, h$6("div", { className: "dsh-an-settingProject" }, h$6("span", null, say("settings.project")), h$6("a", {
+	}, "·"), h$6("span", null, `${say("settings.author")} ${PLUGIN_AUTHOR}`)), h$6("div", { className: "dsh-an-updateCheckRow" }, h$6("button", {
+		type: "button",
+		className: "dsh-an-updateCheck",
+		disabled: update.check.status === "checking",
+		onClick: update.checkNow
+	}, say(update.check.status === "checking" ? "update.checking" : update.check.status === "error" ? "update.retryCheck" : "update.check")), update.check.status === "current" ? h$6("span", {
+		className: "dsh-an-updateHint",
+		role: "status"
+	}, say("update.current")) : null, update.check.status === "error" ? h$6("span", {
+		className: "dsh-an-updateHint dsh-an-updateHintError",
+		role: "status"
+	}, say("update.checkFailed")) : null), update.latestVersion ? h$6(UpdateNotice, {
+		say,
+		latestVersion: update.latestVersion,
+		market: update.market,
+		restartSupported: update.restartSupported,
+		notes: update.notes,
+		expanded: update.expanded,
+		run: update.run,
+		fullReleaseUrl: update.fullReleaseUrl,
+		onToggleNotes: update.toggleNotes,
+		onStartUpdate: update.startUpdate,
+		onRefresh: update.refreshPage,
+		onRestart: update.restartHost
+	}) : null, h$6("div", { className: "dsh-an-settingProject" }, h$6("span", null, say("settings.project")), h$6("a", {
 		className: "dsh-an-settingLink",
 		href: PLUGIN_REPO_URL,
 		target: "_blank",
@@ -2200,7 +2968,8 @@ function MemoPopover(props) {
 	const { sectionsRef, showOpen, showDone, toggleOpen, toggleDone, applySections } = useSections();
 	const { forwardedIds, rememberForwarded, unrememberForwarded, forgetForwardedItems } = useForwardMarks(sessionId);
 	const { showSettings, setShowSettings, sendShortcut, chooseShortcut, forwardPrefix, changeForwardPrefix, prefixRef } = usePanelSettings();
-	const newerVersion = useNewerVersion();
+	const update = useUpdateCenter(localeId);
+	const newerVersion = update.latestVersion;
 	const { draft, addRef, composingRef, add, onDraftChange, onDraftKeyDown } = useComposerDraft({
 		sessionId,
 		commit,
@@ -2309,7 +3078,7 @@ function MemoPopover(props) {
 		forwardPrefix,
 		changeForwardPrefix,
 		prefixRef,
-		newerVersion
+		update
 	}) : null, h$1(ComposerForm, {
 		say,
 		draft,

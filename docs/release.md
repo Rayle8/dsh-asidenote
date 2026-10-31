@@ -79,8 +79,37 @@ git push origin v2.0.1
 2. `npm run check`；
 3. 校验 `v$(package.json version)` 与 tag 完全一致；
 4. `npm publish --provenance`：通过 trusted publishing（OIDC）获取短时凭据，不使用长期 token；
-5. 创建同名 GitHub Release：说明取自 `CHANGELOG.md` 对应版本小节，并附 Full Changelog 链接；预发布加 `--prerelease`；
+5. 用 `node tools/release/notes.mjs` 由 `CHANGELOG.md` 生成 Release 正文（见下节），附安装链接与 Full Changelog；创建同名 GitHub Release，预发布加 `--prerelease`；
 6. 把 `npm pack` 生成的 tgz 作为 Release 资产上传，保持「从 Release 安装」可用。
+
+## 发布说明格式
+
+Release 正文由 [tools/release/notes.mjs](../tools/release/notes.mjs) 从 `CHANGELOG.md` 对应版本小节生成，中英文各一段：
+
+```md
+## 2.1.0
+
+<!-- app-update-notes:en:start -->
+### Added
+- **Update centre:** ...
+<!-- app-update-notes:en:end -->
+
+<!-- app-update-notes:zh:start -->
+### 新增
+- **更新中心：** ...
+<!-- app-update-notes:zh:end -->
+```
+
+- 标记块只包裹「更新内容」本身；面板读取的就是块内文本，按当前语言取 `zh` 或 `en`，缺失时互相回退。
+- 生成器负责加上 `# English` / `# 中文`、`## What's changed` / `## 更新内容`、安装或升级一节（npm 命令 + tgz 附件），以及 `<details>` 里的 Full Changelog 链接；这些不要手写进 CHANGELOG。
+- 小节缺少版本标题或两组标记时，发布步骤会回退到 `--generate-notes` 并打印 warning，避免发出版本却没有 Release。
+- 本地预览：
+
+  ```bash
+  node tools/release/notes.mjs --version 2.1.0 --tag v2.1.0 --prev v2.0.1
+  ```
+
+  再加 `--out notes.md` 可写到文件。`tests/release-notes-build.test.mjs` 会同时校验发布页正文与面板解析结果，防止两边漂移。
 
 trusted publisher 配置：
 
@@ -115,21 +144,29 @@ gh release view v2.0.1 -R Rayle8/dsh-asidenote
 
 ## 更新提示的耦合
 
-应用内「新版本」提示的版本号可能来自 npm，但链接固定指向：
+应用内更新卡片需要三样东西同时成立：
 
-```text
-https://github.com/Rayle8/dsh-asidenote/releases/latest
-```
+1. **npm（或 GitHub Release）有新版本**：版本号来自 npm，npm 不可用时回退到 npmmirror，再回退到 GitHub 最新 Release。
+2. **对应的 GitHub Release 存在**：面板按 `releases/tags/v<最新版本>` 读取正文；只打 tag 不建 Release 时读不到说明，卡片会退化为「暂无更新说明 + 完整更新说明链接」。workflow 已经自动创建 Release 并上传 tgz。
+3. **Release 正文带 `app-update-notes` 标记**：没有标记的旧版本只显示完整说明链接；从 2.1.0 起由生成器保证标记存在。
 
-因此**每个版本都必须有 GitHub Release**，否则用户点更新说明会得到 404。workflow 已经自动创建 Release 并上传 tgz；如果手动补建，使用：
+`releases/latest` 会跳过 prerelease，所以预发布不会触发稳定用户的提示。手动补建 Release 时，建议直接用生成器，避免漏掉标记：
 
 ```bash
-gh release create v2.0.1 --verify-tag --title "AsideNote 2.0.1" --generate-notes
+node tools/release/notes.mjs --version 2.0.1 --tag v2.0.1 --prev v2.0.0 --out notes.md
+gh release create v2.0.1 --verify-tag --title "AsideNote 2.0.1" --notes-file notes.md
 npm pack --pack-destination dist
 gh release upload v2.0.1 dist/dsh-asidenote-2.0.1.tgz --clobber
 ```
 
-`releases/latest` 会跳过 prerelease，所以预发布不会触发稳定用户的提示。
+## 应用内更新的依赖
+
+「立即更新」通过 dshmarket 的公开更新 API（`/dsh-market/api/v1`）执行，**不是**本插件自己跑包管理器。因此：
+
+- 未安装或未启用 dshmarket 时，卡片只给手动更新路径；插件不会尝试安装市场。
+- 市场返回的 `RELEASE_TOO_FRESH` / `VERSION_UNCHANGED` 会显示「仍要更新」二次确认；失败时展示稳定的失败码文案。
+- 更新完成后按市场给出的 `refreshRequired` / `restartRequired` 显示「刷新页面」或「重启 DSH」；Host 重启能力由市场的 capabilities 决定，插件不自行结束进程。
+- 市场 API 处于 beta：客户端从 capabilities 读取端点与能力，不硬编码开关。
 
 ## 故障排查
 

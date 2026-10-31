@@ -1,5 +1,27 @@
 # Changelog
 
+## 2.1.0
+
+<!-- app-update-notes:en:start -->
+### Added
+- **Update centre:** Settings › About now offers a manual **Check for updates** button, an inline **What's new** disclosure for the published release, and a **Full release notes** link. Opening the panel still checks quietly once an hour; the button forces a fresh registry read.
+- **In-app update:** **Update now** queues the release through the plugin market's public update API (`/dsh-market/api/v1`), shows live progress, and offers a page refresh or host restart when the operation finishes. Nothing installs without the click; without a market the card explains the manual path.
+- **Release-note parser:** release notes are read from the GitHub Release body between `app-update-notes` markers, flattened to plain text (headings, bullets, bold leads, links) and capped against malformed bodies. The parser lives in `src/client/update/releaseNotes.ts`.
+
+### Changed
+- **Release body:** `tools/release/notes.mjs` now composes the GitHub Release from `CHANGELOG.md`: English and 中文 sections, `app-update-notes` markers for the in-app card, npm/tarball install links and a Full Changelog link. The publish workflow uses the same script, so the release page and the panel cannot drift.
+<!-- app-update-notes:en:end -->
+
+<!-- app-update-notes:zh:start -->
+### 新增
+- **更新中心：** 设置 › 关于新增「检查更新」按钮、可展开的「查看更新内容」与「完整更新说明」链接。打开面板仍会在一小时内静默检查一次；点击按钮则强制重新读取 registry。
+- **应用内更新：** 「立即更新」通过插件市场的公开更新 API（`/dsh-market/api/v1`）排队升级，显示实时进度，完成后可刷新页面或重启 Host。没有点击就不会安装；未检测到市场时，卡片给出手动更新的说明。
+- **发布说明解析：** 更新说明读取 GitHub Release 正文中 `app-update-notes` 标记之间的内容，统一压成纯文本（标题、条目、加粗主题与链接），并对异常正文做数量与长度兜底。解析器位于 `src/client/update/releaseNotes.ts`。
+
+### 变更
+- **发布正文：** `tools/release/notes.mjs` 改为由 `CHANGELOG.md` 生成 GitHub Release：中英文分区、供面板读取的 `app-update-notes` 标记、npm 与 tgz 安装链接，以及 Full Changelog 链接。发布流程使用同一脚本，发布页与面板不会各写一份。
+<!-- app-update-notes:zh:end -->
+
 ## 2.0.1
 
 - No plugin behavior changes. This release exists to ship the package and the release pipeline: the npm package now publishes under `dsh-asidenote` with `publishConfig` pinned to the public registry, and the README documents the npm install path.
