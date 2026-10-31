@@ -57,7 +57,7 @@ const DRAFT_STORAGE_KEY = "dsh.aside-notes.drafts.v2";
 /** Notes already forwarded to the composer, per session; marks the forward button. */
 const FORWARDED_STORAGE_KEY = "dsh.aside-notes.forwarded.v2";
 /** Shown in the in-panel settings; keep in sync with package.json. */
-const PLUGIN_VERSION = "2.0.0";
+const PLUGIN_VERSION = "2.0.1";
 const PLUGIN_AUTHOR = "阿三石";
 const PLUGIN_REPO_URL = "https://github.com/Rayle8/dsh-asidenote";
 const PLUGIN_REPO_LABEL = "github.com/Rayle8/dsh-asidenote";
@@ -1344,7 +1344,7 @@ function fetchLatestVersion() {
 function useNewerVersion() {
 	const [latestVersion, setLatestVersion] = react.default.useState(null);
 	react.default.useEffect(() => {
-		if ("2.0.0".includes("-")) return void 0;
+		if ("2.0.1".includes("-")) return void 0;
 		let active = true;
 		fetchLatestVersion().then((version) => {
 			if (active && version !== null) setLatestVersion(version);
@@ -1353,7 +1353,7 @@ function useNewerVersion() {
 			active = false;
 		};
 	}, []);
-	return latestVersion !== null && isNewerVersion(latestVersion, "2.0.0") ? latestVersion : null;
+	return latestVersion !== null && isNewerVersion(latestVersion, "2.0.1") ? latestVersion : null;
 }
 
 // src/client/storage/drafts.ts

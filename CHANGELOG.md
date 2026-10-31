@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1
+
+- No plugin behavior changes. This release exists to ship the package and the release pipeline: the npm package now publishes under `dsh-asidenote` with `publishConfig` pinned to the public registry, and the README documents the npm install path.
+- Add a tag-driven publish workflow: `v*` tags run lint, typecheck, tests and build, verify the tag matches `package.json`, publish through trusted publishing (OIDC, with provenance), then create the matching GitHub Release. Prerelease tags go to the npm `next` dist-tag and are marked prerelease, so stable users are not prompted.
+- Add `docs/release.md` with the branch model, version policy, release checklist and troubleshooting.
+
 ## 2.0.0
 
 - Check the npm registry for a newer published release when the notes panel opens, falling back to the npmmirror host and then to the latest GitHub Release tag for checkouts that are not on npm; the answer, including a miss, is reused for an hour. A newer version puts a dot on the settings button and adds an “Update available ↑ vX.Y.Z” link under Settings › About that opens the GitHub release notes. The probe lives in `src/client/update/latest.ts` with an injected clock and fetch so the contract test can drive it; it installs nothing and touches no notes.
