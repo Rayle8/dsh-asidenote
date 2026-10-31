@@ -1,0 +1,53 @@
+name: publish
+
+on:
+  # Manual first publish (and re-runs); a tag push publishes the matching version.
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  # Required for trusted publishing: npm exchanges this OIDC token for a
+  # short-lived publish credential instead of a long-lived access token.
+  id-token: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          # Release builds must not restore a cache that could hide a bad install.
+          package-manager-cache: false
+
+      - name: Install
+        run: npm ci
+        env:
+          NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
+          # The lockfile resolves through the npm mirror used during development;
+          # fetch from the public registry on the runner instead.
+          NPM_CONFIG_REPLACE_REGISTRY_HOST: always
+
+      - name: Check
+        run: npm run check
+
+      - name: The tag must match the package version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          version="v$(node -p "require('./package.json').version")"
+          if [ "$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match package.json $version"
+            exit 1
+          fi
+
+      - name: Publish
+        run: npm publish --provenance --access public
