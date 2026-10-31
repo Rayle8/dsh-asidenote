@@ -280,6 +280,8 @@ window.__ModuleLoader__.load({ id: 'dsh-asidenote', factory: (require) => { … 
 
 代码结构、数据模型与构建约定见 [架构文档](./docs/architecture.md)。
 
+分支模型、版本策略与发版步骤见 [发布与版本迭代](./docs/release.md)。
+
 ## 验证
 
 已在独立的 DSH profile 中实际加载，并用无头 Chrome 走通：

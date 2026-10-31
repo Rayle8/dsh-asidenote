@@ -280,6 +280,8 @@ The screenshot and preview pipeline lives in the [screenshot SOP](./docs/screens
 
 Code structure, data model and build conventions: [architecture](./docs/architecture.md).
 
+Branching, versioning and the release checklist: [release and versioning](./docs/release.md) (Chinese).
+
 ## Verification
 
 Loaded in an isolated DSH profile and driven through headless Chrome:
