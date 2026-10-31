@@ -45,9 +45,19 @@ test('the release body is composed from CHANGELOG markers and used by the publis
   assert.match(workflow, /--generate-notes/)
   const changelog = read('CHANGELOG.md')
   const version = JSON.parse(read('package.json')).version
-  assert.match(changelog, new RegExp(`^## ${version.replace(/\./g, '\\.')}$`, 'm'))
+  // Development keeps an Unreleased section; the release commit renames it to
+  // the version chosen then, so either title is valid for this check.
+  const heading = changelog.match(/^## (.+)$/m)
+  assert.ok(heading, 'CHANGELOG needs a section heading')
+  assert.ok(
+    heading[1] === 'Unreleased' || heading[1] === version,
+    `the first section is Unreleased until release day (saw ${heading[1]})`,
+  )
+  const start = changelog.indexOf(`## ${heading[1]}`)
+  const next = changelog.indexOf('\n## ', start + 3)
+  const section = next === -1 ? changelog.slice(start) : changelog.slice(start, next)
   const markers = ['en', 'zh'].map(locale => `<!-- app-update-notes:${locale}:start -->`)
-  for (const marker of markers) assert.ok(changelog.includes(marker), `CHANGELOG needs ${marker}`)
+  for (const marker of markers) assert.ok(section.includes(marker), `the current release section needs ${marker}`)
 })
 
 test('the client checks for a newer release, reads its notes inline and updates through the market', () => {
@@ -71,12 +81,12 @@ test('the client checks for a newer release, reads its notes inline and updates 
   assert.match(client, /dsh-market\/api\/v1/)
   assert.match(client, /export function createMarketClient/)
   assert.match(client, /packageName: name/)
-  assert.match(client, /'update\.notesShow'/)
+  assert.doesNotMatch(client, /update\.notesShow|update\.notesHide/)
   assert.match(client, /'update\.now'/)
   assert.match(client, /PLUGIN_VERSION\.includes\('-'\)/)
   assert.match(css, /\.dsh-an-updateDot\{/)
   assert.match(css, /\.dsh-an-updateCard\{/)
-  assert.match(css, /\.dsh-an-updateToggle\{/)
+  assert.doesNotMatch(css, /\.dsh-an-updateToggle\{/)
   assert.match(css, /\.dsh-an-updateVersionHead\{/)
   assert.match(css, /--dsh-scrollbar-width:var\(--dsh-an-scrollRail\)/)
   assert.match(css, /\.dsh-an-updateNotes\[data-fade="true"\]\{/)

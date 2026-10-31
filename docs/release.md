@@ -84,10 +84,12 @@ git push origin v2.0.1
 
 ## 发布说明格式
 
-Release 正文由 [tools/release/notes.mjs](../tools/release/notes.mjs) 从 `CHANGELOG.md` 对应版本小节生成，中英文各一段：
+Release 正文由 [tools/release/notes.mjs](../tools/release/notes.mjs) 从 `CHANGELOG.md` 对应版本小节生成，中英文各一段。
+
+开发期写在 `## Unreleased` 下；发布提交里把标题改成 `## <version>`（与 `package.json`、tag 一致），生成器按这个标题取小节。示例（发布前）：
 
 ```md
-## 2.1.0
+## Unreleased
 
 <!-- app-update-notes:en:start -->
 ### Added
@@ -102,7 +104,8 @@ Release 正文由 [tools/release/notes.mjs](../tools/release/notes.mjs) 从 `CHA
 
 - 标记块只包裹「更新内容」本身；面板读取的就是块内文本，按当前语言取 `zh` 或 `en`，缺失时互相回退。
 - 生成器负责加上 `# English` / `# 中文`、`## What's changed` / `## 更新内容`、安装或升级一节（npm 命令 + tgz 附件），以及 `<details>` 里的 Full Changelog 链接；这些不要手写进 CHANGELOG。
-- 小节缺少版本标题或两组标记时，发布步骤会回退到 `--generate-notes` 并打印 warning，避免发出版本却没有 Release。
+- 发布步骤第 2 步会把 `## Unreleased` 改成 `## <version>`；忘记改名时生成器找不到版本小节，会回退到 `--generate-notes` 并打印 warning。
+- 小节缺少两组标记时同样回退到 `--generate-notes`，避免发出版本却没有 Release。
 - 本地预览：
 
   ```bash

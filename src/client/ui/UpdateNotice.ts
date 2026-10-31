@@ -1,14 +1,16 @@
 /**
  * Settings › About › update centre.
  *
- * One compact card: the published version, a disclosure that loads the release
- * notes for it, a link to the full release page, and the update action itself.
- * The action is a button, never automatic: the market queues the update when it
- * is clicked, and the panel reports the operation instead of guessing.
+ * One compact card: the published version, the release notes it ships with, and
+ * the update action. The notes load and show as soon as an update is offered —
+ * they are not hidden behind a disclosure. The action is a button, never
+ * automatic: the market queues the update when it is clicked, and the panel
+ * reports the operation instead of guessing.
  *
  * A jump across several versions lists each release separately: the newest one
  * opens by default and the ones behind it expand on demand, so a 2.0.0 install
- * upgrading to 2.3.0 can read 2.1.0, 2.2.0 and 2.3.0 in order.
+ * upgrading to 2.3.0 can read 2.1.0, 2.2.0 and 2.3.0 in order. The full release
+ * page opens from the link beside the update button.
  */
 import React from 'react'
 import type { NotesEntry, NotesState, RunPhase, UpdateRunState } from './useUpdateCenter'
@@ -36,18 +38,16 @@ export function UpdateNotice(props: {
   market: 'unknown' | 'unsupported' | 'ready'
   restartSupported: boolean
   notes: NotesState
-  expanded: boolean
   expandedVersions: Record<string, boolean>
   releasesUrl: string
   run: UpdateRunState
   fullReleaseUrl: string | null
-  onToggleNotes: () => void
   onToggleVersion: (version: string) => void
   onStartUpdate: (force?: boolean) => void
   onRefresh: () => void
   onRestart: () => void
 }) {
-  const { say, latestVersion, market, restartSupported, notes, expanded, expandedVersions, run, fullReleaseUrl } = props
+  const { say, latestVersion, market, restartSupported, notes, expandedVersions, run, fullReleaseUrl } = props
   const notesRef = React.useRef<HTMLDivElement | null>(null)
   const [fade, setFade] = React.useState(false)
 
@@ -63,10 +63,6 @@ export function UpdateNotice(props: {
   }, [])
 
   React.useEffect(() => {
-    if (!expanded) {
-      setFade(false)
-      return undefined
-    }
     const node = notesRef.current
     if (!node) return undefined
     const frame = requestAnimationFrame(syncFade)
@@ -84,7 +80,7 @@ export function UpdateNotice(props: {
       window.removeEventListener('resize', syncFade)
       observer?.disconnect()
     }
-  }, [expanded, notes.status, notes.entries, expandedVersions, syncFade])
+  }, [notes.status, notes.entries, expandedVersions, syncFade])
 
   if (latestVersion === null) return null
 
@@ -183,18 +179,43 @@ export function UpdateNotice(props: {
     h('div', { className: 'dsh-an-updateTitle' }, say('update.available', { version: `v${latestVersion}` })),
     h(
       'div',
-      { className: 'dsh-an-updateLinks' },
-      h(
-        'button',
-        {
-          type: 'button',
-          className: 'dsh-an-updateToggle',
-          'aria-expanded': expanded,
-          'aria-controls': NOTES_ID,
-          onClick: props.onToggleNotes,
-        },
-        say(expanded ? 'update.notesHide' : 'update.notesShow'),
-      ),
+      {
+        id: NOTES_ID,
+        ref: notesRef,
+        className: 'dsh-an-updateNotes',
+        role: 'region',
+        'aria-label': say('update.notesTitle'),
+        'data-fade': fade ? 'true' : undefined,
+      },
+      notesBody,
+    ),
+    h(
+      'div',
+      { className: 'dsh-an-updateActions' },
+      stopped
+        ? h('p', { className: 'dsh-an-updateHint' }, say('update.noMarket'))
+        : phase === 'done'
+          ? h(
+              'div',
+              { className: 'dsh-an-updateDone' },
+              h('span', { className: 'dsh-an-updateHint' }, say('update.updated', {
+                version: run.installedVersion ? `v${run.installedVersion}` : `v${latestVersion}`,
+              })),
+              run.restartRequired && restartSupported
+                ? h('button', { type: 'button', className: 'dsh-an-updatePrimary', onClick: props.onRestart }, say('update.restart'))
+                : h('button', { type: 'button', className: 'dsh-an-updatePrimary', onClick: props.onRefresh }, say('update.refresh')),
+            )
+          : h(
+              'button',
+              {
+                type: 'button',
+                className: 'dsh-an-updatePrimary',
+                disabled: busy,
+                'aria-busy': busy,
+                onClick: () => props.onStartUpdate(false),
+              },
+              busy ? (phase === 'starting' ? say('update.starting') : progress) : say('update.now'),
+            ),
       fullReleaseUrl
         ? h(
             'a',
@@ -208,74 +229,32 @@ export function UpdateNotice(props: {
           )
         : null,
     ),
-    expanded
+    phase === 'error'
       ? h(
           'div',
-          {
-            id: NOTES_ID,
-            ref: notesRef,
-            className: 'dsh-an-updateNotes',
-            role: 'region',
-            'aria-label': say('update.notesTitle'),
-            'data-fade': fade ? 'true' : undefined,
-          },
-          notesBody,
-        )
-      : null,
-    stopped
-      ? h('p', { className: 'dsh-an-updateHint' }, say('update.noMarket'))
-      : h(
-          'div',
-          { className: 'dsh-an-updateActions' },
-          phase === 'done'
+          { className: 'dsh-an-updateErrorRow' },
+          h(
+            'p',
+            { className: 'dsh-an-updateError', role: 'status' },
+            failureKey
+              ? say(failureKey)
+              : say('update.failed', { reason: run.message || run.failureCode || '' }),
+          ),
+          canForce
             ? h(
-                'div',
-                { className: 'dsh-an-updateDone' },
-                h('span', { className: 'dsh-an-updateHint' }, say('update.updated', {
-                  version: run.installedVersion ? `v${run.installedVersion}` : `v${latestVersion}`,
-                })),
-                run.restartRequired && restartSupported
-                  ? h('button', { type: 'button', className: 'dsh-an-updatePrimary', onClick: props.onRestart }, say('update.restart'))
-                  : h('button', { type: 'button', className: 'dsh-an-updatePrimary', onClick: props.onRefresh }, say('update.refresh')),
-              )
-            : h(
                 'button',
                 {
                   type: 'button',
-                  className: 'dsh-an-updatePrimary',
-                  disabled: busy,
-                  'aria-busy': busy,
-                  onClick: () => props.onStartUpdate(false),
+                  className: 'dsh-an-updateLinkBtn',
+                  onClick: () => props.onStartUpdate(true),
                 },
-                busy ? (phase === 'starting' ? say('update.starting') : progress) : say('update.now'),
-              ),
-          phase === 'error'
-            ? h(
-                'div',
-                { className: 'dsh-an-updateErrorRow' },
-                h(
-                  'p',
-                  { className: 'dsh-an-updateError', role: 'status' },
-                  failureKey
-                    ? say(failureKey)
-                    : say('update.failed', { reason: run.message || run.failureCode || '' }),
-                ),
-                canForce
-                  ? h(
-                      'button',
-                      {
-                        type: 'button',
-                        className: 'dsh-an-updateLinkBtn',
-                        onClick: () => props.onStartUpdate(true),
-                      },
-                      say('update.force'),
-                    )
-                  : null,
+                say('update.force'),
               )
             : null,
-          run.phase === 'done' && run.restartRequired && !restartSupported
-            ? h('p', { className: 'dsh-an-updateHint' }, say('update.restartHint'))
-            : null,
-        ),
+        )
+      : null,
+    run.phase === 'done' && run.restartRequired && !restartSupported
+      ? h('p', { className: 'dsh-an-updateHint' }, say('update.restartHint'))
+      : null,
   )
 }

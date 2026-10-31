@@ -74,8 +74,6 @@ export const zh = {
   "update.current": "已是最新版本",
   "update.checkFailed": "检查失败，请稍后重试",
   "update.available": "有新版本 {version}",
-  "update.notesShow": "查看更新内容",
-  "update.notesHide": "收起更新内容",
   "update.notesTitle": "更新说明",
   "update.notesLoading": "正在读取更新说明…",
   "update.notesMissing": "这个版本还没有可显示的更新说明",

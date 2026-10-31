@@ -91,13 +91,24 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   const calls = []
   let startedUpdates = 0
   let polledOperations = 0
+  // One manual check is held open so the test can see the in-flight render.
+  let holdManualCheck = false
+  let releaseManualCheck = null
   const json = (status, body) => ({ ok: status >= 200 && status < 300, status, json: async () => body })
   window.fetch = async (input, init = {}) => {
     const url = String(input)
     const method = init.method || 'GET'
     calls.push({ url, method })
     if (url.startsWith('https://registry.npmjs.org/')) return json(404, {})
-    if (url.startsWith('https://registry.npmmirror.com/')) return json(200, { version: '2.3.0' })
+    if (url.startsWith('https://registry.npmmirror.com/')) {
+      if (holdManualCheck) {
+        holdManualCheck = false
+        return new Promise(resolve => {
+          releaseManualCheck = () => resolve(json(200, { version: '2.3.0' }))
+        })
+      }
+      return json(200, { version: '2.3.0' })
+    }
     if (url === 'https://api.github.com/repos/Rayle8/dsh-asidenote/releases?per_page=50') {
       return json(200, RELEASES)
     }
@@ -247,20 +258,30 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   const updateCard = popover.querySelector('.dsh-an-updateCard')
   assert.ok(updateCard, 'a newer version must surface in Settings > About')
   assert.match(updateCard.textContent, /2\.3\.0/)
+  // Notes are part of the card, loaded without a disclosure click.
+  await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 80)) })
+  assert.ok(popover.querySelector('.dsh-an-updateNotes'), 'release notes must load by default')
 
   // The manual check bypasses the hourly cache and reads the registry again.
+  // Hold its answer to assert the card does not unmount while the check runs.
   const beforeCheck = registryCalls().length
+  holdManualCheck = true
   await act(async () => { popover.querySelector('.dsh-an-updateCheck').click() })
+  await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 60)) })
+  assert.ok(popover.querySelector('.dsh-an-updateCard'), 'the card must stay mounted while a manual check runs')
+  assert.ok(popover.querySelector('.dsh-an-updateDot'), 'the update dot must stay while checking')
+  assert.equal(popover.querySelector('.dsh-an-updateCheck').textContent, '正在检查…', 'only the button reports progress')
+  releaseManualCheck()
   await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 80)) })
   assert.equal(registryCalls().length, beforeCheck + 2, 'a manual check must bypass the cache')
+  // The checking state is deliberately held for at least three seconds; wait it
+  // out before expecting an available release again.
+  await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 3200)) })
 
-  // Expanding the disclosure loads the release list: two releases in the gap,
-  // the newest open and the older one collapsed until it is clicked.
-  assert.equal(popover.querySelector('.dsh-an-updateNotes'), null, 'notes stay closed until asked for')
-  await act(async () => { popover.querySelector('.dsh-an-updateToggle').click() })
-  await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 80)) })
+  // The release list is already visible: two releases in the gap, the newest
+  // open and the older one collapsed until its version heading is clicked.
   const notes = popover.querySelector('.dsh-an-updateNotes')
-  assert.ok(notes, 'the disclosure opens an inline notes region')
+  assert.ok(notes, 'release notes stay visible after a check')
   assert.match(notes.textContent, /本次更新包含 2 个版本/)
   const heads = [...notes.querySelectorAll('.dsh-an-updateVersionHead')]
   assert.deepEqual(heads.map(head => head.textContent.replace('▸', '')), ['v2.3.0最新', 'v2.2.0'])
@@ -274,6 +295,10 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   const fullLink = popover.querySelector('.dsh-an-updateFull')
   assert.equal(fullLink.getAttribute('href'), 'https://github.com/Rayle8/dsh-asidenote/releases/tag/v2.3.0')
   assert.equal(fullLink.getAttribute('target'), '_blank')
+  const actions = popover.querySelector('.dsh-an-updateActions')
+  assert.ok(actions, 'the action row carries the update button and the full-release link')
+  assert.equal(actions.lastElementChild, fullLink, 'the full-release link sits to the right of the update button')
+  assert.ok(actions.querySelector('.dsh-an-updatePrimary'), 'the update button shares that row')
 
   // "Update now" queues the market operation and settles on the refresh action.
   await act(async () => { popover.querySelector('.dsh-an-updatePrimary').click() })

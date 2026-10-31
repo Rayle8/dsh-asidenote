@@ -1,6 +1,6 @@
 {
   "name": "dsh-asidenote",
-  "version": "2.1.0",
+  "version": "2.0.1",
   "type": "module",
   "description": "AsideNote: a lightweight per-session notes button and right-side panel for the DeepSeek Harness Web GUI.",
   "license": "MIT",

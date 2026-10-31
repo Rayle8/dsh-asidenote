@@ -71,6 +71,12 @@ const RUN_IDLE: UpdateRunState = {
 }
 
 const POLL_INTERVAL_MS = 900
+/**
+ * A manual check stays on screen for at least this long. A fast registry answer
+ * would otherwise flip the button back in a few milliseconds, which reads as
+ * "did that do anything?" and invites repeat clicks.
+ */
+const MIN_CHECK_MS = 3000
 /** A terminal state never arrives for an abandoned operation; stop asking. */
 const MAX_POLLS = 400
 
@@ -83,7 +89,6 @@ function terminalRun(phase: RunPhase, patch: Partial<UpdateRunState> = {}): Upda
 export function useUpdateCenter(localeId: string) {
   const [check, setCheck] = React.useState<UpdateCheckState>(CHECK_IDLE)
   const [notes, setNotes] = React.useState<NotesState>(NOTES_IDLE)
-  const [expanded, setExpanded] = React.useState(false)
   const [expandedVersions, setExpandedVersions] = React.useState<Record<string, boolean>>({})
   const [run, setRun] = React.useState<UpdateRunState>(RUN_IDLE)
   const [market, setMarket] = React.useState<MarketState>('unknown')
@@ -100,7 +105,9 @@ export function useUpdateCenter(localeId: string) {
     }
   }, [])
 
-  const latestVersion = check.status === 'available' ? check.latestVersion : null
+  // Keep the card mounted while a manual check runs (and when it fails with a
+  // last known version): unmounting it mid-request is what read as a flicker.
+  const latestVersion = check.status === 'current' ? null : check.latestVersion
 
   // Quiet check on open: keeps the gear dot meaningful without a click. A local
   // dev build (`2.1.0-dev`) never nags, but a manual check still works.
@@ -139,41 +146,48 @@ export function useUpdateCenter(localeId: string) {
     if (check.status === 'checking') return
     // A manual check is an explicit request to look again: drop the hourly cache.
     resetUpdateChecks()
+    const startedAt = Date.now()
+    const previousVersion = check.latestVersion
     setCheck(previous => ({ ...previous, status: 'checking' }))
-    setNotes(NOTES_IDLE)
-    setExpanded(false)
-    setExpandedVersions({})
     // A new check supersedes a finished or failed attempt, so the card cannot
     // keep showing a failure that belongs to the previous version.
     setRun(RUN_IDLE)
     const version = await fetchLatestVersion()
+    // Keep the checking state visible long enough to be noticed, even when the
+    // registry answers immediately.
+    const remaining = MIN_CHECK_MS - (Date.now() - startedAt)
+    if (remaining > 0) await sleep(remaining)
     if (disposed.current) return
     if (version === null) {
-      setCheck({ status: 'error', latestVersion: null, checkedAt: Date.now() })
+      // Keep the last known release on screen; the button reports the failure.
+      setCheck({ status: 'error', latestVersion: previousVersion, checkedAt: Date.now() })
       return
     }
     if (isNewerVersion(version, PLUGIN_VERSION)) {
+      const sameRelease = previousVersion !== null && version === previousVersion
       setCheck({ status: 'available', latestVersion: version, checkedAt: Date.now() })
-      setMarket('unknown')
+      // Only a different release invalidates the notes already on screen.
+      if (!sameRelease) {
+        setNotes(NOTES_IDLE)
+        setExpandedVersions({})
+      }
     } else {
       setCheck({ status: 'current', latestVersion: version, checkedAt: Date.now() })
-      setMarket('unknown')
+      setNotes(NOTES_IDLE)
+      setExpandedVersions({})
     }
-  }, [check.status])
-
-  const toggleNotes = React.useCallback(() => {
-    setExpanded(value => !value)
-  }, [])
+  }, [check.status, check.latestVersion])
 
   const toggleVersion = React.useCallback((version: string) => {
     setExpandedVersions(previous => ({ ...previous, [version]: previous[version] !== true }))
   }, [])
 
-  // Lazy notes: one request when the disclosure first opens for a version gap.
+  // Notes load as soon as an update is offered: the card shows the release
+  // content by default, not behind a disclosure.
   // The feed answers with every release between the running build and the
   // published one, so a multi-version jump is grouped instead of flattened.
   React.useEffect(() => {
-    if (!expanded || check.status !== 'available' || check.latestVersion === null) return undefined
+    if (check.status !== 'available' || check.latestVersion === null) return undefined
     if (notes.status !== 'idle') return undefined
     let active = true
     setNotes(previous => ({ ...previous, status: 'loading' }))
@@ -199,7 +213,7 @@ export function useUpdateCenter(localeId: string) {
     // `notes.status` is intentionally not a dependency: setting "loading" here
     // would invalidate the effect and its cleanup would discard the answer.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expanded, check.status, check.latestVersion, localeId])
+  }, [check.status, check.latestVersion, localeId])
 
   const startUpdate = React.useCallback(async (force = false) => {
     if (runRef.current.phase === 'starting' || runRef.current.phase === 'running' || runRef.current.phase === 'done') return
@@ -277,7 +291,6 @@ export function useUpdateCenter(localeId: string) {
     check,
     latestVersion,
     notes,
-    expanded,
     expandedVersions,
     releasesUrl: `${PLUGIN_REPO_URL}/releases`,
     run,
@@ -285,7 +298,6 @@ export function useUpdateCenter(localeId: string) {
     restartSupported,
     fullReleaseUrl,
     checkNow,
-    toggleNotes,
     toggleVersion,
     startUpdate,
     refreshPage,

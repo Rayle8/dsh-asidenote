@@ -76,8 +76,6 @@ export const en: Record<MessageKey, string> = {
   "update.current": "You're up to date",
   "update.checkFailed": "Check failed — try again later",
   "update.available": "Version {version} is available",
-  "update.notesShow": "What's new",
-  "update.notesHide": "Hide what's new",
   "update.notesTitle": "Release notes",
   "update.notesLoading": "Loading release notes…",
   "update.notesMissing": "No release notes to show for this version yet",
