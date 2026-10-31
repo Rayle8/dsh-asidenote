@@ -6,7 +6,7 @@
 
 | 阶段 | 状态 | 提交 |
 |---|---|---|
-| P0 冻结与兜底 | 完成 | tag `pre-refactor-1.9.7`；合并分支清理；`docs/archive/notes-trash-ux-checklist.md` |
+| P0 冻结与兜底 | 完成 | tag `pre-refactor-1.9.7`；合并分支清理；trash UX 清单（收尾时删除） |
 | P1 工具链骨架 | 完成 | `41ddc0d`（tsdown + tsc + oxlint + 产物一致性门 + 真机前 jsdom 冒烟） |
 | P2 拆模块 | 完成（不再细拆） | `96e4414` 常量/i18n/CSS；`0a1821b` storage/domain/hook；`8e0bc4c` 行/空态/定位/图标；组件与 8 个 hook 拆完（几何/分区/转发/设置/草稿/行操作/清除确认/列表边缘），Toast 座位与顶部入口也独立成模块。入口 2,507 → 203 行 |
 | P3 改名 + 迁移 | 完成 | `198d673`（AsideNote，`dsh.aside-notes.*.v2`，旧键只读保留） |
@@ -15,7 +15,7 @@
 
 决定：`ui/TodoRow.ts` 264 行保持现状，不再细拆（单组件内聚，收益低于风险）。
 
-剩余：打 `v2.0.0` tag 并发布；契约测试迁 Vitest（可选，现有 43 个测试已全绿）。
+剩余：打 `v2.0.0` tag 并发布；契约测试迁 Vitest（可选，现有 44 个测试已全绿）。
 
 ## 0. 结论
 
@@ -123,11 +123,9 @@ dsh-asidenote/
 │  └─ smoke.md                  # 真机冒烟清单
 ├─ docs/
 │  ├─ assets/                   # README 用图（明暗成对）
-│  │  ├─ panel-light.png · panel-dark.png
-│  │  ├─ settings-*.png · actions-*.png · clear-*.png · empty-*.png
-│  │  └─ badge-*.png · panel-closeup-*.png
-│  ├─ archive/
-│  │  └─ ui-audit-2025/         # ui-design-check.md + 16 张 ui-check 截图
+│  │  ├─ preview-badge*.png · preview-right*.png
+│  │  └─ features/              # panel · settings · actions · clear · empty
+│  ├─ panel-ui-rules.md         # 面板 UI 规则（替代历史复查）
 │  └─ refactor-plan.md          # 本文件，执行完移入 archive 或删除
 └─ .github/workflows/ci.yml
 ```
@@ -360,7 +358,7 @@ export const en: Record<MessageKey, string> = { /* 缺键 = tsc 报错 */ }
 
 - `git tag pre-refactor-1.9.7` 打在 `main` 当前提交（现在仓库一个 tag 都没有）。
 - 把 `dsh-workspace-todos-autoupdate` worktree 里那 109 行改动**提交到 `feat/auto-update-check`**（只提交不合并）——重构期间不会有人碰它，但至少不会丢。
-- 从 `feat/notes-trash-ux` 提取一份功能清单（回收站交互、按钮语义、文案键）写进 `docs/archive/notes-trash-ux-checklist.md`，作为 P6 手工移植的依据。
+- 从 `feat/notes-trash-ux` 提取一份功能清单（回收站交互、按钮语义、文案键），作为 P6 手工移植的依据。
 - 其余 `backup/*`、`experiment/opaque-panel`（已合并）可删；`feat/auto-update-check` 与 `feat/notes-trash-ux` 保留。
 
 **退出条件**：`git status` 干净，未提交代码有归属。
