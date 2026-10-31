@@ -6,6 +6,7 @@ import {
   checkNextReleased,
   compareVersions,
   extractSection,
+  parseStatusPaths,
   prepareChangelog,
   splitSections,
 } from '../tools/release.mjs'
@@ -90,6 +91,13 @@ test('prepareChangelog refuses an empty next-released section', () => {
     () => prepareChangelog('## next-released\n\n## 2.0.1\n\n- Shipped.\n', '2.1.0'),
     /is empty; write the release notes/,
   )
+})
+
+test('parseStatusPaths keeps the filename when the index column is blank', () => {
+  assert.deepEqual(parseStatusPaths(' M CHANGELOG.md\nM  package.json\n'), [
+    'CHANGELOG.md',
+    'package.json',
+  ])
 })
 
 test('compareVersions orders stable and prerelease versions', () => {

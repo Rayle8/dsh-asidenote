@@ -153,6 +153,14 @@ export function prepareChangelog(text, version) {
   return `${before}## ${NEXT_HEADING}\n\n## ${version}${after}`
 }
 
+/** Paths from `git status --porcelain`; never trim the whole output first. */
+export function parseStatusPaths(output) {
+  return output
+    .split('\n')
+    .filter(Boolean)
+    .map((line) => line.slice(3).trim())
+}
+
 function git(args, cwd) {
   const result = spawnSync('git', args, { cwd, encoding: 'utf8' })
   if (result.error) throw result.error
@@ -236,10 +244,9 @@ export function prepare(version, { dryRun = false, skipCheck = false } = {}) {
       if (check.status !== 0) fail('npm run check failed; no commit or tag was created')
     }
 
-    const changed = gitOut(['status', '--porcelain', '--untracked-files=no'], root)
-      .split('\n')
-      .filter(Boolean)
-      .map((line) => line.slice(3).trim())
+    const status = git(['status', '--porcelain', '--untracked-files=no'], root)
+    if (status.status !== 0) fail(`git status failed: ${(status.stderr || '').trim()}`)
+    const changed = parseStatusPaths(status.stdout)
     const unexpected = changed.filter((file) => !RELEASE_FILES.includes(file))
     if (unexpected.length > 0) {
       fail(`unexpected files changed during the release: ${unexpected.join(', ')}`)
