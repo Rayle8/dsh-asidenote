@@ -27,7 +27,7 @@ test('package declares the DSH bundle and web client halves', () => {
   ]) {
     assert.ok(manifest.dsh.client.inject.includes(dependency), `missing inject ${dependency}`)
   }
-  for (const file of ['client/client.js', 'index.js', 'cordis.patch.yml', 'icon.svg', 'preview.png', 'preview-badge.png', 'preview-right.png', 'preview-dark.png', 'preview-badge-dark.png', 'preview-right-dark.png', 'README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md']) {
+  for (const file of ['client/client.js', 'index.js', 'cordis.patch.yml', 'icon.svg', 'docs/assets', 'README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md']) {
     assert.ok(manifest.files.includes(file), `missing files entry ${file}`)
   }
 })
@@ -154,7 +154,12 @@ test('locale files carry metadata and the dictionary stays in sync', () => {
 })
 
 test('documentation and preview assets are present', () => {
-  const previews = ['preview.png', 'preview-badge.png', 'preview-right.png', 'preview-dark.png', 'preview-badge-dark.png', 'preview-right-dark.png']
+  const previews = [
+    'docs/assets/preview-badge.png',
+    'docs/assets/preview-badge-dark.png',
+    'docs/assets/preview-right.png',
+    'docs/assets/preview-right-dark.png',
+  ]
   for (const file of ['README.md', 'README.en.md', 'LICENSE', 'CHANGELOG.md', ...previews, 'icon.svg']) {
     assert.ok(exists(file), `missing ${file}`)
   }
@@ -166,7 +171,7 @@ test('documentation and preview assets are present', () => {
 test('feature screenshots ship in both themes', () => {
   const features = ['panel', 'settings', 'actions', 'clear', 'empty']
   for (const name of features) {
-    for (const file of [`docs/features/${name}.png`, `docs/features/${name}-dark.png`]) {
+    for (const file of [`docs/assets/features/${name}.png`, `docs/assets/features/${name}-dark.png`]) {
       assert.ok(exists(file), `missing ${file}`)
       assert.ok(fs.statSync(path.join(root, file)).size > 1000, `${file} looks empty`)
     }
@@ -174,8 +179,8 @@ test('feature screenshots ship in both themes', () => {
   for (const readme of ['README.md', 'README.en.md']) {
     const text = read(readme)
     for (const name of features) {
-      assert.match(text, new RegExp(`docs/features/${name}\\.png`), `${readme} does not show ${name}`)
-      assert.match(text, new RegExp(`docs/features/${name}-dark\\.png`), `${readme} does not show ${name} in dark`)
+      assert.match(text, new RegExp(`docs/assets/features/${name}\\.png`), `${readme} does not show ${name}`)
+      assert.match(text, new RegExp(`docs/assets/features/${name}-dark\\.png`), `${readme} does not show ${name} in dark`)
     }
   }
 })

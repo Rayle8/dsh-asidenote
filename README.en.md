@@ -14,19 +14,19 @@ AsideNote is a lightweight session notes plugin for DeepSeek Harness (DSH). Keep
 
 ## Preview and entry
 
-![Notes right-side panel](./preview-right.png)
+![Notes right-side panel](./docs/assets/preview-right.png)
 
 The same panel in the dark theme; every colour comes from DSH theme tokens:
 
-![Notes right-side panel, dark](./preview-right-dark.png)
+![Notes right-side panel, dark](./docs/assets/preview-right-dark.png)
 
 A **Notes** button at the top right of the conversation, with the open count:
 
-![Notes button at the top right](./preview-badge.png)
+![Notes button at the top right](./docs/assets/preview-badge.png)
 
 The same button in the dark theme:
 
-![Notes button at the top right, dark](./preview-badge-dark.png)
+![Notes button at the top right, dark](./docs/assets/preview-badge-dark.png)
 
 Clicking the entry opens a fixed panel on the right.
 
@@ -93,7 +93,7 @@ Click a note's forward button to append it to the current chat input as a list i
 - Both **Open** and **Completed** headings collapse on click with matching count styles and colours; either can stay expanded independently; only the chevron, label, and count are clickable, not the blank right side.
 - Syncs across tabs in the same browser.
 - Chinese and English copy, following the DSH locale.
-- Every style reuses DSH design tokens: semantic colour aliases, shared radii and elevation, an opaque raised surface, and the shared scrollbar skin. Type collapses to three sizes (12 / 13 / 14), weight caps at 500, neutral strokes are 0.5px hairlines, hover styling only runs on hover-capable devices, and settled outcomes report through the frame-wide toast. See the [UI / interaction review](./docs/ui-design-check.md).
+- Every style reuses DSH design tokens: semantic colour aliases, shared radii and elevation, an opaque raised surface, and the shared scrollbar skin. Type collapses to three sizes (12 / 13 / 14), weight caps at 500, neutral strokes are 0.5px hairlines, hover styling only runs on hover-capable devices, and settled outcomes report through the frame-wide toast. See the [Panel UI rules](./docs/panel-ui-rules.md).
 
 ## Feature screenshots
 
@@ -107,28 +107,28 @@ Five states shot from the same session and the same set of notes, in both themes
   </tr>
   <tr>
     <td>Panel overview<br>open / completed sections</td>
-    <td><img src="./docs/features/panel.png" width="300" alt="Panel overview"></td>
-    <td><img src="./docs/features/panel-dark.png" width="300" alt="Panel overview, dark"></td>
+    <td><img src="./docs/assets/features/panel.png" width="300" alt="Panel overview"></td>
+    <td><img src="./docs/assets/features/panel-dark.png" width="300" alt="Panel overview, dark"></td>
   </tr>
   <tr>
     <td>Settings<br>send shortcut, forward prefix, about</td>
-    <td><img src="./docs/features/settings.png" width="300" alt="Settings"></td>
-    <td><img src="./docs/features/settings-dark.png" width="300" alt="Settings, dark"></td>
+    <td><img src="./docs/assets/features/settings.png" width="300" alt="Settings"></td>
+    <td><img src="./docs/assets/features/settings-dark.png" width="300" alt="Settings, dark"></td>
   </tr>
   <tr>
     <td>Row actions<br>copy / forward / edit / delete on hover</td>
-    <td><img src="./docs/features/actions.png" width="300" alt="Row actions"></td>
-    <td><img src="./docs/features/actions-dark.png" width="300" alt="Row actions, dark"></td>
+    <td><img src="./docs/assets/features/actions.png" width="300" alt="Row actions"></td>
+    <td><img src="./docs/assets/features/actions-dark.png" width="300" alt="Row actions, dark"></td>
   </tr>
   <tr>
     <td>Clear completed<br>a second confirmation guards the delete</td>
-    <td><img src="./docs/features/clear.png" width="300" alt="Clear completed confirmation"></td>
-    <td><img src="./docs/features/clear-dark.png" width="300" alt="Clear completed confirmation, dark"></td>
+    <td><img src="./docs/assets/features/clear.png" width="300" alt="Clear completed confirmation"></td>
+    <td><img src="./docs/assets/features/clear-dark.png" width="300" alt="Clear completed confirmation, dark"></td>
   </tr>
   <tr>
     <td>Empty state<br>guidance when a session has no notes</td>
-    <td><img src="./docs/features/empty.png" width="300" alt="Empty state"></td>
-    <td><img src="./docs/features/empty-dark.png" width="300" alt="Empty state, dark"></td>
+    <td><img src="./docs/assets/features/empty.png" width="300" alt="Empty state"></td>
+    <td><img src="./docs/assets/features/empty-dark.png" width="300" alt="Empty state, dark"></td>
   </tr>
 </table>
 

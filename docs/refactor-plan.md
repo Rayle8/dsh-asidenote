@@ -10,12 +10,12 @@
 | P1 工具链骨架 | 完成 | `41ddc0d`（tsdown + tsc + oxlint + 产物一致性门 + 真机前 jsdom 冒烟） |
 | P2 拆模块 | 完成（不再细拆） | `96e4414` 常量/i18n/CSS；`0a1821b` storage/domain/hook；`8e0bc4c` 行/空态/定位/图标；组件与 8 个 hook 拆完（几何/分区/转发/设置/草稿/行操作/清除确认/列表边缘），Toast 座位与顶部入口也独立成模块。入口 2,507 → 203 行 |
 | P3 改名 + 迁移 | 完成 | `198d673`（AsideNote，`dsh.aside-notes.*.v2`，旧键只读保留） |
-| P4 资产与文档 | 待办 | 依赖 README 与截图定稿；目录移动会改动两版 README 的图片链接 |
+| P4 资产与文档 | 完成 | 截图移入 `docs/assets/`；删除未引用的 `preview.png`/`preview-dark.png`；历史复查替换为 `docs/panel-ui-rules.md` |
 | P5 发布 | 待办 | CI 已更新，真机冒烟已通过；待打 `v2.0.0` tag 并发布 |
 
 决定：`ui/TodoRow.ts` 264 行保持现状，不再细拆（单组件内聚，收益低于风险）。
 
-剩余：契约测试迁 Vitest + jsdom（可选，现有 43 个测试已全绿）；P4 资产与 README 收尾；打 `v2.0.0` tag 并发布。
+剩余：打 `v2.0.0` tag 并发布；契约测试迁 Vitest（可选，现有 43 个测试已全绿）。
 
 ## 0. 结论
 

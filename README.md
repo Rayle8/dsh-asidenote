@@ -14,19 +14,19 @@ AsideNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺。临时的�
 
 ## 界面与入口
 
-![便笺右侧面板](./preview-right.png)
+![便笺右侧面板](./docs/assets/preview-right.png)
 
 暗色主题下外观保持一致，颜色全部取自 DSH 主题令牌：
 
-![便笺右侧面板（暗色）](./preview-right-dark.png)
+![便笺右侧面板（暗色）](./docs/assets/preview-right-dark.png)
 
 会话顶部右侧的「便笺」按钮，带未完成数量：
 
-![顶部右侧便笺按钮](./preview-badge.png)
+![顶部右侧便笺按钮](./docs/assets/preview-badge.png)
 
 暗色主题下的同一按钮：
 
-![顶部右侧便笺按钮（暗色）](./preview-badge-dark.png)
+![顶部右侧便笺按钮（暗色）](./docs/assets/preview-badge-dark.png)
 
 点击入口后在右侧打开固定面板。
 
@@ -93,7 +93,7 @@ AsideNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺。临时的�
 - 「未完成」和「已完成」标题都可点击折叠，两侧计数样式和颜色保持一致；两者可独立展开，互不影响；点击区域仅限箭头、文字和计数，右侧空白不触发。
 - 同一浏览器的多个标签页会同步更新。
 - 中英文界面，跟随 DSH 语言设置。
-- 界面样式全部复用 DSH 设计令牌：语义色别名、共享圆角与阴影、实心抬升表面、共享滚动条；字号收敛到 12 / 13 / 14 三档、字重上限 500、中性描边统一 0.5px；悬停只在支持 hover 的设备启用，瞬时结果走全局 Toast。详见 [UI / 交互规范复查报告](./docs/ui-design-check.md)。
+- 界面样式全部复用 DSH 设计令牌：语义色别名、共享圆角与阴影、实心抬升表面、共享滚动条；字号收敛到 12 / 13 / 14 三档、字重上限 500、中性描边统一 0.5px；悬停只在支持 hover 的设备启用，瞬时结果走全局 Toast。详见 [面板 UI 规则](./docs/panel-ui-rules.md)。
 
 ## 功能截图
 
@@ -107,28 +107,28 @@ AsideNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺。临时的�
   </tr>
   <tr>
     <td>面板总览<br>未完成 / 已完成分区</td>
-    <td><img src="./docs/features/panel.png" width="300" alt="面板总览"></td>
-    <td><img src="./docs/features/panel-dark.png" width="300" alt="面板总览（暗色）"></td>
+    <td><img src="./docs/assets/features/panel.png" width="300" alt="面板总览"></td>
+    <td><img src="./docs/assets/features/panel-dark.png" width="300" alt="面板总览（暗色）"></td>
   </tr>
   <tr>
     <td>设置<br>发送快捷键、一键转发前缀、关于</td>
-    <td><img src="./docs/features/settings.png" width="300" alt="设置"></td>
-    <td><img src="./docs/features/settings-dark.png" width="300" alt="设置（暗色）"></td>
+    <td><img src="./docs/assets/features/settings.png" width="300" alt="设置"></td>
+    <td><img src="./docs/assets/features/settings-dark.png" width="300" alt="设置（暗色）"></td>
   </tr>
   <tr>
     <td>行操作<br>悬浮显示复制 / 转发 / 编辑 / 删除</td>
-    <td><img src="./docs/features/actions.png" width="300" alt="行操作"></td>
-    <td><img src="./docs/features/actions-dark.png" width="300" alt="行操作（暗色）"></td>
+    <td><img src="./docs/assets/features/actions.png" width="300" alt="行操作"></td>
+    <td><img src="./docs/assets/features/actions-dark.png" width="300" alt="行操作（暗色）"></td>
   </tr>
   <tr>
     <td>清除已完成<br>二次确认，避免误删</td>
-    <td><img src="./docs/features/clear.png" width="300" alt="清除已完成确认"></td>
-    <td><img src="./docs/features/clear-dark.png" width="300" alt="清除已完成确认（暗色）"></td>
+    <td><img src="./docs/assets/features/clear.png" width="300" alt="清除已完成确认"></td>
+    <td><img src="./docs/assets/features/clear-dark.png" width="300" alt="清除已完成确认（暗色）"></td>
   </tr>
   <tr>
     <td>空状态<br>没有便笺时的引导</td>
-    <td><img src="./docs/features/empty.png" width="300" alt="空状态"></td>
-    <td><img src="./docs/features/empty-dark.png" width="300" alt="空状态（暗色）"></td>
+    <td><img src="./docs/assets/features/empty.png" width="300" alt="空状态"></td>
+    <td><img src="./docs/assets/features/empty-dark.png" width="300" alt="空状态（暗色）"></td>
   </tr>
 </table>
 
