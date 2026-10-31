@@ -62,6 +62,21 @@ test('the built bundle boots, applies, and seats its slots', async t => {
 - **提示点：** 已是最新版本时不再显示。 （#32）
 <!-- app-update-notes:zh:end -->
 `
+  const OLDER_BODY = `# 中文
+
+<!-- app-update-notes:zh:start -->
+### 修复
+- **旧版本：** 修复了上一个版本的问题。 （#30）
+<!-- app-update-notes:zh:end -->
+`
+  const RELEASES = [
+    { tag_name: 'v2.3.0', html_url: 'https://github.com/Rayle8/dsh-asidenote/releases/tag/v2.3.0', body: RELEASE_BODY },
+    { tag_name: 'v2.2.0', html_url: 'https://github.com/Rayle8/dsh-asidenote/releases/tag/v2.2.0', body: OLDER_BODY },
+    // Older than the running build and a prerelease: neither may appear.
+    { tag_name: 'v2.0.1', html_url: 'https://github.com/Rayle8/dsh-asidenote/releases/tag/v2.0.1', body: OLDER_BODY },
+    { tag_name: 'v2.4.0-beta.1', prerelease: true, body: RELEASE_BODY },
+    { tag_name: 'v2.5.0', draft: true, body: RELEASE_BODY },
+  ]
   const MARKET_CAPABILITIES = {
     schema: 'dsh-market/update-api/v1',
     stability: 'beta',
@@ -82,13 +97,9 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     const method = init.method || 'GET'
     calls.push({ url, method })
     if (url.startsWith('https://registry.npmjs.org/')) return json(404, {})
-    if (url.startsWith('https://registry.npmmirror.com/')) return json(200, { version: '2.1.1' })
-    if (url === 'https://api.github.com/repos/Rayle8/dsh-asidenote/releases/tags/v2.1.1') {
-      return json(200, {
-        tag_name: 'v2.1.1',
-        html_url: 'https://github.com/Rayle8/dsh-asidenote/releases/tag/v2.1.1',
-        body: RELEASE_BODY,
-      })
+    if (url.startsWith('https://registry.npmmirror.com/')) return json(200, { version: '2.3.0' })
+    if (url === 'https://api.github.com/repos/Rayle8/dsh-asidenote/releases?per_page=50') {
+      return json(200, RELEASES)
     }
     if (url === '/dsh-market/api/v1/capabilities') return json(200, MARKET_CAPABILITIES)
     if (url === '/dsh-market/api/v1/updates' && method === 'POST') {
@@ -102,7 +113,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
           operationId: 'boot-1-update-1',
           state: 'succeeded',
           beforeVersion: '2.1.0',
-          installedVersion: '2.1.1',
+          installedVersion: '2.3.0',
           progress: { percent: 100 },
           outcome: { refreshRequired: true, restartRequired: false },
           failure: null,
@@ -235,7 +246,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   assert.ok(popover.querySelector('.dsh-an-updateDot'), 'the gear carries the update dot')
   const updateCard = popover.querySelector('.dsh-an-updateCard')
   assert.ok(updateCard, 'a newer version must surface in Settings > About')
-  assert.match(updateCard.textContent, /2\.1\.1/)
+  assert.match(updateCard.textContent, /2\.3\.0/)
 
   // The manual check bypasses the hourly cache and reads the registry again.
   const beforeCheck = registryCalls().length
@@ -243,17 +254,25 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 80)) })
   assert.equal(registryCalls().length, beforeCheck + 2, 'a manual check must bypass the cache')
 
-  // Expanding the disclosure loads the release body and renders the zh block.
+  // Expanding the disclosure loads the release list: two releases in the gap,
+  // the newest open and the older one collapsed until it is clicked.
   assert.equal(popover.querySelector('.dsh-an-updateNotes'), null, 'notes stay closed until asked for')
   await act(async () => { popover.querySelector('.dsh-an-updateToggle').click() })
   await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 80)) })
   const notes = popover.querySelector('.dsh-an-updateNotes')
   assert.ok(notes, 'the disclosure opens an inline notes region')
-  assert.equal(notes.querySelectorAll('.dsh-an-updateGroup').length, 2)
+  assert.match(notes.textContent, /本次更新包含 2 个版本/)
+  const heads = [...notes.querySelectorAll('.dsh-an-updateVersionHead')]
+  assert.deepEqual(heads.map(head => head.textContent.replace('▸', '')), ['v2.3.0最新', 'v2.2.0'])
   assert.match(notes.textContent, /更新中心/)
-  assert.match(notes.textContent, /已是最新版本时不再显示/)
+  assert.doesNotMatch(notes.textContent, /2\.4\.0-beta/, 'prereleases are not offered')
+  assert.doesNotMatch(notes.textContent, /2\.0\.1/, 'releases older than the build are not listed')
+  assert.equal(heads[0].getAttribute('aria-expanded'), 'true', 'the release being installed opens')
+  assert.equal(heads[1].getAttribute('aria-expanded'), 'false', 'older releases wait for a click')
+  await act(async () => { heads[1].click() })
+  assert.match(notes.textContent, /修复了上一个版本的问题/, 'clicking an older version expands its notes')
   const fullLink = popover.querySelector('.dsh-an-updateFull')
-  assert.equal(fullLink.getAttribute('href'), 'https://github.com/Rayle8/dsh-asidenote/releases/tag/v2.1.1')
+  assert.equal(fullLink.getAttribute('href'), 'https://github.com/Rayle8/dsh-asidenote/releases/tag/v2.3.0')
   assert.equal(fullLink.getAttribute('target'), '_blank')
 
   // "Update now" queues the market operation and settles on the refresh action.

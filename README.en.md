@@ -247,6 +247,7 @@ When the panel opens, the plugin quietly checks the latest published version (np
 
 - **Check for updates** re-reads the registry immediately, bypassing that hourly cache, and reports “checking”, “up to date” or a failure underneath.
 - **What's new / Hide what's new** expands the release notes from the GitHub Release body. The notes are the block between its `app-update-notes:en` / `app-update-notes:zh` markers, flattened to plain text — no HTML is executed or injected.
+- **Across several versions:** when the published release is several versions ahead, the notes list every release in the gap, newest first. The newest opens by default and each older version expands on its own. Drafts and prereleases are skipped, at most six releases are listed, and a link points at the releases page when more were left out.
 - **Full release notes** opens the matching GitHub Release page in a new tab.
 - **Update now** queues the upgrade through the plugin market's public update API when dshmarket is present, reports live progress, and offers a page refresh or DSH restart when it finishes. Without a market, the card explains the manual path (`pnpm update dsh-asidenote`, or the Plugins page).
 

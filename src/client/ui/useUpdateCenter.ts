@@ -12,7 +12,7 @@ import React from 'react'
 import { PLUGIN_REPO_URL, PLUGIN_VERSION } from '../constants'
 import {
   fetchLatestVersion,
-  fetchReleaseNotes,
+  fetchReleaseHistory,
   isNewerVersion,
   resetUpdateChecks,
 } from '../update/latest'
@@ -22,7 +22,7 @@ import { MARKET_PACKAGE, marketClient } from '../update/market'
 import type { MarketCapabilities } from '../update/market'
 
 export type CheckStatus = 'idle' | 'checking' | 'current' | 'available' | 'error'
-export type NotesStatus = 'idle' | 'loading' | 'ready' | 'missing' | 'error'
+export type NotesStatus = 'idle' | 'loading' | 'ready' | 'error'
 export type RunPhase = 'idle' | 'starting' | 'running' | 'done' | 'error'
 export type MarketState = 'unknown' | 'unsupported' | 'ready'
 
@@ -32,10 +32,18 @@ export interface UpdateCheckState {
   checkedAt: number | null
 }
 
+export interface NotesEntry {
+  version: string
+  url: string
+  groups: ReleaseNoteGroup[]
+}
+
 export interface NotesState {
   status: NotesStatus
-  groups: ReleaseNoteGroup[]
-  url: string | null
+  /** One entry per release between the running build and the published one. */
+  entries: NotesEntry[]
+  /** True when older releases were left out of the capped list. */
+  truncated: boolean
 }
 
 export interface UpdateRunState {
@@ -50,7 +58,7 @@ export interface UpdateRunState {
 }
 
 const CHECK_IDLE: UpdateCheckState = { status: 'idle', latestVersion: null, checkedAt: null }
-const NOTES_IDLE: NotesState = { status: 'idle', groups: [], url: null }
+const NOTES_IDLE: NotesState = { status: 'idle', entries: [], truncated: false }
 const RUN_IDLE: UpdateRunState = {
   phase: 'idle',
   percent: null,
@@ -76,6 +84,7 @@ export function useUpdateCenter(localeId: string) {
   const [check, setCheck] = React.useState<UpdateCheckState>(CHECK_IDLE)
   const [notes, setNotes] = React.useState<NotesState>(NOTES_IDLE)
   const [expanded, setExpanded] = React.useState(false)
+  const [expandedVersions, setExpandedVersions] = React.useState<Record<string, boolean>>({})
   const [run, setRun] = React.useState<UpdateRunState>(RUN_IDLE)
   const [market, setMarket] = React.useState<MarketState>('unknown')
   const [restartSupported, setRestartSupported] = React.useState(false)
@@ -133,6 +142,7 @@ export function useUpdateCenter(localeId: string) {
     setCheck(previous => ({ ...previous, status: 'checking' }))
     setNotes(NOTES_IDLE)
     setExpanded(false)
+    setExpandedVersions({})
     // A new check supersedes a finished or failed attempt, so the card cannot
     // keep showing a failure that belongs to the previous version.
     setRun(RUN_IDLE)
@@ -155,24 +165,33 @@ export function useUpdateCenter(localeId: string) {
     setExpanded(value => !value)
   }, [])
 
-  // Lazy notes: one request when the disclosure first opens for a version.
+  const toggleVersion = React.useCallback((version: string) => {
+    setExpandedVersions(previous => ({ ...previous, [version]: previous[version] !== true }))
+  }, [])
+
+  // Lazy notes: one request when the disclosure first opens for a version gap.
+  // The feed answers with every release between the running build and the
+  // published one, so a multi-version jump is grouped instead of flattened.
   React.useEffect(() => {
     if (!expanded || check.status !== 'available' || check.latestVersion === null) return undefined
     if (notes.status !== 'idle') return undefined
     let active = true
     setNotes(previous => ({ ...previous, status: 'loading' }))
-    fetchReleaseNotes(check.latestVersion).then(release => {
+    fetchReleaseHistory(PLUGIN_VERSION, check.latestVersion).then(result => {
       if (!active) return
-      if (release === null) {
-        setNotes({ status: 'error', groups: [], url: null })
+      const entries = result.entries.map(entry => ({
+        version: entry.version,
+        url: entry.url,
+        groups: updateNotesForLocale(entry.body, localeId),
+      }))
+      if (entries.length === 0) {
+        setNotes({ status: 'error', entries: [], truncated: false })
         return
       }
-      const groups = updateNotesForLocale(release.body, localeId)
-      if (groups.length === 0) {
-        setNotes({ status: 'missing', groups: [], url: release.url })
-        return
-      }
-      setNotes({ status: 'ready', groups, url: release.url })
+      setNotes({ status: 'ready', entries, truncated: result.truncated })
+      // The release being installed opens; older ones wait for a click.
+      const newest = entries[0].version
+      setExpandedVersions({ [newest]: true })
     })
     return () => {
       active = false
@@ -250,7 +269,7 @@ export function useUpdateCenter(localeId: string) {
     refreshPage()
   }, [refreshPage])
 
-  const fullReleaseUrl = notes.url || (latestVersion
+  const fullReleaseUrl = notes.entries[0]?.url || (latestVersion
     ? `${PLUGIN_REPO_URL}/releases/tag/v${latestVersion}`
     : null)
 
@@ -259,12 +278,15 @@ export function useUpdateCenter(localeId: string) {
     latestVersion,
     notes,
     expanded,
+    expandedVersions,
+    releasesUrl: `${PLUGIN_REPO_URL}/releases`,
     run,
     market,
     restartSupported,
     fullReleaseUrl,
     checkNow,
     toggleNotes,
+    toggleVersion,
     startUpdate,
     refreshPage,
     restartHost,

@@ -26,6 +26,7 @@ src/client/
 ├─ ui/                   # 面板外壳与纯展示组件、hooks、primitives、定位
 │                        # 更新中心：useUpdateCenter（检查/说明/更新）、UpdateNotice
 ├─ update/               # latest（版本与 Release 探测）、releaseNotes（标记解析）、
+│                        # releaseHistory（多版本区间）、
 │                        # market（插件市场公开更新 API 客户端）
 └─ styles/panel.css      # 全局 .dsh-an-* 规则与 --an-* 尺度
 client/client.js         # tsdown 产物，入库，CI 校验与源码一致
@@ -48,6 +49,7 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | 存储 | `storage/session.ts` | 会话便笺读写；写失败返回 `false`，由调用方保留 UI 原状并报 Toast |
 | 更新 | `update/latest.ts` | npm → npmmirror → GitHub Release 的版本探测（1 小时缓存），按版本读取 Release 正文 |
 | 更新 | `update/releaseNotes.ts` | 提取 `app-update-notes` 标记块、按语言回退、压平 Markdown、上限兜底 |
+| 更新 | `update/releaseHistory.ts` | 从 releases feed 选出「本地 < 版本 ≤ 最新」的区间，剔除草稿/预发布，倒序与上限 |
 | 更新 | `update/market.ts` | dshmarket 公开更新 API v1：capabilities → check → POST update → 轮询 operation → restart |
 | 更新 | `ui/useUpdateCenter.ts` | 自动/手动检查、懒加载说明、更新状态机（starting/running/done/error） |
 | 更新 | `ui/UpdateNotice.ts` | 关于区里的更新卡片：说明展开、完整说明链接、立即更新/刷新/重启 |

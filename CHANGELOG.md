@@ -6,7 +6,8 @@
 ### Added
 - **Update centre:** Settings › About now offers a manual **Check for updates** button, an inline **What's new** disclosure for the published release, and a **Full release notes** link. Opening the panel still checks quietly once an hour; the button forces a fresh registry read.
 - **In-app update:** **Update now** queues the release through the plugin market's public update API (`/dsh-market/api/v1`), shows live progress, and offers a page refresh or host restart when the operation finishes. Nothing installs without the click; without a market the card explains the manual path.
-- **Release-note parser:** release notes are read from the GitHub Release body between `app-update-notes` markers, flattened to plain text (headings, bullets, bold leads, links) and capped against malformed bodies. The parser lives in `src/client/update/releaseNotes.ts`.
+- **Multi-version notes:** when the published release is several versions ahead, the card lists every release in the gap, newest first. The newest opens by default and each older version expands on its own; drafts and prereleases are skipped, the list is capped at six and points at the releases page when more were left out.
+- **Release-note parser:** release notes are read from the GitHub Release body between `app-update-notes` markers, flattened to plain text (headings, bullets, bold leads, links) and capped against malformed bodies. The parser lives in `src/client/update/releaseNotes.ts`; which releases belong in the list is decided by `src/client/update/releaseHistory.ts`.
 
 ### Changed
 - **Release body:** `tools/release/notes.mjs` now composes the GitHub Release from `CHANGELOG.md`: English and 中文 sections, `app-update-notes` markers for the in-app card, npm/tarball install links and a Full Changelog link. The publish workflow uses the same script, so the release page and the panel cannot drift.
@@ -16,7 +17,8 @@
 ### 新增
 - **更新中心：** 设置 › 关于新增「检查更新」按钮、可展开的「查看更新内容」与「完整更新说明」链接。打开面板仍会在一小时内静默检查一次；点击按钮则强制重新读取 registry。
 - **应用内更新：** 「立即更新」通过插件市场的公开更新 API（`/dsh-market/api/v1`）排队升级，显示实时进度，完成后可刷新页面或重启 Host。没有点击就不会安装；未检测到市场时，卡片给出手动更新的说明。
-- **发布说明解析：** 更新说明读取 GitHub Release 正文中 `app-update-notes` 标记之间的内容，统一压成纯文本（标题、条目、加粗主题与链接），并对异常正文做数量与长度兜底。解析器位于 `src/client/update/releaseNotes.ts`。
+- **多版本说明：** 当线上版本领先本地多个版本时，卡片会按版本从新到旧列出这段区间里的每个 Release。最新版本默认展开，更早的版本各自独立折叠；草稿与预发布会被跳过，列表最多 6 个版本，超出时给出查看全部 Release 的链接。
+- **发布说明解析：** 更新说明读取 GitHub Release 正文中 `app-update-notes` 标记之间的内容，统一压成纯文本（标题、条目、加粗主题与链接），并对异常正文做数量与长度兜底。解析器位于 `src/client/update/releaseNotes.ts`；区间内保留哪些版本由 `src/client/update/releaseHistory.ts` 决定。
 
 ### 变更
 - **发布正文：** `tools/release/notes.mjs` 改为由 `CHANGELOG.md` 生成 GitHub Release：中英文分区、供面板读取的 `app-update-notes` 标记、npm 与 tgz 安装链接，以及 Full Changelog 链接。发布流程使用同一脚本，发布页与面板不会各写一份。

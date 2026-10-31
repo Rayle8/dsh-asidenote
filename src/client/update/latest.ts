@@ -7,6 +7,8 @@
  * exercise the source order, the one-hour cache and the comparison in Node.
  */
 import { PLUGIN_REPO_URL } from '../constants'
+import { MAX_RELEASE_HISTORY, selectReleaseHistory } from './releaseHistory'
+import type { ReleaseHistory } from './releaseHistory'
 
 /** npm metadata endpoints in fallback order; the mirror covers slow npmjs routes. */
 export const UPDATE_REGISTRY_HOSTS = ['https://registry.npmjs.org', 'https://registry.npmmirror.com']
@@ -19,6 +21,9 @@ export const UPDATE_GITHUB_API = `${PLUGIN_REPO_URL.replace(
 
 /** Second source: a GitHub Release, for checkouts that are not published to npm. */
 export const UPDATE_GITHUB_RELEASE_URL = `${UPDATE_GITHUB_API}/latest`
+
+/** The releases feed; one page is enough for the gap the card is willing to show. */
+export const UPDATE_GITHUB_RELEASES_URL = `${UPDATE_GITHUB_API}?per_page=50`
 
 /** A resolved version is reused for an hour, including a miss, to keep opens quiet. */
 export const UPDATE_TTL_MS = 60 * 60 * 1000
@@ -146,33 +151,54 @@ function readJsonWithTimeout(fetchImpl: ProbeFetch, url: string): Promise<any> {
 }
 
 /**
- * Fetch the release notes for one version. GitHub is the only source: the body
- * lives on the release, not in the npm manifest. A missing release (tags pushed
- * without a Release) resolves null, and the panel keeps the release link.
+ * Fetch the releases between the running build and the published version.
+ * GitHub is the only source: the notes live on the Release, not in the npm
+ * manifest. A missing feed falls back to the single newest tag, and a missing
+ * release (a tag pushed without a Release) leaves the card with links only.
  */
-export function createReleaseNotesProbe(options: ReleaseNotesProbeOptions = {}) {
+export function createReleaseHistoryProbe(options: ReleaseNotesProbeOptions = {}) {
   const fetchImpl: ProbeFetch = options.fetchImpl || ((url, init) => fetch(url, init))
   const now = options.now || (() => Date.now())
   const ttlMs = options.ttlMs || UPDATE_TTL_MS
-  const cached = new Map<string, { at: number; promise: Promise<ReleaseNotes | null> }>()
+  const cached = new Map<string, { at: number; promise: Promise<ReleaseHistory> }>()
 
-  function latest(version: string): Promise<ReleaseNotes | null> {
-    const key = String(version || '').replace(/^v/, '')
+  function latest(current: string, target: string): Promise<ReleaseHistory> {
+    const key = `${current}..${target}`
     const hit = cached.get(key)
     if (hit && now() - hit.at < ttlMs) return hit.promise
     const entry = {
       at: now(),
-      promise: readJsonWithTimeout(fetchImpl, `${UPDATE_GITHUB_API}/tags/v${encodeURIComponent(key)}`).then(body => {
-        if (body === null) return null
-        const tag = typeof body.tag_name === 'string' ? body.tag_name.replace(/^v/, '') : key
-        return {
-          version: tag,
-          body: typeof body.body === 'string' ? body.body : '',
-          url: typeof body.html_url === 'string' && body.html_url
-            ? body.html_url
-            : `${PLUGIN_REPO_URL}/releases/tag/v${encodeURIComponent(tag)}`,
+      promise: (async () => {
+        const list = await readJsonWithTimeout(fetchImpl, UPDATE_GITHUB_RELEASES_URL)
+        if (Array.isArray(list)) {
+          return selectReleaseHistory(
+            list.map(item => ({
+              version: typeof item?.tag_name === 'string' ? item.tag_name : item?.version,
+              body: item?.body,
+              url: item?.html_url,
+              prerelease: item?.prerelease,
+              draft: item?.draft,
+              publishedAt: item?.published_at,
+            })),
+            { current, latest: target, max: MAX_RELEASE_HISTORY },
+          )
         }
-      }),
+        // Older GitHub APIs or a transient feed failure: fall back to the tag.
+        const single = await readJsonWithTimeout(fetchImpl, `${UPDATE_GITHUB_API}/tags/v${encodeURIComponent(target)}`)
+        if (single === null) return { entries: [], truncated: false }
+        const tag = typeof single.tag_name === 'string' ? single.tag_name.replace(/^v/, '') : target
+        return {
+          entries: [{
+            version: tag,
+            body: typeof single.body === 'string' ? single.body : '',
+            url: typeof single.html_url === 'string' && single.html_url
+              ? single.html_url
+              : `${PLUGIN_REPO_URL}/releases/tag/v${encodeURIComponent(tag)}`,
+            publishedAt: typeof single.published_at === 'string' ? single.published_at : '',
+          }],
+          truncated: false,
+        }
+      })(),
     }
     cached.set(key, entry)
     return entry.promise
@@ -185,15 +211,15 @@ export function createReleaseNotesProbe(options: ReleaseNotesProbeOptions = {}) 
   return { latest, reset }
 }
 
-/** Process-wide notes probe, cached per version for an hour. */
-export const releaseNotesProbe = createReleaseNotesProbe()
+/** Process-wide history probe, cached per version gap for an hour. */
+export const releaseHistoryProbe = createReleaseHistoryProbe()
 
-export function fetchReleaseNotes(version: string): Promise<ReleaseNotes | null> {
-  return releaseNotesProbe.latest(version)
+export function fetchReleaseHistory(current: string, target: string): Promise<ReleaseHistory> {
+  return releaseHistoryProbe.latest(current, target)
 }
 
 /** Manual check: forget both cached answers so the next calls hit the network. */
 export function resetUpdateChecks() {
   updateProbe.reset()
-  releaseNotesProbe.reset()
+  releaseHistoryProbe.reset()
 }

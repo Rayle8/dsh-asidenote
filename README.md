@@ -247,6 +247,7 @@ git clone git@github.com:Rayle8/dsh-asidenote.git
 
 - **检查更新**：立即重新读取 registry，绕过这一小时的缓存；按钮下方会显示「正在检查」「已是最新」或失败状态。
 - **查看更新内容 / 收起更新内容**：在面板内展开来自 GitHub Release 的更新说明。说明由 Release 正文中 `app-update-notes:zh` / `app-update-notes:en` 标记之间的内容提供，统一压成纯文本渲染，不会执行或注入任何 HTML。
+- **跨多个版本**：如果线上版本领先本地好几个版本，说明区会按版本从新到旧逐条列出这段区间内的 Release；最新版本默认展开，更早的版本各自折叠、点标题单独展开。草稿与预发布不参与，最多列出 6 个版本，更多时给出「更早的版本请见完整更新说明」链接。
 - **完整更新说明**：在新标签页打开对应的 GitHub Release 页面。
 - **立即更新**：检测到插件市场（dshmarket）时，通过它的公开更新 API 排队升级 dsh-asidenote，显示实时进度；完成后提供「刷新页面」或「重启 DSH」。未检测到时，卡片会说明手动更新路径（`pnpm update dsh-asidenote` 或「插件」页）。
 

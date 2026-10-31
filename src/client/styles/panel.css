@@ -140,6 +140,16 @@ body{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-
 .dsh-an-updateToggle:focus-visible,.dsh-an-updateFull:focus-visible,.dsh-an-updateLinkBtn:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}
 .dsh-an-updateFull{flex:none;color:var(--dsw-alias-link);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-decoration:none;transition:var(--an-transition)}
 .dsh-an-updateNotes{display:flex;flex-direction:column;gap:var(--an-space-2);max-height:220px;overflow-y:auto;padding-right:var(--an-space-1);overscroll-behavior:contain}
+.dsh-an-updateVersions{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}
+.dsh-an-updateVersion{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}
+.dsh-an-updateVersion+.dsh-an-updateVersion{padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}
+.dsh-an-updateVersionHead{display:flex;align-items:center;gap:var(--an-space-1);width:100%;padding:2px 0;border:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer}
+.dsh-an-updateVersionHead:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}
+.dsh-an-updateChevron{flex:none;width:10px;color:var(--dsw-alias-label-tertiary);font-size:var(--an-fs-caption);transition:transform var(--an-dur-fast) var(--an-ease)}
+.dsh-an-updateChevron[data-open="true"]{transform:rotate(90deg)}
+.dsh-an-updateVersionLabel{font-variant-numeric:tabular-nums}
+.dsh-an-updateLatest{flex:none;padding:0 var(--an-space-1);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500}
+.dsh-an-updateVersionBody{display:flex;flex-direction:column;gap:var(--an-space-2);padding-left:var(--an-space-4);min-width:0}
 .dsh-an-updateGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}
 .dsh-an-updateGroupTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}
 .dsh-an-updateItems{display:flex;flex-direction:column;gap:var(--an-space-1);margin:0;padding-left:var(--an-space-4);color:var(--dsw-alias-label-primary)}
