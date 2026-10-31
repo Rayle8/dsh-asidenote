@@ -1,56 +1,56 @@
 {
-  "name": "dsh-workspace-todos",
-  "version": "1.9.7",
+  "name": "dsh-asidenote",
+  "version": "2.0.0",
   "type": "module",
-  "description": "Notes: a lightweight per-session sticky-note button and right-side panel for the DeepSeek Harness Web GUI.",
+  "description": "AsideNote: a lightweight per-session notes button and right-side panel for the DeepSeek Harness Web GUI.",
   "license": "MIT",
   "author": "Rayle8",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Rayle8/dsh-workspace-todos.git"
+    "url": "git+https://github.com/Rayle8/dsh-dsh-asidenote.git"
   },
-  "homepage": "https://github.com/Rayle8/dsh-workspace-todos#readme",
+  "homepage": "https://github.com/Rayle8/dsh-dsh-asidenote#readme",
   "bugs": {
-    "url": "https://github.com/Rayle8/dsh-workspace-todos/issues"
+    "url": "https://github.com/Rayle8/dsh-dsh-asidenote/issues"
   },
   "keywords": [
     "dsh",
     "deepseek-harness",
     "dsh-plugin",
+    "notes",
+    "session-notes",
     "todo",
-    "workspace",
     "productivity"
   ],
   "engines": {
-    "node": ">=20"
+    "node": "^22.18.0 || >=24.11.0"
   },
   "main": "index.js",
   "exports": {
     ".": "./index.js",
-    "./client": "./client.js",
+    "./client": "./client/client.js",
     "./locale/*.json": "./locale/*.json",
     "./icon": "./icon.svg"
   },
   "files": [
     "index.js",
-    "client.js",
+    "client/client.js",
     "cordis.patch.yml",
     "locale/*.json",
     "icon.svg",
-    "preview.png",
-    "preview-badge.png",
-    "preview-right.png",
-    "preview-dark.png",
-    "preview-badge-dark.png",
-    "preview-right-dark.png",
+    "docs/assets",
     "README.md",
     "README.en.md",
     "LICENSE",
     "CHANGELOG.md"
   ],
   "scripts": {
-    "check": "node --check client.js && node --check index.js && node --test tests/contract.test.mjs",
-    "test": "node --test tests/contract.test.mjs"
+    "build": "tsdown",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "oxlint src",
+    "test": "node --test tests/*.test.mjs",
+    "check": "npm run lint && npm run typecheck && npm run test && npm run build",
+    "prepack": "npm run build"
   },
   "dsh": {
     "bundle": {
@@ -68,5 +68,19 @@
         "@deepseek-ai/dsh-client-ui-workspace"
       ]
     }
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^22.20.5",
+    "@types/react": "~18.3.31",
+    "@types/react-dom": "~18.3.7",
+    "jsdom": "^29.1.1",
+    "oxlint": "^1.90.0",
+    "react": "^18.3.1",
+    "react-dom": "~18.3.1",
+    "tsdown": "^0.23.4",
+    "typescript": "~5.7.3",
+    "vitest": "^4.1.12"
   }
 }

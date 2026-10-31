@@ -14,15 +14,37 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [20, 22, 24]
+        node: [22, 24]
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-      - name: Syntax check
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      # client/client.js is a committed artifact: it is what the shell loads and
+      # what the market installs where build scripts are blocked. A stale copy
+      # is worse than no copy, so the build must reproduce it byte for byte.
+      - name: The committed bundle must match src/client
         run: |
-          node --check client.js
-          node --check index.js
-      - name: Contract tests
-        run: node --test tests/contract.test.mjs
+          if ! git diff --exit-code client/; then
+            echo "::error file=client/client.js::client/ is a committed build artifact and no longer matches src/client/. Run \`npm run build\` and commit the result. Do not hand-edit it — the next build overwrites any manual change."
+            exit 1
+          fi
+          echo "client/ matches src/client"
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Contract and bundle tests
+        run: npm test

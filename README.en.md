@@ -1,20 +1,42 @@
-# SessionNote · Session Notes
+# AsideNote · 随记
+
+Lightweight session notes
 
 [中文](README.md) | English
 
-> Product name: **SessionNote** (会话便笺). The repository keeps the `dsh-workspace-todos` name.
+> Product name: **AsideNote** (随记), with `dsh-asidenote` as the package and plugin id. The repository keeps its old `dsh-workspace-todos` name, so existing links still work.
 
-**A to-do list for every AI session.**
+**A quick note when you need it. Out of the way when you don’t.**
 
-Capture a thought · One list per session · Bring it back to the conversation
+Jot it down · Open as needed · Tuck it away
 
-SessionNote is a lightweight session notes plugin for DeepSeek Harness (DSH): keep details beside the current conversation, capture tasks and ideas, and bring them back when you are ready.
+AsideNote is a lightweight session notes plugin for DeepSeek Harness (DSH). Keep passing thoughts and follow-ups beside the conversation, bring them back to the chat input when needed, then tuck the panel away and carry on.
 
-## Why SessionNote
+## Preview and entry
+
+![Notes right-side panel](./docs/assets/preview-right.png)
+
+The same panel in the dark theme; every colour comes from DSH theme tokens:
+
+![Notes right-side panel, dark](./docs/assets/preview-right-dark.png)
+
+A **Notes** button at the top right of the conversation, with the open count:
+
+![Notes button at the top right](./docs/assets/preview-badge.png)
+
+The same button in the dark theme:
+
+![Notes button at the top right, dark](./docs/assets/preview-badge-dark.png)
+
+Clicking the entry opens a fixed panel on the right.
+
+## Why AsideNote
 
 Working with AI often brings up things you want to revisit: a detail to change later, a result to double-check, or an idea to explore next.
 
-Sending them straight into the conversation can interrupt the task at hand. Writing them somewhere else means finding them again later. SessionNote keeps them beside the conversation so you can jot them down and carry on.
+Sending them straight into the conversation can interrupt the task at hand. Writing them somewhere else means finding them again later. AsideNote keeps them beside the conversation so you can jot them down and carry on.
+
+A few small tasks should not need a whole management system. Capture a thought, look back when you need it, and let it go when you are done. Open the panel on your terms and tuck it away afterward, with little interruption to the work at hand.
 
 ## From a quick note to the next step
 
@@ -22,7 +44,7 @@ Sending them straight into the conversation can interrupt the task at hand. Writ
 
 Click the **Notes** button at the top right of the conversation to open the right-side panel. Record tasks, ideas, and details to revisit. The button shows the unfinished count; check off each item as you finish it.
 
-### Every session has its own list
+### Keep it with the session and pick it up later
 
 Notes are saved independently for each session. Even within the same workspace, each conversation keeps its own tasks and context.
 
@@ -42,30 +64,12 @@ Click a note's forward button to append it to the current chat input as a list i
 
 [Installation](#install) · [Feedback and issues](https://github.com/Rayle8/dsh-workspace-todos/issues)
 
-## Preview and entry
-
-![Notes right-side panel](./preview-right.png)
-
-The same panel in the dark theme; every colour comes from DSH theme tokens:
-
-![Notes right-side panel, dark](./preview-right-dark.png)
-
-A **Notes** button at the top right of the conversation, with the open count:
-
-![Notes button at the top right](./preview-badge.png)
-
-The same button in the dark theme:
-
-![Notes button at the top right, dark](./preview-badge-dark.png)
-
-Clicking the entry opens a fixed panel on the right.
-
 ## Features
 
 - Data is keyed by **session ID**; different sessions in one workspace stay independent.
 - A 28px square top-right icon button shows the open count as a low-contrast gray corner badge; its tooltip reads “Session notes N”.
 - Clicking it opens a fixed right-side panel; switching sessions closes the old panel and updates the entry.
-- The settings button beside the notes title expands a settings card for the send shortcut (Enter sends, or ⌘/Ctrl+Enter sends, labelled for the current platform); **One-click forward** provides a prefix prompt field that starts one line tall and grows with wrapped text up to six lines, with an explanation underneath, and the bottom shows the version, the author 阿三石, and a clickable GitHub project link; when a newer release exists, the settings button gains a dot and Settings › About offers the update link; settings persist automatically.
+- The settings button beside the notes title expands a settings card for the send shortcut (Enter sends, or ⌘/Ctrl+Enter sends, labelled for the current platform); **One-click forward** provides a prefix prompt field that starts one line tall and grows with wrapped text up to six lines, with an explanation underneath, and the bottom shows the version, the author 阿三石, and a clickable GitHub project link; settings persist automatically.
 - The panel's top-right corner aligns with the header entry and shifts left of the DSH right sidebar when that sidebar is open.
 - Clicking the entry opens the right-side panel for add, complete, copy, edit (double-click or pencil), delete, clear completed (with a confirmation), and expand completed.
 - Drag the handle on the panel's left edge to resize its width; double-click the handle to reset it, and the width persists in the browser.
@@ -82,14 +86,14 @@ Clicking the entry opens a fixed panel on the right.
 - The send-shortcut hint sits in the empty space left of the Add button and updates with the setting, keeping the input placeholder short.
 - Unsaved add/edit drafts are saved per session and restored after closing and reopening the panel, with the add caret at the end of the draft; they clear after add, save, cancel, or delete.
 - Expanding **Completed** does not compress the **Open** list; only the open/completed list region scrolls, while the header, settings, composer, and footer stay fixed.
-- The **Open** and **Completed** headers stick inside the list: transparent until pinned, then filled with the same opaque `--dsh-wt-panelSurface` as the panel. The title typography stays unchanged, with no rounded corners, underlay, translucency, or top blur band.
+- The **Open** and **Completed** headers stick inside the list: transparent until pinned, then filled with the same opaque `--dsh-an-panelSurface` as the panel. The title typography stays unchanged, with no rounded corners, underlay, translucency, or top blur band.
 - Completed notes show both the creation and the completion age and sort by newest completion; open notes show the creation age only.
 - The open/completed expand state is remembered and restored when the panel is reopened.
 - Note-card copy/edit/delete actions appear on hover or keyboard focus while keeping their layout space; touch devices keep them visible.
 - Both **Open** and **Completed** headings collapse on click with matching count styles and colours; either can stay expanded independently; only the chevron, label, and count are clickable, not the blank right side.
 - Syncs across tabs in the same browser.
 - Chinese and English copy, following the DSH locale.
-- Every style reuses DSH design tokens: semantic colour aliases, shared radii and elevation, an opaque raised surface, and the shared scrollbar skin. Type collapses to three sizes (12 / 13 / 14), weight caps at 500, neutral strokes are 0.5px hairlines, hover styling only runs on hover-capable devices, and settled outcomes report through the frame-wide toast. See the [UI / interaction review](./docs/ui-design-check.md).
+- Every style reuses DSH design tokens: semantic colour aliases, shared radii and elevation, an opaque raised surface, and the shared scrollbar skin. Type collapses to three sizes (12 / 13 / 14), weight caps at 500, neutral strokes are 0.5px hairlines, hover styling only runs on hover-capable devices, and settled outcomes report through the frame-wide toast. See the [Panel UI rules](./docs/panel-ui-rules.md).
 
 ## Feature screenshots
 
@@ -103,44 +107,44 @@ Five states shot from the same session and the same set of notes, in both themes
   </tr>
   <tr>
     <td>Panel overview<br>open / completed sections</td>
-    <td><img src="./docs/features/panel.png" width="300" alt="Panel overview"></td>
-    <td><img src="./docs/features/panel-dark.png" width="300" alt="Panel overview, dark"></td>
+    <td><img src="./docs/assets/features/panel.png" width="300" alt="Panel overview"></td>
+    <td><img src="./docs/assets/features/panel-dark.png" width="300" alt="Panel overview, dark"></td>
   </tr>
   <tr>
     <td>Settings<br>send shortcut, forward prefix, about</td>
-    <td><img src="./docs/features/settings.png" width="300" alt="Settings"></td>
-    <td><img src="./docs/features/settings-dark.png" width="300" alt="Settings, dark"></td>
+    <td><img src="./docs/assets/features/settings.png" width="300" alt="Settings"></td>
+    <td><img src="./docs/assets/features/settings-dark.png" width="300" alt="Settings, dark"></td>
   </tr>
   <tr>
     <td>Row actions<br>copy / forward / edit / delete on hover</td>
-    <td><img src="./docs/features/actions.png" width="300" alt="Row actions"></td>
-    <td><img src="./docs/features/actions-dark.png" width="300" alt="Row actions, dark"></td>
+    <td><img src="./docs/assets/features/actions.png" width="300" alt="Row actions"></td>
+    <td><img src="./docs/assets/features/actions-dark.png" width="300" alt="Row actions, dark"></td>
   </tr>
   <tr>
     <td>Clear completed<br>a second confirmation guards the delete</td>
-    <td><img src="./docs/features/clear.png" width="300" alt="Clear completed confirmation"></td>
-    <td><img src="./docs/features/clear-dark.png" width="300" alt="Clear completed confirmation, dark"></td>
+    <td><img src="./docs/assets/features/clear.png" width="300" alt="Clear completed confirmation"></td>
+    <td><img src="./docs/assets/features/clear-dark.png" width="300" alt="Clear completed confirmation, dark"></td>
   </tr>
   <tr>
     <td>Empty state<br>guidance when a session has no notes</td>
-    <td><img src="./docs/features/empty.png" width="300" alt="Empty state"></td>
-    <td><img src="./docs/features/empty-dark.png" width="300" alt="Empty state, dark"></td>
+    <td><img src="./docs/assets/features/empty.png" width="300" alt="Empty state"></td>
+    <td><img src="./docs/assets/features/empty-dark.png" width="300" alt="Empty state, dark"></td>
   </tr>
 </table>
 
 ## Design tokens
 
-The panel and the entry button read from one token block at the top of `client.js`:
+The panel and the entry button read from one token block in `src/client/styles/panel.css`:
 
 | Axis | Token | Values |
 | --- | --- | --- |
 | Colour | `--dsw-alias-*` | DSH semantic aliases only (ink, hover, border, state, settings card); no local ramp |
-| Type | `--wt-fs-caption/row/title` | 12 / 13 / 14, all on a 20px line height |
+| Type | `--an-fs-caption/row/title` | 12 / 13 / 14, all on a 20px line height |
 | Weight | 400 / 500 | 500 is the cap; hierarchy comes from size and ink |
-| Spacing | `--wt-space-1 … -6` | 4 / 8 / 12 / 16 / 24 / 32 |
+| Spacing | `--an-space-1 … -6` | 4 / 8 / 12 / 16 / 24 / 32 |
 | Radius | `--dsw-radius-sm/md/lg/panel` + 999 | 8 (compact controls) / 16 (groups and fields) / 28 (floating panel) / pills paired with `corner-shape:round` |
 | Shadow | `--dsw-elevation-panel` | the panel is `border:0`; the 0.5px hairline is the shadow's first layer |
-| Material | `--dsh-wt-panelSurface` (`--dsw-alias-bg-layer-2`) | opaque panel surface shared with the pinned header |
+| Material | `--dsh-an-panelSurface` (`--dsw-alias-bg-layer-2`) | opaque panel surface shared with the pinned header |
 | Motion | `--ds-transition-duration*`, `--ds-ease-in-out` | 100 / 200ms, opacity and transform only |
 | Scrollbar | shared theme skin | the panel rebinds `--dsh-scrollbar-*` to l2 and gives the list a 9px rail with a 2px inset |
 
@@ -156,7 +160,7 @@ Feedback reuses product surfaces too: copy, forward, delete, clear-completed, an
 
 ## Where data lives
 
-Notes live in the browser's `localStorage` under `dsh.session-memos.v1`:
+Notes live in the browser's `localStorage` under `dsh.aside-notes.v2`:
 
 ```json
 {
@@ -176,7 +180,7 @@ Therefore:
 - Refreshing, restarting DSH, or switching sessions keeps the records.
 - Nothing is written into the project or synced to another machine/browser.
 - Clearing site data clears the notes.
-- The old `dsh.workspace-todos.v1` workspace store is no longer read; records need to be recreated after upgrading.
+- 1.x notes, drafts, forward marks, and panel settings are copied to `dsh.aside-notes.*.v2` on first load. The old keys stay, so a rollback to 1.9.x still reads them.
 
 ## Install
 
@@ -189,46 +193,46 @@ Link the checkout into a DSH profile (replace `<path-to-repo>`):
 ```json
 {
   "dependencies": {
-    "dsh-workspace-todos": "link:<path-to-repo>"
+    "dsh-asidenote": "link:<path-to-repo>"
   },
   "dsh": {
     "profile": {
-      "bundles": ["dsh-workspace-todos"]
+      "bundles": ["dsh-asidenote"]
     }
   }
 }
 ```
 
-Then run `pnpm install` in the profile directory. On startup DSH reads `dsh.bundle.patch` and `dsh.client`. After adding the bundle row, toggle it off/on in the sidebar **Plugins** page to recompose a running Host without a restart; restart once if the row is not listed yet. Later `client.js` edits are replaced by the dev client HMR.
-
-## Update notice
-
-When the panel opens, the plugin reads the latest `dsh-workspace-todos` version from the npm registry (falling back to npmmirror when npmjs is unreachable), then from the latest GitHub Release tag. The answer, including a miss, is cached for an hour so repeated panel opens make no extra request. If a newer version exists, the settings button gains a dot and Settings › About shows an “Update available ↑ vX.Y.Z” link that opens the GitHub release notes.
-
-The check reads only the public version number: it sends no telemetry and never installs anything or touches your notes. Upgrading stays an explicit step in your profile (`pnpm install` plus a DSH restart).
+Then run `pnpm install` in the profile directory. On startup DSH reads `dsh.bundle.patch` and `dsh.client`. After adding the bundle row, toggle it off/on in the sidebar **Plugins** page to recompose a running Host without a restart; restart once if the row is not listed yet. After changing `src/client/`, run `npm run build` to regenerate `client/client.js`; the dev client HMR swaps the bundle, otherwise refresh. Building needs Node 22+.
 
 ## Development
 
-`client.js` is the browser half, in DSH's Module Loader format:
+The browser half lives in `src/client/` and tsdown bundles it into a single `client/client.js`:
 
-```js
-window.__ModuleLoader__.load({
-  id: 'dsh-workspace-todos',
-  factory(require) {
-    const React = require('react')
-    return { inject: ['slots'], apply }
-  },
-})
+```bash
+npm install
+npm run check     # lint + typecheck + tests + build
+npm run build     # regenerate client/client.js only
 ```
 
-`index.js` is the empty Host half; `cordis.patch.yml` inserts the package into the profile composition. The UI depends on `slots` only:
+The entry is `src/client/index.ts`, which exports `apply(ctx)`; tsdown wraps it in DSH's loader shell:
+
+```js
+window.__ModuleLoader__.load({ id: 'dsh-asidenote', factory: (require) => { … } })
+```
+
+The artifact is committed: CI rebuilds it and fails when `client/` does not match, so do not edit `client/client.js` by hand.
+
+`index.js` is the empty Host half; `cordis.patch.yml` inserts the package into the profile composition. The UI depends on two services, `slots` and `locale`:
 
 - `conversation.composer.dock`: used only to capture the active session ID; it renders no visible entry.
 - The top-right entry is injected into the host header with a MutationObserver, because the host's re-render reclaims a React portal there.
 
 The panel mounts as its own `react-dom/client` root on `document.body` and follows the trigger with fixed positioning. All styles use DSH's `--dsw-alias-*` theme variables, so light and dark themes work.
 
-`client.js` changes reload through the dev client HMR; otherwise refresh the page or restart DSH.
+Run `npm run build` after source changes; the dev client HMR swaps the new bundle, otherwise refresh or restart DSH.
+
+The screenshot and preview pipeline lives in the [screenshot SOP](./docs/screenshot-sop.md): one command re-shoots both themes from an isolated profile, and credentials are not copied unless `COPY_CREDENTIALS=1`.
 
 ## Verification
 
@@ -239,6 +243,6 @@ Loaded in an isolated DSH profile and driven through headless Chrome:
 - adding updates both the badge and the panel count;
 - complete, edit, copy, forward, delete, and clear-completed work in the panel;
 - records survive a refresh and stay session-scoped;
-- the npmjs → npmmirror → GitHub Release fallback, the one-hour cache, and the version comparison are covered by the contract tests without a browser; the live notice needs a published npm package or a GitHub Release.
+- 1.x notes appear under the new keys after a restart.
 
-`node --check client.js` and the contract tests pass.
+`npm run check` passes: lint, typecheck, build, and 44 tests, including a jsdom integration test that drives the whole panel.
