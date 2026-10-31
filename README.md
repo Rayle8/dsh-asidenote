@@ -184,7 +184,25 @@ AsideNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺。临时的�
 
 ## 安装
 
-### 从 npm 安装（推荐）
+### 一键安装（推荐）
+
+```bash
+npx dsh-asidenote install
+```
+
+脚本会从 npm 临时拉取本包，找到 DSH profile（存在 `DSH_PROFILE_DIR` 时用它，否则默认 `~/.dsh/profiles/desktop`），先把 `package.json` 和 `pnpm-lock.yaml` 备份到 `.local-backup/`，再写入依赖、把 `dsh-asidenote` 追加进 `dsh.profile.bundles`，执行 `pnpm install`，最后校验装出来的 `client/client.js`。
+
+```bash
+npx dsh-asidenote install --profile work    # 指定 profile
+npx dsh-asidenote install --dry-run         # 只打印计划，不改任何文件
+npx dsh-asidenote install --version 2.0.1   # 固定版本，而不是 ^2.0.1
+```
+
+安装器从 **2.0.2** 起随包发布；更早的版本没有 `bin`，`npx` 会提示找不到可执行文件。重复执行是幂等的。装完不需要重启 DSH：profile 会在约 1 秒内重新组合，刷新页面即可看到入口（从插件市场安装时，市场会替你刷新页面）。
+
+不想自己敲命令的话，把 [一键安装提示词](./docs/install-prompt.md) 里那句话发给 agent 即可。
+
+### 手动配置 npm 依赖
 
 在 DSH profile 的 `package.json` 中加入依赖，并把包名加进 `dsh.profile.bundles`：
 
@@ -201,7 +219,7 @@ AsideNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺。临时的�
 }
 ```
 
-然后在 profile 目录执行 `pnpm install`，重启 DSH，或在侧边栏「插件」页把组合包关闭再开启。升级时调整版本范围或执行 `pnpm update dsh-asidenote`。
+然后在 profile 目录执行 `pnpm install`，刷新页面即可生效，无需重启；升级时调整版本范围或执行 `pnpm update dsh-asidenote`。
 
 ### 从 git checkout 安装（开发）
 

@@ -12,6 +12,7 @@ The 1.0.0–2.0.1 iterations were development builds of the same plugin; the 2.x
 - **Notes:** quick add, edit, complete, copy, forward to the composer, delete, and clear completed behind an inline confirmation; the composer and editor grow with wrapped text.
 - **Settings:** a send/newline shortcut (⌘ or Ctrl aware), a one-click forward prefix, the version and author in About, and the full Chinese/English copy from one dictionary.
 - **Update centre:** Settings › About checks npm (npmmirror, then the GitHub Release fallback), lists pending releases newest-first, and updates in place through the plugin market with a refresh hint.
+- **Installer:** `npx dsh-asidenote install` (`scripts/install.mjs`, shipped as the package's `bin`) resolves the DSH profile (`DSH_PROFILE_DIR`, `--profile`, `--profile-dir`), backs up the manifest and lockfile, adds the dependency plus the `dsh.profile.bundles` entry, runs `pnpm install` and verifies the installed `client/client.js`; `--dry-run` and `--no-install` keep it reviewable and re-running is idempotent. `docs/install-prompt.md` carries a shareable agent prompt, and a page reload is enough after install or upgrade.
 - **Release pipeline:** tag-driven publish workflow with a changelog gate, `npm run release`, and `tools/release/notes.mjs`, which composes the Release body (English + 中文, install links, Full Changelog) carrying the `app-update-notes` markers the panel reads.
 
 ### Changed
@@ -29,6 +30,7 @@ The 1.0.0–2.0.1 iterations were development builds of the same plugin; the 2.x
 - **便笺：** 快速添加、编辑、完成、复制、转发到输入框、删除，以及带内联确认的清空已完成；输入框与编辑器会随换行自动增高。
 - **设置：** 发送/换行快捷键（识别 ⌘ 与 Ctrl）、一键转发前缀、关于区的版本与作者，以及由同一份词典提供的中英文文案。
 - **更新中心：** 设置 › 关于 会检查 npm（失败时回退 npmmirror，再到 GitHub Release），按版本从新到旧列出待更新说明，并通过插件市场就地更新、完成后提示刷新。
+- **安装工具：** `npx dsh-asidenote install`（`scripts/install.mjs`，随包发布为 `bin`）会定位 DSH profile（支持 `DSH_PROFILE_DIR`、`--profile`、`--profile-dir`）、备份清单与 lockfile、写入依赖和 `dsh.profile.bundles` 条目、执行 `pnpm install` 并校验安装后的 `client/client.js`；`--dry-run` 与 `--no-install` 便于先审阅，重复执行是幂等的。`docs/install-prompt.md` 提供可直接交给 agent 的安装提示词；安装或升级后刷新页面即可，无需重启。
 - **发布链路：** tag 触发的发布 workflow、changelog 校验、`npm run release`，以及 `tools/release/notes.mjs`——它生成带 `app-update-notes` 标记的中英文 Release 正文（含安装链接与 Full Changelog），供面板直接读取。
 
 ### 变更

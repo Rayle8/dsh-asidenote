@@ -26,6 +26,9 @@
     "node": "^22.18.0 || >=24.11.0"
   },
   "main": "index.js",
+  "bin": {
+    "dsh-asidenote": "scripts/install.mjs"
+  },
   "exports": {
     ".": "./index.js",
     "./client": "./client/client.js",
@@ -35,11 +38,13 @@
   "files": [
     "index.js",
     "client/client.js",
+    "scripts/install.mjs",
     "cordis.patch.yml",
     "locale/*.json",
     "icon.svg",
     "docs/assets",
     "docs/panel-ui-rules.md",
+    "docs/install-prompt.md",
     "README.md",
     "README.en.md",
     "LICENSE",

@@ -70,12 +70,12 @@ test('the built bundle boots, applies, and seats its slots', async t => {
 <!-- app-update-notes:zh:end -->
 `
   const RELEASES = [
-    { tag_name: 'v2.3.0', html_url: 'https://github.com/Rayle8/dsh-asidenote/releases/tag/v2.3.0', body: RELEASE_BODY },
-    { tag_name: 'v2.2.0', html_url: 'https://github.com/Rayle8/dsh-asidenote/releases/tag/v2.2.0', body: OLDER_BODY },
+    { tag_name: 'v0.9.11', html_url: 'https://github.com/Rayle8/dsh-asidenote/releases/tag/v0.9.11', body: RELEASE_BODY },
+    { tag_name: 'v0.9.10', html_url: 'https://github.com/Rayle8/dsh-asidenote/releases/tag/v0.9.10', body: OLDER_BODY },
     // Older than the running build and a prerelease: neither may appear.
-    { tag_name: 'v2.0.1', html_url: 'https://github.com/Rayle8/dsh-asidenote/releases/tag/v2.0.1', body: OLDER_BODY },
-    { tag_name: 'v2.4.0-beta.1', prerelease: true, body: RELEASE_BODY },
-    { tag_name: 'v2.5.0', draft: true, body: RELEASE_BODY },
+    { tag_name: 'v0.9.9', html_url: 'https://github.com/Rayle8/dsh-asidenote/releases/tag/v0.9.9', body: OLDER_BODY },
+    { tag_name: 'v0.9.12-beta.1', prerelease: true, body: RELEASE_BODY },
+    { tag_name: 'v0.9.13', draft: true, body: RELEASE_BODY },
   ]
   const MARKET_CAPABILITIES = {
     schema: 'dsh-market/update-api/v1',
@@ -104,10 +104,10 @@ test('the built bundle boots, applies, and seats its slots', async t => {
       if (holdManualCheck) {
         holdManualCheck = false
         return new Promise(resolve => {
-          releaseManualCheck = () => resolve(json(200, { version: '2.3.0' }))
+          releaseManualCheck = () => resolve(json(200, { version: '0.9.11' }))
         })
       }
-      return json(200, { version: '2.3.0' })
+      return json(200, { version: '0.9.11' })
     }
     if (url === 'https://api.github.com/repos/Rayle8/dsh-asidenote/releases?per_page=50') {
       return json(200, RELEASES)
@@ -123,8 +123,8 @@ test('the built bundle boots, applies, and seats its slots', async t => {
         operation: {
           operationId: 'boot-1-update-1',
           state: 'succeeded',
-          beforeVersion: '2.1.0',
-          installedVersion: '2.3.0',
+          beforeVersion: '0.9.8',
+          installedVersion: '0.9.11',
           progress: { percent: 100 },
           outcome: { refreshRequired: true, restartRequired: false },
           failure: null,
@@ -257,7 +257,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   assert.ok(popover.querySelector('.dsh-an-updateDot'), 'the gear carries the update dot')
   const updateCard = popover.querySelector('.dsh-an-updateCard')
   assert.ok(updateCard, 'a newer version must surface in Settings > About')
-  assert.match(updateCard.textContent, /2\.3\.0/)
+  assert.match(updateCard.textContent, /0\.9\.11/)
   // Notes are part of the card, loaded without a disclosure click.
   await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 80)) })
   assert.ok(popover.querySelector('.dsh-an-updateNotes'), 'release notes must load by default')
@@ -284,16 +284,16 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   assert.ok(notes, 'release notes stay visible after a check')
   assert.match(notes.textContent, /本次更新包含 2 个版本/)
   const heads = [...notes.querySelectorAll('.dsh-an-updateVersionHead')]
-  assert.deepEqual(heads.map(head => head.textContent.replace('▸', '')), ['v2.3.0最新', 'v2.2.0'])
+  assert.deepEqual(heads.map(head => head.textContent.replace('▸', '')), ['v0.9.11最新', 'v0.9.10'])
   assert.match(notes.textContent, /更新中心/)
-  assert.doesNotMatch(notes.textContent, /2\.4\.0-beta/, 'prereleases are not offered')
-  assert.doesNotMatch(notes.textContent, /2\.0\.1/, 'releases older than the build are not listed')
+  assert.doesNotMatch(notes.textContent, /0\.9\.12-beta/, 'prereleases are not offered')
+  assert.doesNotMatch(notes.textContent, /v0\.9\.9\b/, 'releases older than the build are not listed')
   assert.equal(heads[0].getAttribute('aria-expanded'), 'true', 'the release being installed opens')
   assert.equal(heads[1].getAttribute('aria-expanded'), 'false', 'older releases wait for a click')
   await act(async () => { heads[1].click() })
   assert.match(notes.textContent, /修复了上一个版本的问题/, 'clicking an older version expands its notes')
   const fullLink = popover.querySelector('.dsh-an-updateFull')
-  assert.equal(fullLink.getAttribute('href'), 'https://github.com/Rayle8/dsh-asidenote/releases/tag/v2.3.0')
+  assert.equal(fullLink.getAttribute('href'), 'https://github.com/Rayle8/dsh-asidenote/releases/tag/v0.9.11')
   assert.equal(fullLink.getAttribute('target'), '_blank')
   const actions = popover.querySelector('.dsh-an-updateActions')
   assert.ok(actions, 'the action row carries the update button and the full-release link')
