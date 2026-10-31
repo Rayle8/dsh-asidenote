@@ -48,3 +48,8 @@ jobs:
 
       - name: Contract and bundle tests
         run: npm test
+
+      # Every change lands under ## next-released; the release command renames
+      # that heading and inserts a fresh one. Catch drift before it reaches main.
+      - name: The changelog keeps a next-released section
+        run: node tools/release.mjs check-next

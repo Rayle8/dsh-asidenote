@@ -1,8 +1,9 @@
 # Changelog
 
-## Unreleased
+## next-released
 
 - Keep the CSS virtual module id slash-separated when the committed bundle is built. rolldown echoes the relative id into `client/client.js`, and `path.relative()` uses the platform separator, so a Windows build wrote `src\client\styles\panel.css.mjs` where the Linux CI artifact has `src/client/styles/panel.css.mjs` and the `git diff --exit-code client/` gate failed. The id is now normalised to `/`, which leaves the POSIX artifact unchanged byte for byte.
+- Add `npm run release -- <version>` (`tools/release.mjs`): it bumps `package.json` and `PLUGIN_VERSION`, turns `## next-released` into the version heading, inserts a fresh empty `## next-released`, runs `npm run check`, then commits the release and tags it without pushing. The publish workflow now refuses a tag whose `CHANGELOG.md` section is missing or empty instead of silently falling back to generated release notes, and CI keeps the `next-released` heading at the top.
 
 ## 2.0.1
 

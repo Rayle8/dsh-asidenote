@@ -51,6 +51,14 @@ jobs:
             exit 1
           fi
 
+      - name: The changelog must have a section for the tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          # Gate before npm publish: a missing or empty section would otherwise
+          # publish the package and then silently generate unrelated notes.
+          # Re-running after a publish is not possible (the version is taken).
+          node tools/release.mjs check "${GITHUB_REF_NAME#v}"
+
       - name: Publish
         run: |
           # A tag carrying a prerelease suffix goes to the `next` dist-tag so it
@@ -74,24 +82,16 @@ jobs:
           fi
           version="${GITHUB_REF_NAME#v}"
           notes_file="$(mktemp)"
-          # Use the matching CHANGELOG section as the release notes; fall back
-          # to generated notes when the section is missing.
-          awk -v ver="$version" '
-            $0 == "## " ver { flag = 1; next }
-            flag && /^## / { exit }
-            flag { print }
-          ' CHANGELOG.md > "$notes_file"
-          if [ -s "$notes_file" ]; then
-            prev="$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)"
-            if [ -n "$prev" ]; then
-              printf '\n**Full Changelog**: https://github.com/Rayle8/dsh-asidenote/compare/%s...%s\n' \
-                "$prev" "$GITHUB_REF_NAME" >> "$notes_file"
-            fi
-            notes_flag=(--notes-file "$notes_file")
-          else
-            notes_flag=(--generate-notes)
+          # The tag gate above already proved the section exists and is not
+          # empty, so there is deliberately no --generate-notes fallback: it
+          # would hide a missing changelog and publish the wrong notes.
+          node tools/release.mjs extract "$version" > "$notes_file"
+          prev="$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)"
+          if [ -n "$prev" ]; then
+            printf '\n**Full Changelog**: https://github.com/Rayle8/dsh-asidenote/compare/%s...%s\n' \
+              "$prev" "$GITHUB_REF_NAME" >> "$notes_file"
           fi
-          flags=(--verify-tag --title "AsideNote $version" "${notes_flag[@]}")
+          flags=(--verify-tag --title "AsideNote $version" --notes-file "$notes_file")
           if [[ "$GITHUB_REF_NAME" == v*-* ]]; then
             flags+=(--prerelease)
           fi

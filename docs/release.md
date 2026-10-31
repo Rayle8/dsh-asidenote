@@ -20,7 +20,7 @@
 
 ```bash
 git switch -c feat/xxx main
-# 改 src/client/**，并更新 CHANGELOG.md 的 Unreleased
+# 改 src/client/**，并把说明写到 CHANGELOG.md 的 ## next-released 下
 npm run check          # lint + typecheck + 测试 + build
 npm run build          # 确保 client/client.js 与源码同步
 git add src client CHANGELOG.md
@@ -30,6 +30,7 @@ git push -u origin feat/xxx
 
 必须遵守：
 
+- `CHANGELOG.md` 顶部始终保留 `## next-released`，所有改动写在它下面；发布命令会把它改名为版本号并插入新的空标题，CI 也会检查这个标题存在。
 - `client/client.js` 是**提交进仓库的构建产物**，必须与 `src/client/**` 出现在同一个提交里；CI 会重新 build 并检查 `git diff client/`，不一致直接失败。
 - 不要手改 `client/client.js`，构建会覆盖它。
 - `package.json` 的 `version` 与 `src/client/constants.ts` 的 `PLUGIN_VERSION` 必须一致，契约测试会检查。
@@ -48,28 +49,29 @@ git push -u origin feat/xxx
 
 ## 发布步骤
 
-以 `2.0.1` 为例：
+发布只改 `## next-released`，不要手写 `## X.Y.Z`：
 
 ```bash
-# 1. 同步版本号
-#    package.json:            "version": "2.0.1"
-#    src/client/constants.ts: PLUGIN_VERSION = '2.0.1'
+# 1. 确认 next-released 下已经写好本次要发布的内容
+# 2. 一条命令完成版本号、CHANGELOG、检查、提交和 tag
+npm run release -- 2.1.0
 
-# 2. CHANGELOG：把 Unreleased 改成 "## 2.0.1"
-
-# 3. 全量检查并确认产物
-npm run check
-git diff --exit-code client/
-
-# 4. 发布提交
-git add -A
-git commit -m "release: 2.0.1"
+# 3. 推送 main 与 tag；tag 触发 npm 发布和 GitHub Release
 git push origin main
-
-# 5. 打 tag 并推送：这一步触发 npm 发布和 GitHub Release
-git tag -a v2.0.1 -m "AsideNote 2.0.1"
-git push origin v2.0.1
+git push origin v2.1.0
 ```
+
+`npm run release -- <version>` 会：
+
+1. 校验工作区干净、当前在 `main`、版本号大于当前版本、tag 尚未存在；
+2. 同步 `package.json` 的 `version` 与 `src/client/constants.ts` 的 `PLUGIN_VERSION`；
+3. 把 `## next-released` 改名为 `## <version>`，并在顶部插入一个新的空 `## next-released`；
+4. 运行 `npm run check`，确认 lint、类型、测试和构建产物都一致；
+5. 提交 `release: <version>` 并打 `v<version>` tag，**不自动 push**。
+
+预发布同样适用：`npm run release -- 2.1.0-beta.1` 会得到 `v2.1.0-beta.1` tag，workflow 自动发到 npm 的 `next` dist-tag。
+
+只想先看改动、不提交时用 `npm run release -- 2.1.0 --dry-run`：会改文件并跑检查，但不 commit、不打 tag，之后用 `git restore .` 丢弃。
 
 ## 自动发布链路
 
@@ -78,9 +80,10 @@ git push origin v2.0.1
 1. `npm ci`（强制从 `registry.npmjs.org` 取包，不受开发机镜像影响）；
 2. `npm run check`；
 3. 校验 `v$(package.json version)` 与 tag 完全一致；
-4. `npm publish --provenance`：通过 trusted publishing（OIDC）获取短时凭据，不使用长期 token；
-5. 创建同名 GitHub Release：说明取自 `CHANGELOG.md` 对应版本小节，并附 Full Changelog 链接；预发布加 `--prerelease`；
-6. 把 `npm pack` 生成的 tgz 作为 Release 资产上传，保持「从 Release 安装」可用。
+4. 校验 `CHANGELOG.md` 存在非空的 `## <version>` 小节；失败直接终止，**不会执行 `npm publish`**，也不会有 `--generate-notes` 兜底；
+5. `npm publish --provenance`：通过 trusted publishing（OIDC）获取短时凭据，不使用长期 token；
+6. 创建同名 GitHub Release：说明严格取自 `CHANGELOG.md` 对应版本小节，并附 Full Changelog 链接；预发布加 `--prerelease`；
+7. 把 `npm pack` 生成的 tgz 作为 Release 资产上传，保持「从 Release 安装」可用。
 
 trusted publisher 配置：
 
@@ -136,6 +139,7 @@ gh release upload v2.0.1 dist/dsh-asidenote-2.0.1.tgz --clobber
 | 现象 | 原因 / 处理 |
 | --- | --- |
 | workflow 在 tag 校验步骤失败 | tag 与 `package.json` 版本不一致；删掉错误 tag 后按正确版本重打 |
+| workflow 在 changelog 校验步骤失败 | `CHANGELOG.md` 缺少非空的 `## <version>` 小节；删掉 tag，把 `next-released` 改名后重新提交并重打 tag |
 | `EPUBLISHCONFLICT` / 版本已存在 | 该版本已发布，不能覆盖；改为新版本号 |
 | CI 报 `client/` 与源码不一致 | 本地 `npm run build` 后把 `client/client.js` 一起提交 |
 | `ENEEDAUTH` / OIDC 认证失败 | trusted publisher 的 workflow 文件名或仓库名不匹配；核对 `publish.yml` 与 `Rayle8/dsh-asidenote` |
@@ -147,4 +151,5 @@ gh release upload v2.0.1 dist/dsh-asidenote-2.0.1.tgz --clobber
 
 - 不重写已公开发布的 tag；错误版本用新的 patch 版本修正。
 - 不手改构建产物，不从脏工作区发布。
+- 不要绕过 `next-released` 直接写版本小节；发布命令、CI 和 publish workflow 都只认这个标题及它生成的版本小节。
 - 不使用 bypass-2FA token 发布；npm 正在淘汰这条通道，统一走 trusted publishing。
