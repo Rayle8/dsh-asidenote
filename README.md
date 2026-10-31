@@ -184,6 +184,27 @@ AsideNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺。临时的�
 
 ## 安装
 
+### 从 npm 安装（推荐）
+
+在 DSH profile 的 `package.json` 中加入依赖，并把包名加进 `dsh.profile.bundles`：
+
+```json
+{
+  "dependencies": {
+    "dsh-asidenote": "^2.0.0"
+  },
+  "dsh": {
+    "profile": {
+      "bundles": ["dsh-asidenote"]
+    }
+  }
+}
+```
+
+然后在 profile 目录执行 `pnpm install`，重启 DSH，或在侧边栏「插件」页把组合包关闭再开启。升级时调整版本范围或执行 `pnpm update dsh-asidenote`。
+
+### 从 git checkout 安装（开发）
+
 ```bash
 git clone git@github.com:Rayle8/dsh-asidenote.git
 ```

@@ -184,6 +184,27 @@ Therefore:
 
 ## Install
 
+### Install from npm (recommended)
+
+Add the dependency to the DSH profile's `package.json` and list the package under `dsh.profile.bundles`:
+
+```json
+{
+  "dependencies": {
+    "dsh-asidenote": "^2.0.0"
+  },
+  "dsh": {
+    "profile": {
+      "bundles": ["dsh-asidenote"]
+    }
+  }
+}
+```
+
+Then run `pnpm install` in the profile directory and restart DSH, or toggle the bundle off/on in the sidebar **Plugins** page. To upgrade, raise the range or run `pnpm update dsh-asidenote`.
+
+### Install from a git checkout (development)
+
 ```bash
 git clone git@github.com:Rayle8/dsh-asidenote.git
 ```
