@@ -234,6 +234,8 @@ window.__ModuleLoader__.load({ id: 'dsh-asidenote', factory: (require) => { … 
 
 截图与预览图的产出流程见 [截图与预览图 SOP](./docs/screenshot-sop.md)：在隔离 profile 里造演示会话，一条命令重拍明暗两套；凭据默认不复制。
 
+代码结构、数据模型与构建约定见 [架构文档](./docs/architecture.md)。
+
 ## 验证
 
 已在独立的 DSH profile 中实际加载，并用无头 Chrome 走通：

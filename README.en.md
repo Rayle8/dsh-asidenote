@@ -234,6 +234,8 @@ Run `npm run build` after source changes; the dev client HMR swaps the new bundl
 
 The screenshot and preview pipeline lives in the [screenshot SOP](./docs/screenshot-sop.md): one command re-shoots both themes from an isolated profile, and credentials are not copied unless `COPY_CREDENTIALS=1`.
 
+Code structure, data model and build conventions: [architecture](./docs/architecture.md).
+
 ## Verification
 
 Loaded in an isolated DSH profile and driven through headless Chrome:
