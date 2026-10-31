@@ -1,10 +1,10 @@
-# AsideNote 架构
+# 旁边记（AsideNote）架构
 
 面向维护者的结构说明。界面约束见 [面板 UI 规则](./panel-ui-rules.md)，截图流程见 [截图 SOP](./screenshot-sop.md)。
 
 ## 1. 形态与运行时契约
 
-AsideNote 是**纯客户端插件**：宿主半侧 `index.js` 是 8 行 no-op，只为了让 `cordis.patch.yml` 能插入一行；真正的实现全部在浏览器半侧。
+旁边记是**纯客户端插件**：宿主半侧 `index.js` 是 8 行 no-op，只为了让 `cordis.patch.yml` 能插入一行；真正的实现全部在浏览器半侧。
 
 - `package.json` 的 `dsh.bundle.patch` 指向 `cordis.patch.yml`，`dsh.client` 声明 `./client` 与需要预注入的宿主模块。
 - 壳把 `./client`（即 `client/client.js`）当 classic script 加载：`window.__ModuleLoader__.load({ id, factory })`。`factory(require)` 里的 `require` 绑定到冻结的模块表，只认 `react`、`react/jsx-runtime`、`react-dom`、`react-dom/client`、`@deepseek-ai/dsh-client-ui-primitives`；其余依赖全部内联。

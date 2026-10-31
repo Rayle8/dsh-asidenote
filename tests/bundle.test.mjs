@@ -210,7 +210,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   const button = document.querySelector('._headerUtilities > .dsh-an-headerBtn')
   assert.ok(button, 'the header entry must be injected into the host utilities row')
   assert.equal(button.dataset.sessionId, 'session-1')
-  assert.match(button.getAttribute('aria-label'), /便笺/)
+  assert.match(button.getAttribute('aria-label'), /旁边记/)
   // The seeded note is open, so the entry already shows a count.
   assert.equal(button.querySelector('.dsh-an-headerCount').textContent, '1')
 
@@ -218,8 +218,10 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   await act(async () => { button.click() })
   const popover = document.querySelector('.dsh-an-popover')
   assert.ok(popover, 'clicking the header entry must open the panel')
+  assert.equal(popover.querySelector('.dsh-an-popTitle').textContent, '旁边记', 'the panel title is the product name')
   const addField = popover.querySelector('.dsh-an-input')
   assert.ok(addField, 'the panel must render the add field')
+  assert.equal(addField.getAttribute('placeholder'), '随手记一条', 'the composer uses the finalized placeholder')
   // Set the value through the prototype setter so React's value tracker sees a
   // change, then dispatch the input event React listens for. fireEvent would
   // resolve the prototype in the Node realm, not this jsdom one.
@@ -241,6 +243,10 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   // Settings: the shortcut radio persists, and so does the forward prefix.
   await act(async () => { popover.querySelector('.dsh-an-settingsBtn').click() })
   assert.ok(popover.querySelector('.dsh-an-settings'), 'the gear must open the settings card')
+  const brand = popover.querySelector('.dsh-an-settingBrand')
+  assert.ok(brand, 'About must show the product identity')
+  assert.match(brand.textContent, /旁边记/)
+  assert.match(brand.textContent, /让想法留在对话旁边/)
   const radios = popover.querySelectorAll('input[type="radio"]')
   assert.equal(radios.length, 2)
   await act(async () => { radios[1].click() })
@@ -356,7 +362,10 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   await act(async () => { deleteButton.click() })
   const afterDelete = JSON.parse(window.localStorage.getItem('dsh.aside-note'))
   assert.equal(afterDelete.sessions['session-1'].items.length, 0)
-  assert.ok(popover.querySelector('.dsh-an-empty'), 'the list falls back to the empty state')
+  const empty = popover.querySelector('.dsh-an-empty')
+  assert.ok(empty, 'the list falls back to the empty state')
+  assert.match(empty.textContent, /旁边还没有记录/)
+  assert.match(empty.textContent, /让想法留在对话旁边/)
 
   // Section collapse is remembered.
   await act(async () => { popover.querySelector('.dsh-an-sectionHead .dsh-an-doneToggle').click() })

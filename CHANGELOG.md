@@ -6,11 +6,13 @@ The 1.0.0–2.0.1 iterations were development builds of the same plugin; the 2.x
 
 <!-- app-update-notes:en:start -->
 ### Changed
+- **Naming:** the Chinese product name is now **旁边记** (English: AsideNote) with the tagline “让想法留在对话旁边” / “Keep your ideas beside the conversation”. The panel title, empty state and composer placeholder carry the new name, and Settings › About shows the tagline.
 - **Storage:** local storage keys now follow the package name: the notes key is `dsh.aside-note`, with `.drafts`, `.forwarded`, `.sections`, `.panel-width`, `.panel-height`, `.send-shortcut` and `.forward-prefix` beside it. The old `dsh.aside-notes.*.v2` keys and the 1.x `dsh.session-memos.v1` / `dsh.memo.*.v1` keys are not read or migrated; rename your data under `localStorage` after upgrading to keep it.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 变更
+- **命名：** 产品中文名定为**旁边记**（英文名沿用 AsideNote），slogan 为「让想法留在对话旁边」。浮窗标题、空状态与输入占位改用新名字，设置 › 关于展示 slogan。
 - **存储：** 本地存储键统一到包名：便笺键为 `dsh.aside-note`，其余为 `.drafts`、`.forwarded`、`.sections`、`.panel-width`、`.panel-height`、`.send-shortcut` 与 `.forward-prefix`。旧的 `dsh.aside-notes.*.v2` 与 1.x 的 `dsh.session-memos.v1` / `dsh.memo.*.v1` 键不再读取，也不自动迁移；升级后如需保留数据，请在 `localStorage` 中手动改名。
 <!-- app-update-notes:zh:end -->
 

@@ -91,6 +91,13 @@ export function SettingsPanel(props) {
               h(
                 'div',
                 { className: 'dsh-an-settingBody' },
+                // Product identity first, then the build and update controls.
+                h(
+                  'div',
+                  { className: 'dsh-an-settingBrand' },
+                  h('span', { className: 'dsh-an-settingBrandName' }, say('title')),
+                  h('span', { className: 'dsh-an-settingBrandTagline' }, say('settings.tagline')),
+                ),
                 // One line: version, check control and result, then the author
                 // pushed to the far right. Wrapping keeps the author right-aligned
                 // when the panel is narrow.

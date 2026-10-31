@@ -1,6 +1,6 @@
 # 发布与版本迭代
 
-本文是 AsideNote 的分支、构建与发布手册。发布动作只有两个入口：`main` 分支和 `vX.Y.Z` tag；npm 与 GitHub Release 都由同一次 tag 推送完成。
+本文是旁边记（AsideNote）的分支、构建与发布手册。发布动作只有两个入口：`main` 分支和 `vX.Y.Z` tag；npm 与 GitHub Release 都由同一次 tag 推送完成。
 
 ## 分支模型
 
@@ -162,7 +162,7 @@ gh release view v2.0.1 -R Rayle8/dsh-aside-note
 
 ```bash
 node tools/release/notes.mjs --version 2.0.1 --tag v2.0.1 --prev v2.0.0 --out notes.md
-gh release create v2.0.1 --verify-tag --title "AsideNote 2.0.1" --notes-file notes.md
+gh release create v2.0.1 --verify-tag --title "旁边记 2.0.1" --notes-file notes.md
 npm pack --pack-destination dist
 gh release upload v2.0.1 dist/dsh-aside-note-2.0.1.tgz --clobber
 ```

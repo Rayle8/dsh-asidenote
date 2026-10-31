@@ -1,12 +1,10 @@
-# AsideNote · 随记
+# AsideNote · 旁边记
 
-Lightweight session notes
+Keep your ideas beside the conversation
 
 [中文](README.md) | English
 
-> Product name: **AsideNote** (随记); the package, plugin id and repository are all `dsh-aside-note`. Old repository links redirect automatically.
-
-**A quick note when you need it. Out of the way when you don’t.**
+> Product name: **AsideNote** (Chinese name **旁边记**, “keep your ideas beside the conversation”); the package, plugin id and repository are all `dsh-aside-note`. Old repository links redirect automatically.
 
 Jot it down · Open as needed · Tuck it away
 
@@ -14,19 +12,19 @@ AsideNote is a lightweight session notes plugin for DeepSeek Harness (DSH). Keep
 
 ## Preview and entry
 
-![Notes right-side panel](./docs/assets/preview-right.png)
+![AsideNote right-side panel](./docs/assets/preview-right.png)
 
 The same panel in the dark theme; every colour comes from DSH theme tokens:
 
-![Notes right-side panel, dark](./docs/assets/preview-right-dark.png)
+![AsideNote right-side panel, dark](./docs/assets/preview-right-dark.png)
 
-A **Notes** button at the top right of the conversation, with the open count:
+An **AsideNote** button at the top right of the conversation, with the open count:
 
-![Notes button at the top right](./docs/assets/preview-badge.png)
+![AsideNote button at the top right](./docs/assets/preview-badge.png)
 
 The same button in the dark theme:
 
-![Notes button at the top right, dark](./docs/assets/preview-badge-dark.png)
+![AsideNote button at the top right, dark](./docs/assets/preview-badge-dark.png)
 
 Clicking the entry opens a fixed panel on the right.
 
@@ -42,7 +40,7 @@ A few small tasks should not need a whole management system. Capture a thought, 
 
 ### Capture it and keep going
 
-Click the **Notes** button at the top right of the conversation to open the right-side panel. Record tasks, ideas, and details to revisit. The button shows the unfinished count; check off each item as you finish it.
+Click the **AsideNote** button at the top right of the conversation to open the right-side panel. Record tasks, ideas, and details to revisit. The button shows the unfinished count; check off each item as you finish it.
 
 ### Keep it with the session and pick it up later
 
@@ -67,9 +65,9 @@ Click a note's forward button to append it to the current chat input as a list i
 ## Features
 
 - Data is keyed by **session ID**; different sessions in one workspace stay independent.
-- A 28px square top-right icon button shows the open count as a low-contrast gray corner badge; its tooltip reads “Session notes N”.
+- A 28px square top-right icon button shows the open count as a low-contrast gray corner badge; its tooltip reads “AsideNote · N open”.
 - Clicking it opens a fixed right-side panel; switching sessions closes the old panel and updates the entry.
-- The settings button beside the notes title expands a settings card for the send shortcut (Enter sends, or ⌘/Ctrl+Enter sends, labelled for the current platform); **One-click forward** provides a prefix prompt field that starts one line tall and grows with wrapped text up to six lines, with an explanation underneath, and the bottom shows the version and check control, the author, and a clickable source link; settings persist automatically. When a newer release exists, the settings button gains a dot and Settings › About offers a manual check, the release notes by default, a full-release link and “Update now”.
+- The settings button beside the notes title expands a settings card for the send shortcut (Enter sends, or ⌘/Ctrl+Enter sends, labelled for the current platform); **One-click forward** provides a prefix prompt field that starts one line tall and grows with wrapped text up to six lines, with an explanation underneath. Settings › About shows the product name and tagline, then the version and check control, the author, and a clickable source link; settings persist automatically. When a newer release exists, the settings button gains a dot and Settings › About offers a manual check, the release notes by default, a full-release link and “Update now”.
 - The panel's top-right corner aligns with the header entry and shifts left of the DSH right sidebar when that sidebar is open.
 - Clicking the entry opens the right-side panel for add, complete, copy, edit (double-click or pencil), delete, clear completed (with a confirmation), and expand completed.
 - Drag the handle on the panel's left edge to resize its width; double-click the handle to reset it, and the width persists in the browser.
@@ -152,7 +150,7 @@ Feedback reuses product surfaces too: copy, forward, delete, clear-completed, an
 
 ## Usage
 
-1. Click the **Notes** button at the top right of the conversation to open the right-side panel. Its badge shows the unfinished count when there are open notes.
+1. Click the **AsideNote** button at the top right of the conversation to open the right-side panel. Its badge shows the unfinished count when there are open notes.
 2. Write one concrete follow-up in the panel and use your configured add shortcut or click **Add**.
 3. When you are ready to continue, click the note's forward button to append it to the chat input, then review and send it yourself.
 4. Click the circle to mark it complete; expand **Completed** to look back.
@@ -310,7 +308,7 @@ Branching, versioning and the release checklist: [release and versioning](./docs
 
 Loaded in an isolated DSH profile and driven through headless Chrome:
 
-- the **Notes** button appears at the top right, with the open count on its badge;
+- the **AsideNote** button appears at the top right, with the open count on its badge;
 - clicking it opens the panel on the right, aligned with the entry;
 - adding updates both the badge and the panel count;
 - complete, edit, copy, forward, delete, and clear-completed work in the panel;

@@ -6,7 +6,7 @@ import { connect, evaluate, sleep } from './lib/cdp.mjs'
 
 const port = process.env.PORT || 61399
 const token = process.env.TOKEN
-const prompt = process.env.PROMPT || '给「便笺」插件写三条中文发布文案，每条不超过 20 字，不要调用任何工具。'
+const prompt = process.env.PROMPT || '给「旁边记」插件写三条中文发布文案，每条不超过 20 字，不要调用任何工具。'
 const NOTES = [
   { text: '把发布说明里的截图换成新版面板', done: false, age: 46 * 60000 },
   { text: '核对暗色主题下的对比度', done: false, age: 12 * 60000 },
