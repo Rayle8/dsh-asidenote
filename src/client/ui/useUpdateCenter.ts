@@ -28,6 +28,10 @@ export type MarketState = 'unknown' | 'unsupported' | 'ready'
 
 export interface UpdateCheckState {
   status: CheckStatus
+  /**
+   * The version being offered as an update; null when the running build is
+   * current, including while a check is in flight and after one fails.
+   */
   latestVersion: string | null
   checkedAt: number | null
 }
@@ -105,9 +109,12 @@ export function useUpdateCenter(localeId: string) {
     }
   }, [])
 
-  // Keep the card mounted while a manual check runs (and when it fails with a
-  // last known version): unmounting it mid-request is what read as a flicker.
-  const latestVersion = check.status === 'current' ? null : check.latestVersion
+  // `latestVersion` is the version being *offered*, never the one already
+  // running: an up-to-date check stores null. That keeps the card and the gear
+  // dot mounted only while a real update exists — including across a manual
+  // re-check and a failed one — instead of briefly announcing the running
+  // version as new when the previous check had ended up to date.
+  const latestVersion = check.latestVersion
 
   // Quiet check on open: keeps the gear dot meaningful without a click. A local
   // dev build (`2.1.0-dev`) never nags, but a manual check still works.
@@ -119,7 +126,7 @@ export function useUpdateCenter(localeId: string) {
       if (isNewerVersion(version, PLUGIN_VERSION)) {
         setCheck({ status: 'available', latestVersion: version, checkedAt: Date.now() })
       } else {
-        setCheck({ status: 'current', latestVersion: version, checkedAt: Date.now() })
+        setCheck({ status: 'current', latestVersion: null, checkedAt: Date.now() })
       }
     })
     return () => {
@@ -147,7 +154,7 @@ export function useUpdateCenter(localeId: string) {
     // A manual check is an explicit request to look again: drop the hourly cache.
     resetUpdateChecks()
     const startedAt = Date.now()
-    const previousVersion = check.latestVersion
+    const previousOffer = check.latestVersion
     setCheck(previous => ({ ...previous, status: 'checking' }))
     // A new check supersedes a finished or failed attempt, so the card cannot
     // keep showing a failure that belongs to the previous version.
@@ -159,12 +166,13 @@ export function useUpdateCenter(localeId: string) {
     if (remaining > 0) await sleep(remaining)
     if (disposed.current) return
     if (version === null) {
-      // Keep the last known release on screen; the button reports the failure.
-      setCheck({ status: 'error', latestVersion: previousVersion, checkedAt: Date.now() })
+      // Keep the version already on offer; when the build was up to date, the
+      // failure stays in the button and no card is conjured up.
+      setCheck({ status: 'error', latestVersion: previousOffer, checkedAt: Date.now() })
       return
     }
     if (isNewerVersion(version, PLUGIN_VERSION)) {
-      const sameRelease = previousVersion !== null && version === previousVersion
+      const sameRelease = previousOffer !== null && version === previousOffer
       setCheck({ status: 'available', latestVersion: version, checkedAt: Date.now() })
       // Only a different release invalidates the notes already on screen.
       if (!sameRelease) {
@@ -172,7 +180,7 @@ export function useUpdateCenter(localeId: string) {
         setExpandedVersions({})
       }
     } else {
-      setCheck({ status: 'current', latestVersion: version, checkedAt: Date.now() })
+      setCheck({ status: 'current', latestVersion: null, checkedAt: Date.now() })
       setNotes(NOTES_IDLE)
       setExpandedVersions({})
     }

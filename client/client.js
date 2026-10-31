@@ -1911,7 +1911,7 @@ function useUpdateCenter(localeId) {
 			disposed.current = true;
 		};
 	}, []);
-	const latestVersion = check.status === "current" ? null : check.latestVersion;
+	const latestVersion = check.latestVersion;
 	react.default.useEffect(() => {
 		if ("0.9.10".includes("-")) return void 0;
 		let active = true;
@@ -1924,7 +1924,7 @@ function useUpdateCenter(localeId) {
 			});
 			else setCheck({
 				status: "current",
-				latestVersion: version,
+				latestVersion: null,
 				checkedAt: Date.now()
 			});
 		});
@@ -1948,7 +1948,7 @@ function useUpdateCenter(localeId) {
 		if (check.status === "checking") return;
 		resetUpdateChecks();
 		const startedAt = Date.now();
-		const previousVersion = check.latestVersion;
+		const previousOffer = check.latestVersion;
 		setCheck((previous) => ({
 			...previous,
 			status: "checking"
@@ -1961,13 +1961,13 @@ function useUpdateCenter(localeId) {
 		if (version === null) {
 			setCheck({
 				status: "error",
-				latestVersion: previousVersion,
+				latestVersion: previousOffer,
 				checkedAt: Date.now()
 			});
 			return;
 		}
 		if (isNewerVersion(version, "0.9.10")) {
-			const sameRelease = previousVersion !== null && version === previousVersion;
+			const sameRelease = previousOffer !== null && version === previousOffer;
 			setCheck({
 				status: "available",
 				latestVersion: version,
@@ -1980,7 +1980,7 @@ function useUpdateCenter(localeId) {
 		} else {
 			setCheck({
 				status: "current",
-				latestVersion: version,
+				latestVersion: null,
 				checkedAt: Date.now()
 			});
 			setNotes(NOTES_IDLE);
