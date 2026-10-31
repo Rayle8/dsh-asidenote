@@ -7,11 +7,11 @@
   "author": "Rayle8",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Rayle8/dsh-dsh-asidenote.git"
+    "url": "git+https://github.com/Rayle8/dsh-asidenote.git"
   },
-  "homepage": "https://github.com/Rayle8/dsh-dsh-asidenote#readme",
+  "homepage": "https://github.com/Rayle8/dsh-asidenote#readme",
   "bugs": {
-    "url": "https://github.com/Rayle8/dsh-dsh-asidenote/issues"
+    "url": "https://github.com/Rayle8/dsh-asidenote/issues"
   },
   "keywords": [
     "dsh",
@@ -39,6 +39,7 @@
     "locale/*.json",
     "icon.svg",
     "docs/assets",
+    "docs/panel-ui-rules.md",
     "README.md",
     "README.en.md",
     "LICENSE",

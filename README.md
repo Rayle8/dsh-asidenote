@@ -4,7 +4,7 @@
 
 [English](README.en.md) | 中文
 
-> 产品名是 **AsideNote**（随记），包与插件 id 为 `dsh-asidenote`；仓库仍沿用旧名 `dsh-workspace-todos`，链接继续有效。
+> 产品名是 **AsideNote**（随记），包、插件 id 与仓库均为 `dsh-asidenote`；旧仓库链接会由 GitHub 自动重定向。
 
 **有事记一下，没事不打扰。**
 
@@ -62,7 +62,7 @@ AsideNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺。临时的�
 
 > 便笺保存在当前浏览器，不跨设备或浏览器同步；清理站点数据会清除记录。详见[数据保存在哪里](#数据保存在哪里)。
 
-[查看安装方法](#安装) · [反馈问题或建议](https://github.com/Rayle8/dsh-workspace-todos/issues)
+[查看安装方法](#安装) · [反馈问题或建议](https://github.com/Rayle8/dsh-asidenote/issues)
 
 ## 功能
 
@@ -185,7 +185,7 @@ AsideNote 是面向 DeepSeek Harness（DSH）的轻量会话便笺。临时的�
 ## 安装
 
 ```bash
-git clone git@github.com:Rayle8/dsh-workspace-todos.git
+git clone git@github.com:Rayle8/dsh-asidenote.git
 ```
 
 把克隆目录 link 进 DSH profile（把 `<path-to-repo>` 换成实际克隆目录）：

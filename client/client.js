@@ -59,8 +59,8 @@ const FORWARDED_STORAGE_KEY = "dsh.aside-notes.forwarded.v2";
 /** Shown in the in-panel settings; keep in sync with package.json. */
 const PLUGIN_VERSION = "2.0.0";
 const PLUGIN_AUTHOR = "阿三石";
-const PLUGIN_REPO_URL = "https://github.com/Rayle8/dsh-dsh-asidenote";
-const PLUGIN_REPO_LABEL = "github.com/Rayle8/dsh-dsh-asidenote";
+const PLUGIN_REPO_URL = "https://github.com/Rayle8/dsh-asidenote";
+const PLUGIN_REPO_LABEL = "github.com/Rayle8/dsh-asidenote";
 /** Send preference; persisted across panel openings. Enter sends by default. */
 const SEND_SHORTCUT_KEY = "dsh.aside-notes.send-shortcut.v2";
 /** Lead-in written before a forwarded note; empty means no prefix. */
