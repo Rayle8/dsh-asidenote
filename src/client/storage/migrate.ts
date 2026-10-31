@@ -11,7 +11,7 @@ import {
 import { storage } from './codec'
 
 /** One-time marker; its presence means the copy below already ran successfully. */
-const MIGRATED_KEY = 'dsh.aside-notes.migrated'
+const MIGRATED_KEY = 'dsh.aside-note.migrated'
 
 /**
  * The 1.x keys, read once and copied verbatim.
