@@ -48,6 +48,44 @@ export function UpdateNotice(props: {
   onRestart: () => void
 }) {
   const { say, latestVersion, market, restartSupported, notes, expanded, expandedVersions, run, fullReleaseUrl } = props
+  const notesRef = React.useRef<HTMLDivElement | null>(null)
+  const [fade, setFade] = React.useState(false)
+
+  const syncFade = React.useCallback(() => {
+    const node = notesRef.current
+    if (!node) {
+      setFade(false)
+      return
+    }
+    const overflow = node.scrollHeight > node.clientHeight + 1
+    const atBottom = node.scrollTop + node.clientHeight >= node.scrollHeight - 1
+    setFade(overflow && !atBottom)
+  }, [])
+
+  React.useEffect(() => {
+    if (!expanded) {
+      setFade(false)
+      return undefined
+    }
+    const node = notesRef.current
+    if (!node) return undefined
+    const frame = requestAnimationFrame(syncFade)
+    const onScroll = () => syncFade()
+    node.addEventListener('scroll', onScroll, { passive: true })
+    let observer: any = null
+    if (typeof ResizeObserver === 'function') {
+      observer = new ResizeObserver(syncFade)
+      observer.observe(node)
+    }
+    window.addEventListener('resize', syncFade)
+    return () => {
+      cancelAnimationFrame(frame)
+      node.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', syncFade)
+      observer?.disconnect()
+    }
+  }, [expanded, notes.status, notes.entries, expandedVersions, syncFade])
+
   if (latestVersion === null) return null
 
   const phase: RunPhase = run.phase
@@ -109,6 +147,7 @@ export function UpdateNotice(props: {
                       type: 'button',
                       className: 'dsh-an-updateVersionHead',
                       'aria-expanded': open,
+                      'aria-controls': `${NOTES_ID}-${entry.version}`,
                       onClick: () => props.onToggleVersion(entry.version),
                     },
                     h('span', {
@@ -119,7 +158,13 @@ export function UpdateNotice(props: {
                     h('span', { className: 'dsh-an-updateVersionLabel' }, `v${entry.version}`),
                     index === 0 ? h('span', { className: 'dsh-an-updateLatest' }, say('update.latest')) : null,
                   ),
-                  open ? h('div', { className: 'dsh-an-updateVersionBody' }, entryBody(entry)) : null,
+                  open
+                    ? h(
+                        'div',
+                        { id: `${NOTES_ID}-${entry.version}`, className: 'dsh-an-updateVersionBody' },
+                        entryBody(entry),
+                      )
+                    : null,
                 )
               }),
               notes.truncated
@@ -163,7 +208,20 @@ export function UpdateNotice(props: {
           )
         : null,
     ),
-    expanded ? h('div', { id: NOTES_ID, className: 'dsh-an-updateNotes', role: 'region' }, notesBody) : null,
+    expanded
+      ? h(
+          'div',
+          {
+            id: NOTES_ID,
+            ref: notesRef,
+            className: 'dsh-an-updateNotes',
+            role: 'region',
+            'aria-label': say('update.notesTitle'),
+            'data-fade': fade ? 'true' : undefined,
+          },
+          notesBody,
+        )
+      : null,
     stopped
       ? h('p', { className: 'dsh-an-updateHint' }, say('update.noMarket'))
       : h(
@@ -186,17 +244,22 @@ export function UpdateNotice(props: {
                   type: 'button',
                   className: 'dsh-an-updatePrimary',
                   disabled: busy,
+                  'aria-busy': busy,
                   onClick: () => props.onStartUpdate(false),
                 },
                 busy ? (phase === 'starting' ? say('update.starting') : progress) : say('update.now'),
               ),
           phase === 'error'
             ? h(
-                'p',
-                { className: 'dsh-an-updateError', role: 'status' },
-                failureKey
-                  ? say(failureKey)
-                  : say('update.failed', { reason: run.message || run.failureCode || '' }),
+                'div',
+                { className: 'dsh-an-updateErrorRow' },
+                h(
+                  'p',
+                  { className: 'dsh-an-updateError', role: 'status' },
+                  failureKey
+                    ? say(failureKey)
+                    : say('update.failed', { reason: run.message || run.failureCode || '' }),
+                ),
                 canForce
                   ? h(
                       'button',
